@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r \"powerUp\\\\|powerDown\" lib/M360-DRY/src/*.cpp lib/M360-DRY/src/*.h)",
+      "Read(//tmp/**)",
+      "Bash(python3)"
+    ]
+  }
+}

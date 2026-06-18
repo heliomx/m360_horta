@@ -1,0 +1,314 @@
+<svg width="1000" height="960" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
+
+  <!-- Background -->
+  <rect width="1000" height="960" fill="#f0f4f8"/>
+
+  <!-- Title -->
+  <text x="500" y="26" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a2e">
+    Diagrama de Blocos — Nó Central de Atuação da Estufa (NodeReles - Nó 99)
+  </text>
+  <text x="500" y="44" text-anchor="middle" font-size="11" fill="#555">
+    Arduino Nano + NRF24L01 + MUX CD74HC4067 + 10 Drivers/Relés
+  </text>
+
+  <!-- ======= DEFS (setas e padroes) ======= -->
+  <defs>
+    <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#444"/>
+    </marker>
+    <marker id="arr-blue" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#0055aa"/>
+    </marker>
+    <marker id="arr-purple" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#6f42c1"/>
+    </marker>
+    <marker id="arr-orange" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#c77a00"/>
+    </marker>
+    <marker id="arr-red" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#aa0000"/>
+    </marker>
+    <marker id="arr-green" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1a7a3a"/>
+    </marker>
+  </defs>
+
+  <!-- ======= BLOCO: ALIMENTAÇÃO ======= -->
+  <rect x="360" y="65" width="280" height="75" rx="6" fill="#fff8e1" stroke="#f9a825" stroke-width="2"/>
+  <text x="500" y="87" text-anchor="middle" font-size="13" font-weight="bold" fill="#7a5000">⚡ ALIMENTAÇÃO (QUADRO ELÉTRICO)</text>
+  <text x="500" y="105" text-anchor="middle" font-size="10.5" fill="#7a5000">220V AC (Entrada principal) · 12V DC (Bombas)</text>
+  <text x="500" y="122" text-anchor="middle" font-size="10.5" fill="#7a5000">5V DC (Arduino &amp; Relés) · 3.3V DC (NRF24L01)</text>
+
+  <!-- ======= BLOCO: ARDUINO NANO ======= -->
+  <rect x="360" y="180" width="280" height="280" rx="6" fill="#e3f0ff" stroke="#0055aa" stroke-width="2.5"/>
+  <text x="500" y="205" text-anchor="middle" font-size="13" font-weight="bold" fill="#003080">ARDUINO NANO</text>
+  <text x="500" y="223" text-anchor="middle" font-size="11" fill="#003080">ATmega328P — 5V / 16MHz</text>
+  <line x1="370" y1="232" x2="630" y2="232" stroke="#0055aa" stroke-width="1" stroke-dasharray="4,3"/>
+  
+  <!-- Pinos da Esquerda (Nativos) -->
+  <text x="375" y="255" font-size="10" fill="#003080" font-weight="bold">D2</text>
+  <text x="395" y="255" font-size="10" fill="#444">→ Relé Nativo (Bomba NFT)</text>
+  
+  <!-- Pinos da Direita (Nativos) -->
+  <text x="610" y="255" text-anchor="end" font-size="10" fill="#003080" font-weight="bold">D8</text>
+  <text x="590" y="255" text-anchor="end" font-size="10" fill="#444">Relé Nativo (Bomba Oxi) ←</text>
+
+  <line x1="370" y1="280" x2="630" y2="280" stroke="#0055aa" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- Pinos de Controle do MUX -->
+  <text x="500" y="300" text-anchor="middle" font-size="11" font-weight="bold" fill="#003080">Controle do MUX CD74HC4067</text>
+  <text x="500" y="320" text-anchor="middle" font-size="10" fill="#444">D3 → SIG (Sinal Comum)</text>
+  <text x="500" y="340" text-anchor="middle" font-size="10" fill="#444">D4..D7 → S0..S3 (Seleção de Canal)</text>
+
+  <line x1="370" y1="390" x2="630" y2="390" stroke="#0055aa" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="500" y="410" text-anchor="middle" font-size="10" fill="#444">SPI (D10–D13) ↔ Rádio NRF24L01</text>
+  <text x="500" y="426" text-anchor="middle" font-size="10" fill="#444">Alimentação: Vin (5V Regulado) / GND</text>
+  <text x="500" y="442" text-anchor="middle" font-size="10" fill="#444">Modo DRY: ALWAYS_ON (Escuta Ativa)</text>
+
+  <!-- ======= BLOCO: NRF24L01 ======= -->
+  <rect x="395" y="480" width="210" height="95" rx="6" fill="#e8f5e9" stroke="#1a7a3a" stroke-width="2"/>
+  <text x="500" y="503" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a5c2e">NRF24L01</text>
+  <text x="500" y="519" text-anchor="middle" font-size="10.5" fill="#1a5c2e">Módulo RF 2.4 GHz + Antena</text>
+  <line x1="405" y1="527" x2="595" y2="527" stroke="#1a7a3a" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="500" y="543" text-anchor="middle" font-size="9.5" fill="#444">CE: D9 | CSN: D10 | SPI: D11–D13</text>
+  <text x="500" y="559" text-anchor="middle" font-size="9.5" fill="#444">Alimentação: 3.3V DC</text>
+
+  <!-- ======= BLOCO: MUX CD74HC4067 ======= -->
+  <rect x="360" y="600" width="280" height="150" rx="6" fill="#f3e5f5" stroke="#6f42c1" stroke-width="2.5"/>
+  <text x="500" y="625" text-anchor="middle" font-size="13" font-weight="bold" fill="#4a148c">MUX CD74HC4067 (16 Canais)</text>
+  <text x="500" y="643" text-anchor="middle" font-size="11" fill="#4a148c">Multiplexador Digital Analógico</text>
+  <line x1="370" y1="652" x2="630" y2="652" stroke="#6f42c1" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="500" y="670" text-anchor="middle" font-size="10" fill="#444">EN = GND (Sempre Habilitado)</text>
+  <text x="500" y="685" text-anchor="middle" font-size="10" font-weight="bold" fill="#aa0000">Concorrência Restrita: 1 canal MUX por vez</text>
+
+  <text x="375" y="705" font-size="10" fill="#4a148c" font-weight="bold">Ch 0..3</text>
+  <text x="395" y="705" font-size="10" fill="#444">→ Relés MUX Esquerda</text>
+  
+  <text x="610" y="705" text-anchor="end" font-size="10" fill="#4a148c" font-weight="bold">Ch 4..7</text>
+  <text x="590" y="705" text-anchor="end" font-size="10" fill="#444">Relés MUX Direita ←</text>
+
+
+  <!-- =======================================================
+       LADO ESQUERDO: NATIVO E CANAIS MUX 0,1,2,3
+       ======================================================= -->
+
+  <!-- NATIVO: BOMBA NFT -->
+  <rect x="10" y="180" width="110" height="65" rx="6" fill="#fde8e8" stroke="#aa0000" stroke-width="2"/>
+  <text x="65" y="203" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">BOMBA</text>
+  <text x="65" y="219" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">CIRCUL. NFT</text>
+  <text x="65" y="235" text-anchor="middle" font-size="9.5" fill="#555">220V AC / 1/2 CV</text>
+
+  <rect x="150" y="180" width="130" height="65" rx="6" fill="#fff3cd" stroke="#c77a00" stroke-width="2"/>
+  <text x="215" y="203" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#7a4400">DRIVER / RELÉ D2</text>
+  <line x1="160" y1="211" x2="270" y2="211" stroke="#c77a00" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="215" y="226" text-anchor="middle" font-size="9.5" fill="#444">Sinal 5V</text>
+  <text x="215" y="238" text-anchor="middle" font-size="9.5" fill="#aa0000" font-weight="bold">CONCORRENTE</text>
+
+  <!-- CANAL 0: SOLENOIDE A -->
+  <rect x="10" y="320" width="110" height="65" rx="6" fill="#fde8e8" stroke="#aa0000" stroke-width="2"/>
+  <text x="65" y="343" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">SOLENOIDE</text>
+  <text x="65" y="359" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">CANTEIRO A</text>
+  <text x="65" y="375" text-anchor="middle" font-size="9.5" fill="#555">12V DC</text>
+
+  <rect x="150" y="320" width="130" height="65" rx="6" fill="#fff3cd" stroke="#c77a00" stroke-width="2"/>
+  <text x="215" y="343" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#7a4400">DRIVER / RELÉ MUX 0</text>
+  <line x1="160" y1="351" x2="270" y2="351" stroke="#c77a00" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="215" y="366" text-anchor="middle" font-size="9.5" fill="#444">Sinal 5V</text>
+  <text x="215" y="378" text-anchor="middle" font-size="9.5" fill="#444">MUX Ch 0</text>
+
+  <!-- CANAL 1: SOLENOIDE B -->
+  <rect x="10" y="420" width="110" height="65" rx="6" fill="#fde8e8" stroke="#aa0000" stroke-width="2"/>
+  <text x="65" y="443" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">SOLENOIDE</text>
+  <text x="65" y="459" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">CANTEIRO B</text>
+  <text x="65" y="475" text-anchor="middle" font-size="9.5" fill="#555">12V DC</text>
+
+  <rect x="150" y="420" width="130" height="65" rx="6" fill="#fff3cd" stroke="#c77a00" stroke-width="2"/>
+  <text x="215" y="443" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#7a4400">DRIVER / RELÉ MUX 1</text>
+  <line x1="160" y1="451" x2="270" y2="451" stroke="#c77a00" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="215" y="466" text-anchor="middle" font-size="9.5" fill="#444">Sinal 5V</text>
+  <text x="215" y="478" text-anchor="middle" font-size="9.5" fill="#444">MUX Ch 1</text>
+
+  <!-- CANAL 2: SOLENOIDE C -->
+  <rect x="10" y="520" width="110" height="65" rx="6" fill="#fde8e8" stroke="#aa0000" stroke-width="2"/>
+  <text x="65" y="543" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">SOLENOIDE</text>
+  <text x="65" y="559" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">CANTEIRO C</text>
+  <text x="65" y="575" text-anchor="middle" font-size="9.5" fill="#555">12V DC</text>
+
+  <rect x="150" y="520" width="130" height="65" rx="6" fill="#fff3cd" stroke="#c77a00" stroke-width="2"/>
+  <text x="215" y="543" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#7a4400">DRIVER / RELÉ MUX 2</text>
+  <line x1="160" y1="551" x2="270" y2="551" stroke="#c77a00" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="215" y="566" text-anchor="middle" font-size="9.5" fill="#444">Sinal 5V</text>
+  <text x="215" y="578" text-anchor="middle" font-size="9.5" fill="#444">MUX Ch 2</text>
+
+  <!-- CANAL 3: PERISTÁLTICA SOLUÇÃO A -->
+  <rect x="10" y="620" width="110" height="65" rx="6" fill="#fde8e8" stroke="#aa0000" stroke-width="2"/>
+  <text x="65" y="643" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">PERISTÁLTICA</text>
+  <text x="65" y="659" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">SUPL. A</text>
+  <text x="65" y="675" text-anchor="middle" font-size="9.5" fill="#555">12V DC / 0.5A</text>
+
+  <rect x="150" y="620" width="130" height="65" rx="6" fill="#fff3cd" stroke="#c77a00" stroke-width="2"/>
+  <text x="215" y="643" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#7a4400">DRIVER / RELÉ MUX 3</text>
+  <line x1="160" y1="651" x2="270" y2="651" stroke="#c77a00" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="215" y="666" text-anchor="middle" font-size="9.5" fill="#444">Sinal 5V</text>
+  <text x="215" y="678" text-anchor="middle" font-size="9.5" fill="#444">MUX Ch 3</text>
+
+
+  <!-- =======================================================
+       LADO DIREITO: NATIVO E CANAIS MUX 4,5,6,7
+       ======================================================= -->
+
+  <!-- NATIVO: BOMBA OXI -->
+  <rect x="710" y="180" width="130" height="65" rx="6" fill="#fff3cd" stroke="#c77a00" stroke-width="2"/>
+  <text x="775" y="203" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#7a4400">DRIVER / RELÉ D8</text>
+  <line x1="720" y1="211" x2="830" y2="211" stroke="#c77a00" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="775" y="226" text-anchor="middle" font-size="9.5" fill="#444">Sinal 5V</text>
+  <text x="775" y="238" text-anchor="middle" font-size="9.5" fill="#aa0000" font-weight="bold">CONCORRENTE</text>
+
+  <rect x="860" y="180" width="110" height="65" rx="6" fill="#fde8e8" stroke="#aa0000" stroke-width="2"/>
+  <text x="915" y="203" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">BOMBA OXI</text>
+  <text x="915" y="219" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">AQUAPONIA</text>
+  <text x="915" y="235" text-anchor="middle" font-size="9.5" fill="#555">220V AC</text>
+
+  <!-- CANAL 4: PERISTÁLTICA SOLUÇÃO B -->
+  <rect x="710" y="320" width="130" height="65" rx="6" fill="#fff3cd" stroke="#c77a00" stroke-width="2"/>
+  <text x="775" y="343" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#7a4400">DRIVER / RELÉ MUX 4</text>
+  <line x1="720" y1="351" x2="830" y2="351" stroke="#c77a00" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="775" y="366" text-anchor="middle" font-size="9.5" fill="#444">Sinal 5V</text>
+  <text x="775" y="378" text-anchor="middle" font-size="9.5" fill="#444">MUX Ch 4</text>
+
+  <rect x="860" y="320" width="110" height="65" rx="6" fill="#fde8e8" stroke="#aa0000" stroke-width="2"/>
+  <text x="915" y="343" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">PERISTÁLTICA</text>
+  <text x="915" y="359" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">SUPL. B</text>
+  <text x="915" y="375" text-anchor="middle" font-size="9.5" fill="#555">12V DC / 0.5A</text>
+
+  <!-- CANAL 5: PERISTÁLTICA pH+ -->
+  <rect x="710" y="420" width="130" height="65" rx="6" fill="#fff3cd" stroke="#c77a00" stroke-width="2"/>
+  <text x="775" y="443" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#7a4400">DRIVER / RELÉ MUX 5</text>
+  <line x1="720" y1="451" x2="830" y2="451" stroke="#c77a00" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="775" y="466" text-anchor="middle" font-size="9.5" fill="#444">Sinal 5V</text>
+  <text x="775" y="478" text-anchor="middle" font-size="9.5" fill="#444">MUX Ch 5</text>
+
+  <rect x="860" y="420" width="110" height="65" rx="6" fill="#fde8e8" stroke="#aa0000" stroke-width="2"/>
+  <text x="915" y="443" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">PERISTÁLTICA</text>
+  <text x="915" y="459" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">pH +</text>
+  <text x="915" y="475" text-anchor="middle" font-size="9.5" fill="#555">12V DC / 0.5A</text>
+
+  <!-- CANAL 6: PERISTÁLTICA pH- -->
+  <rect x="710" y="520" width="130" height="65" rx="6" fill="#fff3cd" stroke="#c77a00" stroke-width="2"/>
+  <text x="775" y="543" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#7a4400">DRIVER / RELÉ MUX 6</text>
+  <line x1="720" y1="551" x2="830" y2="551" stroke="#c77a00" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="775" y="566" text-anchor="middle" font-size="9.5" fill="#444">Sinal 5V</text>
+  <text x="775" y="578" text-anchor="middle" font-size="9.5" fill="#444">MUX Ch 6</text>
+
+  <rect x="860" y="520" width="110" height="65" rx="6" fill="#fde8e8" stroke="#aa0000" stroke-width="2"/>
+  <text x="915" y="543" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">PERISTÁLTICA</text>
+  <text x="915" y="559" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">pH -</text>
+  <text x="915" y="575" text-anchor="middle" font-size="9.5" fill="#555">12V DC / 0.5A</text>
+
+  <!-- CANAL 7: RESERVADO -->
+  <rect x="710" y="620" width="130" height="65" rx="6" fill="#fff3cd" stroke="#c77a00" stroke-width="2" stroke-dasharray="4,3"/>
+  <text x="775" y="643" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#7a4400">DRIVER / RELÉ MUX 7</text>
+  <line x1="720" y1="651" x2="830" y2="651" stroke="#c77a00" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="775" y="666" text-anchor="middle" font-size="9.5" fill="#444">Sinal 5V</text>
+  <text x="775" y="678" text-anchor="middle" font-size="9.5" fill="#444">MUX Ch 7</text>
+
+  <rect x="860" y="620" width="110" height="65" rx="6" fill="#e0e0e0" stroke="#777" stroke-width="2" stroke-dasharray="4,3"/>
+  <text x="915" y="643" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#555">RESERVADO</text>
+  <text x="915" y="659" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#555">(Expansão)</text>
+
+
+  <!-- ======= CONEXÕES ======= -->
+
+  <!-- Alimentação 5V (da Fonte Regulada) → Arduino Nano -->
+  <line x1="500" y1="140" x2="500" y2="180" stroke="#f9a825" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="506" y="160" font-size="10" fill="#7a5000" font-weight="bold">5V (Vin)</text>
+
+  <!-- Alimentação 3.3V (do regulador dedicado) → NRF24L01 -->
+  <path d="M 640,102 L 655,102 L 655,465 L 500,465 L 500,480" fill="none" stroke="#f9a825" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arr)"/>
+  <text x="640" y="460" font-size="9.5" fill="#7a5000" text-anchor="end">3.3V</text>
+
+  <!-- Arduino ↔ NRF24L01 (SPI + CE/CSN, bidirecional) -->
+  <line x1="485" y1="460" x2="485" y2="480" stroke="#1a7a3a" stroke-width="2" marker-end="url(#arr-green)"/>
+  <line x1="515" y1="480" x2="515" y2="460" stroke="#1a7a3a" stroke-width="2" marker-end="url(#arr-green)"/>
+  <text x="478" y="475" font-size="9" fill="#1a5c2e" font-weight="bold" text-anchor="end">SPI</text>
+  <text x="522" y="475" font-size="9" fill="#1a5c2e" font-weight="bold">CE/CSN</text>
+
+  <!-- Arduino ↔ MUX (D3..D7) -->
+  <line x1="500" y1="460" x2="500" y2="600" stroke="#6f42c1" stroke-width="2" marker-end="url(#arr-purple)"/>
+  <text x="505" y="585" font-size="9" fill="#4a148c" font-weight="bold">D3..D7</text>
+
+  <!-- Sinais de Controle: Arduino → Relés NATIVOS -->
+  <path d="M 360,250 L 290,250 L 290,212 L 280,212" fill="none" stroke="#c77a00" stroke-width="2" marker-end="url(#arr-orange)"/>
+  <text x="345" y="246" font-size="9" fill="#c77a00" font-weight="bold" text-anchor="end">D2</text>
+
+  <path d="M 640,250 L 700,250 L 700,212 L 710,212" fill="none" stroke="#c77a00" stroke-width="2" marker-end="url(#arr-orange)"/>
+  <text x="655" y="246" font-size="9" fill="#c77a00" font-weight="bold">D8</text>
+
+  <!-- Sinais de Controle: MUX → Relés Esquerdos (0, 1, 2, 3) -->
+  <path d="M 360,650 L 320,650 L 320,352 L 280,352" fill="none" stroke="#6f42c1" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+  <path d="M 320,452 L 280,452" fill="none" stroke="#6f42c1" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+  <path d="M 320,552 L 280,552" fill="none" stroke="#6f42c1" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+  <path d="M 320,652 L 280,652" fill="none" stroke="#6f42c1" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-purple)"/>
+
+  <!-- Sinais de Controle: MUX → Relés Direitos (4, 5, 6, 7) -->
+  <path d="M 640,650 L 680,650 L 680,352 L 710,352" fill="none" stroke="#6f42c1" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+  <path d="M 680,452 L 710,452" fill="none" stroke="#6f42c1" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+  <path d="M 680,552 L 710,552" fill="none" stroke="#6f42c1" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+  <path d="M 680,652 L 710,652" fill="none" stroke="#6f42c1" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+
+
+  <!-- Acionamento dos Atuadores (Relé → Carga) -->
+  <!-- Esquerda -->
+  <line x1="150" y1="212" x2="120" y2="212" stroke="#aa0000" stroke-width="2" marker-end="url(#arr-red)"/>
+  <line x1="150" y1="352" x2="120" y2="352" stroke="#aa0000" stroke-width="2" marker-end="url(#arr-red)"/>
+  <line x1="150" y1="452" x2="120" y2="452" stroke="#aa0000" stroke-width="2" marker-end="url(#arr-red)"/>
+  <line x1="150" y1="552" x2="120" y2="552" stroke="#aa0000" stroke-width="2" marker-end="url(#arr-red)"/>
+  <line x1="150" y1="652" x2="120" y2="652" stroke="#aa0000" stroke-width="2" marker-end="url(#arr-red)"/>
+  <!-- Direita -->
+  <line x1="840" y1="212" x2="860" y2="212" stroke="#aa0000" stroke-width="2" marker-end="url(#arr-red)"/>
+  <line x1="840" y1="352" x2="860" y2="352" stroke="#aa0000" stroke-width="2" marker-end="url(#arr-red)"/>
+  <line x1="840" y1="452" x2="860" y2="452" stroke="#aa0000" stroke-width="2" marker-end="url(#arr-red)"/>
+  <line x1="840" y1="552" x2="860" y2="552" stroke="#aa0000" stroke-width="2" marker-end="url(#arr-red)"/>
+  <line x1="840" y1="652" x2="860" y2="652" stroke="#777" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+
+  <!-- Barramentos de Energia Externa (12V/220V para Atuadores e 5V DC para Relés) -->
+  <!-- Barramento 220V/12V DC (Esquerda & Direita) -->
+  <path d="M 360,90 L 80,90 L 80,180" fill="none" stroke="#cc0000" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <path d="M 80,180 L 80,680 Z" fill="none" stroke="#cc0000" stroke-width="1.5" stroke-dasharray="5,3"/>
+  
+  <path d="M 640,90 L 910,90 L 910,180" fill="none" stroke="#cc0000" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <path d="M 910,180 L 910,680 Z" fill="none" stroke="#cc0000" stroke-width="1.5" stroke-dasharray="5,3"/>
+  
+  <text x="90" y="110" font-size="9.5" fill="#cc0000" font-weight="bold">Barramento Potência</text>
+  <text x="900" y="110" font-size="9.5" fill="#cc0000" font-weight="bold" text-anchor="end">Barramento Potência</text>
+
+  <!-- Alimentação 5V para os Módulos Relés (VCC dos acopladores) -->
+  <path d="M 360,110 L 220,110 L 220,180" fill="none" stroke="#f9a825" stroke-width="1.2" stroke-dasharray="4,3"/>
+  <path d="M 220,180 L 220,680 Z" fill="none" stroke="#f9a825" stroke-width="1.2" stroke-dasharray="4,3"/>
+  
+  <path d="M 640,110 L 775,110 L 775,180" fill="none" stroke="#f9a825" stroke-width="1.2" stroke-dasharray="4,3"/>
+  <path d="M 775,180 L 775,680 Z" fill="none" stroke="#f9a825" stroke-width="1.2" stroke-dasharray="4,3"/>
+  
+  <text x="212" y="152" font-size="9.5" fill="#7a5000" text-anchor="end">5V Relés</text>
+  <text x="785" y="152" font-size="9.5" fill="#7a5000">5V Relés</text>
+
+  <!-- ======= LEGENDA ======= -->
+  <rect x="360" y="800" width="280" height="110" rx="4" fill="white" stroke="#ccc" stroke-width="1"/>
+  <text x="500" y="817" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#333">LEGENDA DO DIAGRAMA</text>
+  
+  <line x1="380" y1="833" x2="415" y2="833" stroke="#1a7a3a" stroke-width="2"/>
+  <text x="425" y="836" font-size="9.5" fill="#333">Conexões RF / SPI</text>
+
+  <line x1="380" y1="851" x2="415" y2="851" stroke="#6f42c1" stroke-width="2"/>
+  <text x="425" y="854" font-size="9.5" fill="#333">Sinais via MUX (Concorrência Restrita)</text>
+  
+  <line x1="380" y1="869" x2="415" y2="869" stroke="#c77a00" stroke-width="2"/>
+  <text x="425" y="872" font-size="9.5" fill="#333">Sinais Nativos (Concorrentes/Simultâneos)</text>
+
+  <line x1="380" y1="887" x2="415" y2="887" stroke="#aa0000" stroke-width="2"/>
+  <text x="425" y="890" font-size="9.5" fill="#333">Acionamento de Carga (Relé → Atuador)</text>
+
+  <line x1="380" y1="900" x2="415" y2="900" stroke="#f9a825" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="425" y="903" font-size="9.5" fill="#333">Alimentação 5V / 3.3V DC</text>
+
+</svg>

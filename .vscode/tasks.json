@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Start BMad Git Watcher",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                ".agents/git-agent/scripts/git_watcher.py",
+                "--delay",
+                "300",
+                "--path",
+                "."
+            ],
+            "isBackground": true,
+            "presentation": {
+                "reveal": "never",
+                "panel": "dedicated"
+            },
+            "runOptions": {
+                "runOn": "folderOpen"
+            }
+        }
+    ]
+}

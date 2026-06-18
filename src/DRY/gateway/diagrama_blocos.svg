@@ -1,0 +1,135 @@
+<svg width="1000" height="700" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
+
+  <!-- Background -->
+  <rect width="1000" height="700" fill="#f0f4f8"/>
+
+  <!-- Title -->
+  <text x="500" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#1a1a2e">
+    Diagrama de Blocos — Gateway MQTT (M360-DRY)
+  </text>
+  <text x="500" y="50" text-anchor="middle" font-size="12" fill="#555">
+    Ponte de Comunicação: Sensores/Atuadores (NRF24L01) ↔ Servidor Central (Wi-Fi/MQTT)
+  </text>
+
+  <!-- ======= DEFS (setas e padroes) ======= -->
+  <defs>
+    <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#444"/>
+    </marker>
+    <marker id="arr-blue" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#0055aa"/>
+    </marker>
+    <marker id="arr-green" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1a7a3a"/>
+    </marker>
+    <marker id="arr-orange" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#c77a00"/>
+    </marker>
+  </defs>
+
+  <!-- ======= BLOCO: WIFI / MQTT (Nuvem / Rede) ======= -->
+  <rect x="50" y="150" width="220" height="120" rx="10" fill="#e1f5fe" stroke="#0288d1" stroke-width="2"/>
+  <text x="160" y="180" text-anchor="middle" font-size="14" font-weight="bold" fill="#01579b">REDE LOCAL / MQTT</text>
+  <text x="160" y="200" text-anchor="middle" font-size="11" fill="#0288d1">Servidor MQTT Mosquitto</text>
+  <text x="160" y="215" text-anchor="middle" font-size="11" fill="#0288d1">Broker M360</text>
+  <text x="160" y="240" text-anchor="middle" font-size="10" fill="#444" font-weight="bold">Conexão Wi-Fi 2.4GHz</text>
+
+  <!-- ======= BLOCO: MICROCONTROLADOR ESP8266 ======= -->
+  <rect x="350" y="150" width="300" height="300" rx="10" fill="#e3f0ff" stroke="#0055aa" stroke-width="2.5"/>
+  <text x="500" y="185" text-anchor="middle" font-size="15" font-weight="bold" fill="#003080">ESP8266 (NodeMCU / Wemos)</text>
+  <text x="500" y="205" text-anchor="middle" font-size="12" fill="#003080">Processador Principal — 3.3V</text>
+
+  <line x1="360" y1="220" x2="640" y2="220" stroke="#0055aa" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="500" y="240" text-anchor="middle" font-size="11" fill="#444">Motor MySensors (Conversão Mensagens)</text>
+  <text x="500" y="255" text-anchor="middle" font-size="11" fill="#444">PubSubClient (Cliente MQTT)</text>
+  <text x="500" y="270" text-anchor="middle" font-size="11" fill="#444">ESP8266WebServer (Portal Cativo/Manutenção)</text>
+  <text x="500" y="285" text-anchor="middle" font-size="11" fill="#444">Controle EEPROM (Rastreamento de Nós)</text>
+
+  <!-- Pinos Lado Esquerdo -->
+  <text x="365" y="340" font-size="11" fill="#003080" font-weight="bold">A0</text>
+  <text x="390" y="340" font-size="10" fill="#444">← Botão Reset</text>
+  
+  <text x="365" y="370" font-size="11" fill="#003080" font-weight="bold">Wi-Fi</text>
+  <text x="400" y="370" font-size="10" fill="#444">↔ Roteador</text>
+
+  <!-- Pinos Lado Direito -->
+  <text x="635" y="280" text-anchor="end" font-size="11" fill="#003080" font-weight="bold">SPI</text>
+  <text x="605" y="280" text-anchor="end" font-size="10" fill="#444">Rádio NRF24 →</text>
+
+  <text x="635" y="350" text-anchor="end" font-size="11" fill="#003080" font-weight="bold">GPIOs</text>
+  <text x="590" y="350" text-anchor="end" font-size="10" fill="#444">LEDs Status →</text>
+
+
+  <!-- ======= BLOCO: BOTÃO RESET / MODO MANUTENÇÃO ======= -->
+  <rect x="50" y="310" width="220" height="80" rx="8" fill="#fff3cd" stroke="#c77a00" stroke-width="2"/>
+  <text x="160" y="335" text-anchor="middle" font-size="13" font-weight="bold" fill="#7a4400">BOTÃO DE MANUTENÇÃO</text>
+  <text x="160" y="355" text-anchor="middle" font-size="11" fill="#444">Ativa o Modo AP/Web Config</text>
+  <text x="160" y="370" text-anchor="middle" font-size="11" fill="#444">Pino Analógico (A0 = GND)</text>
+
+  <!-- ======= BLOCO: MÓDULO RÁDIO NRF24L01 ======= -->
+  <rect x="730" y="150" width="220" height="130" rx="8" fill="#e8f5e9" stroke="#1a7a3a" stroke-width="2"/>
+  <text x="840" y="175" text-anchor="middle" font-size="14" font-weight="bold" fill="#1a5c2e">MÓDULO NRF24L01+</text>
+  <text x="840" y="195" text-anchor="middle" font-size="11" fill="#1a5c2e">Transceptor RF 2.4 GHz</text>
+
+  <line x1="740" y1="210" x2="940" y2="210" stroke="#1a7a3a" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="840" y="230" text-anchor="middle" font-size="10" fill="#444">Comunicação: SPI (MOSI/MISO/SCK)</text>
+  <text x="840" y="245" text-anchor="middle" font-size="10" fill="#444">Controle: CE / CSN</text>
+  <text x="840" y="260" text-anchor="middle" font-size="10" fill="#444">Alimentação: 3.3V Regulado</text>
+
+
+  <!-- ======= BLOCO: INDICADORES LED ======= -->
+  <rect x="730" y="320" width="220" height="130" rx="8" fill="#fafafa" stroke="#888" stroke-width="2"/>
+  <text x="840" y="345" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">LEDS DE STATUS M360</text>
+  
+  <circle cx="760" cy="370" r="8" fill="#aa0000" stroke="#660000" stroke-width="1"/>
+  <text x="780" y="374" font-size="11" fill="#444">Vermelho (Erro / AP Mode / Sem WiFi)</text>
+
+  <circle cx="760" cy="400" r="8" fill="#ffcc00" stroke="#b38f00" stroke-width="1"/>
+  <text x="780" y="404" font-size="11" fill="#444">Amarelo (MQTT TX/RX / Inicializando)</text>
+
+  <circle cx="760" cy="430" r="8" fill="#00aa00" stroke="#006600" stroke-width="1"/>
+  <text x="780" y="434" font-size="11" fill="#444">Verde (WiFi+MQTT OK / Rádio RX)</text>
+
+
+  <!-- ======= CONEXÕES / SETAS ======= -->
+
+  <!-- WiFi -> ESP8266 -->
+  <path d="M 270,210 C 310,210 310,365 350,365" fill="none" stroke="#0288d1" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#arr-blue)"/>
+  <path d="M 350,365 C 310,365 310,210 270,210" fill="none" stroke="#0288d1" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#arr-blue)"/>
+  <text x="310" y="280" font-size="10" fill="#0288d1" text-anchor="middle" font-weight="bold">Sinal Wi-Fi</text>
+
+  <!-- Botão -> ESP8266 (A0) -->
+  <line x1="270" y1="335" x2="350" y2="335" stroke="#c77a00" stroke-width="2" marker-end="url(#arr-orange)"/>
+  <text x="310" y="325" font-size="10" fill="#c77a00" text-anchor="middle" font-weight="bold">LOW</text>
+
+  <!-- ESP8266 -> NRF24L01 (SPI) -->
+  <line x1="650" y1="200" x2="730" y2="200" stroke="#1a7a3a" stroke-width="2" marker-end="url(#arr-green)"/>
+  <line x1="730" y1="220" x2="650" y2="220" stroke="#1a7a3a" stroke-width="2" marker-end="url(#arr-green)"/>
+  <text x="690" y="190" font-size="10" fill="#1a5c2e" text-anchor="middle" font-weight="bold">SPI + CE/CSN</text>
+
+  <!-- ESP8266 -> LEDs -->
+  <line x1="650" y1="350" x2="730" y2="350" stroke="#888" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="690" y="340" font-size="10" fill="#555" text-anchor="middle" font-weight="bold">PWM / Digital</text>
+
+  <!-- Comunicação RF (Nós Sensor/Atuador) -->
+  <path d="M 950,215 C 980,215 980,100 900,100 L 840,100" fill="none" stroke="#1a7a3a" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arr-green)"/>
+  <text x="910" y="85" font-size="11" fill="#1a5c2e" text-anchor="middle" font-weight="bold">Sinal de Rádio (Para os Nós MySensors)</text>
+
+
+  <!-- ======= LEGENDA ======= -->
+  <rect x="350" y="500" width="300" height="120" rx="6" fill="#ffffff" stroke="#ccc" stroke-width="1"/>
+  <text x="500" y="525" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">LEGENDA E FLUXO DE DADOS</text>
+
+  <line x1="370" y1="545" x2="410" y2="545" stroke="#0288d1" stroke-width="2" stroke-dasharray="5,5"/>
+  <text x="420" y="548" font-size="11" fill="#444">Mensagens MQTT em rede TCP/IP</text>
+
+  <line x1="370" y1="565" x2="410" y2="565" stroke="#1a7a3a" stroke-width="2"/>
+  <text x="420" y="568" font-size="11" fill="#444">Comunicação Cabeada SPI (Alta velocidade)</text>
+
+  <line x1="370" y1="585" x2="410" y2="585" stroke="#1a7a3a" stroke-width="2" stroke-dasharray="5,5"/>
+  <text x="420" y="588" font-size="11" fill="#444">Comunicação de Rádio RF 2.4GHz</text>
+
+  <line x1="370" y1="605" x2="410" y2="605" stroke="#c77a00" stroke-width="2"/>
+  <text x="420" y="608" font-size="11" fill="#444">Entradas/Saídas de Controle (GPIO)</text>
+
+</svg>

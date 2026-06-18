@@ -1,0 +1,43 @@
+# .astylerc — Estilo de código da biblioteca M360-DRY
+#
+# Derivado do estilo real observado em src/DRY/ e alinhado com
+# as convenções do MySensors Core (brace style K&R, 4 espaços).
+#
+# Uso:
+#   astyle --options=.astylerc src/*.cpp src/*.h
+#
+# Fase 2: quando o style.cfg oficial do MySensors for incorporado,
+# substituir as opções abaixo pelas do arquivo oficial.
+
+# Estilo de chaves: 1tbs (On True Brace Style)
+--style=1tbs
+
+# Indentação: Tabs (Padrão MySensors Core)
+--indent=tab
+
+# Indentação de blocos switch/case
+--indent-switches
+
+# Comentários na coluna 1 não são re-indentados
+--indent-col1-comments
+
+# Espaço em torno de operadores binários
+--pad-oper
+
+# Espaço após palavras-chave (if, for, while) mas não em funções
+--pad-header
+--unpad-paren
+
+# Ponteiros e referências alinhados ao nome da variável
+--align-pointer=name
+--align-reference=name
+
+# Adiciona chaves em if/for/while de linha única
+--add-brackets
+
+# Linha máxima: 100 colunas (Padrão MySensors Core)
+--max-code-length=100
+--break-after-logical
+
+# Não modifica linhas em branco ao final do arquivo
+--squeeze-empty-lines

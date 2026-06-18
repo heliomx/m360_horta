@@ -1,0 +1,242 @@
+[
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\CDC.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\CDC.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\CDC.cpp",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\CDC.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\HardwareSerial.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\HardwareSerial.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\HardwareSerial.cpp",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\HardwareSerial.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\HardwareSerial0.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\HardwareSerial0.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\HardwareSerial0.cpp",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\HardwareSerial0.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\HardwareSerial1.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\HardwareSerial1.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\HardwareSerial1.cpp",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\HardwareSerial1.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\HardwareSerial2.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\HardwareSerial2.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\HardwareSerial2.cpp",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\HardwareSerial2.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\HardwareSerial3.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\HardwareSerial3.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\HardwareSerial3.cpp",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\HardwareSerial3.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\IPAddress.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\IPAddress.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\IPAddress.cpp",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\IPAddress.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\PluggableUSB.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\PluggableUSB.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\PluggableUSB.cpp",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\PluggableUSB.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\Print.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\Print.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\Print.cpp",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\Print.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\Stream.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\Stream.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\Stream.cpp",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\Stream.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\Tone.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\Tone.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\Tone.cpp",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\Tone.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\USBCore.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\USBCore.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\USBCore.cpp",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\USBCore.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-gcc.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\WInterrupts.c.o -c -std=gnu11 -fno-fat-lto-objects -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\WInterrupts.c",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\WInterrupts.c",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\WInterrupts.c.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\WMath.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\WMath.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\WMath.cpp",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\WMath.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\WString.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\WString.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\WString.cpp",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\WString.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\abi.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\abi.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\abi.cpp",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\abi.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-gcc.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\hooks.c.o -c -std=gnu11 -fno-fat-lto-objects -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\hooks.c",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\hooks.c",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\hooks.c.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\main.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\main.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\main.cpp",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\main.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\new.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\new.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\new.cpp",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\new.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-gcc.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\wiring.c.o -c -std=gnu11 -fno-fat-lto-objects -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring.c",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring.c",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\wiring.c.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-gcc.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\wiring_analog.c.o -c -std=gnu11 -fno-fat-lto-objects -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring_analog.c",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring_analog.c",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\wiring_analog.c.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-gcc.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\wiring_digital.c.o -c -std=gnu11 -fno-fat-lto-objects -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring_digital.c",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring_digital.c",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\wiring_digital.c.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-gcc.exe -mmcu=atmega328p -x assembler-with-cpp -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs -c -o .pio\\build\\node_pump_nano\\FrameworkArduino\\wiring_pulse.S.o C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring_pulse.S",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring_pulse.S",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\wiring_pulse.S.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-gcc.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\wiring_pulse.c.o -c -std=gnu11 -fno-fat-lto-objects -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring_pulse.c",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring_pulse.c",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\wiring_pulse.c.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-gcc.exe -o .pio\\build\\node_pump_nano\\FrameworkArduino\\wiring_shift.c.o -c -std=gnu11 -fno-fat-lto-objects -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring_shift.c",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring_shift.c",
+        "output": ".pio\\build\\node_pump_nano\\FrameworkArduino\\wiring_shift.c.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\lib899\\Wire\\Wire.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src\\Wire.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src\\Wire.cpp",
+        "output": ".pio\\build\\node_pump_nano\\lib899\\Wire\\Wire.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-gcc.exe -o .pio\\build\\node_pump_nano\\lib899\\Wire\\utility\\twi.c.o -c -std=gnu11 -fno-fat-lto-objects -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src\\utility\\twi.c",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src\\utility\\twi.c",
+        "output": ".pio\\build\\node_pump_nano\\lib899\\Wire\\utility\\twi.c.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\lib694\\SPI\\SPI.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src\\SPI.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "C:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src\\SPI.cpp",
+        "output": ".pio\\build\\node_pump_nano\\lib694\\SPI\\SPI.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-gcc.exe -mmcu=atmega328p -x assembler-with-cpp -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -I.pio\\libdeps\\node_pump_nano\\MySensors -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\EEPROM\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs -c -o .pio\\build\\node_pump_nano\\lib2e6\\MySensors\\MyASM.S.o .pio\\libdeps\\node_pump_nano\\MySensors\\MyASM.S",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": ".pio\\libdeps\\node_pump_nano\\MySensors\\MyASM.S",
+        "output": ".pio\\build\\node_pump_nano\\lib2e6\\MySensors\\MyASM.S.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\libb65\\PubSubClient\\PubSubClient.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -I.pio\\libdeps\\node_pump_nano\\PubSubClient\\src -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs .pio\\libdeps\\node_pump_nano\\PubSubClient\\src\\PubSubClient.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": ".pio\\libdeps\\node_pump_nano\\PubSubClient\\src\\PubSubClient.cpp",
+        "output": ".pio\\build\\node_pump_nano\\libb65\\PubSubClient\\PubSubClient.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\libc37\\M360-DRY\\M360Config.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Ilib\\M360-DRY\\src -I.pio\\libdeps\\node_pump_nano\\PubSubClient\\src -I.pio\\libdeps\\node_pump_nano\\MySensors -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\EEPROM\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs lib\\M360-DRY\\src\\M360Config.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "lib\\M360-DRY\\src\\M360Config.cpp",
+        "output": ".pio\\build\\node_pump_nano\\libc37\\M360-DRY\\M360Config.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\libc37\\M360-DRY\\M360Gateway.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Ilib\\M360-DRY\\src -I.pio\\libdeps\\node_pump_nano\\PubSubClient\\src -I.pio\\libdeps\\node_pump_nano\\MySensors -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\EEPROM\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs lib\\M360-DRY\\src\\M360Gateway.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "lib\\M360-DRY\\src\\M360Gateway.cpp",
+        "output": ".pio\\build\\node_pump_nano\\libc37\\M360-DRY\\M360Gateway.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\libc37\\M360-DRY\\M360MQTT.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Ilib\\M360-DRY\\src -I.pio\\libdeps\\node_pump_nano\\PubSubClient\\src -I.pio\\libdeps\\node_pump_nano\\MySensors -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\EEPROM\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs lib\\M360-DRY\\src\\M360MQTT.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "lib\\M360-DRY\\src\\M360MQTT.cpp",
+        "output": ".pio\\build\\node_pump_nano\\libc37\\M360-DRY\\M360MQTT.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\libc37\\M360-DRY\\M360Node.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Ilib\\M360-DRY\\src -I.pio\\libdeps\\node_pump_nano\\PubSubClient\\src -I.pio\\libdeps\\node_pump_nano\\MySensors -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\EEPROM\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs lib\\M360-DRY\\src\\M360Node.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "lib\\M360-DRY\\src\\M360Node.cpp",
+        "output": ".pio\\build\\node_pump_nano\\libc37\\M360-DRY\\M360Node.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\libc37\\M360-DRY\\M360Power.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Ilib\\M360-DRY\\src -I.pio\\libdeps\\node_pump_nano\\PubSubClient\\src -I.pio\\libdeps\\node_pump_nano\\MySensors -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\EEPROM\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs lib\\M360-DRY\\src\\M360Power.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "lib\\M360-DRY\\src\\M360Power.cpp",
+        "output": ".pio\\build\\node_pump_nano\\libc37\\M360-DRY\\M360Power.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\libc37\\M360-DRY\\M360Registry.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Ilib\\M360-DRY\\src -I.pio\\libdeps\\node_pump_nano\\PubSubClient\\src -I.pio\\libdeps\\node_pump_nano\\MySensors -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\EEPROM\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs lib\\M360-DRY\\src\\M360Registry.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "lib\\M360-DRY\\src\\M360Registry.cpp",
+        "output": ".pio\\build\\node_pump_nano\\libc37\\M360-DRY\\M360Registry.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\libc37\\M360-DRY\\M360Translator.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Ilib\\M360-DRY\\src -I.pio\\libdeps\\node_pump_nano\\PubSubClient\\src -I.pio\\libdeps\\node_pump_nano\\MySensors -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\EEPROM\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs lib\\M360-DRY\\src\\M360Translator.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "lib\\M360-DRY\\src\\M360Translator.cpp",
+        "output": ".pio\\build\\node_pump_nano\\libc37\\M360-DRY\\M360Translator.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\libc37\\M360-DRY\\M360WiFi.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Ilib\\M360-DRY\\src -I.pio\\libdeps\\node_pump_nano\\PubSubClient\\src -I.pio\\libdeps\\node_pump_nano\\MySensors -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\EEPROM\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs lib\\M360-DRY\\src\\M360WiFi.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "lib\\M360-DRY\\src\\M360WiFi.cpp",
+        "output": ".pio\\build\\node_pump_nano\\libc37\\M360-DRY\\M360WiFi.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\src\\DRY\\nos\\nodePump\\withLibDRY\\nodePump.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc -Ilib\\M360-DRY\\src -I.pio\\libdeps\\node_pump_nano\\PubSubClient\\src -I.pio\\libdeps\\node_pump_nano\\MySensors -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\EEPROM\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs src\\DRY\\nos\\nodePump\\withLibDRY\\nodePump.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "src\\DRY\\nos\\nodePump\\withLibDRY\\nodePump.cpp",
+        "output": ".pio\\build\\node_pump_nano\\src\\DRY\\nos\\nodePump\\withLibDRY\\nodePump.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jmarc\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\node_pump_nano\\src\\DRY\\nos\\nodePump\\withLibDRY\\sensorDrivers.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60119 -DARDUINO_AVR_NANO -DMY_BAUD_RATE=115200 -DMY_RADIO_RF24 -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Isrc -Ilib\\M360-DRY\\src -I.pio\\libdeps\\node_pump_nano\\PubSubClient\\src -I.pio\\libdeps\\node_pump_nano\\MySensors -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\EEPROM\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -Isrc\\DRY\\nos\\nodePump\\withLibDRY -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jmarc\\.platformio\\packages\\framework-arduino-avr\\variants\\eightanaloginputs src\\DRY\\nos\\nodePump\\withLibDRY\\sensorDrivers.cpp",
+        "directory": "J:\\Meu Drive\\GDrive Meus Documentos\\Projetos (1)\\PlatformIO\\Projects\\m360_horta",
+        "file": "src\\DRY\\nos\\nodePump\\withLibDRY\\sensorDrivers.cpp",
+        "output": ".pio\\build\\node_pump_nano\\src\\DRY\\nos\\nodePump\\withLibDRY\\sensorDrivers.cpp.o"
+    }
+]

@@ -1,0 +1,89 @@
+/*
+ * 01nodeSolo3dMini.cpp — Versão de Baixo Consumo do Nó 01: Monitoramento 3D de Solo
+ *
+ * Hardware: Arduino Pro Mini (3.3V / 8MHz) + CD74HC4067 (MUX Analógico) + 18 Sensores Resistivos
+ *           + nRF24L01+ (CE=D9, CSN=D10)
+ * Alimentação: Bateria Li-ion / LiFePO4 + Placa Solar (Carregador TP4056 ou similar)
+ *
+ * Estratégia de Economia de Energia (LOW_POWER):
+ * Para operação prolongada em bateria e placa solar, este nó opera no perfil M360_LOW_POWER,
+ * entrando em smartSleep no restante do tempo. O pino D3 (PIN_POWER_SENSORS) é ativado antes
+ * de realizar a varredura e desativado imediatamente antes de dormir, minimizando o consumo
+ * estático de corrente e mitigando a eletrólise dos eletrodos no solo.
+ */
+
+#include <Arduino.h>
+
+// Configurações do MySensors devem vir ANTES do include
+#define MY_NODE_ID 1
+
+#include <MySensors.h>
+#include <M360.h>
+#include "sensorDrivers.h"
+
+// Definição dos 9 sensores resistivos (9 no Canteiro A)
+// Canteiro A usa os MUX canais 0 a 8.
+M360::M360ItemDef nodeItems[] = {
+	// Canteiro A - 9 sensores (Child IDs 0 a 8)
+	{0,  M360::M360_SENSOR, S_MOISTURE, V_LEVEL, -1, 0, 1, "A_1m_10cm", false, 0},
+	{1,  M360::M360_SENSOR, S_MOISTURE, V_LEVEL, -1, 0, 1, "A_1m_20cm", false, 0},
+	{2,  M360::M360_SENSOR, S_MOISTURE, V_LEVEL, -1, 0, 1, "A_1m_30cm", false, 0},
+	{3,  M360::M360_SENSOR, S_MOISTURE, V_LEVEL, -1, 0, 1, "A_3m_10cm", false, 0},
+	{4,  M360::M360_SENSOR, S_MOISTURE, V_LEVEL, -1, 0, 1, "A_3m_20cm", false, 0},
+	{5,  M360::M360_SENSOR, S_MOISTURE, V_LEVEL, -1, 0, 1, "A_3m_30cm", false, 0},
+	{6,  M360::M360_SENSOR, S_MOISTURE, V_LEVEL, -1, 0, 1, "A_5m_10cm", false, 0},
+	{7,  M360::M360_SENSOR, S_MOISTURE, V_LEVEL, -1, 0, 1, "A_5m_20cm", false, 0},
+	{8,  M360::M360_SENSOR, S_MOISTURE, V_LEVEL, -1, 0, 1, "A_5m_30cm", false, 0}
+};
+
+const uint8_t numItems = sizeof(nodeItems) / sizeof(M360::M360ItemDef);
+
+// Variáveis exigidas pelo M360-DRY
+MyMessage messages[numItems + 2];
+float lastValues[numItems];
+uint8_t nNoUpdates[numItems];
+
+// Instancia o nó no modo PASSIVE (acorda no intervalo para verificar o gateway, mas só lê sob comando)
+M360::M360Node node(nodeItems, numItems, messages, lastValues, nNoUpdates, M360::M360_PASSIVE);
+
+void before() {
+	// Inicializa os pinos de hardware em repouso
+	initSensors();
+}
+
+// Hooks do M360-DRY para acordar e dormir
+namespace M360 {
+	void powerUp() {
+		powerUpSensors();
+	}
+	void powerDown() {
+		powerDownSensors();
+
+		// Envia a carga da bateria sempre depois de acordar (antes de dormir)
+		uint8_t batt = readBatteryPercent();
+		send(messages[numItems + 1].set(batt));
+
+		#ifdef MY_DEBUG
+		Serial.print(F("Bat:"));
+		Serial.println(batt);
+		#endif
+	}
+}
+
+void setup() {
+	// Registra o callback de leitura analógica
+	node.onRead(readNodeItem);
+	
+	// Inicia a apresentação na rede MySensors e carrega o intervalo da EEPROM
+	node.begin("01nodeSolo3dMini", "1.0");
+}
+
+void loop() {
+	// Processa temporizadores e ciclo de dormir/acordar/ler/enviar
+	node.process();
+}
+
+void receive(const MyMessage& msg) {
+	// Trata comandos de alteração de intervalo e force update
+	node.handleMessage(msg);
+}
