@@ -1,87 +1,582 @@
----
-description: Fábrica de Nós M360-DRY (Criação Interativa)
----
-
-Este workflow orienta a criação de um novo nó para a rede **M360 Horta**, garantindo que todos os requisitos de hardware e padrões de software sejam atendidos.
-
-
-## atuar como o J:\Meu Drive\GDrive Meus Documentos\Projetos (1)\PlatformIO\Projects\m360_horta\.agent\skills\bmad-agent-dev
-
-## utilizar, se disponivel, o mcp mysensors
-
-## utilizar a biblioteca  lib\M360-DRY
-
-##Todas as macros MY_* devem constar somente no platformio.ini
-
-## Passo 1: Elicitação de Requisitos (STOP & WAIT)
-
-O assistente deve **PARAR** e solicitar, uma a uma, ao usuário as seguintes informações:
-
-1.  **Identidade do Nó**: Nome do sketch e `MY_NODE_ID`.
-2.  **Perfil de Energia**: `ALWAYS_ON` (12V), `LOW_POWER` (Bateria proativo) ou `PASSIVE` (Bateria reativo)?
-3.  **Configuração de Rádio**: Pinos CE/CSN padrão (9/10) ou customizados?
-4.  **Gestão de VCC**: Existe um pino para ligar/desligar sensores (ex: Pino 4)?
-5.  **Lista de Sensores/Atuadores**:
-    - Child ID, Tipo MySensors (S_..., V_...), Label.
-    - Pino de sinal (se houver).
-    - Opções: Precisa multiplicar por 100 ao enviar (flag 0x01)? Para atuadores, precisa de `wakeOnRadio`?
-6.  **Log de RSSI**: Habilitar registro periódico de RSSI? (sim/nao)
-7.  **Timeout de Rádio**: Valor (ms) para timeout de operações de rádio (default 500).
-8.  **Potência de Transmissão**: Nível ou valor (ex.: LOW, MEDIUM, HIGH ou mW)
-9.  **Gestão de VCC**: Existe um pino para ligar/desligar sensores (ex: Pino 4)?
-10.  **Lista de Sensores/Atuadores**:
-    - Child ID, Tipo MySensors (S_..., V_...), Label.
-    - Pino de sinal (se houver).
-    - Opções: Precisa multiplicar por 100 ao enviar (flag 0x01)? Para atuadores, precisa de `wakeOnRadio`?
-11.  **Gestão de VCC**: Existe um pino para ligar/desligar sensores (ex: Pino 4)?
-12.  **Lista de Sensores/Atuadores**:
-    - Child ID, Tipo MySensors (S_..., V_...), Label.
-    - Pino de sinal (se houver).
-    - Opções: Precisa multiplicar por 100 ao enviar (flag 0x01)? Para atuadores, precisa de `wakeOnRadio`?
-
-**⚠️ AGUARDE A RESPOSTA DO USUÁRIO ANTES DE PROSSEGUIR.**
+A sua skill já está boa, mas tem redundâncias, falta definição clara dos critérios de saída e não separa bem as responsabilidades entre elicitação, análise e geração. Também corrigi alguns pontos para ficarem alinhados com o padrão M360-DRY e MySensors.
 
 ---
 
-## Passo 2: Análise de Artefatos Locais
+# Skill: Criar Novo Nó da Rede M360 Horta
 
-Após coletar os dados, o assistente deve:
-1.  Verificar se existe um `esquemaEletrico.md` ou `diagrama*.md` no diretório de destino para validar pinos e IDs.
-2.  Verificar se os arquivos `sensorDrivers.h` e `sensorDrivers.cpp` já possuem a lógica de leitura implementada ou precisam ser criados do zero.
+## Objetivo
+
+Esta skill orienta a criação completa de um novo nó da rede **M360 Horta**, garantindo conformidade com:
+
+* Arquitetura da biblioteca `M360-DRY`
+* Padrões MySensors
+* Estrutura do projeto PlatformIO
+* Diagramas de documentação
+* Configuração automática do `platformio.ini`
+
+O agente deve atuar como:
+
+```text
+m360_horta.agent\skills\bmad-agent-dev
+```
+
+Sempre que disponível:
+
+* Utilizar MCP MySensors
+* Utilizar a biblioteca `lib/M360-DRY`
+* Utilizar como referência os nós existentes do projeto
 
 ---
 
-## Passo 3: Geração do Código (Driver)
+# Regras Obrigatórias
 
-Implementar ou atualizar o driver de hardware:
--   **sensorDrivers.h**: Definir pinagem e IDs conforme Passo 1.
--   **sensorDrivers.cpp**: Implementar `readNodeItem(nodeIndex)` e funções de inicialização `initSensors()`. Garantir que o driver exponha o que o motor LibDRY precisa.
+### Regra 1 — Macros MySensors
+
+Todas as macros:
+
+```cpp
+MY_*
+```
+
+devem existir exclusivamente no:
+
+```ini
+platformio.ini
+```
+
+É proibido declarar:
+
+```cpp
+#define MY_NODE_ID
+#define MY_RADIO_RF24
+#define MY_RF24_CE_PIN
+#define MY_RF24_CS_PIN
+```
+
+em arquivos `.h` ou `.cpp`.
 
 ---
 
-## Passo 4: Geração do Código (Nó LibDRY)
+### Regra 2 — Biblioteca Base
 
-Criar o arquivo principal do nó baseando-se no **[NodeTemplate.cpp](file:///d:/Meu%20Drive/Meus%20Documentos/Projetos/PlatformIO/Projects/m360_horta/lib/M360-DRY/examples/NodeTemplate/NodeTemplate.cpp)**:
+Todo nó deve utilizar:
 
-1.  Utilizar `#include <M360.h>`.
-2.  Preencher `NODE_ITEMS[]` com as definições detalhadas no Passo 1.
-3.  Implementar `M360::powerUp()` e `M360::powerDown()` se houver controle de VCC.
-4.  No `presentation()`, garantir o nome amigável com a versão.
+```cpp
+#include <M360.h>
+```
+
+e seguir o modelo:
+
+```text
+lib/M360-DRY/examples/NodeTemplate/*.*
+```
 
 ---
 
-## Passo 5: Validação e Formatação // turbo
+### Regra 3 — STOP & WAIT
 
-1.  Executar `astyle` nos arquivos criados para garantir o padrão **Tabs** e **1tbs**.
-2.  Realizar uma checagem mental de conflitos de pinos e IDs.
-3.  Apresentar um **Walkthrough** com os links dos arquivos gerados.
+O agente nunca deve gerar código sem antes coletar todos os requisitos do Passo 1.
 
-## Passo 6: Configuração do arquivo platformIO.ini
+Após apresentar as perguntas, deve aguardar a resposta do usuário.
 
-1. incluir no platformio.ini o ambiente de compilação do arquivo recem criado.
+---
 
-## Passo 7: criação dos diagramas
+# Passo 1 — Elicitação de Requisitos (STOP & WAIT)
 
-1. criar arquivo de diagrama de blocos (vide modelo  src\DRY\nos\nodePump\diagrama_blocos.svg)
+Solicitar ao usuário:
 
-2. criar arquivo do esquema elétrico (vide modelo  src\DRY\nos\nodePump\esquema_eletrico.md)
+## 0. Tipo de placa
+
+```text
+Arduino Nano
+Arduino Pro Mini
+Arduino Mega
+Arduino Uno
+Arduino Nano Every
+Arduino Nano 33 IoT
+Arduino Nano RP2040 Connect
+Arduino Nano ESP32
+Arduino Nano ESP32-S3
+Arduino Nano ESP32-S3-MINI
+Arduino Nano ESP32-S3-EYE
+Arduino Nano ESP32-C6
+Arduino Nano ESP32-C6-MINI
+Arduino Nano ESP32-C6-EYE
+```
+
+## 1. Identificação
+
+```text
+Nome do Sketch:
+MY_NODE_ID:
+Descrição:
+```
+
+---
+
+## 2. Perfil de Energia
+
+Escolher:
+
+```text
+ALWAYS_ON (Default  )
+LOW_POWER
+PASSIVE
+```
+
+### Definições
+
+ALWAYS_ON
+
+```text
+Alimentação contínua
+(ex.: fonte 12V)
+```
+
+LOW_POWER
+
+```text
+Bateria
+envio periódico
+sleep programado
+```
+
+PASSIVE
+
+```text
+Bateria
+acorda somente por evento
+```
+
+---
+
+## 3. Rádio
+
+```text
+CE:
+CSN:
+Potência RF:
+```
+
+Exemplos:
+
+```text
+LOW
+MEDIUM
+HIGH (Default)
+MIN
+MAX
+```
+
+---
+
+## 4. Timeout de Rádio
+
+```text
+Timeout (ms):
+```
+
+Padrão:
+
+```text
+500
+```
+
+---
+
+## 5. Log de RSSI
+
+```text
+Habilitar RSSI?
+(sim/nao)
+```
+
+---
+
+## 6. Gestão de Alimentação dos Sensores
+
+```text
+Existe pino VCC controlado?
+(sim/nao)
+```
+
+Se sim:
+
+```text
+Qual pino?
+```
+
+Exemplo:
+
+```text
+D4
+4
+A1
+```
+
+---
+
+## 7. Sensores e Atuadores
+
+Para cada item solicitar:
+
+```text
+Child ID:
+Label:
+```
+
+Voce deve escolher o Tipo e o Valor MySensors que melhor atenda o sensor/atuador:
+Exemplo:
+ 
+```text
+S_*
+```
+
+Tipo de valor:
+
+```text
+V_*
+```
+Mostre as escolhas para a confirmação do usuário 
+Voce deve escolher o Pino:
+
+```text
+D2
+A0
+etc
+```
+Mostre as escolhas para a confirmação do usuário
+
+Opções:
+
+```text
+Multiplicar por 100 ao enviar?
+(sim/nao)
+
+wakeOnRadio?
+(sim/nao)
+```
+
+---
+
+⚠️ Não prosseguir enquanto todas as informações não forem fornecidas.
+
+---
+
+# Passo 2 — Análise dos Artefatos Locais
+
+Após receber os requisitos:
+
+## Verificar documentação existente
+
+Procurar em src\DRY\nos por exemplos  de arquivos:
+
+```text
+esquemaEletrico.md
+esquema_eletrico.md
+```
+
+e
+
+```text
+diagrama*.md
+diagrama*.svg
+```
+gerar estes arquivos baseado nos arquivos do novo nó:
+
+
+---
+
+## Verificar implementação existente
+
+Localizar:
+
+```text
+sensorDrivers.h
+sensorDrivers.cpp
+```
+
+Determinar:
+
+### Cenário A
+
+Já existe implementação.
+
+Resultado:
+
+```text
+Atualizar arquivos.
+```
+
+### Cenário B
+
+Não existe implementação.
+
+Resultado:
+
+```text
+Criar arquivos novos.
+```
+
+---
+
+## Validar
+
+Conferir:
+
+* Child IDs duplicados
+* Pinos duplicados
+* Conflitos com rádio
+* Conflitos com Serial
+* Conflitos com interrupções
+
+Gerar relatório antes da implementação.
+
+---
+
+# Passo 3 — Geração do Driver
+
+## Arquivo
+
+```text
+sensorDrivers.h
+```
+
+Criar:
+
+* Constantes
+* IDs
+* Pinagem
+* Protótipos
+
+---
+
+## Arquivo
+
+```text
+sensorDrivers.cpp
+```
+
+Implementar:
+
+```cpp
+void initSensors();
+```
+
+e
+
+```cpp
+bool readNodeItem(uint8_t nodeIndex);
+```
+
+Garantir compatibilidade com:
+
+```cpp
+NODE_ITEMS[]
+```
+
+da biblioteca M360.
+
+---
+
+# Passo 4 — Geração do Nó
+
+Criar o sketch principal baseado em:
+
+```text
+lib/M360-DRY/examples/NodeTemplate/NodeTemplate.cpp
+```
+
+---
+
+## Requisitos
+
+### Incluir
+
+```cpp
+#include <M360.h>
+```
+
+---
+
+### Definir
+
+```cpp
+NODE_ITEMS[]
+```
+
+conforme os sensores e atuadores informados.
+
+---
+
+### Implementar
+
+Se houver VCC controlado:
+
+```cpp
+void M360::powerUp();
+void M360::powerDown();
+```
+
+---
+
+### Presentation
+
+Garantir:
+
+```cpp
+Nome amigável
+Versão
+Tipo do nó
+```
+
+---
+
+# Passo 5 — Atualização do platformio.ini
+
+Adicionar ambiente de compilação.
+
+Exemplo:
+
+```ini
+[env:nodeSoil]
+platform = atmelavr
+board = nanoatmega328
+framework = arduino
+```
+
+Incluir:
+
+```ini
+build_flags =
+    -DMY_NODE_ID=XX
+    -DMY_RF24_CE_PIN=9
+    -DMY_RF24_CS_PIN=10
+```
+
+Todas as macros MySensors devem ficar neste arquivo.
+
+---
+
+# Passo 6 — Criação dos Diagramas
+
+## Diagrama de Blocos
+
+Criar:
+
+```text
+diagrama_blocos.svg
+```
+
+Base:
+
+```text
+src/DRY/nos/nodePump/diagrama_blocos.svg
+```
+
+Representar:
+
+* MCU
+* Rádio
+* Sensores
+* Atuadores
+* Alimentação
+
+---
+
+## Esquema Elétrico
+
+Criar:
+
+```text
+esquema_eletrico.md
+```
+
+Base:
+
+```text
+src/DRY/nos/nodePump/esquema_eletrico.md
+```
+
+Documentar:
+
+* Componentes
+* Pinagem
+* Alimentação
+* Child IDs
+* Observações
+
+---
+
+# Passo 7 — Validação Final (turbo)
+
+Executar validações:
+
+### Estrutura
+
+* Arquivos criados
+* Includes válidos
+* Compatibilidade M360
+
+### Hardware
+
+* Pinos duplicados
+* Child IDs duplicados
+* Consumo energético
+
+### MySensors
+
+* Macros apenas no platformio.ini
+* Presentation consistente
+* Mensagens compatíveis
+
+### Formatação
+
+Executar:
+
+```bash
+astyle --style=1tbs --indent=tab
+```
+
+---
+
+# Entregáveis Obrigatórios
+
+Ao final apresentar:
+
+## Arquivos criados
+
+```text
+src/<Node>.cpp
+src/sensorDrivers.h
+src/sensorDrivers.cpp
+platformio.ini
+diagrama_blocos.svg
+esquema_eletrico.md
+```
+
+## Resumo
+
+```text
+✓ Perfil de energia
+✓ Sensores
+✓ Atuadores
+✓ Child IDs
+✓ Pinagem
+✓ Configuração RF
+✓ Timeout
+✓ RSSI
+```
+
+## Walkthrough
+
+Explicar:
+
+1. Arquitetura do nó
+2. Fluxo de inicialização
+3. Fluxo de leitura
+4. Fluxo de transmissão
+5. Estratégia de energia
+6. Integração com M360-DRY
+
+

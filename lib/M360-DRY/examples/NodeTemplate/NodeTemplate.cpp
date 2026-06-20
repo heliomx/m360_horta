@@ -2,22 +2,17 @@
  * NodeTemplate.cpp — Modelo Arquitetural para Nós M360-DRY
  * 
  * Siga estas diretrizes para manter a consistência do projeto:
- * 1. O Sketch (.cpp): Puramente DECLARATIVO (IDs, labels, pino VCC).
+ * 1. O Sketch (.cpp): Puramente DECLARATIVO (IDs, labels, perfis de energia).
+ *    NOTA: As configurações MY_* de rádio e Node ID devem vir do platformio.ini.
  * 2. O Driver (sensorDrivers.h/.cpp): Implementação FÍSICA (leitura do sensor, calibração).
  * 
  * Passos para criar um novo nó:
- *   1. Copie este arquivo e os sensorDriversTemplate.h e sensorDriversTemplate.cpp para a pasta src do programa 
- *   2. Use #include <M360.h> (cabeçalho centralizador)
- *   3. Preencha NODE_ITEMS[] com as configurações MySensors
- *   4. Implemente os callbacks de energia (powerUp/Down) se usar o Pino 4
- *   5. Delegue a leitura física do sensor para o seu sensorDrivers.h
+ *   1. Crie a pasta do nó em src/DRY/nos/
+ *   2. Copie este arquivo e os sensorDrivers.h e sensorDrivers.cpp para a pasta de destino
+ *   3. Use #include <M360.h> (cabeçalho centralizador)
+ *   4. Preencha NODE_ITEMS[] com as configurações MySensors
+ *   5. Delegue a leitura física e escrita do sensor para o sensorDrivers.h
  */
-
-// ===== CONFIGURAÇÃO MYSENSORS =====
-#define MY_RADIO_RF24
-// #define MY_RF24_CE_PIN  6
-// #define MY_RF24_CSN_PIN 4
-// #define MY_NODE_ID      10
 
 #include <Arduino.h>
 #include <MySensors.h>
@@ -44,31 +39,9 @@ static float     lastValues[NODE_ITEMS_COUNT];
 static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
 
 // ===== INSTÂNCIA DO MOTOR =====
-// Perfil: M360::M360_LOW_POWER (bateria) ou M360::M360_ALWAYS_ON (12V/debug)
+// Perfil: M360::M360_LOW_POWER (bateria) ou M360::M360_ALWAYS_ON (12V/debug) ou M360::M360_PASSIVE (reativo)
 static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, messages, lastValues, nNoUpdates,
                            M360::M360_LOW_POWER);
-
-// ===== IMPLEMENTAÇÃO DA LEITURA =====
-
-float readItem(uint8_t nodeIndex)
-{
-	switch (nodeIndex) {
-		case 0:
-			return 25.0f; // TODO: ler sensor real
-		case 1:
-			return 60.0f; // TODO: ler sensor real
-		default:
-			return M360_SENSOR_INVALID;
-	}
-}
-
-// ===== IMPLEMENTAÇÃO DA ESCRITA (atuadores) =====
-
-void writeItem(uint8_t nodeIndex, bool state)
-{
-	// TODO: controlar o pino do atuador
-	// if (nodeIndex == 2) digitalWrite(RELAY_PIN, state ? HIGH : LOW);
-}
 
 // ===== CALLBACKS DE ENERGIA (opcional) =====
 
@@ -76,16 +49,21 @@ namespace M360
 {
 	void powerUp()
 	{
-		// TODO: ligar periféricos (sensores com VCC chaveada, etc.)
+		powerUpSensors();
 	}
 
 	void powerDown()
 	{
-		// TODO: desligar periféricos antes do sleep
+		powerDownSensors();
 	}
 } // namespace M360
 
 // ===== MYSENSORS HOOKS =====
+
+void before()
+{
+	initSensors();
+}
 
 void presentation()
 {
@@ -94,10 +72,8 @@ void presentation()
 
 void setup()
 {
-	Serial.begin(MY_BAUD_RATE);
-	node.setupPins();
-	node.onRead(readItem);
-	node.onWrite(writeItem);
+	node.onRead(readNodeItem);
+	node.onWrite(writeNodeItem);
 }
 
 void loop()

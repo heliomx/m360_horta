@@ -1,0 +1,134 @@
+<svg width="950" height="780" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
+  <!-- Background -->
+  <rect width="950" height="780" fill="#f4f7f6"/>
+  
+  <!-- Title -->
+  <text x="475" y="26" text-anchor="middle" font-size="18" font-weight="bold" fill="#004d40">
+    Diagrama de Blocos — Nó 80 (Monitoramento de Água e Vazão)
+  </text>
+  <text x="475" y="46" text-anchor="middle" font-size="12" fill="#555">
+    Arduino Nano 5V + nRF24L01+ + Nível (Ultrassônico) + pH + EC + Vazão (YF-S201) + Temp (DS18B20)
+  </text>
+
+  <!-- DEFS -->
+  <defs>
+    <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#333"/>
+    </marker>
+  </defs>
+
+  <!-- ALIMENTAÇÃO PRINCIPAL -->
+  <rect x="335" y="70" width="280" height="90" rx="6" fill="#fff8e1" stroke="#f9a825" stroke-width="2"/>
+  <text x="475" y="92" text-anchor="middle" font-size="13" font-weight="bold" fill="#7a5000">⚡ ALIMENTAÇÃO PRINCIPAL</text>
+  <text x="475" y="112" text-anchor="middle" font-size="11" fill="#7a5000">Entrada 12V DC (Fonte Horta) / USB 5V</text>
+  <text x="475" y="132" text-anchor="middle" font-size="11" fill="#7a5000">Regulador 5V fornece energia para o Arduino Nano</text>
+
+  <!-- ARDUINO NANO -->
+  <rect x="335" y="210" width="280" height="280" rx="6" fill="#e0f2f1" stroke="#008080" stroke-width="2.5"/>
+  <text x="475" y="235" text-anchor="middle" font-size="14" font-weight="bold" fill="#004d40">ARDUINO NANO</text>
+  <text x="475" y="253" text-anchor="middle" font-size="11" fill="#004d40">ATmega328P — 5V / 16MHz</text>
+
+  <!-- Pinos -->
+  <!-- VCC Chaveado -->
+  <text x="350" y="295" font-size="10.5" fill="#004d40" font-weight="bold">D3</text>
+  <text x="375" y="295" font-size="10.5" fill="#333">→ VCC Controlado (Ultrassônico, pH, EC, DS18B20)</text>
+
+  <!-- Vazão Pulso -->
+  <text x="350" y="335" font-size="10.5" fill="#004d40" font-weight="bold">D2 (INT0)</text>
+  <text x="415" y="335" font-size="10.5" fill="#333">← Pulso de Vazão (YF-S201)</text>
+
+  <!-- Ultrassônico -->
+  <text x="350" y="375" font-size="10.5" fill="#004d40" font-weight="bold">D4</text>
+  <text x="375" y="375" font-size="10.5" fill="#333">→ Trigger Ultrassônico</text>
+  <text x="350" y="395" font-size="10.5" fill="#004d40" font-weight="bold">D5</text>
+  <text x="375" y="395" font-size="10.5" fill="#333">← Echo Ultrassônico</text>
+  <text x="350" y="415" font-size="10.5" fill="#004d40" font-weight="bold">D6</text>
+  <text x="375" y="415" font-size="10.5" fill="#333">← Dados DS18B20 (OneWire)</text>
+
+  <!-- Analógicos pH e EC -->
+  <text x="350" y="435" font-size="10.5" fill="#004d40" font-weight="bold">A0</text>
+  <text x="375" y="435" font-size="10.5" fill="#333">← Sinal Analógico pH-4502C</text>
+  <text x="350" y="465" font-size="10.5" fill="#004d40" font-weight="bold">A1</text>
+  <text x="375" y="465" font-size="10.5" fill="#333">← Sinal Analógico Condutividade (EC)</text>
+
+  <!-- RÁDIO NRF24L01+ -->
+  <rect x="370" y="540" width="210" height="95" rx="6" fill="#e8f5e9" stroke="#1a7a3a" stroke-width="2"/>
+  <text x="475" y="563" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a5c2e">nRF24L01+</text>
+  <text x="475" y="579" text-anchor="middle" font-size="11" fill="#1a5c2e">Módulo de Rádio 2.4 GHz</text>
+  <line x1="380" y1="588" x2="570" y2="588" stroke="#1a7a3a" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="475" y="602" text-anchor="middle" font-size="10" fill="#333">CE: D9 | CSN: D10 | SPI: D11–D13</text>
+  <text x="475" y="617" text-anchor="middle" font-size="10" fill="#333">Alimentação: 3.3V regulado do Nano</text>
+
+  <!-- SENSORES -->
+  <!-- HC-SR04 -->
+  <rect x="25" y="220" width="200" height="75" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+  <text x="125" y="242" text-anchor="middle" font-size="12" font-weight="bold" fill="#0d47a1">HC-SR04</text>
+  <text x="125" y="260" text-anchor="middle" font-size="10.5" fill="#0d47a1">Sensor Ultrassônico</text>
+  <text x="125" y="278" text-anchor="middle" font-size="9.5" fill="#0d47a1">Nível da Caixa (0-100%)</text>
+
+  <!-- pH-4502C -->
+  <rect x="25" y="315" width="200" height="75" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+  <text x="125" y="337" text-anchor="middle" font-size="12" font-weight="bold" fill="#0d47a1">pH-4502C</text>
+  <text x="125" y="355" text-anchor="middle" font-size="10.5" fill="#0d47a1">Condicionador pH</text>
+  <text x="125" y="373" text-anchor="middle" font-size="9.5" fill="#0d47a1">Leitura de Acidez (0-14 pH)</text>
+
+  <!-- EC Sensor -->
+  <rect x="25" y="410" width="200" height="75" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+  <text x="125" y="432" text-anchor="middle" font-size="12" font-weight="bold" fill="#0d47a1">EC Sensor</text>
+  <text x="125" y="450" text-anchor="middle" font-size="10.5" fill="#0d47a1">Condutividade Elétrica</text>
+  <text x="125" y="468" text-anchor="middle" font-size="9.5" fill="#0d47a1">Nutrientes na Água (ms/cm)</text>
+
+  <!-- YF-S201 -->
+  <rect x="25" y="505" width="200" height="75" rx="6" fill="#e1f5fe" stroke="#0288d1" stroke-width="2"/>
+  <text x="125" y="527" text-anchor="middle" font-size="12" font-weight="bold" fill="#01579b">YF-S201</text>
+  <text x="125" y="545" text-anchor="middle" font-size="10.5" fill="#01579b">Sensor de Vazão Hall</text>
+  <text x="125" y="563" text-anchor="middle" font-size="9.5" fill="#01579b">Medição de Fluxo (L/s)</text>
+
+  <!-- DS18B20 -->
+  <rect x="25" y="600" width="200" height="75" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+  <text x="125" y="622" text-anchor="middle" font-size="12" font-weight="bold" fill="#0d47a1">DS18B20</text>
+  <text x="125" y="640" text-anchor="middle" font-size="10.5" fill="#0d47a1">Temp. da Água</text>
+  <text x="125" y="658" text-anchor="middle" font-size="9.5" fill="#0d47a1">Sensor OneWire (ºC)</text>
+
+  <!-- ======================== CONEXÕES ======================== -->
+
+  <!-- Alimentação Principal p/ Nano -->
+  <line x1="475" y1="160" x2="475" y2="210" stroke="#f9a825" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="485" y="185" font-size="9.5" fill="#7a5000" font-weight="bold">5V / VIN</text>
+
+  <!-- SPI / Rádio -->
+  <line x1="460" y1="490" x2="460" y2="540" stroke="#1a7a3a" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="490" y1="540" x2="490" y2="490" stroke="#1a7a3a" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="450" y="515" font-size="9.5" fill="#1a5c2e" font-weight="bold" text-anchor="end">SPI / RÁDIO</text>
+
+  <!-- D3 Linha VCC Chaveada (Energia Controlada) -->
+  <path d="M 335,290 L 260,290 L 260,240 L 225,240" fill="none" stroke="#f9a825" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+  <path d="M 260,290 L 260,335 L 225,335" fill="none" stroke="#f9a825" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+  <path d="M 260,290 L 260,430 L 225,430" fill="none" stroke="#f9a825" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+  <path d="M 260,290 L 260,615 L 225,615" fill="none" stroke="#f9a825" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+  <text x="270" y="280" font-size="9.5" fill="#7a5000" font-weight="bold">VCC Chaveado (D3)</text>
+
+  <!-- YF-S201 VCC Direto 5V -->
+  <path d="M 335,225 L 290,225 L 290,520 L 225,520" fill="none" stroke="#f9a825" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="295" y="510" font-size="9.5" fill="#7a5000" font-weight="bold">5V Direto</text>
+
+  <!-- D4 Trigger HC-SR04 -->
+  <path d="M 335,370 L 310,370 L 310,260 L 225,260" fill="none" stroke="#0055aa" stroke-width="1.2" marker-end="url(#arr)"/>
+  
+  <!-- D5 Echo HC-SR04 -->
+  <path d="M 225,270 L 300,270 L 300,390 L 335,390" fill="none" stroke="#0055aa" stroke-width="1.2" marker-end="url(#arr)"/>
+
+  <!-- D2 Pulso Vazão -->
+  <path d="M 225,550 L 335,550 L 335,340" fill="none" stroke="#0055aa" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="275" y="543" font-size="9.5" fill="#0055aa" font-weight="bold">Pulso (D2)</text>
+
+  <!-- A0 pH Analógico -->
+  <path d="M 225,355 L 320,355 L 320,430 L 335,430" fill="none" stroke="#0055aa" stroke-width="1.2" marker-end="url(#arr)"/>
+
+  <!-- A1 EC Analógico -->
+  <path d="M 225,450 L 335,450" fill="none" stroke="#0055aa" stroke-width="1.2" marker-end="url(#arr)"/>
+
+  <!-- D6 DS18B20 Dados -->
+  <path d="M 225,635 L 320,635 L 320,415 L 335,415" fill="none" stroke="#0055aa" stroke-width="1.2" marker-end="url(#arr)"/>
+
+</svg>

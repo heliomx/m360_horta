@@ -1,1 +1,0 @@
-Acomodação Analógica no Nó 01 (Oversampling): O firmware do Nó 01 deve implementar uma leitura analógica dummy de descarte ao comutar os canais, seguida de 8 amostras sequenciais com atraso de 2ms, utilizando a média aritmética para filtrar ruídos induzidos pela proximidade com os cabos de rede Ethernet.
