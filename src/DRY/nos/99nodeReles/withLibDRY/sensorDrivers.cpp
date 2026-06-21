@@ -10,6 +10,10 @@
  */
 
 #include "sensorDrivers.h"
+#include <DHT.h>
+
+// ===== OBJETO DHT11 =====
+static DHT dht(PIN_DHT, DHT11);
 
 // ===== ESTADO INTERNO (rastreamento em software) =====
 static int8_t s_activeMuxChannel    = -1;       // -1 = nenhum canal MUX ativo
@@ -46,6 +50,9 @@ void initSensors()
 	pinMode(PIN_NFT_OXI,  OUTPUT);
 	digitalWrite(PIN_NFT_PUMP, HIGH); // relay OFF (Active-LOW)
 	digitalWrite(PIN_NFT_OXI,  HIGH); // relay OFF (Active-LOW)
+
+	// --- Inicialização do DHT11 ---
+	dht.begin();
 }
 
 void writeNodeItem(uint8_t pin, bool state)
@@ -88,4 +95,16 @@ float readNodeItem(uint8_t pin)
 	}
 	// Pinos nativos: leitura direta (nível LOW = ligado)
 	return digitalRead(pin) == LOW ? 1.0f : 0.0f;
+}
+
+float readDHTTemp()
+{
+	float t = dht.readTemperature();
+	return isnan(t) ? NAN : t;
+}
+
+float readDHTHum()
+{
+	float h = dht.readHumidity();
+	return isnan(h) ? NAN : h;
 }

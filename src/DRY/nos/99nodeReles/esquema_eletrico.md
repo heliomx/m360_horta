@@ -34,6 +34,9 @@ graph TD
     ReleM5[Módulo Relé MUX 5]
     ReleM6[Módulo Relé MUX 6]
     
+    %% Sensores Nativos
+    DHT[Sensor DHT11 - A0]
+    
     %% Atuadores (Cargas 12V e 220V)
     BombaNFT[Bomba Circulação NFT<br/>220V AC]
     BombaOxi[Bomba Oxigenação<br/>220V AC]
@@ -70,6 +73,7 @@ graph TD
     Reg5V -->|5V DC| ReleM4
     Reg5V -->|5V DC| ReleM5
     Reg5V -->|5V DC| ReleM6
+    Reg5V -->|5V DC| DHT
     
     Reg3V3 -->|3.3V DC| NRF
     
@@ -80,6 +84,7 @@ graph TD
     %% Conexões de Controle Nativas (Arduino -> Relés)
     Nano -->|D2| ReleNFT
     Nano -->|D8| ReleOxi
+    Nano -->|A0 Sinal Digital| DHT
     
     %% Conexões de Controle MUX (Arduino -> MUX)
     Nano -->|D4..D7 S0..S3| MUX
@@ -112,11 +117,13 @@ graph TD
     classDef relay fill:#fff3cd,stroke:#c77a00,stroke-width:2px;
     classDef actuator fill:#fde8e8,stroke:#aa0000,stroke-width:2px;
     classDef mux fill:#f3e5f5,stroke:#6f42c1,stroke-width:2px;
+    classDef sensor fill:#e0f2f1,stroke:#00796b,stroke-width:2px;
     
     class Fonte,Reg5V,Reg3V3,RedeAC power;
     class Nano mcu;
     class NRF radio;
     class MUX mux;
+    class DHT sensor;
     class ReleNFT,ReleOxi,ReleM0,ReleM1,ReleM2,ReleM3,ReleM4,ReleM5,ReleM6 relay;
     class BombaNFT,BombaOxi,SolA,SolB,SolC,PeriSuplA,PeriSuplB,PeriPH_Mais,PeriPH_Menos actuator;
 ```
@@ -153,6 +160,12 @@ Os relés listados abaixo possuem pinos dedicados no Arduino e podem operar simu
 | :--- | :--- | :--- | :--- |
 | **Relé NFT** | D2 | Bomba Circulação NFT | 220V AC |
 | **Relé Oxi** | D8 | Bomba Oxigenação | 220V AC |
+
+### Sensores Nativos (Operação Concorrente)
+O sensor abaixo possui pino dedicado no Arduino e pode operar simultaneamente a qualquer outro item.
+| Sensor | Pino Arduino | Medição | Especificação Alimentação |
+| :--- | :--- | :--- | :--- |
+| **DHT11** | A0 (D14) | Temperatura e Umidade ambiente do quadro | 5V DC (Sinal com resistor pull-up de 4.7kΩ a 10kΩ para VCC) |
 
 ### Relés e Atuadores Multiplexados (Concorrência Restrita)
 Os relés listados abaixo são controlados pelas saídas do MUX. Apenas **UM** relé desta lista pode ser ativado simultaneamente.

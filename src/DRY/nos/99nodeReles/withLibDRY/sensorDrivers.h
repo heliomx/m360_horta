@@ -51,6 +51,11 @@
 // ===== CHILD IDs — Pinos Nativos Concorrentes =====
 #define CHILD_ID_NFT_PUMP   16  // D2 — Bomba Circulação Principal NFT
 #define CHILD_ID_NFT_OXI    17  // D8 — Bomba Oxigenação NFT
+#define CHILD_ID_DHT_TEMP   18  // Sensor de Temperatura DHT11
+#define CHILD_ID_DHT_HUM    19  // Sensor de Umidade DHT11
+
+// ===== PINO NATIVO DHT11 =====
+#define PIN_DHT             A0  // A0 (D14) para sinal digital do DHT11
 
 // ===== ENCODING DE PINOS VIRTUAIS (MUX) =====
 // Canais MUX são representados como pinos virtuais no campo `pin` de M360ItemDef:
@@ -83,3 +88,13 @@ void writeNodeItem(uint8_t pin, bool state);
  * Para canais MUX, retorna o estado rastreado em software.
  */
 float readNodeItem(uint8_t pin);
+
+/**
+ * Lê a temperatura do sensor DHT11.
+ */
+float readDHTTemp();
+
+/**
+ * Lê a umidade do sensor DHT11.
+ */
+float readDHTHum();

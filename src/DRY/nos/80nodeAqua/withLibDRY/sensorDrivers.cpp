@@ -8,10 +8,53 @@ static DallasTemperature sensors(&oneWire);
 
 // Variáveis globais do driver de vazão
 volatile uint32_t pulseCount = 0;
+volatile uint32_t pulseCountA = 0;
+volatile uint32_t pulseCountB = 0;
+volatile uint32_t pulseCountC = 0;
+
+// Leituras de vazão e flags compartilhadas
+float currentFlowH = 0.0f;
+float currentFlowA = 0.0f;
+float currentFlowB = 0.0f;
+float currentFlowC = 0.0f;
+bool allowAquaRead = false;
 
 void pulseCounter()
 {
 	pulseCount++;
+}
+
+void pulseCounterA()
+{
+	pulseCountA++;
+}
+
+// PCINT para o Sensor B (Pino D8 / PB0)
+ISR(PCINT0_vect)
+{
+	static uint8_t lastPortState = PINB;
+	uint8_t currentPortState = PINB;
+	uint8_t changedPins = currentPortState ^ lastPortState;
+	lastPortState = currentPortState;
+	
+	// Detecta borda de descida (FALLING) no pino D8 (PB0 / PCINT0)
+	if ((changedPins & (1 << PB0)) && !(currentPortState & (1 << PB0))) {
+		pulseCountB++;
+	}
+}
+
+// PCINT para o Sensor C (Pino A2 / PC2 / PCINT10)
+ISR(PCINT1_vect)
+{
+	static uint8_t lastPortState = PINC;
+	uint8_t currentPortState = PINC;
+	uint8_t changedPins = currentPortState ^ lastPortState;
+	lastPortState = currentPortState;
+	
+	// Detecta borda de descida (FALLING) no pino A2 (PC2 / PCINT10)
+	if ((changedPins & (1 << PC2)) && !(currentPortState & (1 << PC2))) {
+		pulseCountC++;
+	}
 }
 
 void initSensors()
@@ -28,14 +71,30 @@ void initSensors()
 	pinMode(PIN_PH, INPUT);
 	pinMode(PIN_EC, INPUT);
 	
-	// Vazão (Configura Pullup interno para sinal digital limpo do sensor de efeito Hall)
+	// Vazão 1 (Configura Pullup interno para sinal digital limpo do sensor de efeito Hall)
 	pinMode(PIN_FLOW_SENSOR, INPUT_PULLUP);
 	attachInterrupt(digitalPinToInterrupt(PIN_FLOW_SENSOR), pulseCounter, FALLING);
+
+	// Vazão A (Configura Pullup interno e utiliza interrupção externa INT1 no D3)
+	pinMode(PIN_FLOW_SENSOR_A, INPUT_PULLUP);
+	attachInterrupt(digitalPinToInterrupt(PIN_FLOW_SENSOR_A), pulseCounterA, FALLING);
+
+	// Vazão B e C (Configura Pullup interno e habilita PCINT)
+	pinMode(PIN_FLOW_SENSOR_B, INPUT_PULLUP);
+	pinMode(PIN_FLOW_SENSOR_C, INPUT_PULLUP);
+
+	// Habilita PCINT0 para o Port B (D8 / PB0)
+	PCICR |= (1 << PCIE0);      // Habilita interrupções de Pin Change para Port B
+	PCMSK0 |= (1 << PCINT0);    // Habilita PCINT0 específico do pino D8
+
+	// Habilita PCINT1 para o Port C (A2 / PC2)
+	PCICR |= (1 << PCIE1);      // Habilita interrupções de Pin Change para Port C
+	PCMSK1 |= (1 << PCINT10);   // Habilita PCINT10 específico do pino A2
 }
 
 void powerUpSensors()
 {
-	// Energiza o barramento D3 dos sensores
+	// Energiza o barramento D7 / PIN_POWER_SENSORS dos sensores
 	digitalWrite(PIN_POWER_SENSORS, HIGH);
 	// Aguarda estabilização elétrica dos circuitos integrados de condicionamento de sinal
 	delay(100);
@@ -45,8 +104,60 @@ void powerUpSensors()
 
 void powerDownSensors()
 {
-	// Corta a alimentação do barramento D3
+	// Corta a alimentação do barramento D7 / PIN_POWER_SENSORS
 	digitalWrite(PIN_POWER_SENSORS, LOW);
+}
+
+static float calculateFlow(volatile uint32_t &pCount, unsigned long &lastTime)
+{
+	unsigned long now = millis();
+	
+	if (lastTime == 0) {
+		lastTime = now;
+		return 0.0f;
+	}
+	
+	unsigned long duration = now - lastTime;
+	if (duration < 200) {
+		return 0.0f; // Evita medições instáveis em intervalos muito pequenos
+	}
+	
+	// Seção crítica para ler e resetar a contagem de pulsos
+	noInterrupts();
+	uint32_t pulses = pCount;
+	pCount = 0;
+	interrupts();
+	
+	lastTime = now;
+	
+	// Frequência de pulsos (Hz)
+	float hz = (pulses * 1000.0f) / (float)duration;
+	
+	// YF-S201: F (Hz) = 7.5 * Q (L/min) => Q (L/min) = Hz / 7.5
+	// Q (L/s) = Q (L/min) / 60 => Q (L/s) = Hz / (7.5 * 60) = Hz / 450.0f
+	float flowRate = hz / 450.0f;
+	
+	return flowRate;
+}
+
+void updateFlows()
+{
+	static unsigned long lastUpdate = 0;
+	unsigned long now = millis();
+	
+	// Atualiza a cada 2 segundos
+	if (lastUpdate == 0 || (now - lastUpdate) >= 2000) {
+		lastUpdate = now;
+		static unsigned long lastFlowTime = 0;
+		static unsigned long lastFlowTimeA = 0;
+		static unsigned long lastFlowTimeB = 0;
+		static unsigned long lastFlowTimeC = 0;
+		
+		currentFlowH = calculateFlow(pulseCount, lastFlowTime);
+		currentFlowA = calculateFlow(pulseCountA, lastFlowTimeA);
+		currentFlowB = calculateFlow(pulseCountB, lastFlowTimeB);
+		currentFlowC = calculateFlow(pulseCountC, lastFlowTimeC);
+	}
 }
 
 float readNodeItem(uint8_t itemIndex)
@@ -87,6 +198,9 @@ float readNodeItem(uint8_t itemIndex)
 		}
 		
 		case 1: { // pH (Analógico A0)
+			if (!allowAquaRead) {
+				return NAN;
+			}
 			long sum = 0;
 			for (int i = 0; i < 10; i++) {
 				sum += analogRead(PIN_PH);
@@ -113,6 +227,9 @@ float readNodeItem(uint8_t itemIndex)
 		}
 		
 		case 2: { // EC (Analógico A1)
+			if (!allowAquaRead) {
+				return NAN;
+			}
 			long sum = 0;
 			for (int i = 0; i < 10; i++) {
 				sum += analogRead(PIN_EC);
@@ -134,39 +251,14 @@ float readNodeItem(uint8_t itemIndex)
 			return ecValue;
 		}
 		
-		case 3: { // Vazão (Litros por segundo - L/s)
-			static unsigned long lastFlowTime = 0;
-			unsigned long now = millis();
-			
-			if (lastFlowTime == 0) {
-				lastFlowTime = now;
-				return 0.0f;
-			}
-			
-			unsigned long duration = now - lastFlowTime;
-			if (duration < 200) {
-				return 0.0f; // Evita medições instáveis em intervalos muito pequenos
-			}
-			
-			// Seção crítica para ler e resetar a contagem de pulsos
-			noInterrupts();
-			uint32_t pulses = pulseCount;
-			pulseCount = 0;
-			interrupts();
-			
-			lastFlowTime = now;
-			
-			// Frequência de pulsos (Hz)
-			float hz = (pulses * 1000.0f) / (float)duration;
-			
-			// YF-S201: F (Hz) = 7.5 * Q (L/min) => Q (L/min) = Hz / 7.5
-			// Q (L/s) = Q (L/min) / 60 => Q (L/s) = Hz / (7.5 * 60) = Hz / 450.0f
-			float flowRate = hz / 450.0f;
-			
-			return flowRate;
+		case 3: { // Vazão H (Litros por segundo - L/s)
+			return currentFlowH;
 		}
 		
 		case 4: { // Temperatura da Água (DS18B20 - OneWire)
+			if (!allowAquaRead) {
+				return NAN;
+			}
 			sensors.requestTemperatures();
 			float tempC = sensors.getTempCByIndex(0);
 			
@@ -175,6 +267,18 @@ float readNodeItem(uint8_t itemIndex)
 				return NAN;
 			}
 			return tempC;
+		}
+		
+		case 5: { // Vazão A (Litros por segundo - L/s)
+			return currentFlowA;
+		}
+		
+		case 6: { // Vazão B (Litros por segundo - L/s)
+			return currentFlowB;
+		}
+		
+		case 7: { // Vazão C (Litros por segundo - L/s)
+			return currentFlowC;
 		}
 		
 		default:

@@ -54,6 +54,9 @@ static const M360::M360ItemDef NODE_ITEMS[] = {
     // --- Pinos Nativos (concorrência livre com MUX e entre si) ---
     {CHILD_ID_NFT_PUMP, M360::M360_ACTUATOR, S_BINARY, V_STATUS, PIN_NFT_PUMP,            0, 1, "BombaNFT",     false, 0},
     {CHILD_ID_NFT_OXI,  M360::M360_ACTUATOR, S_BINARY, V_STATUS, PIN_NFT_OXI,             0, 1, "BombaOxi",     false, 0},
+    // --- Sensores Nativos (DHT11 - Concorrência livre) ---
+    {CHILD_ID_DHT_TEMP, M360::M360_SENSOR,   S_TEMP,   V_TEMP,   PIN_DHT,                 0, 1, "TempReles",    false, 0},
+    {CHILD_ID_DHT_HUM,  M360::M360_SENSOR,   S_HUM,    V_HUM,    PIN_DHT,                 0, 1, "UmidReles",    false, 0},
 };
 static const uint8_t NODE_ITEMS_COUNT =
     sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
@@ -71,6 +74,12 @@ static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, messages, lastValues,
 
 static float readItem(uint8_t index)
 {
+    if (NODE_ITEMS[index].childId == CHILD_ID_DHT_TEMP) {
+        return readDHTTemp();
+    }
+    if (NODE_ITEMS[index].childId == CHILD_ID_DHT_HUM) {
+        return readDHTHum();
+    }
     return readNodeItem(NODE_ITEMS[index].pin);
 }
 
