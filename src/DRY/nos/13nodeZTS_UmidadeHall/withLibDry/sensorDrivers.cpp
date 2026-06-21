@@ -45,6 +45,7 @@ void initDrivers() {
 
   // RS485 Init
   rs485.begin(RS485_BAUD_RATE);
+  rs485.setTimeout(MODBUS_TIMEOUT);
   modbus.begin(1, rs485);
   modbus.preTransmission(preTransmission);
   modbus.postTransmission(postTransmission);
@@ -75,7 +76,7 @@ bool readZTSData() {
       return true;
     }
     retries--;
-    if (retries > 0) delay(100); // Wait before retry
+    if (retries > 0) delay(100);  // driver file não pode incluir MySensors.h (monolítico)
   }
   return false;
 }

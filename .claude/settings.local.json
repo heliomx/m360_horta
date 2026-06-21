@@ -3,7 +3,12 @@
     "allow": [
       "Bash(grep -r \"powerUp\\\\|powerDown\" lib/M360-DRY/src/*.cpp lib/M360-DRY/src/*.h)",
       "Read(//tmp/**)",
-      "Bash(python3)"
+      "Bash(python3)",
+      "Bash(git mv *)",
+      "Bash(pio run *)",
+      "PowerShell(Select-String *)",
+      "PowerShell(Get-ChildItem \"C:\\\\Python314\\\\Scripts\\\\\" | Where-Object { $_.Name -match 'pio|platform' })",
+      "PowerShell($pio = \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\"; cd \"C:\\\\Users\\\\jmarc\\\\Documents\\\\PlatformIO\\\\Projects\\\\m360_horta\"; & $pio run 2>&1)"
     ]
   }
 }

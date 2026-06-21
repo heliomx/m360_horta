@@ -103,308 +103,114 @@ const char* getTypeDescription(int type) {
 }
 
 int getRSSI() {
-  // Retorna RSSI do último pacote recebido (se disponível)
-  // Por enquanto retorna um valor simulado
-  return -45;
+  return WiFi.RSSI();
 }
 
 int getBatteryLevel() {
-  // Retorna nível da bateria (se disponível)
-  // Por enquanto retorna um valor simulado
-  return 85;
+  return 100;  // Gateway alimentado por fonte fixa — sem medição de bateria
 }
 
 uint16_t calcCRC(const DeviceConfig &cfg) {
-  // CRC simples baseado na soma dos caracteres dos campos principais
   uint16_t crc = 0;
-  
-  // Somar caracteres do SSID
-  for (size_t i = 0; i < sizeof(cfg.ssid) && cfg.ssid[i] != '\0'; i++) {
-    crc += cfg.ssid[i];
-  }
-  
-  // Somar caracteres do MQTT Server
-  for (size_t i = 0; i < sizeof(cfg.password) && cfg.password[i] != '\0'; i++) {
-    crc += cfg.password[i];
-  }
-  for (size_t i = 0; i < sizeof(cfg.mqttServer) && cfg.mqttServer[i] != '\0'; i++) {
-    crc += cfg.mqttServer[i];
-  }
-  
-  // Somar caracteres da UF
-  for (size_t i = 0; i < sizeof(cfg.mqttUser) && cfg.mqttUser[i] != '\0'; i++) {
-    crc += cfg.mqttUser[i];
-  }
-  for (size_t i = 0; i < sizeof(cfg.mqttPassword) && cfg.mqttPassword[i] != '\0'; i++) {
-    crc += cfg.mqttPassword[i];
-  }
-  for (size_t i = 0; i < sizeof(cfg.uf) && cfg.uf[i] != '\0'; i++) {
-    crc += cfg.uf[i];
-  }
-  
-  // Somar caracteres do CAR Number
-  for (size_t i = 0; i < sizeof(cfg.carNumber) && cfg.carNumber[i] != '\0'; i++) {
-    crc += cfg.carNumber[i];
-  }
-  
-  // Somar porta MQTT
+  for (size_t i = 0; i < sizeof(cfg.ssid) && cfg.ssid[i] != '\0'; i++) crc += cfg.ssid[i];
+  for (size_t i = 0; i < sizeof(cfg.password) && cfg.password[i] != '\0'; i++) crc += cfg.password[i];
+  for (size_t i = 0; i < sizeof(cfg.mqttServer) && cfg.mqttServer[i] != '\0'; i++) crc += cfg.mqttServer[i];
+  for (size_t i = 0; i < sizeof(cfg.mqttUser) && cfg.mqttUser[i] != '\0'; i++) crc += cfg.mqttUser[i];
+  for (size_t i = 0; i < sizeof(cfg.mqttPassword) && cfg.mqttPassword[i] != '\0'; i++) crc += cfg.mqttPassword[i];
+  for (size_t i = 0; i < sizeof(cfg.uf) && cfg.uf[i] != '\0'; i++) crc += cfg.uf[i];
+  for (size_t i = 0; i < sizeof(cfg.carNumber) && cfg.carNumber[i] != '\0'; i++) crc += cfg.carNumber[i];
   crc += cfg.mqttPort;
-  
-  // Somar versão
   crc += cfg.version;
-  
   return crc;
 }
 
 void loadConfig(DeviceConfig &cfg) {
-  // Serial.println("📖 Carregando configuração da EEPROM...");
-  
-  // Debug do tamanho da estrutura
-  // Serial.print("   Tamanho da estrutura DeviceConfig: ");
-  // Serial.println(sizeof(DeviceConfig));
-  
-  // Debug dos primeiros bytes da EEPROM ANTES de qualquer operação (na região de config)
-  
-  // Serial.println("🔍 Primeiros bytes da EEPROM ANTES de carregar (base=CONFIG_EEPROM_BASE):");
-  // for (int i = 0; i < 64; i++) {
-  //   uint8_t byte = EEPROM.read(CONFIG_EEPROM_BASE + i);
-  //   if (i % 16 == 0) Serial.println();
-  //   Serial.printf("%02X ", byte);
-  // }
-  // Serial.println();
-  
-  // NÃO limpar estrutura antes de carregar - pode estar causando problema
-  // memset(&cfg, 0, sizeof(DeviceConfig));
-  
-  // Tentar método alternativo: carregar campo por campo
-  // Serial.println("🔧 Carregando campo por campo...");
-  
   int addr = CONFIG_EEPROM_BASE;
-  
-  // Carregar versão
+
   cfg.version = EEPROM.read(addr);
   addr += sizeof(cfg.version);
-  
-  // Serial.print("   Versão carregada: ");
-  // Serial.println(cfg.version);
-  // Serial.print("   Próximo endereço (SSID): ");
-  // Serial.println(addr);
-  
-  // Carregar SSID
-  
-  // Serial.println("   Carregando SSID...");
-  for (size_t i = 0; i < sizeof(cfg.ssid); i++) {
-    cfg.ssid[i] = EEPROM.read(addr + i);
-    // if (i < 10) {
-    //   Serial.printf("      SSID[%d] = 0x%02X ('%c') from addr %d\n", i, cfg.ssid[i], 
-    //                 (cfg.ssid[i] >= 32 && cfg.ssid[i] <= 126) ? cfg.ssid[i] : '?', addr + i);
-    // }
-  }
+
+  for (size_t i = 0; i < sizeof(cfg.ssid); i++) cfg.ssid[i] = EEPROM.read(addr + i);
   addr += sizeof(cfg.ssid);
-  
- 
-  // Serial.print("   SSID carregado: '");
-  // Serial.print(cfg.ssid);
-  // Serial.print("' (length: ");
-  // Serial.print(strlen(cfg.ssid));
-  // Serial.println(")");
-  
-  // Carregar password
-  for (size_t i = 0; i < sizeof(cfg.password); i++) {
-    cfg.password[i] = EEPROM.read(addr + i);
-  }
+
+  for (size_t i = 0; i < sizeof(cfg.password); i++) cfg.password[i] = EEPROM.read(addr + i);
   addr += sizeof(cfg.password);
-  
-  // Carregar MQTT Server
-  for (size_t i = 0; i < sizeof(cfg.mqttServer); i++) {
-    cfg.mqttServer[i] = EEPROM.read(addr + i);
-  }
+
+  for (size_t i = 0; i < sizeof(cfg.mqttServer); i++) cfg.mqttServer[i] = EEPROM.read(addr + i);
   addr += sizeof(cfg.mqttServer);
-  
-  // Carregar MQTT Port
+
   EEPROM.get(addr, cfg.mqttPort);
   addr += sizeof(cfg.mqttPort);
-  
-  // Carregar MQTT User
-  for (size_t i = 0; i < sizeof(cfg.mqttUser); i++) {
-    cfg.mqttUser[i] = EEPROM.read(addr + i);
-  }
+
+  for (size_t i = 0; i < sizeof(cfg.mqttUser); i++) cfg.mqttUser[i] = EEPROM.read(addr + i);
   addr += sizeof(cfg.mqttUser);
-  
-  // Carregar MQTT Password
-  for (size_t i = 0; i < sizeof(cfg.mqttPassword); i++) {
-    cfg.mqttPassword[i] = EEPROM.read(addr + i);
-  }
+
+  for (size_t i = 0; i < sizeof(cfg.mqttPassword); i++) cfg.mqttPassword[i] = EEPROM.read(addr + i);
   addr += sizeof(cfg.mqttPassword);
-  
-  // Carregar UF
-  for (size_t i = 0; i < sizeof(cfg.uf); i++) {
-    cfg.uf[i] = EEPROM.read(addr + i);
-  }
+
+  for (size_t i = 0; i < sizeof(cfg.uf); i++) cfg.uf[i] = EEPROM.read(addr + i);
   addr += sizeof(cfg.uf);
-  
-  // Carregar CAR Number
-  for (size_t i = 0; i < sizeof(cfg.carNumber); i++) {
-    cfg.carNumber[i] = EEPROM.read(addr + i);
-  }
+
+  for (size_t i = 0; i < sizeof(cfg.carNumber); i++) cfg.carNumber[i] = EEPROM.read(addr + i);
   addr += sizeof(cfg.carNumber);
-  
-  // Carregar CRC
+
   EEPROM.get(addr, cfg.crc);
   terminateConfigFields(cfg);
+
+  // Migração v1 → v2 (P2-nota: calcLegacyCRC não inclui password/mqttPassword)
   if (cfg.version == 1 && cfg.crc == calcLegacyCRC(cfg)) {
     cfg.version = 2;
     saveConfig(cfg);
   }
-  
-  // Serial.println("🔍 Verificando configuração:");
-  // Serial.print("   Versão: ");
-  // Serial.println(cfg.version);
-  // Serial.print("   SSID: '");
-  // Serial.print(cfg.ssid);
-  // Serial.print("' (length: ");
-  // Serial.print(strlen(cfg.ssid));
-  // Serial.println(")");
-  // Serial.print("   MQTT Server: '");
-  // Serial.print(cfg.mqttServer);
-  // Serial.print("' (length: ");
-  // Serial.print(strlen(cfg.mqttServer));
-  // Serial.println(")");
-  // Serial.print("   MQTT Port: ");
-  // Serial.println(cfg.mqttPort);
-  // Serial.print("   UF: '");
-  // Serial.print(cfg.uf);
-  // Serial.println("'");
-  // Serial.print("   CAR: '");
-  // Serial.print(cfg.carNumber);
-  // Serial.println("'");
-  // Serial.print("   CRC Calculado: ");
-  // Serial.println(calcCRC(cfg));
-  // Serial.print("   CRC Salvo: ");
-  // Serial.println(cfg.crc);
-  
+
   // loadConfig apenas carrega os dados brutos da EEPROM.
   // A validação e decisão de reset são responsabilidade do chamador (before()).
 }
 
 void saveConfig(const DeviceConfig &cfg) {
-  // Serial.println("💾 Salvando configuração na EEPROM...");
-  
-  // Debug antes de calcular CRC
-  // Serial.println("🔍 Dados ANTES de calcular CRC:");
-  // Serial.print("   SSID: '");
-  // Serial.print(cfg.ssid);
-  // Serial.print("' (length: ");
-  // Serial.print(strlen(cfg.ssid));
-  // Serial.println(")");
-  
   DeviceConfig temp = cfg;
   terminateConfigFields(temp);
   temp.crc = calcCRC(temp);
-  
-  // Debug após calcular CRC
-  // Serial.println("🔍 Dados APÓS calcular CRC:");
-  // Serial.print("   SSID: '");
-  // Serial.print(temp.ssid);
-  // Serial.print("' (length: ");
-  // Serial.print(strlen(temp.ssid));
-  // Serial.println(")");
-  
-  // Serial.println("🔍 Dados a serem salvos:");
-  // Serial.print("   Versão: ");
-  // Serial.println(temp.version);
-  // Serial.print("   SSID: ");
-  // Serial.println(temp.ssid);
-  // Serial.print("   MQTT Server: ");
-  // Serial.println(temp.mqttServer);
-  // Serial.print("   CRC: ");
-  // Serial.println(temp.crc);
-  
-  // Tentar método alternativo: salvar campo por campo
-  // Serial.println("🔧 Tentando método alternativo de salvamento...");
-  
+
   int addr = CONFIG_EEPROM_BASE;
-  
-  // Salvar versão
+
   EEPROM.put(addr, temp.version);
   addr += sizeof(temp.version);
-  
-  // Salvar SSID
-  for (size_t i = 0; i < sizeof(temp.ssid); i++) {
-    EEPROM.put(addr + i, temp.ssid[i]);
-  }
+
+  for (size_t i = 0; i < sizeof(temp.ssid); i++) EEPROM.put(addr + i, temp.ssid[i]);
   addr += sizeof(temp.ssid);
-  
-  // Salvar password
-  for (size_t i = 0; i < sizeof(temp.password); i++) {
-    EEPROM.put(addr + i, temp.password[i]);
-  }
+
+  for (size_t i = 0; i < sizeof(temp.password); i++) EEPROM.put(addr + i, temp.password[i]);
   addr += sizeof(temp.password);
-  
-  // Salvar MQTT Server
-  for (size_t i = 0; i < sizeof(temp.mqttServer); i++) {
-    EEPROM.put(addr + i, temp.mqttServer[i]);
-  }
+
+  for (size_t i = 0; i < sizeof(temp.mqttServer); i++) EEPROM.put(addr + i, temp.mqttServer[i]);
   addr += sizeof(temp.mqttServer);
-  
-  // Salvar MQTT Port
+
   EEPROM.put(addr, temp.mqttPort);
   addr += sizeof(temp.mqttPort);
-  
-  // Salvar MQTT User
-  for (size_t i = 0; i < sizeof(temp.mqttUser); i++) {
-    EEPROM.put(addr + i, temp.mqttUser[i]);
-  }
+
+  for (size_t i = 0; i < sizeof(temp.mqttUser); i++) EEPROM.put(addr + i, temp.mqttUser[i]);
   addr += sizeof(temp.mqttUser);
-  
-  // Salvar MQTT Password
-  for (size_t i = 0; i < sizeof(temp.mqttPassword); i++) {
-    EEPROM.put(addr + i, temp.mqttPassword[i]);
-  }
+
+  for (size_t i = 0; i < sizeof(temp.mqttPassword); i++) EEPROM.put(addr + i, temp.mqttPassword[i]);
   addr += sizeof(temp.mqttPassword);
-  
-  // Salvar UF
-  for (size_t i = 0; i < sizeof(temp.uf); i++) {
-    EEPROM.put(addr + i, temp.uf[i]);
-  }
+
+  for (size_t i = 0; i < sizeof(temp.uf); i++) EEPROM.put(addr + i, temp.uf[i]);
   addr += sizeof(temp.uf);
-  
-  // Salvar CAR Number
-  for (size_t i = 0; i < sizeof(temp.carNumber); i++) {
-    EEPROM.put(addr + i, temp.carNumber[i]);
-  }
+
+  for (size_t i = 0; i < sizeof(temp.carNumber); i++) EEPROM.put(addr + i, temp.carNumber[i]);
   addr += sizeof(temp.carNumber);
-  
-  // Salvar CRC
+
   EEPROM.put(addr, temp.crc);
-  
-  bool success = EEPROM.commit();
-  
-  if (success) {
-    // Serial.println("✅ Configuração salva com sucesso na EEPROM (método alternativo)");
-    
-  // Debug dos primeiros bytes após salvar (na região de config)
-  
-  // Serial.println("🔍 Primeiros bytes da EEPROM após salvar (base=CONFIG_EEPROM_BASE):");
-  // for (int i = 0; i < 64; i++) {
-  //   uint8_t byte = EEPROM.read(CONFIG_EEPROM_BASE + i);
-  //     if (i % 16 == 0) Serial.println();
-  //     Serial.printf("%02X ", byte);
-  //   }
-  //   Serial.println();
-  
-  } else {
-    // Serial.println("❌ Erro ao salvar configuração na EEPROM");
+
+  // P1: falha de commit sempre visível em produção
+  if (!EEPROM.commit()) {
+    Serial.println(F("EEPROM:COMMIT_FAIL"));
   }
 }
 
 void performFactoryReset(DeviceConfig &cfg) {
-  // Serial.println("🔄 Executando reset de fábrica...");
-  
-  // Limpar toda a estrutura
   memset(&cfg, 0, sizeof(DeviceConfig));
-  
-  // Definir valores padrão
   cfg.version = 2;
   copyField(cfg.ssid, M360_STA_SSID);
   copyField(cfg.password, M360_STA_PASSWORD);
@@ -414,21 +220,7 @@ void performFactoryReset(DeviceConfig &cfg) {
   copyField(cfg.mqttPassword, M360_MQTT_PASSWORD);
   copyField(cfg.uf, M360_UF);
   copyField(cfg.carNumber, M360_CAR_NUMBER);
-  
-  // Calcular CRC
   cfg.crc = calcCRC(cfg);
-  
-  // Serial.println("✅ Reset de fábrica concluído");
-  // Serial.print("   SSID: ");
-  // Serial.println(cfg.ssid);
-  // Serial.print("   MQTT Server: ");
-  // Serial.println(cfg.mqttServer);
-  // Serial.print("   UF: ");
-  // Serial.println(cfg.uf);
-  // Serial.print("   CAR: ");
-  // Serial.println(cfg.carNumber);
-  // Serial.print("   CRC: ");
-  // Serial.println(cfg.crc);
 }
 
 bool isValidConfig(const DeviceConfig &cfg) {
@@ -454,7 +246,7 @@ String buildTopicIn(const DeviceConfig &cfg) {
   topic += cfg.carNumber;
   topic += "/in";
   return topic;
-} 
+}
 
 // Utilitário: lê A0 duas vezes e retorna true se a média estiver abaixo do threshold
 bool isA0Low(int pin, int threshold) {
@@ -463,7 +255,6 @@ bool isA0Low(int pin, int threshold) {
   int a2 = analogRead(pin);
   return ((a1 + a2) / 2) < threshold;
 }
-
 
 void checkResetButton(DeviceConfig &cfg, int pin) {
   // NÃO verificar reset quando estiver em modo AP
@@ -475,7 +266,6 @@ void checkResetButton(DeviceConfig &cfg, int pin) {
   static unsigned long lastCheck = 0;
   static unsigned long bootTime = 0;
 
-  // Inicializar tempo de boot na primeira chamada
   if (bootTime == 0) {
     bootTime = millis();
   }
@@ -491,34 +281,31 @@ void checkResetButton(DeviceConfig &cfg, int pin) {
   }
   lastCheck = millis();
 
-  // Ler valor analógico e fazer média para reduzir ruído
   int value1 = analogRead(pin);
   delay(10);
   int value2 = analogRead(pin);
   int value = (value1 + value2) / 2;
 
-  // Debug apenas a cada 10 segundos para não poluir o serial
   static unsigned long lastDebug = 0;
   if (millis() - lastDebug > 10000) {
-    Serial.printf("🔍 Pino A0: %d (threshold: 20) - Janela: %lds\n", value, (30000 - (millis() - bootTime)) / 1000);
+    Serial.printf("A0:%d janela:%lds\n", value, (30000 - (millis() - bootTime)) / 1000);
     lastDebug = millis();
   }
 
-  if (value < 400) {  // Threshold muito mais conservador (20 em vez de 50)
+  if (value < 400) {
     if (pressed == 0) {
       pressed = millis();
-      Serial.println("🔄 Pino A0 detectado como BAIXO - iniciando contagem...");
+      Serial.println(F("A0:LOW reset contando..."));
     }
-
     if (millis() - pressed > 3000) {
-      Serial.println("✅ Reset confirmado! Executando reset de fábrica...");
+      Serial.println(F("A0:RESET confirmado"));
       performFactoryReset(cfg);
       saveConfig(cfg);
       ESP.restart();
     }
   } else {
     if (pressed != 0) {
-      Serial.println("ℹ️ Pino A0 voltou para ALTO - cancelando reset");
+      Serial.println(F("A0:HIGH reset cancelado"));
       pressed = 0;
     }
   }

@@ -129,25 +129,17 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   Serial.println("📨 Comando MQTT recebido:");
   Serial.print("   Tópico: ");
   Serial.println(topic);
-  
-  // Converter payload para string
-  String payloadStr = "";
-  for (unsigned int i = 0; i < length; i++) {
-    payloadStr += (char)payload[i];
-  }
-  Serial.print("   Payload: ");
-  Serial.println(payloadStr);
-  
-  // Parse JSON
+
+  // P5: deserializa diretamente do buffer payload, sem construir String intermediária
   DynamicJsonDocument doc(512);
-  DeserializationError error = deserializeJson(doc, payloadStr);
-  
+  DeserializationError error = deserializeJson(doc, payload, length);
+
   if (error) {
     Serial.print("❌ Erro ao parsear JSON: ");
     Serial.println(error.c_str());
     return;
   }
-  
+
   // Processar comando
   processMQTTCommand(doc);
 }

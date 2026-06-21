@@ -59,11 +59,13 @@ String generateIndexHTML(const DeviceConfig &cfg) {
     Serial.print("🔍 Redes encontradas (scan async): ");
     Serial.println(n);
 
-    // Ordenar índices por RSSI (bubble sort)
-    int sortedIndices[n];
-    for (int i = 0; i < n; i++) sortedIndices[i] = i;
-    for (int i = 0; i < n - 1; i++) {
-      for (int j = 0; j < n - i - 1; j++) {
+    // P7: array de tamanho fixo (VLA é UB em C++11 estrito e perigoso com n<0)
+    const int MAX_NETWORKS = 20;
+    int sortedIndices[MAX_NETWORKS];
+    int netCount = (n < MAX_NETWORKS) ? n : MAX_NETWORKS;
+    for (int i = 0; i < netCount; i++) sortedIndices[i] = i;
+    for (int i = 0; i < netCount - 1; i++) {
+      for (int j = 0; j < netCount - i - 1; j++) {
         if (WiFi.RSSI(sortedIndices[j]) < WiFi.RSSI(sortedIndices[j + 1])) {
           int temp = sortedIndices[j];
           sortedIndices[j] = sortedIndices[j + 1];
@@ -74,14 +76,14 @@ String generateIndexHTML(const DeviceConfig &cfg) {
 
     // SSID configurado no topo se não estiver na lista
     bool currentSSIDFound = false;
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < netCount; i++) {
       if (WiFi.SSID(sortedIndices[i]) == String(cfg.ssid)) { currentSSIDFound = true; break; }
     }
     if (!currentSSIDFound && strlen(cfg.ssid) > 0) {
       html += "<option value='" + String(cfg.ssid) + "' selected>" + String(cfg.ssid) + " (configurado)</option>";
     }
 
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < netCount; i++) {
       int idx = sortedIndices[i];
       String ssid = WiFi.SSID(idx);
       int rssi = WiFi.RSSI(idx);
@@ -186,7 +188,14 @@ void handleSave(DeviceConfig &cfg, ESP8266WebServer &server) {
     strncpy(cfg.password, passwordStr.c_str(), sizeof(cfg.password) - 1);
   }
   strncpy(cfg.mqttServer, mqttServerStr.c_str(), sizeof(cfg.mqttServer) - 1);
-  cfg.mqttPort = server.arg("mqttPort").toInt();
+  // P6: validar porta MQTT antes de aceitar
+  int port = server.arg("mqttPort").toInt();
+  if (port <= 0 || port > 65535) {
+    Serial.println("❌ Porta MQTT inválida!");
+    server.send(400, "text/html", "<h3>❌ Erro: Porta MQTT deve estar entre 1 e 65535!</h3><a href='/'>Voltar</a>");
+    return;
+  }
+  cfg.mqttPort = (uint16_t)port;
   strncpy(cfg.mqttUser, mqttUserStr.c_str(), sizeof(cfg.mqttUser) - 1);
   if (mqttPasswordStr.length() > 0) {
     strncpy(cfg.mqttPassword, mqttPasswordStr.c_str(), sizeof(cfg.mqttPassword) - 1);

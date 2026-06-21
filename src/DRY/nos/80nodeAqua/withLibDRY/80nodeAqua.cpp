@@ -12,14 +12,20 @@
 #include <MySensors.h>
 
 // ===== CHILD IDs =====
-#define CHILD_ID_LEVEL 0
-#define CHILD_ID_PH 1
-#define CHILD_ID_EC 2
-#define CHILD_ID_FLOW 3
+#define CHILD_ID_LEVEL      0
+#define CHILD_ID_PH         1
+#define CHILD_ID_EC         2
+#define CHILD_ID_FLOW       3
 #define CHILD_ID_WATER_TEMP 4
-#define CHILD_ID_FLOW_A 5
-#define CHILD_ID_FLOW_B 6
-#define CHILD_ID_FLOW_C 7
+#define CHILD_ID_FLOW_A     5
+#define CHILD_ID_FLOW_B     6
+#define CHILD_ID_FLOW_C     7
+
+// Índices no array NODE_ITEMS (espelham os CHILD_IDs acima, mas são conceitos distintos).
+// Usar IDX_* ao acessar lastValues[], nNoUpdates[] e messages[] por posição.
+static const uint8_t IDX_PH         = 1;
+static const uint8_t IDX_EC         = 2;
+static const uint8_t IDX_WATER_TEMP = 4;
 
 // ===== DEFINIÇÃO DOS ITENS DO NÓ =====
 // childId | kind | presentType | valueType | pin | intervalMin | samples |
@@ -109,28 +115,25 @@ bool shouldSampleAqua() {
 void performAquaSampling() {
   allowAquaRead = true;
 
-  // pH
-  float ph = readNodeItem(CHILD_ID_PH);
+  float ph = readNodeItem(IDX_PH);
   if (!isnan(ph)) {
-    lastValues[CHILD_ID_PH] = ph;
-    nNoUpdates[CHILD_ID_PH] = 0;
-    send(messages[CHILD_ID_PH].set(ph, 1));
+    lastValues[IDX_PH] = ph;
+    nNoUpdates[IDX_PH] = 0;
+    send(messages[IDX_PH].set(ph, 1));
   }
 
-  // EC
-  float ec = readNodeItem(CHILD_ID_EC);
+  float ec = readNodeItem(IDX_EC);
   if (!isnan(ec)) {
-    lastValues[CHILD_ID_EC] = ec;
-    nNoUpdates[CHILD_ID_EC] = 0;
-    send(messages[CHILD_ID_EC].set(ec, 1));
+    lastValues[IDX_EC] = ec;
+    nNoUpdates[IDX_EC] = 0;
+    send(messages[IDX_EC].set(ec, 1));
   }
 
-  // Temperatura da Água
-  float temp = readNodeItem(CHILD_ID_WATER_TEMP);
+  float temp = readNodeItem(IDX_WATER_TEMP);
   if (!isnan(temp)) {
-    lastValues[CHILD_ID_WATER_TEMP] = temp;
-    nNoUpdates[CHILD_ID_WATER_TEMP] = 0;
-    send(messages[CHILD_ID_WATER_TEMP].set(temp, 1));
+    lastValues[IDX_WATER_TEMP] = temp;
+    nNoUpdates[IDX_WATER_TEMP] = 0;
+    send(messages[IDX_WATER_TEMP].set(temp, 1));
   }
 
   allowAquaRead = false;
@@ -139,8 +142,8 @@ void performAquaSampling() {
 // ===== MYSENSORS HOOKS =====
 
 void before() {
+  Serial.begin(MY_BAUD_RATE);
   initSensors();
-  // Sendo ALWAYS_ON, deixamos os sensores ligados permanentemente por padrão
   powerUpSensors();
 }
 

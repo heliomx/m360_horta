@@ -15,8 +15,8 @@ void initSensors()
 void powerUpSensors()
 {
 	digitalWrite(PIN_POWER_SENSORS, HIGH);
-	delay(2000); // Aguarda estabilização de sensores (ex: DHT22)
-	
+	wait(2000); // Aguarda estabilização de sensores (ex: DHT22); wait() processa rádio, delay() não
+
 	// Inicializar bibliotecas de sensores aqui
 	// Ex: dht.begin();
 }
@@ -52,12 +52,13 @@ float readNodeItem(uint8_t itemIndex)
 	}
 }
 
-void writeNodeItem(uint8_t childId, bool state)
+void writeNodeItem(uint8_t nodeIndex, bool state)
 {
-	// Mapeado baseado no childId MySensors do atuador:
-	// Ex: childId 2 para o Relé
-	
-	if (childId == 2) {
+	// nodeIndex é a posição no NODE_ITEMS[], NÃO o childId MySensors.
+	// Ex: se CHILD_RELAY for o item de índice 2 em NODE_ITEMS[], o motor chama writeNodeItem(2, …)
+	// independentemente do valor de CHILD_RELAY.
+
+	if (nodeIndex == 2) {
 		relayState = state;
 		digitalWrite(PIN_RELAY, state ? HIGH : LOW);
 	}

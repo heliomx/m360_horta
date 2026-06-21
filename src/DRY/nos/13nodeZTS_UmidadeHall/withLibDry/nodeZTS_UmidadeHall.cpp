@@ -14,7 +14,7 @@
 #include <Arduino.h>
 #include <MySensors.h>
 #include <M360.h>
-#include "../sensorDrivers.h"
+#include "sensorDrivers.h"
 
 // ===== DEFINIÇÃO DOS ITENS DO NÓ =====
 // childId               | kind             | presentType      | valueType      | pin | intMin | smp | label           | wakeOnRadio | flags
@@ -55,8 +55,7 @@ float readItem(uint8_t nodeIndex)
 void writeItem(uint8_t nodeIndex, bool state)
 {
 	if (nodeIndex < NODE_ITEMS_COUNT) {
-		// sensorDrivers.cpp::writeNodeItem() mapeia por childId interno.
-		writeNodeItem(NODE_ITEMS[nodeIndex].childId, state);
+		writeNodeItem(nodeIndex, state);
 	}
 }
 
@@ -68,7 +67,9 @@ namespace M360
 	{
 		// Liga o relé que alimenta o RS485 e o sensor ZTS
 		powerUpPeripherals();
-		delay(500); // Aguarda estabilização do sensor Modbus
+		// P10: wait() processa mensagens de rádio enquanto aguarda estabilização
+		// do sensor Modbus (ao contrário de delay() que bloqueia a janela de escuta)
+		wait(500);
 	}
 
 	void powerDown()
@@ -85,13 +86,16 @@ void presentation()
 	node.begin("M360 ZTS+UmidadeHall LibDRY PASSIVE", "2.3");
 }
 
-void setup()
+void before()
 {
 	Serial.begin(MY_BAUD_RATE);
 	initDrivers();
+}
+
+void setup()
+{
 	node.onRead(readItem);
 	node.onWrite(writeItem);
-	// node.setupPins(); // Omitido pois initDrivers() já cuida do hardware específico.
 }
 
 void loop()

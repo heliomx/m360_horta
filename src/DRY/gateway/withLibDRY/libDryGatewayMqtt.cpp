@@ -7,8 +7,8 @@
  * DIFERENÇAS em relação a newGatewayMqtt.cpp:
  *   + #include <M360Gateway.h>
  *   + Instância global:  M360::M360Gateway gateway(mqttClient)
- *   + setup() final:	 gateway.begin(...) + gateway.onHeartbeat(...) + gateway.onNodeCheck(...)
- *   + loop():			substituído por gateway.loop()
+ *   + setup() final:     gateway.begin(...) + gateway.onHeartbeat(...) + gateway.onNodeCheck(...)
+ *   + loop():            substituído por gateway.loop()
  *   - Removido: controle manual de lastHeartbeat, lastNodeCheck e isAPMode inline no loop()
  *
  * Tudo mais (before, presentation, receive, sendMQTT, helpers) é idêntico ao original.
@@ -43,7 +43,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ==== OBJETOS GLOBAIS ====
-WiFiClient	 espClient;
+WiFiClient     espClient;
 PubSubClient   mqttClient(espClient);
 ESP8266WebServer server(80);
 
@@ -76,10 +76,10 @@ void presentation() {
 void receive(const MyMessage &message) {
 	Serial.println("📨 Mensagem MySensors recebida:");
 	ledFlicker(LED_GREEN);
-	Serial.print("   Nó: ");	  Serial.print(message.getSender());
-	Serial.print(", Sensor: ");   Serial.print(message.getSensor());
-	Serial.print(", Comando: ");  Serial.print(message.getCommand());
-	Serial.print(", Tipo: ");	 Serial.println(message.getType());
+	Serial.print("   Nó: ");     Serial.print(message.getSender());
+	Serial.print(", Sensor: ");  Serial.print(message.getSensor());
+	Serial.print(", Comando: "); Serial.print(message.getCommand());
+	Serial.print(", Tipo: ");    Serial.println(message.getType());
 
 	if (message.getLength() > 0) {
 		Serial.print("   Payload: ");
@@ -150,7 +150,8 @@ void before() {
 
 	Serial.println("🚀 Iniciando Manejo360 Gateway MQTT (estágio BEFORE)...");
 
-	EEPROM.begin(CONFIG_EEPROM_BASE + sizeof(DeviceConfig));
+	// P3: alocar toda a região necessária (base + struct + 4 bytes de margem)
+	EEPROM.begin(CONFIG_EEPROM_BASE + sizeof(DeviceConfig) + 4);
 
 	// Limpar área MySensors (0-511) apenas se houver dados residuais
 	bool needsEepromClean = false;
@@ -274,24 +275,24 @@ void updateLEDStatus() {
 
 	bool wifiConnected = (WiFi.status() == WL_CONNECTED);
 	bool mqttConnected = mqttClient.connected();
-	bool isInAPMode	= (WiFi.getMode() == WIFI_AP);
+	bool isInAPMode    = (WiFi.getMode() == WIFI_AP);
 
 	if (isInAPMode) {
-		setLedState(LED_RED,	LED_STATE_OFF);
+		setLedState(LED_RED,    LED_STATE_OFF);
 		setLedState(LED_YELLOW, LED_STATE_BLINK, 200);
 		setLedState(LED_GREEN,  LED_STATE_OFF);
 	} else if (wifiConnected) {
 		if (mqttConnected) {
-			setLedState(LED_RED,	LED_STATE_OFF);
+			setLedState(LED_RED,    LED_STATE_OFF);
 			setLedState(LED_YELLOW, LED_STATE_OFF);
 			setLedState(LED_GREEN,  LED_STATE_ON);
 		} else {
-			setLedState(LED_RED,	LED_STATE_OFF);
+			setLedState(LED_RED,    LED_STATE_OFF);
 			setLedState(LED_YELLOW, LED_STATE_BLINK, 400);
 			setLedState(LED_GREEN,  LED_STATE_OFF);
 		}
 	} else {
-		setLedState(LED_RED,	LED_STATE_BLINK, 300);
+		setLedState(LED_RED,    LED_STATE_BLINK, 300);
 		setLedState(LED_YELLOW, LED_STATE_OFF);
 		setLedState(LED_GREEN,  LED_STATE_OFF);
 	}
@@ -324,10 +325,23 @@ void publishHeartbeat() {
 
 // ==== PROCESSAR COMANDO MQTT ====
 
+// P4: overload(JsonDocument) processa diretamente sem dupla serialização/deserialização
 void processMQTTCommand(const JsonDocument& doc) {
 	String payloadStr;
 	serializeJson(doc, payloadStr);
-	processMQTTCommand(payloadStr);
+
+	uint8_t   targetNodeId;
+	MyMessage outMsg;
+
+	if (M360::Translator::fromJSON(payloadStr, outMsg, targetNodeId)) {
+		outMsg.setDestination(targetNodeId);
+		bool success = send(outMsg);
+		Serial.print("🎯 Comando enviado para Nó "); Serial.print(targetNodeId);
+		Serial.println(success ? " ✅" : " ❌");
+		ledFlicker(success ? LED_YELLOW : LED_RED);
+	} else {
+		Serial.println("❌ Erro ao decodificar JSON ou comando inválido");
+	}
 }
 
 void processMQTTCommand(const String& payloadStr) {
@@ -370,7 +384,7 @@ void publishTransportEvent(const char* event, const char* details, int nodeId) {
 
 	String jsonString = M360::Translator::buildEvent(event, nodeId, details, WiFi.RSSI());
 	String topicEvents = buildTopicOut(config) + "/events";
-	bool   success	 = mqttClient.publish(topicEvents.c_str(), jsonString.c_str());
+	bool   success     = mqttClient.publish(topicEvents.c_str(), jsonString.c_str());
 
 	if (success) {
 		ledFlicker(LED_YELLOW);
@@ -386,6 +400,6 @@ void receiveTime(unsigned long ts) {
 	Serial.print("⏰ Time request received: "); Serial.println(ts);
 }
 
-bool gatewayTransportInit()					   { return true;  }
-bool gatewayTransportSend(MyMessage &/*message*/) { return true;  }
-bool gatewayTransportAvailable()				  { return false; }
+bool gatewayTransportInit()                        { return true;  }
+bool gatewayTransportSend(MyMessage &/*message*/)  { return true;  }
+bool gatewayTransportAvailable()                   { return false; }

@@ -87,9 +87,10 @@ void initSensors()
 	PCICR |= (1 << PCIE0);      // Habilita interrupções de Pin Change para Port B
 	PCMSK0 |= (1 << PCINT0);    // Habilita PCINT0 específico do pino D8
 
-	// Habilita PCINT1 para o Port C (A2 / PC2)
+	// Habilita PCINT1 para o Port C (A2 / PC2 / PCINT10)
 	PCICR |= (1 << PCIE1);      // Habilita interrupções de Pin Change para Port C
-	PCMSK1 |= (1 << PCINT10);   // Habilita PCINT10 específico do pino A2
+	// D6-fix: PCINT10 = bit 2 de PCMSK1 (não bit 10 que truncaria para 0x00 em uint8_t)
+	PCMSK1 |= _BV(PC2);         // Habilita PCINT10 (PC2/A2) corretamente
 }
 
 void powerUpSensors()
@@ -238,10 +239,11 @@ float readNodeItem(uint8_t itemIndex)
 			float avgRaw = sum / 10.0f;
 			float voltage = (avgRaw * 5.0f) / 1023.0f;
 			
-			// Equação linear padrão para condutividade elétrica
-			const float EC_SLOPE = 1.0f;
+			// TODO: calibrar com solução padrão (ex.: KCl 1413 μS/cm).
+			// Valores abaixo são placeholder — retornam tensão em V, não μS/cm.
+			const float EC_SLOPE  = 1.0f;
 			const float EC_OFFSET = 0.0f;
-			
+
 			float ecValue = EC_SLOPE * voltage + EC_OFFSET;
 			
 			if (ecValue < 0.0f) {

@@ -64,7 +64,7 @@ static const uint8_t NODE_ITEMS_COUNT =
     sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
 
 // ===== BUFFERS =====
-static MyMessage messages[NODE_ITEMS_COUNT + 2]; // +1 CHILD_ID_INTERVAL, +1 spare
+static MyMessage messages[NODE_ITEMS_COUNT + 2]; // +1 Intervalo (ID 254) +1 Bateria (ID 255)
 static float     lastValues[NODE_ITEMS_COUNT];
 static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
 

@@ -35,6 +35,7 @@ void powerDownSensors();
 float readNodeItem(uint8_t itemIndex);
 
 /**
- * Controla os atuadores com base no childId do MySensors
+ * Controla o atuador mapeado pelo índice do item no NODE_ITEMS[]
+ * ATENÇÃO: nodeIndex é a posição no array NODE_ITEMS[], NÃO o childId MySensors.
  */
-void writeNodeItem(uint8_t childId, bool state);
+void writeNodeItem(uint8_t nodeIndex, bool state);

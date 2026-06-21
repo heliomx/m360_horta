@@ -14,8 +14,8 @@
 
 #include <Arduino.h>
 
-// Configurações do MySensors devem vir ANTES do include
-#define MY_NODE_ID 1
+// MY_NODE_ID definido via platformio.ini [env:node_01_...] — não redefinir aqui
+// (redefinir aqui prevaleceria sobre o .ini e geraria confusão de manutenção)
 
 #include <MySensors.h>
 #include <M360.h>
@@ -23,7 +23,8 @@
 
 // Definição dos 9 sensores resistivos (9 no Canteiro A)
 // Canteiro A usa os MUX canais 0 a 8.
-M360::M360ItemDef nodeItems[] = {
+// TODO: adicionar canais 9-17 (canteiros B e C) quando eletrodos forem instalados.
+static const M360::M360ItemDef nodeItems[] = {
 	// Canteiro A - 9 sensores (Child IDs 0 a 8)
 	{0,  M360::M360_SENSOR, S_MOISTURE, V_LEVEL, -1, 0, 1, "A_1m_10cm", false, 0},
 	{1,  M360::M360_SENSOR, S_MOISTURE, V_LEVEL, -1, 0, 1, "A_1m_20cm", false, 0},
@@ -36,18 +37,16 @@ M360::M360ItemDef nodeItems[] = {
 	{8,  M360::M360_SENSOR, S_MOISTURE, V_LEVEL, -1, 0, 1, "A_5m_30cm", false, 0}
 };
 
-const uint8_t numItems = sizeof(nodeItems) / sizeof(M360::M360ItemDef);
+static const uint8_t numItems = sizeof(nodeItems) / sizeof(M360::M360ItemDef);
 
-// Variáveis exigidas pelo M360-DRY
-MyMessage messages[numItems + 2];
-float lastValues[numItems];
-uint8_t nNoUpdates[numItems];
+static MyMessage messages[numItems + 2];
+static float     lastValues[numItems];
+static uint8_t   nNoUpdates[numItems];
 
-// Instancia o nó no modo PASSIVE (acorda no intervalo para verificar o gateway, mas só lê sob comando)
-M360::M360Node node(nodeItems, numItems, messages, lastValues, nNoUpdates, M360::M360_LOW_POWER);
+static M360::M360Node node(nodeItems, numItems, messages, lastValues, nNoUpdates, M360::M360_LOW_POWER);
 
 void before() {
-	// Inicializa os pinos de hardware em repouso
+	Serial.begin(MY_BAUD_RATE);
 	initSensors();
 }
 
