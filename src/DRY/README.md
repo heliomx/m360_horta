@@ -77,7 +77,7 @@ src/DRY/
 │       └── libDryGatewayMqtt.cpp
 │
 └── nos/                      # Firmware e especificações dos Nós de Campo
-    ├── shared/               # [CAMADA 1] Motor compartilhado de todos os nós
+    ├── shared/               # Motor legado; novos nós usam lib/M360-DRY
     │   ├── README.md         # Documentação detalhada do Node Engine
     │   ├── config.h          # Configurações globais e Child IDs fixos
     │   ├── node_engine.h/cpp # Motor declarativo dos sensores e atuadores
@@ -177,6 +177,9 @@ Localizado em **`src/DRY/gateway/`**, o gateway atua como a ponte inteligente en
 ---
 
 ## 📜 Diretrizes e Checklist Anti-Padrões (Verificar antes de Commit)
+
+Antes de compilar o gateway, copie `include/M360Credentials.h.example` para
+`include/M360Credentials.h` e preencha AP, STA, MQTT, UF e CAR. O arquivo local é ignorado pelo Git.
 
 Para manter a integridade conceitual do modelo DRY, todos os firmwares devem ser validados de acordo com o checklist abaixo:
 

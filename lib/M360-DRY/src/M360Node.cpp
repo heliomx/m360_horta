@@ -3,6 +3,7 @@
  */
 
 #include "M360Node.h"
+#include "M360Constants.h"
 #include <math.h>
 
 // Forward declarations of MySensors functions not defined in core headers
@@ -27,7 +28,7 @@ namespace M360
 	      _lastValues(lastValues),
 	      _nNoUpdates(nNoUpdates),
 	      _interval(M360_DEFAULT_INTERVAL),
-	      _lastBatt(0),
+	      _lastBattVoltage(NAN),
 	      _battCycle(0),
 	      _profile(profile),
 	      _readCb(nullptr),
@@ -173,7 +174,7 @@ namespace M360
 		if (msg.getType() == V_CUSTOM) {
 			char buf[24];
 			msg.getString(buf);
-			if (strcmp(buf, M360_CMD_FORCE_UPDATE) == 0) {
+			if (strcmp(buf, CMD_FORCE_UPDATE) == 0) {
 				// No modo passivo, precisamos ligar e desligar periféricos explicitamente
 				if (_profile == M360_PASSIVE) {
 					powerUp();
@@ -223,24 +224,16 @@ namespace M360
 	}
 
 	void M360Node::_processBattery() {
-		if (_profile == M360_ALWAYS_ON) {
-			// Fonte fixa: reporta 100%
-			send(_messages[_count + 1].set((uint8_t)100));
-		} else {
-			_battCycle++;
-			if (_battCycle >= 10) {
-				_battCycle = 0;
-				uint8_t b = readBatteryPercent();
-				int diff = (int)b - (int)_lastBatt;
-				if (diff < 0) {
-					diff = -diff;
-				}
-				if ((uint8_t)diff >= 1) {
-					_lastBatt = b;
-					send(_messages[_count + 1].set(b));
-					Serial.print(F("Bat:"));
-					Serial.println(b);
-				}
+		_battCycle++;
+		if (isnan(_lastBattVoltage) || _battCycle >= 10) {
+			_battCycle = 0;
+			float voltage = readBatteryVoltage();
+			if (voltage > 0.0f &&
+			    (isnan(_lastBattVoltage) || fabsf(voltage - _lastBattVoltage) >= 0.1f)) {
+				_lastBattVoltage = voltage;
+				send(_messages[_count + 1].set(voltage, 1));
+				Serial.print(F("Bat:"));
+				Serial.println(voltage, 1);
 			}
 		}
 	}

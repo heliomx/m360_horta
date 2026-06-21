@@ -44,7 +44,7 @@ float lastValues[numItems];
 uint8_t nNoUpdates[numItems];
 
 // Instancia o nó no modo PASSIVE (acorda no intervalo para verificar o gateway, mas só lê sob comando)
-M360::M360Node node(nodeItems, numItems, messages, lastValues, nNoUpdates, M360::M360_PASSIVE);
+M360::M360Node node(nodeItems, numItems, messages, lastValues, nNoUpdates, M360::M360_LOW_POWER);
 
 void before() {
 	// Inicializa os pinos de hardware em repouso
@@ -58,16 +58,11 @@ namespace M360 {
 	}
 	void powerDown() {
 		powerDownSensors();
-
-		// Envia a carga da bateria sempre depois de acordar (antes de dormir)
-		uint8_t batt = readBatteryPercent();
-		send(messages[numItems + 1].set(batt));
-
-		#ifdef MY_DEBUG
-		Serial.print(F("Bat:"));
-		Serial.println(batt);
-		#endif
 	}
+}
+
+void presentation() {
+	node.begin("01nodeSolo3dMini", "1.0");
 }
 
 void setup() {
@@ -75,7 +70,6 @@ void setup() {
 	node.onRead(readNodeItem);
 	
 	// Inicia a apresentação na rede MySensors e carrega o intervalo da EEPROM
-	node.begin("01nodeSolo3dMini", "1.0");
 }
 
 void loop() {

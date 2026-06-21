@@ -19,7 +19,7 @@ classification:
 O projeto **m360_horta** foca no monitoramento ambiental e de solo de alta fidelidade, utilizando o ecossistema Arduino e o protocolo MySensors. O objetivo central é fornecer dados contínuos e padronizados sobre as condições de cultivo, permitindo uma gestão baseada em dados reais para otimizar a saúde das plantas.
 
 ### O Que Torna Este Projeto Especial
-O diferencial é a arquitetura **DRY**, ancorada no `node_engine`. Isso permite a geração acelerada de nós complexos — como este nó que combina Ar (DHT), Solo (Moisture redundante) e Líquidos (DS18B20) — garantindo padrões rigorosos de comunicação e baixo consumo.
+O diferencial é a arquitetura **DRY**, ancorada na biblioteca `lib/M360-DRY` e em `M360Node`. Isso permite a geração acelerada de nós complexos com padrões rigorosos de comunicação e baixo consumo.
 
 ## 2. Critérios de Sucesso
 
@@ -28,7 +28,7 @@ O diferencial é a arquitetura **DRY**, ancorada no `node_engine`. Isso permite 
 - Os sensores de solo operam sem corrosão prematura (via gestão de energia por código).
 
 ### Sucesso Técnico
-- O nó consome corrente mínima em sleep mode (conforme padrão do `node_engine`).
+- O nó consome corrente mínima em sleep mode conforme o perfil `M360_LOW_POWER`.
 - Zero colisões de rádio no envio de mensagens do MySensors.
 
 ## 3. Requisitos Funcionais
@@ -38,7 +38,7 @@ O diferencial é a arquitetura **DRY**, ancorada no `node_engine`. Isso permite 
 | RF01 | Ler Temperatura e Umidade do Ar via DHT11 (Pino D2). | P1 |
 | RF02 | Ler Temperatura de Solo/Líquido via DS18B20 (Pino D3). | P1 |
 | RF03 | Ler Umidade de Solo 1 (Pino A0) e Solo 2 (Pino A1). | P1 |
-| RF04 | Integrar mensagens ao `node_engine` (V_TEMP, V_HUM). | P1 |
+| RF04 | Integrar mensagens ao `M360Node` (V_TEMP, V_HUM). | P1 |
 | RF05 | Reportar nível de bateria periodicamente. | P2 |
 
 ## 4. Especificações de Hardware (Diagrama)
@@ -54,8 +54,7 @@ O diferencial é a arquitetura **DRY**, ancorada no `node_engine`. Isso permite 
 
 - **Modularidade:** O código deve estar separado em `sensorDrivers` e lógica de nó.
 - **Eficiência:** Uso obrigatório de `Deep Sleep` entre leituras.
-- **Portabilidade:** Seguir estritamente as definições de `config.h` e `node_engine.h`.
+- **Portabilidade:** Seguir os contratos de `M360Config.h`, `M360Constants.h` e `M360Node`.
 
 ---
 *PRD Finalizado e pronto para codificação.*
-

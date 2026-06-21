@@ -14,6 +14,7 @@
 
 // Inclui dependências principais
 #include "M360Config.h"
+#include "M360Constants.h"
 #include "M360Power.h"
 #include "M360Node.h"
 

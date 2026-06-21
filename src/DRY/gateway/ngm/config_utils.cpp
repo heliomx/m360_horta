@@ -4,6 +4,40 @@
 // Definir a variável global config
 DeviceConfig config;
 
+namespace {
+
+template <size_t N>
+void terminateField(char (&field)[N]) {
+  field[N - 1] = '\0';
+}
+
+template <size_t N>
+void copyField(char (&destination)[N], const char *source) {
+  memset(destination, 0, N);
+  strncpy(destination, source, N - 1);
+}
+
+void terminateConfigFields(DeviceConfig &cfg) {
+  terminateField(cfg.ssid);
+  terminateField(cfg.password);
+  terminateField(cfg.mqttServer);
+  terminateField(cfg.mqttUser);
+  terminateField(cfg.mqttPassword);
+  terminateField(cfg.uf);
+  terminateField(cfg.carNumber);
+}
+
+uint16_t calcLegacyCRC(const DeviceConfig &cfg) {
+  uint16_t crc = 0;
+  for (size_t i = 0; i < sizeof(cfg.ssid) && cfg.ssid[i] != '\0'; i++) crc += cfg.ssid[i];
+  for (size_t i = 0; i < sizeof(cfg.mqttServer) && cfg.mqttServer[i] != '\0'; i++) crc += cfg.mqttServer[i];
+  for (size_t i = 0; i < sizeof(cfg.uf) && cfg.uf[i] != '\0'; i++) crc += cfg.uf[i];
+  for (size_t i = 0; i < sizeof(cfg.carNumber) && cfg.carNumber[i] != '\0'; i++) crc += cfg.carNumber[i];
+  return static_cast<uint16_t>(crc + cfg.mqttPort + cfg.version);
+}
+
+} // namespace
+
 // ==== FUNÇÕES AUXILIARES MYSENSORS ====
 const char* getTypeDescription(int type) {
   switch(type) {
@@ -85,22 +119,31 @@ uint16_t calcCRC(const DeviceConfig &cfg) {
   uint16_t crc = 0;
   
   // Somar caracteres do SSID
-  for (int i = 0; i < strlen(cfg.ssid); i++) {
+  for (size_t i = 0; i < sizeof(cfg.ssid) && cfg.ssid[i] != '\0'; i++) {
     crc += cfg.ssid[i];
   }
   
   // Somar caracteres do MQTT Server
-  for (int i = 0; i < strlen(cfg.mqttServer); i++) {
+  for (size_t i = 0; i < sizeof(cfg.password) && cfg.password[i] != '\0'; i++) {
+    crc += cfg.password[i];
+  }
+  for (size_t i = 0; i < sizeof(cfg.mqttServer) && cfg.mqttServer[i] != '\0'; i++) {
     crc += cfg.mqttServer[i];
   }
   
   // Somar caracteres da UF
-  for (int i = 0; i < strlen(cfg.uf); i++) {
+  for (size_t i = 0; i < sizeof(cfg.mqttUser) && cfg.mqttUser[i] != '\0'; i++) {
+    crc += cfg.mqttUser[i];
+  }
+  for (size_t i = 0; i < sizeof(cfg.mqttPassword) && cfg.mqttPassword[i] != '\0'; i++) {
+    crc += cfg.mqttPassword[i];
+  }
+  for (size_t i = 0; i < sizeof(cfg.uf) && cfg.uf[i] != '\0'; i++) {
     crc += cfg.uf[i];
   }
   
   // Somar caracteres do CAR Number
-  for (int i = 0; i < strlen(cfg.carNumber); i++) {
+  for (size_t i = 0; i < sizeof(cfg.carNumber) && cfg.carNumber[i] != '\0'; i++) {
     crc += cfg.carNumber[i];
   }
   
@@ -150,7 +193,7 @@ void loadConfig(DeviceConfig &cfg) {
   // Carregar SSID
   
   // Serial.println("   Carregando SSID...");
-  for (int i = 0; i < sizeof(cfg.ssid); i++) {
+  for (size_t i = 0; i < sizeof(cfg.ssid); i++) {
     cfg.ssid[i] = EEPROM.read(addr + i);
     // if (i < 10) {
     //   Serial.printf("      SSID[%d] = 0x%02X ('%c') from addr %d\n", i, cfg.ssid[i], 
@@ -167,13 +210,13 @@ void loadConfig(DeviceConfig &cfg) {
   // Serial.println(")");
   
   // Carregar password
-  for (int i = 0; i < sizeof(cfg.password); i++) {
+  for (size_t i = 0; i < sizeof(cfg.password); i++) {
     cfg.password[i] = EEPROM.read(addr + i);
   }
   addr += sizeof(cfg.password);
   
   // Carregar MQTT Server
-  for (int i = 0; i < sizeof(cfg.mqttServer); i++) {
+  for (size_t i = 0; i < sizeof(cfg.mqttServer); i++) {
     cfg.mqttServer[i] = EEPROM.read(addr + i);
   }
   addr += sizeof(cfg.mqttServer);
@@ -183,31 +226,36 @@ void loadConfig(DeviceConfig &cfg) {
   addr += sizeof(cfg.mqttPort);
   
   // Carregar MQTT User
-  for (int i = 0; i < sizeof(cfg.mqttUser); i++) {
+  for (size_t i = 0; i < sizeof(cfg.mqttUser); i++) {
     cfg.mqttUser[i] = EEPROM.read(addr + i);
   }
   addr += sizeof(cfg.mqttUser);
   
   // Carregar MQTT Password
-  for (int i = 0; i < sizeof(cfg.mqttPassword); i++) {
+  for (size_t i = 0; i < sizeof(cfg.mqttPassword); i++) {
     cfg.mqttPassword[i] = EEPROM.read(addr + i);
   }
   addr += sizeof(cfg.mqttPassword);
   
   // Carregar UF
-  for (int i = 0; i < sizeof(cfg.uf); i++) {
+  for (size_t i = 0; i < sizeof(cfg.uf); i++) {
     cfg.uf[i] = EEPROM.read(addr + i);
   }
   addr += sizeof(cfg.uf);
   
   // Carregar CAR Number
-  for (int i = 0; i < sizeof(cfg.carNumber); i++) {
+  for (size_t i = 0; i < sizeof(cfg.carNumber); i++) {
     cfg.carNumber[i] = EEPROM.read(addr + i);
   }
   addr += sizeof(cfg.carNumber);
   
   // Carregar CRC
   EEPROM.get(addr, cfg.crc);
+  terminateConfigFields(cfg);
+  if (cfg.version == 1 && cfg.crc == calcLegacyCRC(cfg)) {
+    cfg.version = 2;
+    saveConfig(cfg);
+  }
   
   // Serial.println("🔍 Verificando configuração:");
   // Serial.print("   Versão: ");
@@ -251,6 +299,7 @@ void saveConfig(const DeviceConfig &cfg) {
   // Serial.println(")");
   
   DeviceConfig temp = cfg;
+  terminateConfigFields(temp);
   temp.crc = calcCRC(temp);
   
   // Debug após calcular CRC
@@ -281,19 +330,19 @@ void saveConfig(const DeviceConfig &cfg) {
   addr += sizeof(temp.version);
   
   // Salvar SSID
-  for (int i = 0; i < sizeof(temp.ssid); i++) {
+  for (size_t i = 0; i < sizeof(temp.ssid); i++) {
     EEPROM.put(addr + i, temp.ssid[i]);
   }
   addr += sizeof(temp.ssid);
   
   // Salvar password
-  for (int i = 0; i < sizeof(temp.password); i++) {
+  for (size_t i = 0; i < sizeof(temp.password); i++) {
     EEPROM.put(addr + i, temp.password[i]);
   }
   addr += sizeof(temp.password);
   
   // Salvar MQTT Server
-  for (int i = 0; i < sizeof(temp.mqttServer); i++) {
+  for (size_t i = 0; i < sizeof(temp.mqttServer); i++) {
     EEPROM.put(addr + i, temp.mqttServer[i]);
   }
   addr += sizeof(temp.mqttServer);
@@ -303,25 +352,25 @@ void saveConfig(const DeviceConfig &cfg) {
   addr += sizeof(temp.mqttPort);
   
   // Salvar MQTT User
-  for (int i = 0; i < sizeof(temp.mqttUser); i++) {
+  for (size_t i = 0; i < sizeof(temp.mqttUser); i++) {
     EEPROM.put(addr + i, temp.mqttUser[i]);
   }
   addr += sizeof(temp.mqttUser);
   
   // Salvar MQTT Password
-  for (int i = 0; i < sizeof(temp.mqttPassword); i++) {
+  for (size_t i = 0; i < sizeof(temp.mqttPassword); i++) {
     EEPROM.put(addr + i, temp.mqttPassword[i]);
   }
   addr += sizeof(temp.mqttPassword);
   
   // Salvar UF
-  for (int i = 0; i < sizeof(temp.uf); i++) {
+  for (size_t i = 0; i < sizeof(temp.uf); i++) {
     EEPROM.put(addr + i, temp.uf[i]);
   }
   addr += sizeof(temp.uf);
   
   // Salvar CAR Number
-  for (int i = 0; i < sizeof(temp.carNumber); i++) {
+  for (size_t i = 0; i < sizeof(temp.carNumber); i++) {
     EEPROM.put(addr + i, temp.carNumber[i]);
   }
   addr += sizeof(temp.carNumber);
@@ -356,15 +405,15 @@ void performFactoryReset(DeviceConfig &cfg) {
   memset(&cfg, 0, sizeof(DeviceConfig));
   
   // Definir valores padrão
-  cfg.version = 1;
-  strcpy(cfg.ssid, "ManualConfig");
-  strcpy(cfg.password, "12345678");
-  strcpy(cfg.mqttServer, "72.62.142.165");
-  cfg.mqttPort = 1883;
-  strcpy(cfg.mqttUser, "jmm");
-  strcpy(cfg.mqttPassword, "jmmsqn");
-  strcpy(cfg.uf, "DF");
-  strcpy(cfg.carNumber, "0001");
+  cfg.version = 2;
+  copyField(cfg.ssid, M360_STA_SSID);
+  copyField(cfg.password, M360_STA_PASSWORD);
+  copyField(cfg.mqttServer, M360_MQTT_SERVER);
+  cfg.mqttPort = M360_MQTT_PORT;
+  copyField(cfg.mqttUser, M360_MQTT_USER);
+  copyField(cfg.mqttPassword, M360_MQTT_PASSWORD);
+  copyField(cfg.uf, M360_UF);
+  copyField(cfg.carNumber, M360_CAR_NUMBER);
   
   // Calcular CRC
   cfg.crc = calcCRC(cfg);
@@ -383,7 +432,9 @@ void performFactoryReset(DeviceConfig &cfg) {
 }
 
 bool isValidConfig(const DeviceConfig &cfg) {
-  return (cfg.version == 1 && cfg.crc == calcCRC(cfg));
+  return cfg.version == 2 && cfg.ssid[0] != '\0' && cfg.mqttServer[0] != '\0' &&
+         cfg.uf[0] != '\0' && cfg.carNumber[0] != '\0' && cfg.mqttPort > 0 &&
+         cfg.crc == calcCRC(cfg);
 }
 
 // Funções auxiliares para tópicos MQTT

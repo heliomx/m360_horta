@@ -7,9 +7,9 @@ Este arquivo mapeia os grandes épicos (clusters de valor) e suas Histórias de 
 ## Epic 1: [Core Infrastructure] O Motor Compartilhado (DRY Node Engine)
 **Descrição:** O alicerce MySensors para eliminar duplicação de lógicas de repouso, telemetria e rádio em nós IoT.
 **Pasta Base:** `src/DRY/nos/shared/` e `src/DRY/gateway/`
-- **Story 1.1:** Motor Core e Macros Inteligentes (`node_engine`)
+- **Story 1.1:** Motor Core M360-DRY (`M360Node`)
   - *Contexto:* Configuração base de pinos, setup, heartbeat e leitura segura do payload base para radio RF24.
-  - *Implementação:* `src/DRY/nos/shared/node_engine.h/.cpp`
+  - *Implementação:* `lib/M360-DRY/src/M360Node.h/.cpp`
   - *Cenário 1 (Identificação):* **Dado** um novo nó configurado com `NODE_ENGINE_PRESENTATION`, **Quando** ele é ligado, **Então** ele deve apresentar automaticamente seu Nome e Versão ao Gateway e registrar os Child IDs reservados (254, 255).
 - **Story 1.2:** Gerenciamento de Alimentação Variável
   - *Contexto:* Definir e processar os perfis LOW_POWER (bateria) e ALWAYS_ON (tomada), além do cálculo e leitura (`NODE_ENGINE_PROCESS_BATTERY()`).

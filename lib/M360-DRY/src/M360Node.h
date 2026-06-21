@@ -115,7 +115,7 @@ namespace M360
 		float*             _lastValues;
 		uint8_t*           _nNoUpdates;
 		uint16_t           _interval;
-		uint8_t            _lastBatt;
+		float              _lastBattVoltage;
 		uint8_t            _battCycle;
 
 		M360PowerProfile   _profile;

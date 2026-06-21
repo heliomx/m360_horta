@@ -165,7 +165,7 @@ void receive(const MyMessage &msg) {
   if (msg.getType() == V_CUSTOM) {
     char buf[24];
     msg.getString(buf);
-    if (strcmp(buf, M360_CMD_FORCE_UPDATE) == 0) {
+    if (strcmp(buf, M360::CMD_FORCE_UPDATE) == 0) {
       allowAquaRead = true;
     }
   }

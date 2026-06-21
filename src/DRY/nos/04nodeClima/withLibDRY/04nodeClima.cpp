@@ -52,6 +52,10 @@ namespace M360 {
 	}
 }
 
+void presentation() {
+	node.begin("04nodeClima", "1.0");
+}
+
 void setup() {
 	// Registra o callback de leitura
 	node.onRead(readNodeItem);
@@ -59,7 +63,6 @@ void setup() {
 	// Inicia a apresentação na rede MySensors
 	// Nota: Para forçar 15 minutos obrigatórios, o Backend deve enviar 
 	// uma mensagem V_VAR1=15 para o child 255 deste nó.
-	node.begin("04nodeClima", "1.0");
 }
 
 void loop() {

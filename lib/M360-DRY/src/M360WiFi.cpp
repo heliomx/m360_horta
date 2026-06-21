@@ -5,6 +5,7 @@
 #ifdef ESP8266
 
 #include "M360WiFi.h"
+#include <M360Credentials.h>
 
 namespace M360 {
 
@@ -14,10 +15,10 @@ void WiFiManager::begin(const M360DeviceConfig& cfg) {
 	Serial.println("'...");
 
 	// Verificar modo AP forçado (ManualConfig)
-	if (strcmp(cfg.ssid, "ManualConfig") == 0) {
+	if (cfg.ssid[0] == '\0') {
 		Serial.println("🔄 Modo AP: Detectado SSID padrão 'ManualConfig'.");
 		WiFi.mode(WIFI_AP);
-		WiFi.softAP("Manejo360-Config", "manejo360");
+		WiFi.softAP(M360_AP_SSID, M360_AP_PASSWORD);
 		Serial.print("   IP AP: ");
 		Serial.println(WiFi.softAPIP());
 		return;
@@ -52,7 +53,7 @@ void WiFiManager::begin(const M360DeviceConfig& cfg) {
 	// Se falhar todas as tentativas, ativa AP
 	Serial.println("🔄 WiFi: 3 falhas consecutivas. Entrando em modo AP.");
 	WiFi.mode(WIFI_AP);
-	WiFi.softAP("Manejo360-Config", "manejo360");
+	WiFi.softAP(M360_AP_SSID, M360_AP_PASSWORD);
 	Serial.print("   IP AP: ");
 	Serial.println(WiFi.softAPIP());
 }
@@ -76,7 +77,7 @@ void WiFiManager::process(const M360DeviceConfig& cfg) {
 			} else {
 				Serial.println("🔄 WiFi: Máximo de reconexões excedido. Mudando para modo AP.");
 				WiFi.mode(WIFI_AP);
-				WiFi.softAP("Manejo360-Config", "manejo360");
+				WiFi.softAP(M360_AP_SSID, M360_AP_PASSWORD);
 				Serial.print("   IP AP: ");
 				Serial.println(WiFi.softAPIP());
 			}

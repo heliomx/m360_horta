@@ -14,13 +14,13 @@ Este documento desdobra os requisitos do PRD para o nó de monitoramento de hort
 FR1: Ler Temperatura e Umidade do Ar via DHT11 (Pino D2).
 FR2: Ler Temperatura de Solo/Líquido via DS18B20 (Pino D3).
 FR3: Ler Umidade de Solo 1 (Pino A0) e Solo 2 (Pino A1).
-FR4: Integrar mensagens ao node_engine (V_TEMP, V_HUM).
+FR4: Integrar mensagens ao M360Node (V_TEMP, V_HUM).
 FR5: Reportar nível de bateria periodicamente.
 
 ### NonFunctional Requirements
 NFR1: Modularidade: O código deve estar separado em sensorDrivers e lógica de nó.
 NFR2: Eficiência: Uso obrigatório de Deep Sleep entre leituras.
-NFR3: Portabilidade: Seguir estritamente as definições de config.h e node_engine.h.
+NFR3: Portabilidade: Seguir os contratos da biblioteca M360-DRY.
 
 ### FR Coverage Map
 | Epic | Stories | Requisitos Cobertos |

@@ -6,8 +6,43 @@
 
 #include "M360Config.h"
 #include <EEPROM.h>
+#include <M360Credentials.h>
 
 namespace M360 {
+
+namespace {
+
+template <size_t N>
+void terminateField(char (&field)[N]) {
+	field[N - 1] = '\0';
+}
+
+template <size_t N>
+void copyField(char (&destination)[N], const char *source) {
+	memset(destination, 0, N);
+	strncpy(destination, source, N - 1);
+}
+
+void terminateConfigFields(M360DeviceConfig& cfg) {
+	terminateField(cfg.ssid);
+	terminateField(cfg.password);
+	terminateField(cfg.mqttServer);
+	terminateField(cfg.mqttUser);
+	terminateField(cfg.mqttPassword);
+	terminateField(cfg.uf);
+	terminateField(cfg.carNumber);
+}
+
+uint16_t calculateLegacyCRC(const M360DeviceConfig& cfg) {
+	uint16_t crc = 0;
+	for (size_t i = 0; i < sizeof(cfg.ssid) && cfg.ssid[i] != '\0'; i++) crc += cfg.ssid[i];
+	for (size_t i = 0; i < sizeof(cfg.mqttServer) && cfg.mqttServer[i] != '\0'; i++) crc += cfg.mqttServer[i];
+	for (size_t i = 0; i < sizeof(cfg.uf) && cfg.uf[i] != '\0'; i++) crc += cfg.uf[i];
+	for (size_t i = 0; i < sizeof(cfg.carNumber) && cfg.carNumber[i] != '\0'; i++) crc += cfg.carNumber[i];
+	return static_cast<uint16_t>(crc + cfg.mqttPort + cfg.version);
+}
+
+} // namespace
 
 void Config::load(M360DeviceConfig& cfg) {
 	int addr = M360_EEPROM_DEVICE_BASE;
@@ -64,10 +99,16 @@ void Config::load(M360DeviceConfig& cfg) {
 	
 	// Carregar CRC
 	::EEPROM.get(addr, cfg.crc);
+	terminateConfigFields(cfg);
+	if (cfg.version == 1 && cfg.crc == calculateLegacyCRC(cfg)) {
+		cfg.version = 2;
+		Config::save(cfg);
+	}
 }
 
 void Config::save(const M360DeviceConfig& cfg) {
 	M360DeviceConfig temp = cfg;
+	terminateConfigFields(temp);
 	temp.crc = calculateCRC(temp);
 	
 	int addr = M360_EEPROM_DEVICE_BASE;
@@ -122,34 +163,39 @@ void Config::save(const M360DeviceConfig& cfg) {
 void Config::reset(M360DeviceConfig& cfg) {
 	memset(&cfg, 0, sizeof(M360DeviceConfig));
 	
-	cfg.version = 1;
-	strcpy(cfg.ssid, "ManualConfig");
-	strcpy(cfg.password, "12345678");
-	strcpy(cfg.mqttServer, "72.62.142.165");
-	cfg.mqttPort = 1883;
-	strcpy(cfg.mqttUser, "jmm");
-	strcpy(cfg.mqttPassword, "jmmsqn");
-	strcpy(cfg.uf, "DF");
-	strcpy(cfg.carNumber, "0001");
+	cfg.version = 2;
+	copyField(cfg.ssid, M360_STA_SSID);
+	copyField(cfg.password, M360_STA_PASSWORD);
+	copyField(cfg.mqttServer, M360_MQTT_SERVER);
+	cfg.mqttPort = M360_MQTT_PORT;
+	copyField(cfg.mqttUser, M360_MQTT_USER);
+	copyField(cfg.mqttPassword, M360_MQTT_PASSWORD);
+	copyField(cfg.uf, M360_UF);
+	copyField(cfg.carNumber, M360_CAR_NUMBER);
 	
 	cfg.crc = calculateCRC(cfg);
 }
 
 bool Config::isValid(const M360DeviceConfig& cfg) {
-	return (cfg.version != 0 && cfg.version != 0xFF && cfg.crc == calculateCRC(cfg));
+	return cfg.version == 2 && cfg.ssid[0] != '\0' && cfg.mqttServer[0] != '\0' &&
+	       cfg.uf[0] != '\0' && cfg.carNumber[0] != '\0' && cfg.mqttPort > 0 &&
+	       cfg.crc == calculateCRC(cfg);
 }
 
 uint16_t Config::calculateCRC(const M360DeviceConfig& cfg) {
 	uint16_t crc = 0;
 	
 	// SSID
-	for (unsigned int i = 0; i < strlen(cfg.ssid); i++) crc += cfg.ssid[i];
+	for (size_t i = 0; i < sizeof(cfg.ssid) && cfg.ssid[i] != '\0'; i++) crc += cfg.ssid[i];
+	for (size_t i = 0; i < sizeof(cfg.password) && cfg.password[i] != '\0'; i++) crc += cfg.password[i];
 	// MQTT Server
-	for (unsigned int i = 0; i < strlen(cfg.mqttServer); i++) crc += cfg.mqttServer[i];
+	for (size_t i = 0; i < sizeof(cfg.mqttServer) && cfg.mqttServer[i] != '\0'; i++) crc += cfg.mqttServer[i];
+	for (size_t i = 0; i < sizeof(cfg.mqttUser) && cfg.mqttUser[i] != '\0'; i++) crc += cfg.mqttUser[i];
+	for (size_t i = 0; i < sizeof(cfg.mqttPassword) && cfg.mqttPassword[i] != '\0'; i++) crc += cfg.mqttPassword[i];
 	// UF
-	for (unsigned int i = 0; i < strlen(cfg.uf); i++) crc += cfg.uf[i];
+	for (size_t i = 0; i < sizeof(cfg.uf) && cfg.uf[i] != '\0'; i++) crc += cfg.uf[i];
 	// CAR Number
-	for (unsigned int i = 0; i < strlen(cfg.carNumber); i++) crc += cfg.carNumber[i];
+	for (size_t i = 0; i < sizeof(cfg.carNumber) && cfg.carNumber[i] != '\0'; i++) crc += cfg.carNumber[i];
 	
 	crc += cfg.mqttPort;
 	crc += cfg.version;

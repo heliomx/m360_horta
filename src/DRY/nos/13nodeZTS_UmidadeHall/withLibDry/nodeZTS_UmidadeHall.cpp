@@ -38,7 +38,7 @@ static float     lastValues[NODE_ITEMS_COUNT];
 static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
 
 // ===== INSTÂNCIA DO MOTOR =====
-// Perfil M360_PASSIVE: o nó dorme e só lê quando o gateway enviar V_CUSTOM "teste_do_gateway".
+// Perfil M360_PASSIVE: o nó dorme e só lê quando o gateway enviar V_CUSTOM FORCE_UPDATE.
 static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, messages, lastValues, nNoUpdates,
                            M360::M360_PASSIVE);
 

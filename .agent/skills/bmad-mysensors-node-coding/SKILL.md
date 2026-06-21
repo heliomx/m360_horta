@@ -12,13 +12,14 @@ description: Padrões obrigatórios de codificação DRY para nós MySensors e g
 
 ## 1. Arquitetura e Motor DRY
 
-Toda lógica presente em dois ou mais nós pertence à Camada 1 (`shared/`).
+Toda lógica presente em dois ou mais nós pertence à biblioteca `lib/M360-DRY`.
+O diretório `shared/` existe apenas para manutenção dos nós legados.
 
 ### Estrutura de Diretórios
 ```
 src/DRY/
 ├── nos/
-│   ├── shared/              ← Camada 1: node_engine, config, powerProfile
+│   ├── shared/              ← Legado: node_engine, config, powerProfile
 │   └── nomeDoNo/            ← Camada 2: sensorDrivers.h/cpp + noDesejado.cpp
 └── gateway/                 ← ESP8266 + ngm/ (módulos de infraestrutura)
 ```
@@ -27,12 +28,12 @@ src/DRY/
 
 ## 2. Padrões de Implementação (Nós)
 
-### 2.1 Variáveis Globais (Manual preferido para flexibilidade)
+### 2.1 Buffers dos nós M360-DRY
 ```cpp
 uint16_t updateInterval = DEFAULT_INTERVAL;
 float    lastValues[NODE_ITEMS_COUNT]; 
 uint8_t  nNoUpdates[NODE_ITEMS_COUNT]; 
-MyMessage messages[NODE_ITEMS_COUNT + 1]; // +1 para CHILD_ID_INTERVAL
+MyMessage messages[NODE_ITEMS_COUNT + 2]; // intervalo + bateria
 ```
 
 ### 2.2 Ciclo de Vida (Setup)
@@ -59,7 +60,7 @@ if (abs(val - lastValues[i]) > 0.5 || nNoUpdates[i] >= 10) {
 
 O código implementa padrões específicos para comunicação avançada:
 
-- **FORCE_UPDATE (V_CUSTOM):** O gateway pode forçar a leitura imediata. 
+- **FORCE_UPDATE (V_CUSTOM):** O gateway força a leitura com `CMD_FORCE_UPDATE` (`"FORCE_UPDATE"`).
   - Nó deve setar `nNoUpdates[i] = 255` para todos os sensores.
 - **RESET (V_VAR1):** Usado em nós de vazão para zerar acumuladores.
   - Implementar via `strcmp(message.getString(), "RESET") == 0`.

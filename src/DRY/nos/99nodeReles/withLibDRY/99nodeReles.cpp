@@ -30,7 +30,9 @@
 
 // ===== CONFIGURAÇÃO MYSENSORS =====
 // Macros MY_* definidas no platformio.ini [env:node_99_reles_nano]
+#if defined(MY_DEBUG) && defined(MY_RSSI_LOG_INTERVAL)
 static unsigned long lastRssiLog = 0;
+#endif
 
 #include "sensorDrivers.h"
 #include <Arduino.h>

@@ -102,7 +102,7 @@ String generateIndexHTML(const DeviceConfig &cfg) {
   
   html += "</select>";
   html += "<label>Senha da Rede WiFi:</label>";
-  html += "<input name='password' type='password' value='" + String(cfg.password) + "'>";
+  html += "<input name='password' type='password' placeholder='Manter senha atual'>";
   html += "<label>Servidor MQTT:</label>";
   html += "<input name='mqttServer' value='" + String(cfg.mqttServer) + "' required>";
   html += "<label>Porta MQTT:</label>";
@@ -110,7 +110,7 @@ String generateIndexHTML(const DeviceConfig &cfg) {
   html += "<label>Usuário MQTT:</label>";
   html += "<input name='mqttUser' value='" + String(cfg.mqttUser) + "'>";
   html += "<label>Senha MQTT:</label>";
-  html += "<input name='mqttPassword' type='password' value='" + String(cfg.mqttPassword) + "'>";
+  html += "<input name='mqttPassword' type='password' placeholder='Manter senha atual'>";
   html += "<label>UF (Unidade Federativa):</label>";
   html += "<input name='uf' value='" + String(cfg.uf) + "' maxlength='2' required>";
   html += "<label>Número do CAR:</label>";
@@ -141,9 +141,6 @@ void handleSave(DeviceConfig &cfg, ESP8266WebServer &server) {
   Serial.println("📋 Valores recebidos do formulário:");
   Serial.print("   SSID: '");
   Serial.print(server.arg("ssid"));
-  Serial.println("'");
-  Serial.print("   Password: '");
-  Serial.print(server.arg("password"));
   Serial.println("'");
   Serial.print("   MQTT Server: '");
   Serial.print(server.arg("mqttServer"));
@@ -185,11 +182,15 @@ void handleSave(DeviceConfig &cfg, ESP8266WebServer &server) {
   
   // Copiar strings com validação
   strncpy(cfg.ssid, ssidStr.c_str(), sizeof(cfg.ssid) - 1);
-  strncpy(cfg.password, passwordStr.c_str(), sizeof(cfg.password) - 1);
+  if (passwordStr.length() > 0) {
+    strncpy(cfg.password, passwordStr.c_str(), sizeof(cfg.password) - 1);
+  }
   strncpy(cfg.mqttServer, mqttServerStr.c_str(), sizeof(cfg.mqttServer) - 1);
   cfg.mqttPort = server.arg("mqttPort").toInt();
   strncpy(cfg.mqttUser, mqttUserStr.c_str(), sizeof(cfg.mqttUser) - 1);
-  strncpy(cfg.mqttPassword, mqttPasswordStr.c_str(), sizeof(cfg.mqttPassword) - 1);
+  if (mqttPasswordStr.length() > 0) {
+    strncpy(cfg.mqttPassword, mqttPasswordStr.c_str(), sizeof(cfg.mqttPassword) - 1);
+  }
   strncpy(cfg.uf, ufStr.c_str(), sizeof(cfg.uf) - 1);
   strncpy(cfg.carNumber, carNumberStr.c_str(), sizeof(cfg.carNumber) - 1);
   

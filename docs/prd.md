@@ -12,7 +12,7 @@ Ao integrar sensores avançados e atuadores de grande porte (bombas e válvulas)
 ## 2. Arquitetura Conceitual do Ecossistema
 
 O M360 Horta baseia-se num paradigma **DRY (Don't Repeat Yourself)** para o parque de hardware (nodes) e Gateway.
-- **Node Engine Compartilhado (`src/DRY/nos/shared`)**: Motor central da inteligência de borda. Gerencia transporte de rádio, rotinas de sono (Deep Sleep), relatórios de bateria e testes de conectividade. Evita duplicação de bugs.
+- **Biblioteca M360-DRY (`lib/M360-DRY`)**: Motor central da inteligência de borda. `M360Node` gerencia transporte, sono, bateria e comandos; o diretório `shared` permanece apenas como legado.
 - **Master Gateway (`src/DRY/gateway`)**: Cérebro central que ponteia o mundo do rádio MySensors e o mundo IP TCP/MQTT, rodando regras unificadas de envio de estados, detecção JSON padrão e tratamento de pacotes perdidos.
 
 ### A "Frota" de Dispositivos (Atores Físicos)
@@ -34,6 +34,6 @@ O M360 Horta baseia-se num paradigma **DRY (Don't Repeat Yourself)** para o parq
 4. **Precisão da Escala e Comunicação Industrial:** Dados do solo fluem num formato racional `0 a 100%`. O sistema suporta integração com protocolo Modbus RTU sobre RS485 para sensores profissionais de agricultura de precisão.
 
 ## 4. Requisitos Não Funcionais
-- **Padronização Código Base**: Os desenvolvedores não farão implementações customizadas do ciclo de vida NRF. Tudo herda de `NODE_ENGINE_DEFINE_GLOBALS()`.
+- **Padronização Código Base**: Os desenvolvedores não farão implementações customizadas do ciclo de vida NRF. Novos nós usam `M360Node` e buffers `NODE_ITEMS_COUNT + 2`.
 - **Topologia Resiliente JSON**: Toda carga útil de rádio que atinge a nuvem (MQTT) se converte ativamente em pacotes JSON robustos para o Broker. Tamanho máximo do documento é `512 bytes`.
 - **Prevenção de Dados Estagnados**: Através da implementação de `FORCE_UPDATE_N_READS` (10 iterações normais), o sistema jamais permitirá congelamento de status visuais da horta.

@@ -17,15 +17,14 @@ void startConfigAP() {
   WiFi.mode(WIFI_AP);
   delay(100);
 
-  IPAddress apIP(192, 168, 4, 1);
-  bool result = WiFi.softAP(AP_SSID, AP_PASSWORD, 1); // canal 1, fixo
+  IPAddress apIP(M360_AP_IP_OCTETS);
+  bool result = WiFi.softAP(M360_AP_SSID, M360_AP_PASSWORD, 1); // canal 1, fixo
   delay(100); // aguardar AP subir antes de reconfigurar IP
-  WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+  WiFi.softAPConfig(apIP, apIP, IPAddress(M360_AP_NETMASK_OCTETS));
 
   if (result) {
     Serial.println("📡 Access Point de configuração ativo");
-    Serial.println("   SSID : " AP_SSID);
-    Serial.println("   Senha: " AP_PASSWORD);
+    Serial.println("   SSID : " M360_AP_SSID);
     Serial.print  ("   IP   : ");
     Serial.println(WiFi.softAPIP());
     Serial.println("🌐 Acesse o IP acima para configurar o dispositivo");
@@ -39,10 +38,10 @@ void setupWiFi(const DeviceConfig &cfg) {
   Serial.print("Conectando a: ");
   Serial.println(cfg.ssid);
   Serial.print("Senha sendo usada: ");
-  Serial.println(cfg.password);
+  Serial.println(F("[protegida]"));
 
   // Verificar se é primeira execução (SSID padrão)
-  bool isFirstRun = strcmp(cfg.ssid, "ManualConfig") == 0;
+  bool isFirstRun = cfg.ssid[0] == '\0';
 
   if (isFirstRun) {
     // Primeira execução - ativar modo AP

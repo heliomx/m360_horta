@@ -97,8 +97,6 @@ namespace M360 {
 
 // ===== COMANDOS REMOTOS =====
 
-#define M360_CMD_FORCE_UPDATE "teste_do_gateway"
-
 // ===== PERFIL DE ENERGIA =====
 // Selecione o perfil no constructor do nó via M360PowerProfile:
 //   M360::M360_LOW_POWER   — bateria: usa smartSleep()

@@ -1,6 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include <EEPROM.h>
+#include <M360Credentials.h>
 
 // Mapa de memória EEPROM unificado M360:
 //   0   – 511  : MySensors Core (reservado pela lib, nunca escrever aqui)
@@ -8,9 +9,6 @@
 //   516 – 520  : Reservado para expansão futura de config de nó
 //   521+       : DeviceConfig — WiFi / MQTT / UF / CAR + CRC
 // Credenciais do Access Point de configuração (único ponto de definição)
-#define AP_SSID     "Manejo360-Config"
-#define AP_PASSWORD "manejo360"
-
 #define CONFIG_EEPROM_BASE 521
 
 struct DeviceConfig {

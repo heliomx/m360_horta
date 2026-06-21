@@ -52,7 +52,7 @@ na pasta /nos/.
 #define SENSOR_INVALID_READING -32768
 
 // Comandos remotos
-#define CMD_FORCE_UPDATE "teste_do_gateway"
+#define CMD_FORCE_UPDATE "FORCE_UPDATE"
 
 // Controle de acordar por rádio
 extern volatile bool wokeUpByRadio;

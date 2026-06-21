@@ -13,10 +13,13 @@ O sistema M360 Horta utiliza uma arquitetura em camadas baseada no protocolo **M
 
 ## 3. Padrões de Projeto (Firmware DRY)
 
-### 3.1 Node Engine (`shared/`)
-Toda a complexidade de rede e ciclo de vida é encapsulada em macros e funções utilitárias:
-- **`NODE_ENGINE_DEFINE_GLOBALS()`**: Padroniza as variáveis de estado e mensagens.
-- **Gerenciamento de Energia**: Abstração dos perfis `LOW_POWER` (Deep Sleep) e `ALWAYS_ON` (Loops temporizados).
+### 3.1 Biblioteca M360-DRY
+A arquitetura ativa concentra o ciclo de vida em `lib/M360-DRY`:
+- **`M360Node`**: apresenta itens, processa leituras, comandos, bateria e perfis de energia.
+- **`M360Gateway`**: orquestra WiFi, MQTT, webserver, heartbeat e registro de nós.
+- **`M360Translator`**: implementa o contrato JSON/MySensors bidirecional.
+
+O diretório `src/DRY/nos/shared/node_engine.*` é legado e não deve ser usado em novos nós.
 
 ### 3.2 Isolamento de Hardware (`sensorDrivers`)
 Cada nó separa a lógica de aplicação da implementação física dos drivers:
@@ -27,11 +30,11 @@ Cada nó separa a lógica de aplicação da implementação física dos drivers:
 
 ### 4.1 Ciclo de Vida do Sono (Deep Sleep)
 Nós de bateria seguem a sequência:
-1. `nodeEngine_powerUp()` (ativa pinos de alimentação).
+1. `M360::powerUp()` (ativa pinos de alimentação).
 2. Leitura de Sensores.
 3. Transmissão.
 4. Janela de Escuta (`MIN_AWAKE_TIME_MS`).
-5. `nodeEngine_powerDown()` -> `sleep()`.
+5. `M360::powerDown()` -> `smartSleep()`.
 
 ### 4.2 Alimentação Pulsada (`VCC_SENSORS`)
 Para evitar a degradação galvânica dos sensores de solo, a alimentação só é ligada durante o milissegundo da leitura, sendo desligada imediatamente após. Para periféricos de 12V (como o ZTS), utiliza-se o chaveamento via Relé.
@@ -50,3 +53,6 @@ O gateway atua como um tradutor transparente:
 ## 6. Segurança e Manutenção
 - **Reset de Fábrica:** Detecção de hardware via pino `A0` (GND) para limpar EEPROM e entrar em modo AP de configuração.
 - **IDs Reservados:** Child IDs `254` (Intervalo) e `255` (Bateria) são globais e imutáveis.
+- **Credenciais:** `include/M360Credentials.h` contém os defaults locais e nunca é versionado. O arquivo `include/M360Credentials.h.example` documenta todas as constantes obrigatórias.
+- **EEPROM:** Configuração de rede usa versão, CRC e strings limitadas; dados inválidos acionam provisionamento seguro.
+- **Comando remoto:** `FORCE_UPDATE` é o único payload aceito para forçar leituras.

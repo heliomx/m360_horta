@@ -181,12 +181,12 @@ void before() {
 		WiFi.mode(WIFI_AP);
 		delay(100);
 
-		IPAddress apIP(192, 168, 4, 1);
-		bool result = WiFi.softAP(AP_SSID, AP_PASSWORD, 1);
+		IPAddress apIP(M360_AP_IP_OCTETS);
+		bool result = WiFi.softAP(M360_AP_SSID, M360_AP_PASSWORD, 1);
 		delay(100);
-		WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+		WiFi.softAPConfig(apIP, apIP, IPAddress(M360_AP_NETMASK_OCTETS));
 		if (result) {
-			Serial.print("✅ AP iniciado — SSID: " AP_SSID " | IP: ");
+			Serial.print("✅ AP iniciado — SSID: " M360_AP_SSID " | IP: ");
 			Serial.println(WiFi.softAPIP());
 		} else {
 			Serial.println("❌ FALHA ao iniciar AP!");
