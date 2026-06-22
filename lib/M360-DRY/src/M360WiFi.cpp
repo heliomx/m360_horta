@@ -25,7 +25,6 @@ void WiFiManager::begin(const M360DeviceConfig& cfg) {
 	}
 
 	WiFi.mode(WIFI_STA);
-	WiFi.begin(cfg.ssid, cfg.password);
 
 	// Tentar conectar 3 vezes (máximo 30s por tentativa)
 	for (int attempt = 1; attempt <= 3; attempt++) {
@@ -59,8 +58,20 @@ void WiFiManager::begin(const M360DeviceConfig& cfg) {
 }
 
 void WiFiManager::process(const M360DeviceConfig& cfg) {
-	// Não reconectar se estiver deliberadamente em modo AP
-	if (isAPMode()) return;
+	if (isAPMode()) {
+		// Após _staRetryFromAP em AP, tenta voltar ao modo STA (se SSID configurado)
+		if (cfg.ssid[0] != '\0' && _apModeStart > 0 &&
+		    millis() - _apModeStart >= _staRetryFromAP) {
+			Serial.println("🔄 WiFi: Tentando retornar ao modo STA após tempo em AP...");
+			WiFi.softAPdisconnect(true);
+			WiFi.mode(WIFI_STA);
+			_reconnectAttempts = 0;
+			_apModeStart = 0;
+			_lastCheck = 0;
+		} else {
+			return;
+		}
+	}
 
 	unsigned long now = millis();
 	
@@ -78,6 +89,7 @@ void WiFiManager::process(const M360DeviceConfig& cfg) {
 				Serial.println("🔄 WiFi: Máximo de reconexões excedido. Mudando para modo AP.");
 				WiFi.mode(WIFI_AP);
 				WiFi.softAP(M360_AP_SSID, M360_AP_PASSWORD);
+				_apModeStart = millis();
 				Serial.print("   IP AP: ");
 				Serial.println(WiFi.softAPIP());
 			}

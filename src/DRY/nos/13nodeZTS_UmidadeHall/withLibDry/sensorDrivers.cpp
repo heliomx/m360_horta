@@ -76,7 +76,7 @@ bool readZTSData() {
       return true;
     }
     retries--;
-    if (retries > 0) delay(100);  // driver file não pode incluir MySensors.h (monolítico)
+    if (retries > 0) delay(10);  // gap mínimo inter-frame RS485 (~3.6 ms @9600 baud)
   }
   return false;
 }
@@ -113,7 +113,7 @@ float readHallHumidity() {
   long measure = 0;
   for (int i = 0; i < 10; i++) {
     measure += analogRead(PIN_HALL);
-    delay(5);
+    // AVR ADC: ~104 µs por conversão; delay adicional desnecessário
   }
   float avgValue = measure / 10.0;
   
@@ -133,7 +133,7 @@ float readLDR() {
   long measure = 0;
   for (int i = 0; i < 10; i++) {
     measure += analogRead(PIN_LDR);
-    delay(5);
+    // AVR ADC: ~104 µs por conversão; delay adicional desnecessário
   }
   float avgValue = measure / 10.0;
   

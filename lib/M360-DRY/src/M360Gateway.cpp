@@ -43,6 +43,7 @@ void M360Gateway::begin(std::function<void()> wifiReconnect,
 void M360Gateway::begin(M360DeviceConfig& cfg,
                         WiFiManager& wifi,
                         MQTTManager& mqttMan,
+                        MQTT_CALLBACK_SIGNATURE,
                         std::function<void()> webHandler,
                         std::function<void()> ledUpdate)
 {
@@ -50,17 +51,14 @@ void M360Gateway::begin(M360DeviceConfig& cfg,
     _wifiMan = &wifi;
     _mqttMan = &mqttMan;
 
-    // Injetar os métodos de processo dos gerenciadores como os callbacks de reconect
-    // Usamos ponteiros internos para garantir que os gerenciadores persistam
     _wifiReconnect = [this]() { if (_wifiMan && _cfg) _wifiMan->process(*_cfg); };
     _mqttReconnect = [this]() { if (_mqttMan && _cfg) _mqttMan->process(*_cfg, _mqtt); };
-    
+
     _webHandler = webHandler;
     _ledUpdate  = ledUpdate;
 
-    // Inicialização da infraestrutura
     _wifiMan->begin(*_cfg);
-    _mqttMan->begin(*_cfg, _mqtt, nullptr); // Callback global opcional no sketch
+    _mqttMan->begin(*_cfg, _mqtt, callback);
 }
 
 void M360Gateway::onHeartbeat(std::function<void()> cb) {

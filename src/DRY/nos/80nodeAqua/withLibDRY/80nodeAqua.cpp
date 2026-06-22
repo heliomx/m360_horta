@@ -115,28 +115,16 @@ bool shouldSampleAqua() {
 void performAquaSampling() {
   allowAquaRead = true;
 
-  float ph = readNodeItem(IDX_PH);
-  if (!isnan(ph)) {
-    lastValues[IDX_PH] = ph;
-    nNoUpdates[IDX_PH] = 0;
-    send(messages[IDX_PH].set(ph, 1));
-  }
-
-  float ec = readNodeItem(IDX_EC);
-  if (!isnan(ec)) {
-    lastValues[IDX_EC] = ec;
-    nNoUpdates[IDX_EC] = 0;
-    send(messages[IDX_EC].set(ec, 1));
-  }
-
+  float ph   = readNodeItem(IDX_PH);
+  float ec   = readNodeItem(IDX_EC);
   float temp = readNodeItem(IDX_WATER_TEMP);
-  if (!isnan(temp)) {
-    lastValues[IDX_WATER_TEMP] = temp;
-    nNoUpdates[IDX_WATER_TEMP] = 0;
-    send(messages[IDX_WATER_TEMP].set(temp, 1));
-  }
 
   allowAquaRead = false;
+
+  // Envia diretamente sem tocar nos arrays internos do M360Node engine
+  if (!isnan(ph))   send(messages[IDX_PH].set(ph, 1));
+  if (!isnan(ec))   send(messages[IDX_EC].set(ec, 1));
+  if (!isnan(temp)) send(messages[IDX_WATER_TEMP].set(temp, 1));
 }
 
 // ===== MYSENSORS HOOKS =====
@@ -151,7 +139,7 @@ void presentation() { node.begin("80nodeAqua", "1.0"); }
 
 void setup() {
   node.onRead(readNodeItem);
-  node.onWrite(writeNodeItem);
+  // Nó 80 é somente sensor — sem atuadores, onWrite não registrado
 }
 
 void loop() {
@@ -169,9 +157,10 @@ void receive(const MyMessage &msg) {
     char buf[24];
     msg.getString(buf);
     if (strcmp(buf, M360::CMD_FORCE_UPDATE) == 0) {
-      allowAquaRead = true;
+      // Leitura imediata sem expor allowAquaRead ao handleMessage
+      performAquaSampling();
+      return;
     }
   }
   node.handleMessage(msg);
-  allowAquaRead = false;
 }

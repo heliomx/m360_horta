@@ -37,7 +37,9 @@ private:
     unsigned long _lastCheck = 0;
     int           _reconnectAttempts = 0;
     const int     _maxReconnectAttempts = 3;
-    const unsigned long _checkInterval = 15000; // 15 segundos
+    const unsigned long _checkInterval = 15000;    // 15 segundos entre tentativas STA
+    const unsigned long _staRetryFromAP = 300000;  // 5 min em AP antes de tentar STA novamente
+    unsigned long _apModeStart = 0;                // millis() quando o AP foi ativado por process()
 };
 
 } // namespace M360

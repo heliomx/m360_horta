@@ -66,6 +66,7 @@ void writeNodeItem(uint8_t pin, bool state)
 				muxSelect((uint8_t)s_activeMuxChannel);
 				digitalWrite(MUX_SIG_PIN, HIGH); // relay OFF
 				s_muxChannelState[s_activeMuxChannel] = false;
+				s_activeMuxChannel = -1; // atualiza antes de ativar novo canal
 			}
 			// Selecionar e ligar o novo canal
 			muxSelect(ch);

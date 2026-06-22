@@ -129,6 +129,7 @@ public:
     void begin(M360DeviceConfig& cfg,
                WiFiManager& wifi,
                MQTTManager& mqttMan,
+               MQTT_CALLBACK_SIGNATURE,
                std::function<void()> webHandler = nullptr,
                std::function<void()> ledUpdate = nullptr);
 

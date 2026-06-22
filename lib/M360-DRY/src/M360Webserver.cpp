@@ -6,6 +6,21 @@
 
 #include "M360Webserver.h"
 
+static String htmlEscape(const String& s) {
+    String out;
+    out.reserve(s.length() + 8);
+    for (unsigned int i = 0; i < s.length(); i++) {
+        char c = s[i];
+        if      (c == '&')  out += "&amp;";
+        else if (c == '<')  out += "&lt;";
+        else if (c == '>')  out += "&gt;";
+        else if (c == '"')  out += "&quot;";
+        else if (c == '\'') out += "&#39;";
+        else                out += c;
+    }
+    return out;
+}
+
 String generateIndexHTML(const M360::M360DeviceConfig &cfg) {
     String html = "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Manejo360 Gateway</title>";
     html += "<style>body{font-family:Arial,sans-serif;margin:20px;background:#f5f5f5;}";
@@ -45,12 +60,14 @@ String generateIndexHTML(const M360::M360DeviceConfig &cfg) {
     if (n == WIFI_SCAN_RUNNING) {
         html += "<option value='' disabled selected>🔄 Scan em andamento...</option>";
         if (strlen(cfg.ssid) > 0) {
-            html += "<option value='" + String(cfg.ssid) + "' selected>" + String(cfg.ssid) + " (configurado)</option>";
+            String cfgSsid = htmlEscape(String(cfg.ssid));
+            html += "<option value='" + cfgSsid + "' selected>" + cfgSsid + " (configurado)</option>";
         }
     } else if (n <= 0) {
         html += "<option value='' disabled selected>Nenhuma rede encontrada</option>";
         if (strlen(cfg.ssid) > 0) {
-            html += "<option value='" + String(cfg.ssid) + "' selected>" + String(cfg.ssid) + " (configurado)</option>";
+            String cfgSsid = htmlEscape(String(cfg.ssid));
+            html += "<option value='" + cfgSsid + "' selected>" + cfgSsid + " (configurado)</option>";
         }
     } else {
         Serial.print("🔍 Redes encontradas (scan async): ");
@@ -75,16 +92,17 @@ String generateIndexHTML(const M360::M360DeviceConfig &cfg) {
             if (WiFi.SSID(sortedIndices[i]) == String(cfg.ssid)) { currentSSIDFound = true; break; }
         }
         if (!currentSSIDFound && strlen(cfg.ssid) > 0) {
-            html += "<option value='" + String(cfg.ssid) + "' selected>" + String(cfg.ssid) + " (configurado)</option>";
+            String cfgSsid = htmlEscape(String(cfg.ssid));
+            html += "<option value='" + cfgSsid + "' selected>" + cfgSsid + " (configurado)</option>";
         }
 
         for (int i = 0; i < netCount; i++) {
-            int idx    = sortedIndices[i];
-            String ssid = WiFi.SSID(idx);
+            int idx     = sortedIndices[i];
+            String ssid = htmlEscape(WiFi.SSID(idx));
             int rssi    = WiFi.RSSI(idx);
             String enc  = (WiFi.encryptionType(idx) == ENC_TYPE_NONE) ? "🔓" : "🔒";
             String sig  = rssi > -50 ? "📶▂▄▆█" : rssi > -60 ? "📶▂▄▆" : rssi > -70 ? "📶▂▄" : rssi > -80 ? "📶▂" : "📶";
-            bool sel    = (ssid == String(cfg.ssid));
+            bool sel    = (ssid == htmlEscape(String(cfg.ssid)));
             html += "<option value='" + ssid + "'";
             if (sel) html += " selected";
             html += ">" + ssid + " " + enc + " (" + String(rssi) + " dBm) " + sig + "</option>";

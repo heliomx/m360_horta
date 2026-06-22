@@ -32,9 +32,22 @@ namespace M360 {
 
 		// Adicionar novo nó se houver espaço
 		if (_count < MAX_NODES) {
-			_registry[_count] = { nodeId, millis(), true };
-			_count++;
-			return true; // Novo nó registrado
+			_registry[_count++] = { nodeId, millis(), true };
+			return true;
+		}
+
+		// Registro cheio: reutilizar o slot inativo mais antigo (evitar perda silenciosa)
+		int evictIdx = -1;
+		unsigned long oldestSeen = 0xFFFFFFFFUL;
+		for (int i = 0; i < _count; i++) {
+			if (!_registry[i].active && _registry[i].lastSeen < oldestSeen) {
+				oldestSeen = _registry[i].lastSeen;
+				evictIdx = i;
+			}
+		}
+		if (evictIdx >= 0) {
+			_registry[evictIdx] = { nodeId, millis(), true };
+			return true;
 		}
 
 		return false;

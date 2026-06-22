@@ -95,12 +95,12 @@ void initSensors()
 
 void powerUpSensors()
 {
-	// Energiza o barramento D7 / PIN_POWER_SENSORS dos sensores
 	digitalWrite(PIN_POWER_SENSORS, HIGH);
-	// Aguarda estabilização elétrica dos circuitos integrados de condicionamento de sinal
 	delay(100);
-	// Inicializa barramento OneWire pós-energia
 	sensors.begin();
+	// Conversão assíncrona: getTempCByIndex() lê sem bloquear 750 ms
+	sensors.setWaitForConversion(false);
+	sensors.requestTemperatures();
 }
 
 void powerDownSensors()
@@ -153,11 +153,14 @@ void updateFlows()
 		static unsigned long lastFlowTimeA = 0;
 		static unsigned long lastFlowTimeB = 0;
 		static unsigned long lastFlowTimeC = 0;
-		
+
 		currentFlowH = calculateFlow(pulseCount, lastFlowTime);
 		currentFlowA = calculateFlow(pulseCountA, lastFlowTimeA);
 		currentFlowB = calculateFlow(pulseCountB, lastFlowTimeB);
 		currentFlowC = calculateFlow(pulseCountC, lastFlowTimeC);
+
+		// Inicia conversão DS18B20 assíncrona (resultado disponível em ~750 ms)
+		sensors.requestTemperatures();
 	}
 }
 
@@ -205,7 +208,7 @@ float readNodeItem(uint8_t itemIndex)
 			long sum = 0;
 			for (int i = 0; i < 10; i++) {
 				sum += analogRead(PIN_PH);
-				delay(5);
+				// AVR ADC demora ~104 µs por conversão; delay adicional desnecessário
 			}
 			float avgRaw = sum / 10.0f;
 			float voltage = (avgRaw * 5.0f) / 1023.0f;
@@ -234,7 +237,7 @@ float readNodeItem(uint8_t itemIndex)
 			long sum = 0;
 			for (int i = 0; i < 10; i++) {
 				sum += analogRead(PIN_EC);
-				delay(5);
+				// AVR ADC demora ~104 µs por conversão; delay adicional desnecessário
 			}
 			float avgRaw = sum / 10.0f;
 			float voltage = (avgRaw * 5.0f) / 1023.0f;
@@ -261,7 +264,10 @@ float readNodeItem(uint8_t itemIndex)
 			if (!allowAquaRead) {
 				return NAN;
 			}
-			sensors.requestTemperatures();
+			// Conversão já foi requisitada em updateFlows() (assíncrona)
+			if (!sensors.isConversionComplete()) {
+				return NAN;
+			}
 			float tempC = sensors.getTempCByIndex(0);
 			
 			// Validação do estado do sensor e leituras fora dos limites físicos da água

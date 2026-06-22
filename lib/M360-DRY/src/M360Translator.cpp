@@ -93,11 +93,15 @@ namespace M360 {
 		if (error) return false;
 
 		if (!doc.containsKey("nodeId")) return false;
-		targetNode = doc["nodeId"];
+		int rawNodeId = doc["nodeId"].as<int>();
+		if (rawNodeId < 1 || rawNodeId > 254) return false;
+		targetNode = (uint8_t)rawNodeId;
 
 		// Formato MySensors completo
 		if (doc.containsKey("sensorId") && doc.containsKey("command") && doc.containsKey("type")) {
-			outMsg.setSensor(doc["sensorId"]);
+			int rawSensorId = doc["sensorId"].as<int>();
+			if (rawSensorId < 0 || rawSensorId > 255) return false;
+			outMsg.setSensor((uint8_t)rawSensorId);
 			outMsg.setType(doc["type"]);
 			outMsg.setCommand((mysensors_command_t)(int)doc["command"]);
 			

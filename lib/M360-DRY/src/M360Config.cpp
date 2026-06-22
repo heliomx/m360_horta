@@ -156,8 +156,10 @@ void Config::save(const M360DeviceConfig& cfg) {
 	addr += sizeof(temp.carNumber);
 	
 	::EEPROM.put(addr, temp.crc);
-	
-	::EEPROM.commit();
+
+	if (!::EEPROM.commit()) {
+		Serial.println("EEPROM: commit falhou — dados NAO persistidos!");
+	}
 }
 
 void Config::reset(M360DeviceConfig& cfg) {

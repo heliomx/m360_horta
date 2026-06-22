@@ -77,6 +77,11 @@ void MQTTManager::process(const M360DeviceConfig& cfg, ::PubSubClient& client) {
 
         if (client.connect(clientId.c_str(), cfg.mqttUser, cfg.mqttPassword)) {
             Serial.println("✅ MQTT: Reconectado.");
+            String topicIn = buildTopicIn(cfg);
+            if (client.subscribe(topicIn.c_str())) {
+                Serial.print("📡 MQTT: Assinado tópico IN: ");
+                Serial.println(topicIn);
+            }
         } else {
             int err = client.state();
             _metrics.lastErrorCode = err;
