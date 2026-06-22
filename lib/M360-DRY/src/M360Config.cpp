@@ -203,6 +203,18 @@ uint16_t Config::calculateCRC(const M360DeviceConfig& cfg) {
 	return crc;
 }
 
+String buildTopicOut(const M360DeviceConfig& cfg) {
+	String t = "m360/"; t += cfg.uf; t += "/"; t += cfg.carNumber; t += "/out"; return t;
+}
+
+String buildTopicIn(const M360DeviceConfig& cfg) {
+	String t = "m360/"; t += cfg.uf; t += "/"; t += cfg.carNumber; t += "/in"; return t;
+}
+
+String buildTopicGatewayStatus(const M360DeviceConfig& cfg) {
+	String t = "m360/"; t += cfg.uf; t += "/"; t += cfg.carNumber; t += "/gateway/status"; return t;
+}
+
 } // namespace M360
 
 #endif // ESP8266

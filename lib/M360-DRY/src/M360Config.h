@@ -54,6 +54,11 @@ namespace M360 {
 		static bool isValid(const M360DeviceConfig& cfg);
 		static uint16_t calculateCRC(const M360DeviceConfig& cfg);
 	};
+
+	// Construtores de tópico MQTT (ponto único — usam cfg.uf + cfg.carNumber)
+	String buildTopicOut(const M360DeviceConfig& cfg);
+	String buildTopicIn(const M360DeviceConfig& cfg);
+	String buildTopicGatewayStatus(const M360DeviceConfig& cfg);
 #endif
 
 } // namespace M360

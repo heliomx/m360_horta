@@ -1,17 +1,12 @@
 /*
  * libDryGatewayMqtt.cpp — Gateway Manejo360 usando M360::M360Gateway
  *
- * Versão refatorada de newGatewayMqtt.cpp que delega a orquestração do loop()
- * à classe M360::M360Gateway da biblioteca M360-DRY.
+ * Usa exclusivamente a biblioteca M360-DRY para config/WiFi/MQTT:
+ *   M360::Config, M360::WiFiManager, M360::MQTTManager, M360::M360Gateway
  *
- * DIFERENÇAS em relação a newGatewayMqtt.cpp:
- *   + #include <M360Gateway.h>
- *   + Instância global:  M360::M360Gateway gateway(mqttClient)
- *   + setup() final:     gateway.begin(...) + gateway.onHeartbeat(...) + gateway.onNodeCheck(...)
- *   + loop():            substituído por gateway.loop()
- *   - Removido: controle manual de lastHeartbeat, lastNodeCheck e isAPMode inline no loop()
- *
- * Tudo mais (before, presentation, receive, sendMQTT, helpers) é idêntico ao original.
+ * Dependências ngm/ restantes (sem equivalente na lib):
+ *   - ngm/webserver  — portal web de configuração captivo
+ *   - ngm/leds       — controle de LEDs de status (D0/D1/D2)
  */
 
 #include <Arduino.h>
@@ -21,13 +16,7 @@
 #include <EEPROM.h>
 #include <ArduinoJson.h>
 
-// Configurações do MySensors
-
-// Habilitar modo gateway para permitir Node ID 0 e evitar !TSF:SID:FAIL
-
-#include "../ngm/config_utils.h"
-#include "../ngm/wifi_utils.h"
-#include "../ngm/mqtt_utils.h"
+#include <M360Credentials.h>
 #include "../ngm/webserver.h"
 #include "../ngm/leds.h"
 
@@ -35,30 +24,37 @@
 #undef DEBUG_OUTPUT
 #include <MySensors.h>
 
-// ── NOVO: motor de loop da LibDRY ────────────────────────────────────────────
 #include <M360Gateway.h>
 #include <M360Translator.h>
 #include <M360Registry.h>
 #include <M360Constants.h>
-// ─────────────────────────────────────────────────────────────────────────────
+
+// ==== HELPER LOCAL ====
+// Lê A0 duas vezes com delay para filtrar ruído; retorna true se abaixo do limiar
+static bool isA0Low(int pin, int threshold = 400) {
+    int a1 = analogRead(pin);
+    delay(10);
+    int a2 = analogRead(pin);
+    return ((a1 + a2) / 2) < threshold;
+}
 
 // ==== OBJETOS GLOBAIS ====
-WiFiClient     espClient;
-PubSubClient   mqttClient(espClient);
-ESP8266WebServer server(80);
+WiFiClient          espClient;
+PubSubClient        mqttClient(espClient);
+ESP8266WebServer    server(80);
 
-// ── NOVO: instância do motor de gateway ──────────────────────────────────────
-M360::M360Gateway gateway(mqttClient);
-// ─────────────────────────────────────────────────────────────────────────────
+M360::M360DeviceConfig  config;
+M360::WiFiManager       wifiManager;
+M360::MQTTManager       mqttManager;
+M360::M360Gateway       gateway(mqttClient);
 
 // ==== VARIÁVEIS GLOBAIS PARA CONTROLE DE LEDS ====
 unsigned long lastStatusBlink = 0;
 
-// ==== CONFIG GLOBAL (declarada em config_utils.h como extern) ====
-
 // ==== PROTÓTIPOS ====
 void sendMQTT(const MyMessage &message, bool isAck = false);
 void publishHeartbeat();
+void mqttCallback(char* topic, byte* payload, unsigned int length);
 void processMQTTCommand(const String& payloadStr);
 void processMQTTCommand(const JsonDocument& doc);
 void publishTransportEvent(const char* event, const char* details = "", int nodeId = 0);
@@ -86,7 +82,6 @@ void receive(const MyMessage &message) {
 		Serial.println(message.getString());
 	}
 
-	// Rastreamento de nó (novo padrão)
 	if (gateway.registry().update(message.getSender())) {
 		publishTransportEvent(M360::EVT_NODE_RECONN, "Node back online or discovered", message.getSender());
 	}
@@ -129,8 +124,8 @@ void sendMQTT(const MyMessage &message, bool isAck) {
 	}
 
 	String jsonString = M360::Translator::toJSON(message, isAck);
-	String topicOut = buildTopicOut(config);
-	bool   success  = mqttClient.publish(topicOut.c_str(), jsonString.c_str());
+	String topicOut   = M360::buildTopicOut(config);
+	bool   success    = mqttClient.publish(topicOut.c_str(), jsonString.c_str());
 
 	if (success) {
 		Serial.println("✅ MQTT publicado.");
@@ -150,10 +145,9 @@ void before() {
 
 	Serial.println("🚀 Iniciando Manejo360 Gateway MQTT (estágio BEFORE)...");
 
-	// P3: alocar toda a região necessária (base + struct + 4 bytes de margem)
-	EEPROM.begin(CONFIG_EEPROM_BASE + sizeof(DeviceConfig) + 4);
+	EEPROM.begin(M360_EEPROM_DEVICE_BASE + sizeof(M360::M360DeviceConfig) + 4);
 
-	// Limpar área MySensors (0-511) apenas se houver dados residuais
+	// Limpar área MySensors (0-511) se houver dados residuais
 	bool needsEepromClean = false;
 	for (int i = 0; i < 512; i++) {
 		if (EEPROM.read(i) != 0xFF) { needsEepromClean = true; break; }
@@ -167,11 +161,12 @@ void before() {
 		Serial.println("✅ EEPROM MySensors já limpa");
 	}
 
-	loadConfig(config);
+	M360::Config::load(config);
 	Serial.print("🔍 Config carregada - SSID: '");
 	Serial.print(config.ssid);
 	Serial.println("'");
 
+	// Reset completo do stack WiFi antes de criar AP (evita estado residual de tentativa STA)
 	auto startAP = [](const char* reason) {
 		Serial.print("📡 Iniciando AP de configuração — motivo: ");
 		Serial.println(reason);
@@ -195,10 +190,10 @@ void before() {
 		delay(500);
 	};
 
-	if (!isValidConfig(config)) {
+	if (!M360::Config::isValid(config)) {
 		Serial.println("⚠️ Configuração inválida (primeira execução ou EEPROM corrompida).");
-		performFactoryReset(config);
-		saveConfig(config);
+		M360::Config::reset(config);
+		M360::Config::save(config);
 		Serial.println("✅ Configuração padrão salva.");
 		startAP("primeira execucao / config invalida");
 	} else if (isA0Low(RESET_PIN)) {
@@ -206,7 +201,7 @@ void before() {
 		startAP("A0 em GND / modo manutencao");
 	} else {
 		Serial.println("✅ Configuração válida e A0 livre — conectando ao WiFi...");
-		setupWiFi(config);
+		wifiManager.begin(config);
 	}
 
 	Serial.println("📡 Configuração WiFi concluída");
@@ -235,7 +230,7 @@ void setup() {
 		Serial.println("'");
 		Serial.flush();
 
-		setupMQTT(config, mqttClient);
+		mqttManager.begin(config, mqttClient, mqttCallback);
 		Serial.println("🔌 Configuração MQTT concluída");
 		Serial.flush();
 	} else {
@@ -243,19 +238,17 @@ void setup() {
 		Serial.flush();
 	}
 
-	// ── NOVO: wiring do motor de gateway ─────────────────────────────────────
 	gateway.begin(
-		[&]() { handleWiFiReconnect(config); },
-		[&]() { handleMQTTReconnect(config, mqttClient); },
+		[&]() { wifiManager.process(config); },
+		[&]() { mqttManager.process(config, mqttClient); },
 		[&]() { server.handleClient(); },
 		[&]() { updateLEDStatus(); updateLEDs(); }
 	);
 	gateway.onHeartbeat([&]() {
 		publishHeartbeat();
-		publishMQTTMetrics(config, mqttClient);
+		mqttManager.publishMetrics(config, mqttClient);
 	});
 	gateway.onNodeCheck(checkNodeTimeouts);
-	// ─────────────────────────────────────────────────────────────────────────
 
 	Serial.println("✅ Gateway iniciado integralmente e pronto para loop!");
 	Serial.flush();
@@ -306,11 +299,8 @@ void publishHeartbeat() {
 		return;
 	}
 
-	M360::M360DeviceConfig m360Cfg;
-	memcpy(&m360Cfg, &config, sizeof(M360::M360DeviceConfig));
-
-	String jsonString = M360::Translator::buildHeartbeat(m360Cfg, WiFi.RSSI());
-	String topicOut = buildTopicOut(config);
+	String jsonString = M360::Translator::buildHeartbeat(config, WiFi.RSSI());
+	String topicOut   = M360::buildTopicOut(config);
 
 	Serial.print("[HB] Publicando heartbeat: "); Serial.println(topicOut);
 	bool ok = mqttClient.publish(topicOut.c_str(), jsonString.c_str());
@@ -323,9 +313,28 @@ void publishHeartbeat() {
 	}
 }
 
+// ==== CALLBACK MQTT ====
+
+void mqttCallback(char* topic, byte* payload, unsigned int length) {
+	ledFlicker(LED_GREEN);
+	Serial.println("📨 Comando MQTT recebido:");
+	Serial.print("   Tópico: ");
+	Serial.println(topic);
+
+	DynamicJsonDocument doc(512);
+	DeserializationError error = deserializeJson(doc, payload, length);
+
+	if (error) {
+		Serial.print("❌ Erro ao parsear JSON: ");
+		Serial.println(error.c_str());
+		return;
+	}
+
+	processMQTTCommand(doc);
+}
+
 // ==== PROCESSAR COMANDO MQTT ====
 
-// P4: overload(JsonDocument) processa diretamente sem dupla serialização/deserialização
 void processMQTTCommand(const JsonDocument& doc) {
 	String payloadStr;
 	serializeJson(doc, payloadStr);
@@ -361,8 +370,6 @@ void processMQTTCommand(const String& payloadStr) {
 
 // ==== RASTREAMENTO DE NÓS ====
 
-// Removido updateNodeStatus manual (utilizando gateway.registry())
-
 void checkNodeTimeouts() {
 	gateway.registry().checkTimeouts([&](uint8_t nodeId, const char* reason) {
 		char details[64];
@@ -382,8 +389,8 @@ void publishTransportEvent(const char* event, const char* details, int nodeId) {
 		return;
 	}
 
-	String jsonString = M360::Translator::buildEvent(event, nodeId, details, WiFi.RSSI());
-	String topicEvents = buildTopicOut(config) + "/events";
+	String jsonString  = M360::Translator::buildEvent(event, nodeId, details, WiFi.RSSI());
+	String topicEvents = M360::buildTopicOut(config) + "/events";
 	bool   success     = mqttClient.publish(topicEvents.c_str(), jsonString.c_str());
 
 	if (success) {
