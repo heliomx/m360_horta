@@ -36,6 +36,7 @@ void checkResetButton(DeviceConfig &cfg, int pin);
 // Funções auxiliares para tópicos MQTT
 String buildTopicOut(const DeviceConfig &cfg);
 String buildTopicIn(const DeviceConfig &cfg);
+String buildTopicGatewayStatus(const DeviceConfig &cfg);
 
 // Funções auxiliares MySensors
 const char* getTypeDescription(int type);

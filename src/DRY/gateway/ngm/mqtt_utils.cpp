@@ -161,12 +161,7 @@ void publishMQTTMetrics(const DeviceConfig &cfg, PubSubClient &client) {
   
   MQTTMetrics currentMetrics = getMQTTMetrics();
   
-  // Construir tópico de status: m360/{UF}/{nrCar}/gateway/status
-  String topicStatus = "m360/";
-  topicStatus += cfg.uf;
-  topicStatus += "/";
-  topicStatus += cfg.carNumber;
-  topicStatus += "/gateway/status";
+  String topicStatus = buildTopicGatewayStatus(cfg);
   
   // Criar documento JSON com métricas
   DynamicJsonDocument doc(512);

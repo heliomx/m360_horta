@@ -248,6 +248,15 @@ String buildTopicIn(const DeviceConfig &cfg) {
   return topic;
 }
 
+String buildTopicGatewayStatus(const DeviceConfig &cfg) {
+  String topic = "m360/";
+  topic += cfg.uf;
+  topic += "/";
+  topic += cfg.carNumber;
+  topic += "/gateway/status";
+  return topic;
+}
+
 // Utilitário: lê A0 duas vezes e retorna true se a média estiver abaixo do threshold
 bool isA0Low(int pin, int threshold) {
   int a1 = analogRead(pin);
