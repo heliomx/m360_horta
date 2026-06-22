@@ -17,8 +17,8 @@
 #include <ArduinoJson.h>
 
 #include <M360Credentials.h>
-#include "../ngm/webserver.h"
-#include "../ngm/leds.h"
+#include <M360Leds.h>
+#include <M360Webserver.h>
 
 // ESP8266WebServer define DEBUG_OUTPUT como Serial; MySensors redefine internamente.
 #undef DEBUG_OUTPUT
