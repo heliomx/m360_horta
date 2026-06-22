@@ -9,6 +9,7 @@
 #include "sensorDrivers.h"
 #include <Arduino.h>
 #include <M360.h>
+#include <M360Constants.h>
 #include <MySensors.h>
 
 // ===== CHILD IDs =====
@@ -38,7 +39,7 @@ static const M360::M360ItemDef NODE_ITEMS[] = {
     {CHILD_ID_EC, M360::M360_SENSOR, S_WATER_QUALITY, V_EC, -1, 1, 3, "EC",
      false, 0},
     {CHILD_ID_FLOW, M360::M360_SENSOR, S_WATER, V_FLOW, -1, 1, 1,
-     "Vazao da Hidroponia", false, 0},
+     "Vazao Caixa", false, 0},
     {CHILD_ID_WATER_TEMP, M360::M360_SENSOR, S_TEMP, V_TEMP, -1, 1, 3,
      "Temp Agua", false, 0},
     {CHILD_ID_FLOW_A, M360::M360_SENSOR, S_WATER, V_FLOW, -1, 1, 1,
