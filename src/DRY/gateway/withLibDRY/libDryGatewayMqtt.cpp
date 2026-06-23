@@ -16,14 +16,13 @@
 #include <EEPROM.h>
 #include <ArduinoJson.h>
 
-#include <M360Credentials.h>
-#include <M360Leds.h>
-#include <M360Webserver.h>
-
 // ESP8266WebServer define DEBUG_OUTPUT como Serial; MySensors redefine internamente.
 #undef DEBUG_OUTPUT
 #include <MySensors.h>
 
+#include <M360Credentials.h>
+#include <M360Leds.h>
+#include <M360Webserver.h>
 #include <M360Gateway.h>
 #include <M360Translator.h>
 #include <M360Registry.h>

@@ -29,15 +29,17 @@
  */
 
 // ===== CONFIGURAÇÃO MYSENSORS =====
-// Macros MY_* definidas no platformio.ini [env:node_99_reles_nano]
+// Macros MY_* definidas no platformio.ini [env:nano_99reles]
+// MySensors.h deve vir antes de M360.h para garantir sei() antes dos construtores globais
+
+#include <Arduino.h>
+#include <MySensors.h>
+#include <M360.h>
+#include "sensorDrivers.h"
+
 #if defined(MY_DEBUG) && defined(MY_RSSI_LOG_INTERVAL)
 static unsigned long lastRssiLog = 0;
 #endif
-
-#include "sensorDrivers.h"
-#include <Arduino.h>
-#include <M360.h>
-#include <MySensors.h>
 
 // ===== DEFINIÇÃO DOS ITENS DO NÓ =====
 // Colunas: childId | kind | presentType | valueType | pin | intMin | smp | label | wakeOnRadio | flags

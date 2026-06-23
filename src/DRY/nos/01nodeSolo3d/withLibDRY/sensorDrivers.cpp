@@ -18,11 +18,12 @@ void initSensors() {
 }
 
 void powerUpSensors() {
-	// Energiza a barra de resistores de pull-up dos sensores
-	digitalWrite(PIN_POWER_SENSORS, HIGH);
-	
-	// Tempo de estabilização do MUX e das capacitâncias parasitas nos cabos longos
-	delay(20);
+	// Energiza a barra de resistores de pull-up dos sensores se estiver desligada
+	if (digitalRead(PIN_POWER_SENSORS) == LOW) {
+		digitalWrite(PIN_POWER_SENSORS, HIGH);
+		// Tempo de estabilização do MUX e das capacitâncias parasitas nos cabos longos
+		delay(20);
+	}
 }
 
 void powerDownSensors() {
@@ -38,6 +39,11 @@ static void selectMuxChannel(uint8_t channel) {
 }
 
 float readNodeItem(uint8_t itemIndex) {
+	// Se for o início da varredura, garante que os pull-ups estejam energizados
+	if (itemIndex == 0) {
+		powerUpSensors();
+	}
+
 	uint8_t pinToRead = MUX_PIN_SIG;
 	float rOn = 0.0f; // Sem multiplexador por padrão (canais nativos)
 	
@@ -85,6 +91,11 @@ float readNodeItem(uint8_t itemIndex) {
 	}
 	if (percentage > 100.0f) {
 		percentage = 100.0f;
+	}
+
+	// Ao final da varredura (último sensor, index 17), desliga os sensores
+	if (itemIndex == 17) {
+		powerDownSensors();
 	}
 
 	return percentage;

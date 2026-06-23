@@ -24,7 +24,7 @@ flowchart BT
   subgraph Power["Fonte de Energia"]
     PS["Fonte 12V DC"]
     Reg5V@{ shape: rect, label: "Regulador 5V (MCU / MAX485 / Relé /<span style=\"color:\">Adaptador de soquete (NRF24)</span>)" }
-    MCU["Arduino Pro Mini<br>(Atmega328P 5V/16MHz)"]
+    MCU["Arduino Nano<br>(Atmega328P 5V/16MHz)"]
     Divisor["Divisor<br>de tensão<br>"]
     AdaptadorNRF["Adaptador NRF24<br>"]
     Relay["Módulo Relé"]

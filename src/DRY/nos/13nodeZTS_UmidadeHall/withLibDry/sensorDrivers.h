@@ -2,35 +2,35 @@
 #include <Arduino.h>
 
 // ===== CONFIGURAÇÃO DE PINOS (DERIVADO DO ESQUEMA ELÉTRICO) =====
-#define MAX485_DE       7     // Driver Enable
-#define MAX485_RE_NEG   8     // Receiver Enable (N)
-#define MAX485_RO_RX    9     // RO -> Arduino RX
-#define MAX485_DI_TX    10    // DI -> Arduino TX
-#define RELAY_PIN       5     // Controle Válvula / Alimentação ZTS (Active LOW)
-#define PIN_HALL        A0    // Sensor de Umidade Local (Hall)
-#define PIN_LDR         A1    // Sensor de Luminosidade (LDR)
+#define MAX485_DE 7     // Driver Enable
+#define MAX485_RE_NEG 8 // Receiver Enable (N)
+#define MAX485_RO_RX 2  // RO -> Arduino RX
+#define MAX485_DI_TX 3  // DI -> Arduino TX
+#define RELAY_PIN 5     // Controle Válvula / Alimentação ZTS (Active LOW)
+#define PIN_HALL A0     // Sensor de Umidade Local (Hall)
+#define PIN_LDR A1      // Sensor de Luminosidade (LDR)
 
 // ===== CHILD IDs (PADRÃO M360) =====
-#define CHILD_ID_MOISTURE      0
-#define CHILD_ID_TEMP          1
-#define CHILD_ID_CONDUCTIVITY  2
-#define CHILD_ID_PH            3
-#define CHILD_ID_NITROGEN      4
-#define CHILD_ID_PHOSPHORUS    5
-#define CHILD_ID_POTASSIUM     6
-#define CHILD_ID_SELENOIDE     7
-#define CHILD_ID_UMIDADE_HALL  8
-#define CHILD_ID_LDR           9
+#define CHILD_ID_MOISTURE 0
+#define CHILD_ID_TEMP 1
+#define CHILD_ID_CONDUCTIVITY 2
+#define CHILD_ID_PH 3
+#define CHILD_ID_NITROGEN 4
+#define CHILD_ID_PHOSPHORUS 5
+#define CHILD_ID_POTASSIUM 6
+#define CHILD_ID_SELENOIDE 7
+#define CHILD_ID_UMIDADE_HALL 8
+#define CHILD_ID_LDR 9
 
 // Node ID único para o nó de monitoramento de horta
 
 // ===== CONSTANTES =====
-#define RELAY_ON  0
-#define RELAY_OFF 1
+#define RELAY_ON 1
+#define RELAY_OFF 0
 
 // ===== RS485 / MODBUS CONFIG =====
 #define RS485_BAUD_RATE 9600
-#define MODBUS_TIMEOUT  2000 // ms
+#define MODBUS_TIMEOUT 2000 // ms
 
 // ===== DRIVER INTERFACE =====
 

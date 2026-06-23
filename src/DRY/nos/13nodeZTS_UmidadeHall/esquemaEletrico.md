@@ -2,13 +2,13 @@
 
 Este documento detalha as conexões pino a pino para a montagem do hardware baseada no diagrama de bloco e no firmware `noRS485.cpp`.
 
-## 1. Núcleo (Arduino Pro Mini 5V)
+## 1. Núcleo (Arduino Nano)
 
 | Pino Arduino | Componente | Sinal / Função |
 | :---: | :--- | :--- |
-| **VCC** | Barramento 5V | Alimentação principal (saída do regulador 5V) |
+| **5V / VCC** | Barramento 5V | Alimentação principal (saída do regulador 5V) |
 | **GND** | Barramento GND | Comum a todos os módulos e componentes |
-| **RAW** | Fonte 12V | Entrada opcional (prefira regulador externo para mais corrente) |
+| **VIN** | Fonte 12V | Entrada de alimentação não regulada (Fonte 12V) |
 
 ---
 
@@ -20,8 +20,8 @@ O módulo MAX485 permite a leitura do sensor ZTS-3002 via protocolo Modbus.
 | :--- | :---: | :--- |
 | **VCC** | 5V | Alimentação do driver |
 | **GND** | GND | Referência |
-| **RO** | **D9** | Receive Out (RX do SoftwareSerial) |
-| **DI** | **D10** | Driver In (TX do SoftwareSerial) |
+| **RO** | **D2** | Receive Out (RX do SoftwareSerial) |
+| **DI** | **D3** | Driver In (TX do SoftwareSerial) |
 | **RE / DE** | **D7 / D8** | Controle de fluxo (DE: D7, RE: D8) |
 
 ### 2.1 Melhores Práticas RS485 (Físico)
@@ -35,7 +35,7 @@ O módulo MAX485 permite a leitura do sensor ZTS-3002 via protocolo Modbus.
 | **Stubs** | **< 30cm** | Derivações para cada sensor devem ser o mais curtas possível. |
 
 > [!TIP]
-> No firmware `noRS485.cpp`, DE está em D7 e RE em D8.
+> No firmware, DE está em D7 e RE em D8. RO/DI movidos para D2/D3 para liberar D9/D10 ao rádio.
 
 ---
 
@@ -47,14 +47,14 @@ Devido ao uso dos pinos D9 e D10 pelo RS485, recomenda-se mover CE e CSN para pi
 | :--- | :---: | :--- |
 | **VCC** | **3.3V** | Alimentação do rádio (recomenda-se capacitor de 10µF) |
 | **GND** | GND | Referência |
-| **CE** | **D6** | Chip Enable (Sugerido para evitar conflito com D9) |
-| **CSN** | **D4** | SPI Chip Select (Sugerido para evitar conflito com D10) |
+| **CE** | **D9** | Chip Enable (padrão MySensors) |
+| **CSN** | **D10** | SPI Chip Select (padrão MySensors) |
 | **SCK** | **D13** | SPI Clock |
 | **MISO** | **D12** | SPI Master In Slave Out |
 | **MOSI** | **D11** | SPI Master Out Slave In |
 
-> [!WARNING]
-> É necessário definir `#define MY_RF24_CE_PIN 6` e `#define MY_RF24_CSN_PIN 4` no topo do código antes do include de `MySensors.h`.
+> [!NOTE]
+> CE=D9 e CSN=D10 são os pinos padrão do MySensors — nenhum `#define` necessário no firmware.
 
 ---
 

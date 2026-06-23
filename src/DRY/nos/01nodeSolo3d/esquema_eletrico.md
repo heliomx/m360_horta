@@ -1,11 +1,11 @@
 # Esquema Elétrico — Nó 01 Pro Mini (Monitoramento 3D de Solo)
 
-Este documento descreve o esquema de ligações e detalhes de hardware para o **Nó 01 (Versão Arduino Pro Mini 3.3V / 8MHz)** em modo de baixo consumo.
+Este documento descreve o esquema de ligações e detalhes de hardware para o **Nó 01 (Versão Arduino Pro Mini 5V / 16MHz ou 3.3V / 8MHz)** no modo de alimentação contínua (**ALWAYS_ON**).
 
-## 1. Modificações de Baixo Consumo no Arduino Pro Mini
-Para atingir uma corrente de sleep de microamperes (idealmente ~5µA a ~15µA), faça as seguintes alterações físicas na placa do Arduino Pro Mini:
-1. **Remover o LED de Power (PWR)**: Dessolde ou corte a trilha do LED indicador de energia integrado.
-2. **Remover/Bypass do Regulador de Tensão Onboard**: Dessolde o regulador linear interno da placa se for alimentar a MCU diretamente pela bateria no pino VCC.
+## 1. Modificações de Hardware (Alimentação Constante 5V)
+Como este nó é alimentado de forma constante com uma fonte de **5V DC** (via RAW ou USB):
+1. **Não é necessário realizar modificações físicas** de baixo consumo na placa do Arduino Pro Mini (como dessoldar LEDs ou reguladores internos).
+2. O pino **D3** (`PIN_POWER_SENSORS`) funciona como chave de controle de energia dos sensores para **mitigação de eletrólise**, mantendo-se desligado (`LOW`) e ligando apenas durante o momento exato das medições analógicas.
 
 ---
 
@@ -14,7 +14,7 @@ Para atingir uma corrente de sleep de microamperes (idealmente ~5µA a ~15µA), 
 ### Conexões Lógicas e RF
 | Componente | Arduino Pro Mini | Função |
 | :--- | :--- | :--- |
-| **Adaptador do NRF24L01+** | **VCC** (Bateria / OUT+) | Alimentação do módulo (possui regulador 3.3V on-board) |
+| **Adaptador do NRF24L01+** | **VCC** (Fonte 5V / RAW) | Alimentação do módulo (possui regulador 3.3V on-board) |
 | | **GND** | Terra comum |
 | **NRF24L01+ (via Adaptador)** | **D9** | CE (Chip Enable) |
 | | **D10** | CSN (Chip Select) |
@@ -47,29 +47,47 @@ Para economizar componentes, o nó utiliza um esquema de divisor de tensão com 
 
 *Todos os eletrodos negativos (-) dos sensores no solo conectam-se ao GND comum do circuito.*
 
+### Tabela de Mapeamento Físico dos Eletrodos (Canteiros A e B)
+
+Abaixo está o mapeamento detalhado de cada Sensor ID para sua posição física nos Canteiros A e B:
+
+| Child ID / Sensor ID | Canal físico de Leitura | Canteiro | Posição (Distância / Profundidade) | Label do Sensor |
+| :---: | :--- | :---: | :---: | :--- |
+| **0** | MUX $C_0$ | Canteiro A | 1m de distância, 10cm de profundidade | `A_1m_10cm` |
+| **1** | MUX $C_1$ | Canteiro A | 1m de distância, 20cm de profundidade | `A_1m_20cm` |
+| **2** | MUX $C_2$ | Canteiro A | 1m de distância, 30cm de profundidade | `A_1m_30cm` |
+| **3** | MUX $C_3$ | Canteiro A | 3m de distância, 10cm de profundidade | `A_3m_10cm` |
+| **4** | MUX $C_4$ | Canteiro A | 3m de distância, 20cm de profundidade | `A_3m_20cm` |
+| **5** | MUX $C_5$ | Canteiro A | 3m de distância, 30cm de profundidade | `A_3m_30cm` |
+| **6** | MUX $C_6$ | Canteiro A | 5m de distância, 10cm de profundidade | `A_5m_10cm` |
+| **7** | MUX $C_7$ | Canteiro A | 5m de distância, 20cm de profundidade | `A_5m_20cm` |
+| **8** | MUX $C_8$ | Canteiro A | 5m de distância, 30cm de profundidade | `A_5m_30cm` |
+| **9** | MUX $C_9$ | Canteiro B | 1m de distância, 10cm de profundidade | `B_1m_10cm` |
+| **10** | MUX $C_{10}$ | Canteiro B | 1m de distância, 20cm de profundidade | `B_1m_20cm` |
+| **11** | MUX $C_{11}$ | Canteiro B | 1m de distância, 30cm de profundidade | `B_1m_30cm` |
+| **12** | MUX $C_{12}$ | Canteiro B | 3m de distância, 10cm de profundidade | `B_3m_10cm` |
+| **13** | MUX $C_{13}$ | Canteiro B | 3m de distância, 20cm de profundidade | `B_3m_20cm` |
+| **14** | MUX $C_{14}$ | Canteiro B | 3m de distância, 30cm de profundidade | `B_3m_30cm` |
+| **15** | MUX $C_{15}$ | Canteiro B | 5m de distância, 10cm de profundidade | `B_5m_10cm` |
+| **16** | Porta Nativa A1 | Canteiro B | 5m de distância, 20cm de profundidade | `B_5m_20cm` |
+| **17** | Porta Nativa A2 | Canteiro B | 5m de distância, 30cm de profundidade | `B_5m_30cm` |
+
 ---
 
-## 3. Circuito de Alimentação (Bateria e Placa Solar)
+## 3. Circuito de Alimentação (Alimentação Constante 5V - Modo ALWAYS_ON)
 
-O transceptor **NRF24L01+** opera na faixa de **1.9V a 3.6V** e não tolera tensões superiores. Para alimentar o circuito com segurança usando uma bateria de Li-ion (3.0V a 4.2V) e placa solar, a seguinte topologia é implementada:
+O transceptor **NRF24L01+** opera estritamente na faixa de **1.9V a 3.6V** e não tolera tensões de 5V. O uso de um **Módulo Adaptador para o Rádio** (com regulador LDO de 3.3V onboard, tipo AMS1117-3.3) é obrigatório para rebaixar a tensão e filtrar ruídos na linha de alimentação.
 
-### Componentes de Potência
-1. **Controlador de Carga (TP4056 ou similar)**: Gerencia o carregamento da bateria por meio do painel solar.
-2. **Módulo Adaptador para o Rádio**: Um adaptador de soquete de 8 pinos para o NRF24L01+ que possui um regulador LDO de 3.3V on-board (normalmente o chip AMS1117-3.3) e capacitores de filtragem integrados.
+* **Conexões de Alimentação**:
+  - **Fonte de Alimentação 5V DC**: Conectada ao pino **RAW** (ou **VCC** se a fonte for regulada) do Arduino Pro Mini.
+  - **Alimentação do MUX CD74HC4067**: Conectada ao barramento de alimentação de 5V (suporta operação até 6V).
+  - **Alimentação do Rádio (via Adaptador)**: O adaptador de soquete recebe os 5V diretamente no pino `VCC` e o regulador on-board reduz para 3.3V estáveis para o NRF24L01+.
+  - **Pino D3 (`PIN_POWER_SENSORS`)**: Funciona como chave de energia temporária dos sensores (ligado somente no momento exato da leitura para mitigar eletrólise).
 
-### Conexões de Alimentação
-- **Painel Solar (5V-6V)**: Conectado às portas de entrada `IN+` e `IN-` do controlador de carga.
-- **Bateria Li-ion (18650 ou similar)**: Conectada às portas `BAT+` e `BAT-` do controlador.
-- **Linha de Distribuição VCC (3.0V - 4.2V)**: Conectada à saída `OUT+` do controlador de carga. Alimenta em paralelo:
-  1. O pino **VCC** do Arduino Pro Mini (alimentação direta da MCU para permitir a leitura correta e direta da voltagem da bateria via ADC de 1.1V interno).
-  2. O pino **VCC** do módulo adaptador do rádio (o regulador do adaptador se encarregará de rebaixar a tensão para os 3.3V adequados ao NRF24L01+).
-  3. O pino **VCC** do multiplexador CD74HC4067 (suporta operação estável de 2V a 6V).
-- **Linha GND (Terra)**: Conectada à saída `OUT-` do controlador, unificando o terra de todo o sistema.
-
-### Esquema de Blocos da Alimentação:
+### Esquema de Blocos:
 ```text
-Painel Solar (5V-6V) ───> [ IN+ ]  Controlador  [ OUT+ ] ──┬──> VCC Arduino Pro Mini (3.0V - 4.2V)
-                     ───> [ IN- ]   de Carga    [ OUT- ] ──┼──> VCC MUX CD74HC4067 (3.0V - 4.2V)
-                                                           ├──> VCC Módulo Adaptador do Rádio ──> [Regulador 3.3V] ──> VCC NRF24L01+
-                                                           └──> GND do Sistema (Comum)
+Fonte 5V DC ──┬──> RAW / VCC Arduino Pro Mini (5V)
+              ├──> VCC MUX CD74HC4067 (5V)
+              ├──> VCC Módulo Adaptador do Rádio ──> [Regulador 3.3V] ──> VCC NRF24L01+
+              └──> GND do Sistema (Comum)
 ```

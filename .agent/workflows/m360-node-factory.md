@@ -30,13 +30,16 @@ Proibido em qualquer `.h` ou `.cpp`:
 #define MY_RF24_CSN_PIN  // ← PROIBIDO no .cpp
 ```
 
-## R2 — Biblioteca canônica
+## R2 — Ordem obrigatória de includes
 
 ```cpp
-#include <M360.h>          // header centralizador
-#include <MySensors.h>     // DEPOIS do M360.h
-#include "sensorDrivers.h" // driver local do nó
+#include <Arduino.h>       // sempre primeiro
+#include <MySensors.h>     // segundo — antes de qualquer lib que use tipos MySensors
+#include <M360.h>          // header centralizador M360-DRY
+#include "sensorDrivers.h" // driver local do nó (último)
 ```
+
+**Por que essa ordem importa:** `MySensors.h` habilita os interrupts globais (`sei()`) durante sua inicialização estática. Se `M360.h` ou `sensorDrivers.h` vierem antes, os construtores globais dessas libs rodam antes do `sei()`, fazendo o `Serial.print()` do banner travar permanentemente ao tentar drenar o TX buffer — os interrupts do UART nunca disparam. Sintoma: banner MySensors exibido parcialmente no Serial e o nó trava sem reset.
 
 ## R3 — Ciclo de vida MySensors — responsabilidades fixas por função
 
@@ -516,6 +519,7 @@ Verificar cada item antes de entregar o código:
 | 12 | `MY_RF24_CS_PIN` em vez de `MY_RF24_CSN_PIN` | Verificar flag no `.ini` |
 | 13 | `build_src_filter` com casing inconsistente | `withLibDRY` (DRY maiúsculo) |
 | 14 | childId 254 ou 255 em `NODE_ITEMS[]` | Reservados para intervalo e bateria |
+| 15 | Ordem errada de includes (`M360.h` antes de `MySensors.h`) | Causa banner truncado + hang; ordem correta: `Arduino.h` → `MySensors.h` → `M360.h` → `sensorDrivers.h` |
 
 ---
 
