@@ -242,6 +242,11 @@ float readNodeItem(uint8_t itemIndex)
 			float avgRaw = sum / 10.0f;
 			float voltage = (avgRaw * 5.0f) / 1023.0f;
 			
+			// Detecção de desconexão da sonda física ou saturação (tensão acima de 4.5V)
+			if (voltage > 4.5f) {
+				return NAN;
+			}
+			
 			// Obter temperatura da água para compensação
 			float tempC = sensors.getTempCByIndex(0);
 			if (tempC == DEVICE_DISCONNECTED_C || tempC < -10.0f || tempC > 100.0f) {
@@ -256,6 +261,9 @@ float readNodeItem(uint8_t itemIndex)
 
 			// Compensação de temperatura padrão agronômica (0.0185 por °C)
 			float tempCoefficient = 1.0f + 0.0185f * (tempC - 25.0f);
+			if (tempCoefficient < 0.1f) {
+				tempCoefficient = 0.1f; // Proteção contra divisão por zero ou coeficiente negativo por ruído
+			}
 			float rawEcCompensated = ecValueAt25 / tempCoefficient;
 
 			// Calibração de campo (ajuste fino)
