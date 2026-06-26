@@ -242,12 +242,27 @@ float readNodeItem(uint8_t itemIndex)
 			float avgRaw = sum / 10.0f;
 			float voltage = (avgRaw * 5.0f) / 1023.0f;
 			
-			// TODO: calibrar com solução padrão (ex.: KCl 1413 μS/cm).
-			// Valores abaixo são placeholder — retornam tensão em V, não μS/cm.
+			// Obter temperatura da água para compensação
+			float tempC = sensors.getTempCByIndex(0);
+			if (tempC == DEVICE_DISCONNECTED_C || tempC < -10.0f || tempC > 100.0f) {
+				tempC = 25.0f; // Backup padrão de temperatura
+			}
+
+			// Conversão Polinomial Padrão Gravity EC (DFRobot) para mS/cm a 25°C:
+			float ecValueAt25 = 6.84f * voltage * voltage * voltage - 64.32f * voltage * voltage + 116.8f * voltage;
+			if (ecValueAt25 < 0.0f) {
+				ecValueAt25 = 0.0f;
+			}
+
+			// Compensação de temperatura padrão agronômica (0.0185 por °C)
+			float tempCoefficient = 1.0f + 0.0185f * (tempC - 25.0f);
+			float rawEcCompensated = ecValueAt25 / tempCoefficient;
+
+			// Calibração de campo (ajuste fino)
+			// TODO: calibrar com solução padrão (ex.: KCl 1413 μS/cm = 1.41 mS/cm).
 			const float EC_SLOPE  = 1.0f;
 			const float EC_OFFSET = 0.0f;
-
-			float ecValue = EC_SLOPE * voltage + EC_OFFSET;
+			float ecValue = EC_SLOPE * rawEcCompensated + EC_OFFSET;
 			
 			if (ecValue < 0.0f) {
 				ecValue = 0.0f;

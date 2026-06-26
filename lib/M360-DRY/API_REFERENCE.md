@@ -45,12 +45,28 @@ M360Node(const M360ItemDef* items, uint8_t count, MyMessage* messages, float* la
 - `setupPins()`: Configura automaticamente os pinos definidos na struct `M360ItemDef` como INPUT ou OUTPUT.
 
 ### Métodos Principais
-- `begin(name, version)`: Registra o nó no MySensors. Adiciona sufixo ao nome (`[LP]`, `[ON]`, `[PAS]`).
+- `begin(name, version)`: Registra o nó no MySensors. Adiciona sufixo ao nome (`[LP]`, `[ON]`, `[PAS]`). Inicializa `lastValues[]` com `NAN` e `nNoUpdates[]` com `0`.
 - `process()`: Executa no `loop()`. Cuida de leituras, envios e gerenciamento de sono/millis.
-- `handleMessage(msg)`: Executa no `receive()`. Processa comandos de intervalo, força atualização e atuadores.
+- `handleMessage(msg)`: Executa no `receive()`. Processa: intervalo (`V_VAR1`/`V_VAR5` em childId 254), atuadores (`V_STATUS`), e comandos `V_CUSTOM` (ver tabela abaixo).
 - `onRead(callback)`: Registra sua função de leitura.
 - `onWrite(callback)`: Registra sua função de atuação para relés e válvulas.
 - `setupPins()`: Configura automaticamente os pinos definidos na struct `M360ItemDef` como INPUT ou OUTPUT.
+- `getInterval()`: Retorna o intervalo atual em minutos.
+
+### Comandos `V_CUSTOM` processados por `handleMessage()`
+
+Todos os payloads são strings. Constantes definidas em `M360Constants.h`.
+
+| Constante | Payload | Efeito |
+|-----------|---------|--------|
+| `CMD_FORCE_UPDATE` | `"FORCE_UPDATE"` | Dispara `_readAndSendAll()` imediatamente; em `M360_PASSIVE` liga/desliga periféricos |
+| `CMD_REPRESENT` | `"REPRESENT"` | Dispara `_rePresent()`: re-executa `present()` para todos os children sem resetar `lastValues[]`; imprime `REPRES:OK` no Serial |
+| `CMD_RESET` | `"RESET"` | Não processado pelo motor — disponível para uso customizado no nó |
+
+**Exemplo MQTT para acionar reapresentação:**
+```json
+{ "nodeId": 1, "sensorId": 0, "command": 1, "type": 48, "payload": "REPRESENT" }
+```
 
 ---
 

@@ -58,13 +58,20 @@ if (abs(val - lastValues[i]) > 0.5 || nNoUpdates[i] >= 10) {
 
 ## 3. Comandos e Eventos Customizados (V_CUSTOM / V_VAR1)
 
-O código implementa padrões específicos para comunicação avançada:
+O código implementa padrões específicos para comunicação avançada. Todas as constantes de comando estão em `lib/M360-DRY/src/M360Constants.h`.
 
-- **FORCE_UPDATE (V_CUSTOM):** O gateway força a leitura com `CMD_FORCE_UPDATE` (`"FORCE_UPDATE"`).
-  - Nó deve setar `nNoUpdates[i] = 255` para todos os sensores.
-- **RESET (V_VAR1):** Usado em nós de vazão para zerar acumuladores.
-  - Implementar via `strcmp(message.getString(), "RESET") == 0`.
-- **Intervalo (CHILD_ID_INTERVAL = 254):** Sempre tratar via `NODE_ENGINE_HANDLE_INTERVAL(message)`.
+| Constante | Payload | Mecanismo | Efeito |
+|-----------|---------|-----------|--------|
+| `CMD_FORCE_UPDATE` | `"FORCE_UPDATE"` | `V_CUSTOM` / `C_SET` | Leitura imediata de todos os sensores; em PASSIVE liga/desliga periféricos |
+| `CMD_REPRESENT` | `"REPRESENT"` | `V_CUSTOM` / `C_SET` | Re-anuncia todos os children via `present()` sem resetar estado interno; Serial: `REPRES:OK` |
+| `CMD_RESET` | `"RESET"` | `V_CUSTOM` / `C_SET` | Reservado para uso no nó (ex: zerar acumuladores de vazão) |
+| — | Intervalo numérico | `V_VAR1` ou `V_VAR5` em childId 254 | Atualiza e persiste intervalo na EEPROM |
+
+**Nós `withLibDRY`:** todos os comandos acima são processados automaticamente por `node.handleMessage(msg)` — a `receive()` do nó não precisa de código adicional.
+
+**Nós legados (`shared/`):** usar as macros `NODE_ENGINE_HANDLE_INTERVAL(msg)` e `NODE_ENGINE_HANDLE_REREPRESENTATION(msg, name, version)`.
+
+**Reapresentação (`CMD_REPRESENT`):** O motor chama `_rePresent()` que re-executa `present()` para cada child ID registrado. `lastValues[]` e `nNoUpdates[]` **não** são resetados, evitando burst de mensagens no próximo ciclo. Útil após reinício do broker MQTT ou do Home Assistant.
 
 ---
 

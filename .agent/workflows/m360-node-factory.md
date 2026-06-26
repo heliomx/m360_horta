@@ -49,7 +49,7 @@ Proibido em qualquer `.h` ou `.cpp`:
 | `presentation()` | `node.begin("Nome", "Versão")` |
 | `setup()` | `node.onRead(cb)`, `node.onWrite(cb)` — após rádio ativo |
 | `loop()` | `node.process()` + lógica de timing própria do nó |
-| `receive()` | `node.handleMessage(msg)` |
+| `receive()` | `node.handleMessage(msg)` — trata intervalo, atuadores, FORCE_UPDATE e REPRESENT |
 
 **Nunca** colocar `Serial.begin()` ou `initSensors()` em `setup()`.
 
@@ -99,6 +99,22 @@ Para nós com MUX CD74HC4067 (encoding virtual `pin = 100 + canal`), `setupPins(
 |---------|--------------|
 | 254 | Intervalo (`V_VAR1`) |
 | 255 | Bateria (`V_VOLTAGE`) |
+
+## R11 — Comandos `V_CUSTOM` suportados pelo motor M360Node
+
+O motor `M360Node` processa os seguintes payloads via `V_CUSTOM` + `C_SET` — todos definidos em `M360Constants.h`:
+
+| Constante | Payload | Efeito |
+|-----------|---------|--------|
+| `CMD_FORCE_UPDATE` | `"FORCE_UPDATE"` | Leitura imediata de todos os sensores; em `M360_PASSIVE` liga/desliga periféricos |
+| `CMD_REPRESENT` | `"REPRESENT"` | Re-anuncia todos os children via `present()` sem resetar estado; exibe `REPRES:OK` no Serial |
+| `CMD_RESET` | `"RESET"` | Reservado para uso no nó (ex: zerar acumuladores de vazão) |
+
+Para acionar `CMD_REPRESENT` via MQTT, publicar em `m360/{UF}/{CAR}/in`:
+```json
+{ "nodeId": <ID>, "sensorId": 0, "command": 1, "type": 48, "payload": "REPRESENT" }
+```
+> `type: 48` = `V_CUSTOM`. `sensorId` pode ser qualquer childId válido do nó.
 
 ## R9 — EEPROM — mapa de memória fixo (nunca escrever em 0–511)
 
@@ -560,3 +576,4 @@ Explicar:
 4. Comportamento de intervalo: como o gateway altera o intervalo via `V_VAR1` e onde é persistido na EEPROM
 5. Bateria: como `_processBattery()` reporta automaticamente via childId 255
 6. Se PASSIVE: como o FORCE_UPDATE dispara leitura via `handleMessage()` → `_readAndSendAll()`
+7. Reapresentação: como o comando `REPRESENT` (V_CUSTOM) dispara `_rePresent()` que re-anuncia todos os children via `present()` sem resetar `lastValues` — útil após reinício do broker ou do Home Assistant
