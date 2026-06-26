@@ -17,6 +17,7 @@ namespace M360 {
 	static const char* const CMD_PUMP_OFF	  = "PUMP_OFF";
 	static const char* const CMD_PUMP_TOGGLE   = "PUMP_TOGGLE";
 	static const char* const CMD_FORCE_UPDATE  = "FORCE_UPDATE";
+	static const char* const CMD_REPRESENT     = "REPRESENT";
 	static const char* const CMD_RESET		 = "RESET";
 
 	// Tipos de Eventos de Transporte

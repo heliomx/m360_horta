@@ -8,13 +8,13 @@
         {
             "name": "PlatformIO",
             "includePath": [
+                "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/include",
                 "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/src",
                 "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/lib/M360-DRY/src",
                 "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/.pio/libdeps/ProMini_01nodeSolo3d/MySensors",
                 "C:/Users/jmarc/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
                 "C:/Users/jmarc/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
                 "C:/Users/jmarc/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
-                "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/include",
                 "C:/Users/jmarc/.platformio/packages/framework-arduino-avr/cores/arduino",
                 "C:/Users/jmarc/.platformio/packages/framework-arduino-avr/variants/eightanaloginputs",
                 "C:/Users/jmarc/.platformio/packages/framework-arduino-avr/libraries/HID/src",
@@ -24,13 +24,13 @@
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
+                    "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/include",
                     "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/src",
                     "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/lib/M360-DRY/src",
                     "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/.pio/libdeps/ProMini_01nodeSolo3d/MySensors",
                     "C:/Users/jmarc/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
                     "C:/Users/jmarc/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
                     "C:/Users/jmarc/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
-                    "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/include",
                     "C:/Users/jmarc/.platformio/packages/framework-arduino-avr/cores/arduino",
                     "C:/Users/jmarc/.platformio/packages/framework-arduino-avr/variants/eightanaloginputs",
                     "C:/Users/jmarc/.platformio/packages/framework-arduino-avr/libraries/HID/src",

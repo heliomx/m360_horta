@@ -170,10 +170,14 @@ namespace M360
 			}
 		}
 
-		// Força atualização imediata
+		// Comandos V_CUSTOM: REPRESENT (reapresenta sensores) e FORCE_UPDATE (leitura imediata)
 		if (msg.getType() == V_CUSTOM) {
 			char buf[24];
 			msg.getString(buf);
+			if (strcmp(buf, CMD_REPRESENT) == 0) {
+				_rePresent();
+				return;
+			}
 			if (strcmp(buf, CMD_FORCE_UPDATE) == 0) {
 				// No modo passivo, precisamos ligar e desligar periféricos explicitamente
 				if (_profile == M360_PASSIVE) {
@@ -236,6 +240,17 @@ namespace M360
 				Serial.println(voltage, 1);
 			}
 		}
+	}
+
+	void M360Node::_rePresent() {
+		for (uint8_t i = 0; i < _count; i++) {
+			present(_items[i].childId,
+			        (mysensors_sensor_t)_items[i].presentationType,
+			        _items[i].label);
+		}
+		present(M360_CHILD_ID_INTERVAL, S_CUSTOM,     F("Intervalo"));
+		present(M360_CHILD_ID_BATTERY,  S_MULTIMETER, F("Bateria"));
+		Serial.println(F("REPRES:OK"));
 	}
 
 	void M360Node::_printNetDiag() {

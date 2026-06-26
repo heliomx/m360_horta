@@ -140,6 +140,19 @@ void nodeEngine_setupPins();
     }                                                                              \
   } while(0)
 
+// Relança presentation() quando recebe V_CUSTOM com payload "REPRESENT"
+#define NODE_ENGINE_HANDLE_REREPRESENTATION(msg, name, version)              \
+  do {                                                                        \
+    if ((msg).getType() == V_CUSTOM) {                                       \
+      char _rbuf[12];                                                         \
+      (msg).getString(_rbuf);                                                 \
+      if (strcmp(_rbuf, "REPRESENT") == 0) {                                 \
+        NODE_ENGINE_PRESENTATION(name, version);                              \
+        Serial.println(F("REPRES:OK"));                                       \
+      }                                                                       \
+    }                                                                         \
+  } while(0)
+
 // Envia mensagem de teste de conectividade ao gateway
 #define NODE_ENGINE_TEST_CONNECTIVITY()                                            \
   do {                                                                             \

@@ -125,5 +125,6 @@ namespace M360
 		void _readAndSendAll();
 		void _processBattery();
 		void _printNetDiag();
+		void _rePresent();
 	};
 } // namespace M360
