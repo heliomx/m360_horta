@@ -19,7 +19,10 @@ namespace M360 {
 		doc["command"]	 = msg.getCommand();
 		doc["ack"]		 = isAck ? 1 : 0;
 		doc["type"]		= msg.getType();
-		doc["payload"]	 = msg.getString();
+		// getString() sem buffer retorna nullptr para payloads não-string (P_FLOAT32,
+		// P_LONG32, etc.), gerando payload:null. getString(buf) converte qualquer tipo.
+		char payloadBuf[MAX_PAYLOAD_SIZE + 1];
+		doc["payload"]	 = msg.getString(payloadBuf);
 		doc["timestamp"]   = millis() / 1000;
 		doc["description"] = getTypeDescription(msg.getType());
 		doc["direction"]   = isAck ? "ack" : "sensor";
@@ -140,16 +143,20 @@ namespace M360 {
 
 	const char* Translator::getTypeDescription(uint8_t type) {
 		switch (type) {
-			case V_TEMP:	  return "Temperature";
-			case V_HUM:	   return "Humidity";
-			case V_STATUS:	return "Status";
-			case V_PERCENTAGE:return "Percentage";
-			case V_PRESSURE:  return "Pressure";
-			case V_VOLTAGE:   return "Voltage";
-			case V_CURRENT:   return "Current";
-			case V_VAR1:	  return "Variable 1";
-			case V_CUSTOM:	return "Custom";
-			default:		  return "Unknown";
+			case V_TEMP:       return "Temperature";
+			case V_HUM:        return "Humidity";
+			case V_STATUS:     return "Status";
+			case V_PERCENTAGE: return "Percentage";
+			case V_PRESSURE:   return "Pressure";
+			case V_VOLTAGE:    return "Voltage";
+			case V_CURRENT:    return "Current";
+			case V_LEVEL:      return "Level";
+			case V_FLOW:       return "Flow";
+			case V_PH:         return "pH";
+			case V_EC:         return "EC";
+			case V_VAR1:       return "Variable 1";
+			case V_CUSTOM:     return "Custom";
+			default:           return "Unknown";
 		}
 	}
 
