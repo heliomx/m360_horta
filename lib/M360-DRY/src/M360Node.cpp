@@ -137,6 +137,11 @@ namespace M360
 	// ===== HANDLE MESSAGE =====
 
 	void M360Node::handleMessage(const MyMessage& msg) {
+		// Ecos são devolvidos pelo destino quando requestEcho=true — não processar
+		if (msg.isEcho()) {
+			return;
+		}
+
 		if (msg.getCommand() != C_SET) {
 			return;
 		}
@@ -148,10 +153,11 @@ namespace M360
 			if (iv >= M360_MIN_INTERVAL && iv <= M360_MAX_INTERVAL) {
 				_interval = iv;
 				saveInterval(_interval);
-				send(_messages[_count].set(_interval));
-				Serial.print(F("INT:"));
-				Serial.println(_interval);
 			}
+			// Sempre confirma o valor vigente (gateway sabe se a mudança foi aceita ou rejeitada)
+			send(_messages[_count].set(_interval));
+			Serial.print(F("INT:"));
+			Serial.println(_interval);
 			return;
 		}
 
@@ -172,7 +178,11 @@ namespace M360
 
 		// Comandos V_CUSTOM: REPRESENT (reapresenta sensores) e FORCE_UPDATE (leitura imediata)
 		if (msg.getType() == V_CUSTOM) {
-			char buf[24];
+			// MAX_PAYLOAD_SIZE do MySensors é 25 bytes; buf[25] comporta string de 24 chars + \0
+			if (msg.getLength() >= 25) {
+				return;
+			}
+			char buf[25];
 			msg.getString(buf);
 			if (strcmp(buf, CMD_REPRESENT) == 0) {
 				_rePresent();

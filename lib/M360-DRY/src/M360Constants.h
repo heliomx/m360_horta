@@ -13,12 +13,16 @@ namespace M360 {
 	static const uint8_t CHILD_ID_BATTERY  = 255; // V_VOLTAGE ou I_BATTERY_LEVEL
 
 	// Comandos de Ação (Strings)
-	static const char* const CMD_PUMP_ON	   = "PUMP_ON";
-	static const char* const CMD_PUMP_OFF	  = "PUMP_OFF";
-	static const char* const CMD_PUMP_TOGGLE   = "PUMP_TOGGLE";
-	static const char* const CMD_FORCE_UPDATE  = "FORCE_UPDATE";
-	static const char* const CMD_REPRESENT     = "REPRESENT";
-	static const char* const CMD_RESET		 = "RESET";
+	// Usados pelo M360Translator (gateway) para ações simplificadas do MQTT
+	// PUMP_ON/OFF → traduzidos para C_SET+V_STATUS (tratados por handleMessage)
+	// PUMP_TOGGLE → traduzido para C_SET+V_CUSTOM (deve ser tratado pelo receive() do nó)
+	static const char* const CMD_PUMP_ON      = "PUMP_ON";
+	static const char* const CMD_PUMP_OFF     = "PUMP_OFF";
+	static const char* const CMD_PUMP_TOGGLE  = "PUMP_TOGGLE";
+
+	// Tratados por M360Node::handleMessage
+	static const char* const CMD_FORCE_UPDATE = "FORCE_UPDATE";
+	static const char* const CMD_REPRESENT    = "REPRESENT";
 
 	// Tipos de Eventos de Transporte
 	static const char* const EVT_GATEWAY_READY = "gateway_ready";
