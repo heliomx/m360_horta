@@ -143,20 +143,64 @@ namespace M360 {
 
 	const char* Translator::getTypeDescription(uint8_t type) {
 		switch (type) {
-			case V_TEMP:       return "Temperature";
-			case V_HUM:        return "Humidity";
-			case V_STATUS:     return "Status";
-			case V_PERCENTAGE: return "Percentage";
-			case V_PRESSURE:   return "Pressure";
-			case V_VOLTAGE:    return "Voltage";
-			case V_CURRENT:    return "Current";
-			case V_LEVEL:      return "Level";
-			case V_FLOW:       return "Flow";
-			case V_PH:         return "pH";
-			case V_EC:         return "EC";
-			case V_VAR1:       return "Variable 1";
-			case V_CUSTOM:     return "Custom";
-			default:           return "Unknown";
+			case V_TEMP:              return "Temperature";
+			case V_HUM:               return "Humidity";
+			case V_STATUS:            return "Status";       // V_LIGHT alias (=2)
+			case V_PERCENTAGE:        return "Percentage";   // V_DIMMER alias (=3)
+			case V_PRESSURE:          return "Pressure";
+			case V_FORECAST:          return "Forecast";
+			case V_RAIN:              return "Rain";
+			case V_RAINRATE:          return "Rain Rate";
+			case V_WIND:              return "Wind Speed";
+			case V_GUST:              return "Wind Gust";
+			case V_DIRECTION:         return "Wind Direction";
+			case V_UV:                return "UV Index";
+			case V_WEIGHT:            return "Weight";
+			case V_DISTANCE:          return "Distance";
+			case V_IMPEDANCE:         return "Impedance";
+			case V_ARMED:             return "Armed";
+			case V_TRIPPED:           return "Tripped";
+			case V_WATT:              return "Power (W)";
+			case V_KWH:               return "Energy (kWh)";
+			case V_SCENE_ON:          return "Scene On";
+			case V_SCENE_OFF:         return "Scene Off";
+			case V_HVAC_FLOW_STATE:   return "HVAC Flow State"; // V_HEATER alias (=21)
+			case V_HVAC_SPEED:        return "HVAC Speed";
+			case V_LIGHT_LEVEL:       return "Light Level (%)";
+			case V_VAR1:              return "Variable 1";
+			case V_VAR2:              return "Variable 2";
+			case V_VAR3:              return "Variable 3";
+			case V_VAR4:              return "Variable 4";
+			case V_VAR5:              return "Variable 5";
+			case V_UP:                return "Up";
+			case V_DOWN:              return "Down";
+			case V_STOP:              return "Stop";
+			case V_IR_SEND:           return "IR Send";
+			case V_IR_RECEIVE:        return "IR Receive";
+			case V_FLOW:              return "Flow";
+			case V_VOLUME:            return "Volume";
+			case V_LOCK_STATUS:       return "Lock Status";
+			case V_LEVEL:             return "Level";
+			case V_VOLTAGE:           return "Voltage";
+			case V_CURRENT:           return "Current";
+			case V_RGB:               return "RGB";
+			case V_RGBW:              return "RGBW";
+			case V_ID:                return "ID";
+			case V_UNIT_PREFIX:       return "Unit Prefix";
+			case V_HVAC_SETPOINT_COOL:return "HVAC Cool Setpoint";
+			case V_HVAC_SETPOINT_HEAT:return "HVAC Heat Setpoint";
+			case V_HVAC_FLOW_MODE:    return "HVAC Flow Mode";
+			case V_TEXT:              return "Text";
+			case V_CUSTOM:            return "Custom";
+			case V_POSITION:          return "GPS Position";
+			case V_IR_RECORD:         return "IR Record";
+			case V_PH:                return "pH";
+			case V_ORP:               return "ORP";
+			case V_EC:                return "EC";
+			case V_VAR:               return "Reactive Power (var)";
+			case V_VA:                return "Apparent Power (VA)";
+			case V_POWER_FACTOR:      return "Power Factor";
+			default:                  return "Unknown";
 		}
 	}
 
