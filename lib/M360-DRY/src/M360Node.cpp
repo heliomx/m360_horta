@@ -67,9 +67,10 @@ namespace M360
 		char nameBuf[50];
 		const char* suffix = "";
 		switch (_profile) {
-			case M360_LOW_POWER: suffix = " [LP]"; break;
-			case M360_ALWAYS_ON: suffix = " [ON]"; break;
+			case M360_LOW_POWER: suffix = " [LP]";  break;
+			case M360_ALWAYS_ON: suffix = " [ON]";  break;
 			case M360_PASSIVE:   suffix = " [PAS]"; break;
+			case M360_REPEATER:  suffix = " [REP]"; break;
 		}
 		snprintf(nameBuf, sizeof(nameBuf), "%s%s", name, suffix);
 
@@ -98,7 +99,7 @@ namespace M360
 	// ===== PROCESS =====
 
 	void M360Node::process() {
-		if (_profile == M360_ALWAYS_ON) {
+		if (_profile == M360_ALWAYS_ON || _profile == M360_REPEATER) {
 			// Modo 12V / always-on: timer por millis, sem sleep
 			static unsigned long lastRun = 0;
 			unsigned long now = millis();

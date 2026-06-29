@@ -70,9 +70,16 @@ static MyMessage messages[NODE_ITEMS_COUNT + 2]; // +1 Intervalo (ID 254) +1 Bat
 static float     lastValues[NODE_ITEMS_COUNT];
 static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
 
-// ===== INSTÂNCIA DO MOTOR (ALWAYS_ON — fonte fixa 12V) =====
+// ===== INSTÂNCIA DO MOTOR =====
+// MY_REPEATER_FEATURE (via build_flags) ativa encaminhamento de mensagens de outros nós.
+// Use: pio run -e nano_99reles_rep -t upload
+#ifdef MY_REPEATER_FEATURE
+static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, messages, lastValues,
+                           nNoUpdates, M360::M360_REPEATER);
+#else
 static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, messages, lastValues,
                            nNoUpdates, M360::M360_ALWAYS_ON);
+#endif
 
 // ===== CALLBACKS =====
 

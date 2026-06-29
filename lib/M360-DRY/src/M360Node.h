@@ -39,12 +39,23 @@ namespace M360
         Comando Externo: Se o gateway enviar um comando enquanto ele está no smartSleep, ele acorda, processa o comando, faz uma leitura completa e volta a dormir.
 		*/
 		M360_ALWAYS_ON,   // fonte fixa / debug: timer por millis, sem sleep
-		M360_PASSIVE      // reativo: acorda no intervalo para "check-in", mas só lê/atua sob comando
+		M360_PASSIVE,     // reativo: acorda no intervalo para "check-in", mas só lê/atua sob comando
 		/*
-		Comportamento: O nó acorda a cada intervalo definido, mas NÃO realiza a leitura automática dos sensores. 
+		Comportamento: O nó acorda a cada intervalo definido, mas NÃO realiza a leitura automática dos sensores.
 		Ação ao Acordar: Ele utiliza o smartSleep() para verificar se o gateway possui mensagens pendentes (como comandos V_STATUS ou V_CUSTOM).
 		Diferencial: Se não houver comando no gateway, ele volta a dormir imediatamente após o "check-in" do smartSleep. O ciclo de leitura/envio só acontece se o gateway enviar um comando durante a janela de acordado.
 		Uso Ideal: Sensores de altíssimo consumo (ex: RS485 Modbus) que só devem ser ativados quando o sistema central realmente precisar do dado.
+		*/
+		M360_REPEATER     // fonte fixa + MY_REPEATER_FEATURE: encaminha mensagens de outros nós
+		/*
+		Comportamento: Idêntico ao M360_ALWAYS_ON (timer por millis, sem sleep).
+		Diferencial: O MySensors mantém uma tabela de roteamento e encaminha automaticamente mensagens
+		de nós que estão fora do alcance direto do gateway — tudo transparente via wait(50).
+		Requisito: -D MY_REPEATER_FEATURE DEVE estar em build_flags do platformio.ini.
+		           sleep() é bloqueado pelo MySensors (retorna MY_SLEEP_NOT_POSSIBLE) quando ativo.
+		Apresentação: Sufixo "[REP]" no nome do sketch; nó se registra como S_ARDUINO_REPEATER_NODE.
+		Uso Ideal: Nós 12V em posição estratégica (centro da planta, entre nós distantes e gateway).
+		Incompatível com: M360_LOW_POWER, M360_PASSIVE (ambos usam sleep).
 		*/
 	} M360PowerProfile;
 
