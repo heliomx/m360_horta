@@ -115,6 +115,7 @@
                 "MY_TRANSPORT_DISCOVERY_TIMEOUT=60000",
                 "MY_TRANSPORT_SANITY_CHECK_INTERVAL_MS=30000",
                 "MY_OTA_LOG_SENDER_FEATURE",
+                "M360_NATIVE_MQTT=1",
                 "F_CPU=80000000L",
                 "__ets__",
                 "ICACHE_FLASH",
