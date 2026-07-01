@@ -1,19 +1,13 @@
 /*
- * 01nodeSolo3dMini.cpp — Versão de Baixo Consumo do Nó 01: Monitoramento 3D de
- * Solo
+ * 01nodeSolo3dMini.cpp — Nó 01: Monitoramento 3D de Solo
  *
- * Hardware: Arduino Pro Mini (3.3V / 8MHz) + CD74HC4067 (MUX Analógico) + 18
- * Sensores Resistivos
- *           + nRF24L01+ (CE=D9, CSN=D10)
- * Alimentação: Bateria Li-ion / LiFePO4 + Placa Solar (Carregador TP4056 ou
- * similar)
+ * Hardware: Arduino Pro Mini (5V / 16MHz) + CD74HC4067 (MUX Analógico) + 18
+ * Sensores Resistivos + nRF24L01+ (CE=D9, CSN=D10)
+ * Alimentação: Fonte fixa ou bateria com carga contínua
  *
- * Estratégia de Economia de Energia (LOW_POWER):
- * Para operação prolongada em bateria e placa solar, este nó opera no perfil
- * M360_LOW_POWER, entrando em smartSleep no restante do tempo. O pino D3
- * (PIN_POWER_SENSORS) é ativado antes de realizar a varredura e desativado
- * imediatamente antes de dormir, minimizando o consumo estático de corrente e
- * mitigando a eletrólise dos eletrodos no solo.
+ * Perfil: M360_ALWAYS_ON — timer por millis(), sem sleep.
+ * O pino D3 (PIN_POWER_SENSORS) ainda é desligado entre leituras para
+ * mitigar a eletrólise dos eletrodos no solo.
  */
 
 #include <Arduino.h>

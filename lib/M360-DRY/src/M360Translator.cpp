@@ -21,7 +21,7 @@ namespace M360 {
 		doc["type"]		= msg.getType();
 		// getString() sem buffer retorna nullptr para payloads não-string (P_FLOAT32,
 		// P_LONG32, etc.), gerando payload:null. getString(buf) converte qualquer tipo.
-		char payloadBuf[MAX_PAYLOAD_SIZE + 1];
+		char payloadBuf[MAX_PAYLOAD + 1];
 		doc["payload"]	 = msg.getString(payloadBuf);
 		doc["timestamp"]   = millis() / 1000;
 		doc["description"] = getTypeDescription(msg.getType());
@@ -97,7 +97,7 @@ namespace M360 {
 
 		if (!doc.containsKey("nodeId")) return false;
 		int rawNodeId = doc["nodeId"].as<int>();
-		if (rawNodeId < 1 || rawNodeId > 254) return false;
+		if (rawNodeId < 1 || rawNodeId > 255) return false; // 255 = broadcast MySensors
 		targetNode = (uint8_t)rawNodeId;
 
 		// Formato MySensors completo (sensorId é opcional; default=0 para broadcast/comando geral)
@@ -152,7 +152,7 @@ namespace M360 {
 	}
 
 	String Translator::toNativePayload(const MyMessage& msg) {
-		char buf[MAX_PAYLOAD_SIZE + 1];
+		char buf[MAX_PAYLOAD + 1];
 		return String(msg.getString(buf));
 	}
 

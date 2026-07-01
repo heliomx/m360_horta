@@ -16,6 +16,10 @@
 #include <EEPROM.h>
 #include <ArduinoJson.h>
 
+// Habilita prints de depuração gerais e depuração detalhada do rádio (RF24)
+#define MY_DEBUG
+#define MY_DEBUG_VERBOSE_RF24
+
 // ESP8266WebServer define DEBUG_OUTPUT como Serial; MySensors redefine internamente.
 #undef DEBUG_OUTPUT
 #include <MySensors.h>
@@ -56,6 +60,7 @@ void publishHeartbeat();
 void mqttCallback(char* topic, byte* payload, unsigned int length);
 void processMQTTCommand(const String& payloadStr);
 void processMQTTCommand(const JsonDocument& doc);
+void processMQTTCommandNative(const char* topic, const byte* payload, unsigned int length);
 void publishTransportEvent(const char* event, const char* details = "", int nodeId = 0);
 void checkNodeTimeouts();
 void updateLEDStatus();
@@ -65,7 +70,7 @@ void updateLEDStatus();
 void presentation() {
 	sendSketchInfo("Manejo360 Gateway MQTT", "2.0");
 	Serial.println("📡 Gateway MySensors apresentado");
-	publishTransportEvent("gateway_presented", "Manejo360 Gateway MQTT v2.0");
+	// publishTransportEvent movido para setup() — MQTT não está inicializado aqui
 }
 
 void receive(const MyMessage &message) {
@@ -77,8 +82,9 @@ void receive(const MyMessage &message) {
 	Serial.print(", Tipo: ");    Serial.println(message.getType());
 
 	if (message.getLength() > 0) {
+		char payloadDbg[MAX_PAYLOAD + 1];
 		Serial.print("   Payload: ");
-		Serial.println(message.getString());
+		Serial.println(message.getString(payloadDbg));
 	}
 
 	if (gateway.registry().update(message.getSender())) {
@@ -101,8 +107,9 @@ void receive(const MyMessage &message) {
 				publishTransportEvent("node_heartbeat", "Node heartbeat received", nodeId);
 				break;
 			case I_DISCOVER_RESPONSE: {
+				char discBuf[MAX_PAYLOAD + 1];
 				String details = "Node discovered, parent: ";
-				details += message.getString();
+				details += message.getString(discBuf);
 				publishTransportEvent(M360::EVT_NODE_DISCOVER, details.c_str(), nodeId);
 				break;
 			}
@@ -253,6 +260,7 @@ void setup() {
 		mqttManager.publishMetrics(config, mqttClient);
 	});
 	gateway.onNodeCheck(checkNodeTimeouts);
+	publishTransportEvent("gateway_presented", "Manejo360 Gateway MQTT v2.0");
 
 	Serial.println("✅ Gateway iniciado integralmente e pronto para loop!");
 	Serial.flush();
@@ -325,6 +333,9 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 	Serial.print("   Tópico: ");
 	Serial.println(topic);
 
+#ifdef M360_NATIVE_MQTT
+	processMQTTCommandNative(topic, payload, length);
+#else
 	DynamicJsonDocument doc(512);
 	DeserializationError error = deserializeJson(doc, payload, length);
 
@@ -335,6 +346,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 	}
 
 	processMQTTCommand(doc);
+#endif
 }
 
 // ==== PROCESSAR COMANDO MQTT ====
@@ -367,6 +379,49 @@ static void publishTransportAck(const MyMessage& outMsg, uint8_t targetNodeId) {
 #endif
 }
 
+void processMQTTCommandNative(const char* topic, const byte* payload, unsigned int length) {
+	// Tópico esperado: m360/{UF}/{CAR}/in/{nodeId}/{sensorId}/{cmd}/{ack}/{type}
+	// Slashes: 0     1   2    3    4        5          6       7    8
+	const char* p = topic;
+	const char* slashes[9];
+	int slashCount = 0;
+	while (*p && slashCount < 9) {
+		if (*p == '/') slashes[slashCount++] = p;
+		p++;
+	}
+	if (slashCount < 8) {
+		Serial.println("❌ Tópico nativo inválido (partes insuficientes)");
+		return;
+	}
+
+	int nodeId   = atoi(slashes[3] + 1);
+	int sensorId = atoi(slashes[4] + 1);
+	int cmd      = atoi(slashes[5] + 1);
+	int type     = atoi(slashes[7] + 1);
+
+	if (nodeId < 1 || nodeId > 255) {
+		Serial.println("❌ nodeId inválido no tópico nativo");
+		return;
+	}
+
+	char payloadBuf[129];
+	unsigned int len = length < 128 ? length : 128;
+	memcpy(payloadBuf, payload, len);
+	payloadBuf[len] = '\0';
+
+	Serial.printf("📦 Nativo: nó=%d sensor=%d cmd=%d tipo=%d payload='%s'\n",
+	              nodeId, sensorId, cmd, type, payloadBuf);
+
+	DynamicJsonDocument doc(256);
+	doc["nodeId"]   = nodeId;
+	doc["sensorId"] = sensorId;
+	doc["command"]  = cmd;
+	doc["type"]     = type;
+	doc["payload"]  = payloadBuf;
+
+	processMQTTCommand(doc);
+}
+
 void processMQTTCommand(const JsonDocument& doc) {
 	String payloadStr;
 	serializeJson(doc, payloadStr);
@@ -376,11 +431,15 @@ void processMQTTCommand(const JsonDocument& doc) {
 
 	if (M360::Translator::fromJSON(payloadStr, outMsg, targetNodeId)) {
 		outMsg.setDestination(targetNodeId);
-		bool success = send(outMsg, true); // solicita ACK de transporte MySensors
+		// ACK de transporte apenas para V_STATUS (relés) — comandos administrativos
+		// (V_CUSTOM, V_VAR1, etc.) usam fire-and-forget; confirmação semântica vem
+		// pela resposta do nó (estados re-enviados ao broker).
+		bool withAck = (outMsg.getType() == V_STATUS);
+		bool success = send(outMsg, withAck);
 		Serial.print("🎯 Comando enviado para Nó "); Serial.print(targetNodeId);
 		Serial.println(success ? " ✅" : " ❌");
 		ledFlicker(success ? LED_YELLOW : LED_RED);
-		if (success) publishTransportAck(outMsg, targetNodeId);
+		if (success && withAck) publishTransportAck(outMsg, targetNodeId);
 	} else {
 		Serial.println("❌ Erro ao decodificar JSON ou comando inválido");
 	}
@@ -392,11 +451,12 @@ void processMQTTCommand(const String& payloadStr) {
 
 	if (M360::Translator::fromJSON(payloadStr, outMsg, targetNodeId)) {
 		outMsg.setDestination(targetNodeId);
-		bool success = send(outMsg, true); // solicita ACK de transporte MySensors
+		bool withAck = (outMsg.getType() == V_STATUS);
+		bool success = send(outMsg, withAck);
 		Serial.print("🎯 Comando enviado para Nó "); Serial.print(targetNodeId);
 		Serial.println(success ? " ✅" : " ❌");
 		ledFlicker(success ? LED_YELLOW : LED_RED);
-		if (success) publishTransportAck(outMsg, targetNodeId);
+		if (success && withAck) publishTransportAck(outMsg, targetNodeId);
 	} else {
 		Serial.println("❌ Erro ao decodificar JSON ou comando inválido");
 	}

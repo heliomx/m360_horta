@@ -1,4 +1,4 @@
-/*
+﻿/*
  * M360MQTT.cpp — Gerenciador de conexão MQTT e Métricas para M360-DRY
  */
 
@@ -134,6 +134,9 @@ void MQTTManager::publishMetrics(const M360DeviceConfig& cfg, ::PubSubClient& cl
 
 String MQTTManager::buildTopicIn(const M360DeviceConfig& cfg) const {
     String t = "m360/"; t += cfg.uf; t += "/"; t += cfg.carNumber; t += "/in";
+#ifdef M360_NATIVE_MQTT
+    t += "/#";
+#endif
     return t;
 }
 

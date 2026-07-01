@@ -107,10 +107,15 @@ void Config::load(M360DeviceConfig& cfg) {
 }
 
 void Config::save(const M360DeviceConfig& cfg) {
+	// Reabrir EEPROM com tamanho correto: MySensors chama EEPROM.begin(512)
+	// internamente após before(), encolhendo o buffer. Writes a 521+ causariam
+	// heap overflow se não realocado aqui.
+	::EEPROM.begin(M360_EEPROM_DEVICE_BASE + sizeof(M360DeviceConfig) + 4);
+
 	M360DeviceConfig temp = cfg;
 	terminateConfigFields(temp);
 	temp.crc = calculateCRC(temp);
-	
+
 	int addr = M360_EEPROM_DEVICE_BASE;
 	
 	// Salvar campo a campo (robusto a alinhamento de struct)

@@ -12,10 +12,10 @@
 // ===== CONFIGURAÇÃO MYSENSORS =====
 // Pinos CE=9 e CSN=10 são os defaults do MySensors (sem #define necessário)
 
-#include "sensorDrivers.h"
 #include <Arduino.h>
-#include <M360.h>
 #include <MySensors.h>
+#include <M360.h>
+#include "sensorDrivers.h"
 
 // ===== DEFINIÇÃO DOS ITENS DO NÓ =====
 // childId               | kind             | presentType      | valueType | pin

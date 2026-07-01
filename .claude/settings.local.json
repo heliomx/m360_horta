@@ -21,7 +21,14 @@
       "PowerShell(cd \"C:\\\\Users\\\\jmarc\\\\Documents\\\\PlatformIO\\\\Projects\\\\m360_horta\"; & \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run -e d1_mini_libdry 2>&1 | Select-Object -Last 15)",
       "PowerShell(cd \"C:\\\\Users\\\\jmarc\\\\Documents\\\\PlatformIO\\\\Projects\\\\m360_horta\"; & \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run -e d1_mini_libdry --project-option=\"build_flags=`${common.flags} -D MQTT_MAX_PACKET_SIZE=512 -D MY_NODE_ID=0 -D MY_TRANSPORT_WAIT_READY_MS=1 -D MY_GATEWAY_FEATURE -D MY_RF24_CE_PIN=2 -D MY_RF24_CSN_PIN=15 -D MY_TRANSPORT_DISCOVERY_TIMEOUT=60000 -D MY_TRANSPORT_SANITY_CHECK_INTERVAL_MS=30000 -D MY_OTA_LOG_SENDER_FEATURE -D M360_NATIVE_MQTT=1\" 2>&1 | Select-Object -Last 15)",
       "PowerShell(cd \"C:\\\\Users\\\\jmarc\\\\Documents\\\\PlatformIO\\\\Projects\\\\m360_horta\"; & \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run -e d1_mini_libdry 2>&1 | Select-Object -Last 12)",
-      "PowerShell($content = Get-Content \"C:\\\\Users\\\\jmarc\\\\Documents\\\\PlatformIO\\\\Projects\\\\m360_horta\\\\src\\\\nodered\\\\mapa da rede\\\\nodered m360.json\" -Raw; try { $null = $content | ConvertFrom-Json; Write-Host \"JSON válido — $\\($content.Length\\) bytes\" } catch { Write-Host \"ERRO: $_\" })"
+      "PowerShell($content = Get-Content \"C:\\\\Users\\\\jmarc\\\\Documents\\\\PlatformIO\\\\Projects\\\\m360_horta\\\\src\\\\nodered\\\\mapa da rede\\\\nodered m360.json\" -Raw; try { $null = $content | ConvertFrom-Json; Write-Host \"JSON válido — $\\($content.Length\\) bytes\" } catch { Write-Host \"ERRO: $_\" })",
+      "PowerShell($content = [System.IO.File]::ReadAllText\\(\"C:\\\\Users\\\\jmarc\\\\Documents\\\\PlatformIO\\\\Projects\\\\m360_horta\\\\src\\\\nodered\\\\mapa da rede\\\\nodered m360.json\", [System.Text.Encoding]::UTF8\\); try { $null = $content | ConvertFrom-Json; Write-Host \"JSON válido — $\\($content.Length\\) bytes\" } catch { Write-Host \"ERRO: $_\" })",
+      "PowerShell(& \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run -e d1_mini_libdry 2>&1 | Select-Object -Last 35)",
+      "PowerShell(& \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run -e d1_mini_libdry -t upload 2>&1 | Select-Object -Last 20)",
+      "Bash(python3 *)",
+      "PowerShell(& \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run -e d1_mini_libdry 2>&1 | Select-Object -Last 10)",
+      "PowerShell(& \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run -e d1_mini_libdry 2>&1 | Select-Object -Last 8)",
+      "PowerShell(& \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run -e d1_mini_libdry -e nano_13nodeZTS_UmidadeHall -e nano_80nodeAqua 2>&1 | Select-Object -Last 15)"
     ]
   }
 }

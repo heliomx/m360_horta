@@ -155,7 +155,8 @@ void loop() {
 
 void receive(const MyMessage &msg) {
   if (msg.getType() == V_CUSTOM) {
-    char buf[24];
+    if (msg.getLength() >= MAX_PAYLOAD) return;
+    char buf[MAX_PAYLOAD + 1];
     msg.getString(buf);
     if (strcmp(buf, M360::CMD_FORCE_UPDATE) == 0) {
       // Leitura imediata sem expor allowAquaRead ao handleMessage
