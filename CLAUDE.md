@@ -213,3 +213,44 @@ include/
 - **JSON gateway:** `DynamicJsonDocument(512)` para mensagens, `(384)` para heartbeat, `(256)` para eventos
 - **Macros MY_\*:** definidas exclusivamente no `platformio.ini` — nunca no `.cpp` após `#include <MySensors.h>`
 - **Pinos virtuais MUX (Nó 99):** `pin = MUX_CHANNEL_OFFSET + canal` (100–115) — `setupPins()` deve ser omitido; pinos gerenciados em `initSensors()`
+
+---
+
+## Armadilhas Críticas da Integração MySensors ↔ MQTT ↔ Node-RED
+
+> Estas regras custaram sessões de debugging. Leia antes de tocar em qualquer
+> código de gateway ou Node-RED.
+
+### ACK de transporte MySensors no gateway
+
+`send(outMsg, true)` solicita ACK RF24. O ACK **é consumido internamente** pela
+camada MySensors — **`receive()` nunca é chamado** para esse retorno. Para
+publicar o ACK no MQTT, chamar `publishTransportAck()` após `send()` retornar `true`.
+
+```cpp
+bool success = send(outMsg, true);
+if (success) publishTransportAck(outMsg, targetNodeId);  // obrigatório
+```
+
+### `outMsg.getSender()` retorna 0 no contexto de envio
+
+Em mensagens **enviadas** pelo gateway, `getSender()` retorna `0` (ID do gateway),
+não o nó de destino. O JSON de ACK deve usar `targetNodeId` explicitamente.
+`publishTransportAck()` em `libDryGatewayMqtt.cpp` já implementa isso.
+
+### `V_LEVEL` (37) nos Nós 01 e 13 significa umidade de solo
+
+Esses nós usam `V_LEVEL` para solo por decisão histórica. No Node-RED, o
+`Translator Json` remapeia `V_LEVEL → V_PERCENTAGE` por `nodeId`. Não mudar sem
+atualizar simultaneamente o firmware dos nós.
+
+### Sincronizador ACK — critério de matching
+
+Para comandos broadcast (`sensorId=255`), o ACK pode voltar com qualquer sensorId
+do mesmo nó. Condição correta:
+
+```javascript
+data.nodeId == targetNode &&
+(targetSensor == 255 || data.sensorId == targetSensor) &&
+(data.direction === 'ack' || data.ack === 1 || data.command === 1)
+```

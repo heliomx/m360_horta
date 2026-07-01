@@ -53,6 +53,12 @@ namespace M360 {
 
 		// Retorna descrição amigável do tipo MySensors (V_..., I_...)
 		static const char* getTypeDescription(uint8_t type);
+
+		// Modo nativo MySensors MQTT (usar com -D M360_NATIVE_MQTT=1 no platformio.ini)
+		// buildNativeTopic: monta {prefix}/{nodeId}/{sensorId}/{command}/{ack}/{type}
+		// toNativePayload: retorna o payload bruto da mensagem como String
+		static String buildNativeTopic(const String& prefix, const MyMessage& msg);
+		static String toNativePayload(const MyMessage& msg);
 	};
 
 } // namespace M360

@@ -122,10 +122,15 @@ void sendMQTT(const MyMessage &message, bool isAck) {
 		return;
 	}
 
-	String jsonString = M360::Translator::toJSON(message, isAck);
-	String topicOut   = M360::buildTopicOut(config);
-	bool   success    = mqttClient.publish(topicOut.c_str(), jsonString.c_str());
+#ifdef M360_NATIVE_MQTT
+	String topic   = M360::Translator::buildNativeTopic(M360::buildTopicOut(config), message);
+	String payload = M360::Translator::toNativePayload(message);
+#else
+	String topic   = M360::buildTopicOut(config);
+	String payload = M360::Translator::toJSON(message, isAck);
+#endif
 
+	bool success = mqttClient.publish(topic.c_str(), payload.c_str());
 	if (success) {
 		Serial.println("✅ MQTT publicado.");
 		ledFlicker(LED_YELLOW);
@@ -334,6 +339,34 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 
 // ==== PROCESSAR COMANDO MQTT ====
 
+// Publica ACK no MQTT após confirmação de transporte MySensors.
+// receive() NÃO é chamado para ACKs de transporte — o ACK é consumido internamente
+// pela camada MySensors. Por isso publicamos manualmente quando send() retorna true.
+//
+// ATENÇÃO: outMsg.getSender() retorna 0 (gateway), não o nó de destino.
+// Usar Translator::toJSON como base e corrigir nodeId antes de publicar.
+static void publishTransportAck(const MyMessage& outMsg, uint8_t targetNodeId) {
+#ifdef M360_NATIVE_MQTT
+	// Modo nativo: ACK de transporte é implícito no RF24 — broker não espera publicação separada
+	(void)outMsg; (void)targetNodeId;
+#else
+	if (!mqttClient.connected()) return;
+	String base = M360::Translator::toJSON(outMsg, true);
+	DynamicJsonDocument doc(512);
+	deserializeJson(doc, base);
+	doc["nodeId"] = targetNodeId;   // corrige 0 → ID real do nó de destino
+	String ackJson;
+	serializeJson(doc, ackJson);
+	String topicOut = M360::buildTopicOut(config);
+	if (mqttClient.publish(topicOut.c_str(), ackJson.c_str())) {
+		Serial.printf("📤 ACK de transporte publicado — nó %d sensor %d\n",
+		              targetNodeId, outMsg.getSensor());
+	} else {
+		Serial.println("❌ Falha ao publicar ACK de transporte");
+	}
+#endif
+}
+
 void processMQTTCommand(const JsonDocument& doc) {
 	String payloadStr;
 	serializeJson(doc, payloadStr);
@@ -343,10 +376,11 @@ void processMQTTCommand(const JsonDocument& doc) {
 
 	if (M360::Translator::fromJSON(payloadStr, outMsg, targetNodeId)) {
 		outMsg.setDestination(targetNodeId);
-		bool success = send(outMsg);
+		bool success = send(outMsg, true); // solicita ACK de transporte MySensors
 		Serial.print("🎯 Comando enviado para Nó "); Serial.print(targetNodeId);
 		Serial.println(success ? " ✅" : " ❌");
 		ledFlicker(success ? LED_YELLOW : LED_RED);
+		if (success) publishTransportAck(outMsg, targetNodeId);
 	} else {
 		Serial.println("❌ Erro ao decodificar JSON ou comando inválido");
 	}
@@ -358,10 +392,11 @@ void processMQTTCommand(const String& payloadStr) {
 
 	if (M360::Translator::fromJSON(payloadStr, outMsg, targetNodeId)) {
 		outMsg.setDestination(targetNodeId);
-		bool success = send(outMsg);
+		bool success = send(outMsg, true); // solicita ACK de transporte MySensors
 		Serial.print("🎯 Comando enviado para Nó "); Serial.print(targetNodeId);
 		Serial.println(success ? " ✅" : " ❌");
 		ledFlicker(success ? LED_YELLOW : LED_RED);
+		if (success) publishTransportAck(outMsg, targetNodeId);
 	} else {
 		Serial.println("❌ Erro ao decodificar JSON ou comando inválido");
 	}

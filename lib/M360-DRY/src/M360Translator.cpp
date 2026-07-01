@@ -100,9 +100,9 @@ namespace M360 {
 		if (rawNodeId < 1 || rawNodeId > 254) return false;
 		targetNode = (uint8_t)rawNodeId;
 
-		// Formato MySensors completo
-		if (doc.containsKey("sensorId") && doc.containsKey("command") && doc.containsKey("type")) {
-			int rawSensorId = doc["sensorId"].as<int>();
+		// Formato MySensors completo (sensorId é opcional; default=0 para broadcast/comando geral)
+		if (doc.containsKey("command") && doc.containsKey("type")) {
+			int rawSensorId = doc.containsKey("sensorId") ? doc["sensorId"].as<int>() : 0;
 			if (rawSensorId < 0 || rawSensorId > 255) return false;
 			outMsg.setSensor((uint8_t)rawSensorId);
 			outMsg.setType(doc["type"]);
@@ -139,6 +139,21 @@ namespace M360 {
 		}
 
 		return false;
+	}
+
+	String Translator::buildNativeTopic(const String& prefix, const MyMessage& msg) {
+		String topic = prefix;
+		topic += '/'; topic += msg.getSender();
+		topic += '/'; topic += msg.getSensor();
+		topic += '/'; topic += (uint8_t)msg.getCommand();
+		topic += '/'; topic += (msg.isAck() ? 1 : 0);
+		topic += '/'; topic += msg.getType();
+		return topic;
+	}
+
+	String Translator::toNativePayload(const MyMessage& msg) {
+		char buf[MAX_PAYLOAD_SIZE + 1];
+		return String(msg.getString(buf));
 	}
 
 	const char* Translator::getTypeDescription(uint8_t type) {

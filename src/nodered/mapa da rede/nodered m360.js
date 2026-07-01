@@ -1,142 +1,503 @@
 [
-    { "id": "c7603a544af61cf6", "type": "tab", "label": "MQTT", "disabled": false, "info": "", "env": [] },
-    { "id": "dc6b0efa941b31bf", "type": "tab", "label": "Fluxo 2 - Solenóides", "disabled": false, "info": "", "env": [] },
-    { "id": "tab_bombas", "type": "tab", "label": "Fluxo 2 - Bombas", "disabled": false, "info": "", "env": [] },
-    { "id": "3920c26438dfb356", "type": "tab", "label": "M360 Horta - ACK Handling", "disabled": false, "info": "" },
-    { "id": "178d6e63b26ceeb2", "type": "mqtt-broker", "name": "mqtt.viridiotech.com.br", "broker": "72.62.142.165", "port": 1883, "clientid": "", "autoConnect": true, "usetls": false, "protocolVersion": 4, "keepalive": 60, "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": "" },
-    { "id": "82c01b7088685b89", "type": "ui-base", "name": "Dashboard", "path": "/dashboard", "appIcon": "", "includeClientData": true, "acceptsClientConfig": ["ui-notification", "ui-control"], "showPathInSidebar": true, "headerContent": "page", "navigationStyle": "default", "titleBarStyle": "default", "showReconnectNotification": true, "notificationDisplayTime": 5, "showDisconnectNotification": true, "allowInstall": true },
-    { "id": "06f15db32b51c3ef", "type": "ui-theme", "name": "Default Theme", "colors": { "surface": "#ffffff", "primary": "#0094CE", "bgPage": "#eeeeee", "groupBg": "#ffffff", "groupOutline": "#cccccc" }, "sizes": { "density": "default", "pagePadding": "12px", "groupGap": "12px", "groupBorderRadius": "4px", "widgetGap": "12px" } },
-    { "id": "63a203c3875719db", "type": "ui-page", "name": "Page 1", "ui": "82c01b7088685b89", "path": "/page1", "icon": "home", "layout": "grid", "theme": "06f15db32b51c3ef", "breakpoints": [{ "name": "Default", "px": 0, "cols": 3 }, { "name": "Tablet", "px": 576, "cols": 6 }, { "name": "Small Desktop", "px": 768, "cols": 9 }, { "name": "Desktop", "px": 1024, "cols": 12 }], "order": 1, "className": "", "visible": "true", "disabled": "false" },
-    { "id": "3359fb236d6d775d", "type": "ui-group", "name": "Controle Manual", "page": "63a203c3875719db", "width": "6", "height": "1", "order": 1, "showTitle": true, "className": "", "visible": "true", "disabled": "false", "groupType": "default" },
-    { "id": "init_globals", "type": "inject", "z": "3920c26438dfb356", "name": "Inicializar Variáveis Globais", "props": [{ "p": "payload" }], "repeat": "", "crontab": "", "once": true, "onceDelay": 0.1, "topic": "", "payload": "", "payloadType": "date", "x": 200, "y": 40, "wires": [["init_globals_fn"]] },
-    { "id": "init_globals_fn", "type": "function", "z": "3920c26438dfb356", "name": "Configurações Globais M360", "func": "var prefix = global.get('mqtt_topic_prefix');\nif (!prefix) {\n    prefix = 'm360/DF/0000';\n    global.set('mqtt_topic_prefix', prefix);\n}\nif (flow.get('ack_timeout_ms') === null || flow.get('ack_timeout_ms') === undefined) {\n    flow.set('ack_timeout_ms', 5000);\n}\nif (flow.get('ack_max_retries') === null || flow.get('ack_max_retries') === undefined) {\n    flow.set('ack_max_retries', 3);\n}\nif (flow.get('nodes_ttl_ms') === null || flow.get('nodes_ttl_ms') === undefined) {\n    flow.set('nodes_ttl_ms', 600000);\n}\nnode.status({fill:'green',shape:'dot',text:'prefix='+prefix+' timeout='+flow.get('ack_timeout_ms')+'ms'});\nmsg.payload = {mqtt_topic_prefix:prefix, ack_timeout_ms:flow.get('ack_timeout_ms'), ack_max_retries:flow.get('ack_max_retries')};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 430, "y": 40, "wires": [["debug_globals"]] },
-    { "id": "debug_globals", "type": "debug", "z": "3920c26438dfb356", "name": "Globals Inicializados", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 680, "y": 40, "wires": [] },
-    { "id": "mqtt_pub_fn_mqtt_tab", "type": "function", "z": "c7603a544af61cf6", "name": "Pub MQTT (tópico dinâmico)", "func": "var prefix = global.get('mqtt_topic_prefix') || 'm360/DF/0000';\nmsg.topic = prefix + '/in';\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 390, "y": 460, "wires": [["mqtt_broker_out_tab1"]] },
-    { "id": "mqtt_broker_out_tab1", "type": "mqtt out", "z": "c7603a544af61cf6", "name": "", "topic": "", "qos": "", "retain": "", "respTopic": "", "contentType": "", "userProps": "", "correl": "", "expiry": "", "broker": "178d6e63b26ceeb2", "x": 600, "y": 460, "wires": [] },
-    { "id": "8bd392e5fa41a60c", "type": "inject", "z": "c7603a544af61cf6", "name": "Ligar Solenóide A", "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"nodeId\":99,\"sensorId\":0,\"command\":1,\"type\":2,\"payload\":\"1\"}", "payloadType": "json", "x": 200, "y": 220, "wires": [["mqtt_pub_fn_mqtt_tab"]] },
-    { "id": "8a38c7398573d305", "type": "inject", "z": "c7603a544af61cf6", "name": "Desligar Solenóide A", "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"nodeId\":99,\"sensorId\":0,\"command\":1,\"type\":2,\"payload\":\"0\"}", "payloadType": "json", "x": 210, "y": 260, "wires": [["mqtt_pub_fn_mqtt_tab"]] },
-    { "id": "20329ff9df2710dc", "type": "inject", "z": "c7603a544af61cf6", "name": "Ligar Solenóide B", "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"nodeId\":99,\"sensorId\":1,\"command\":1,\"type\":2,\"payload\":\"1\"}", "payloadType": "json", "x": 210, "y": 300, "wires": [["mqtt_pub_fn_mqtt_tab"]] },
-    { "id": "6770f6d1d8c98de9", "type": "inject", "z": "c7603a544af61cf6", "name": "Desligar Solenóide B", "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"nodeId\":99,\"sensorId\":1,\"command\":1,\"type\":2,\"payload\":\"0\"}", "payloadType": "json", "x": 220, "y": 340, "wires": [["mqtt_pub_fn_mqtt_tab"]] },
-    { "id": "49833002dc742077", "type": "inject", "z": "c7603a544af61cf6", "name": "Ligar Solenóide C", "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"nodeId\":99,\"sensorId\":2,\"command\":1,\"type\":2,\"payload\":\"1\"}", "payloadType": "json", "x": 210, "y": 380, "wires": [["mqtt_pub_fn_mqtt_tab"]] },
-    { "id": "8ea140b7f470ae03", "type": "inject", "z": "c7603a544af61cf6", "name": "Desligar Solenóide C", "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"nodeId\":99,\"sensorId\":2,\"command\":1,\"type\":2,\"payload\":\"0\"}", "payloadType": "json", "x": 220, "y": 420, "wires": [["mqtt_pub_fn_mqtt_tab"]] },
-    { "id": "445e95dac9402277", "type": "inject", "z": "c7603a544af61cf6", "name": "Ligar Bomba NFT", "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"nodeId\":99,\"sensorId\":16,\"command\":1,\"type\":2,\"payload\":\"1\"}", "payloadType": "json", "x": 200, "y": 460, "wires": [["mqtt_pub_fn_mqtt_tab"]] },
-    { "id": "3495aa738ec65815", "type": "inject", "z": "c7603a544af61cf6", "name": "Desligar Bomba NFT", "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"nodeId\":99,\"sensorId\":16,\"command\":1,\"type\":2,\"payload\":\"0\"}", "payloadType": "json", "x": 220, "y": 500, "wires": [["mqtt_pub_fn_mqtt_tab"]] },
-    { "id": "65f2557a3a27cfd7", "type": "inject", "z": "c7603a544af61cf6", "name": "Ligar Bomba Oxi", "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"nodeId\":99,\"sensorId\":17,\"command\":1,\"type\":2,\"payload\":\"1\"}", "payloadType": "json", "x": 200, "y": 540, "wires": [["mqtt_pub_fn_mqtt_tab"]] },
-    { "id": "3f6171f15f2c30f0", "type": "inject", "z": "c7603a544af61cf6", "name": "Desligar Bomba Oxi", "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"nodeId\":99,\"sensorId\":17,\"command\":1,\"type\":2,\"payload\":\"0\"}", "payloadType": "json", "x": 210, "y": 580, "wires": [["mqtt_pub_fn_mqtt_tab"]] },
-    { "id": "8dc2f5c222a61b42", "type": "inject", "z": "c7603a544af61cf6", "name": "Re-apresenta Nó 99", "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"nodeId\":99,\"sensorId\":0,\"command\":1,\"type\":48,\"payload\":\"REPRESENT\"}", "payloadType": "json", "x": 210, "y": 620, "wires": [["mqtt_pub_fn_mqtt_tab"]] },
-    { "id": "c7bb8c0cfaaed25e", "type": "inject", "z": "c7603a544af61cf6", "name": "Reboot Gateway", "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"nodeId\":0,\"action\":\"REBOOT_GATEWAY\"}", "payloadType": "json", "x": 200, "y": 660, "wires": [["mqtt_pub_fn_mqtt_tab"]] },
-    { "id": "16684360f5fef138", "type": "inject", "z": "c7603a544af61cf6", "name": "Re-apresenta Nó 01", "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"nodeId\":1,\"sensorId\":0,\"command\":1,\"type\":48,\"payload\":\"REPRESENT\"}", "payloadType": "json", "x": 210, "y": 700, "wires": [["mqtt_pub_fn_mqtt_tab"]] },
-    { "id": "9dbff616e7f828b9", "type": "inject", "z": "c7603a544af61cf6", "name": "le umidade", "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"nodeId\":1,\"sensorId\":0,\"command\":1,\"type\":48,\"payload\":\"FORCE_UPDATE\"}", "payloadType": "json", "x": 180, "y": 760, "wires": [["mqtt_pub_fn_mqtt_tab"]] },
-    { "id": "6add813c1f6bb516", "type": "inject", "z": "c7603a544af61cf6", "name": "", "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }], "repeat": "60", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "", "payloadType": "date", "x": 480, "y": 260, "wires": [["5483492aea28343f"]] },
-    { "id": "5483492aea28343f", "type": "function", "z": "c7603a544af61cf6", "name": "Watchdog da rede", "func": "var nodes = global.get('mys_nodes') || {};\nvar now = Date.now();\nvar result = [];\nfor (var id in nodes) {\n    var n = nodes[id];\n    var age = (now - n.lastSeen) / 1000;\n    var hb = n.lastHeartbeat ? (now - n.lastHeartbeat) / 1000 : null;\n    var ack = n.lastAck ? (now - n.lastAck) / 1000 : null;\n    var status = 'ONLINE';\n    if (age > 300) status = 'OFFLINE';\n    else if (hb !== null && hb > 900) status = 'SEM HEARTBEAT';\n    else if (ack !== null && ack > 1800) status = 'SEM ACK';\n    n.status = status;\n    result.push({nodeId:id, status:status, lastSeen:Math.round(age), heartbeat:hb !== null ? Math.round(hb) : null, ack:ack !== null ? Math.round(ack) : null});\n}\nmsg.payload = result;\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 510, "y": 320, "wires": [["671061d8795a1538"]] },
-    { "id": "671061d8795a1538", "type": "ui-table", "z": "c7603a544af61cf6", "group": "3359fb236d6d775d", "name": "", "label": "", "order": 0, "width": 0, "height": 0, "maxrows": 0, "passthru": false, "autocols": true, "showSearch": true, "deselect": true, "selectionType": "none", "columns": [], "mobileBreakpoint": "sm", "mobileBreakpointType": "defaults", "action": "append", "className": "", "x": 470, "y": 380, "wires": [[]] },
-    { "id": "mqtt_pub_fn_sol", "type": "function", "z": "dc6b0efa941b31bf", "name": "Pub MQTT Solenóides (tópico dinâmico)", "func": "var prefix = global.get('mqtt_topic_prefix') || 'm360/DF/0000';\nmsg.topic = prefix + '/in';\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 430, "y": 180, "wires": [["mqtt_broker_out_fluxo2"]] },
-    { "id": "mqtt_pub_fn_bom", "type": "function", "z": "tab_bombas", "name": "Pub MQTT Bombas (tópico dinâmico)", "func": "var prefix = global.get('mqtt_topic_prefix') || 'm360/DF/0000';\nmsg.topic = prefix + '/in';\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 430, "y": 180, "wires": [["mqtt_broker_out_bombas"]] },
-    { "id": "mqtt_broker_out_fluxo2", "type": "mqtt out", "z": "dc6b0efa941b31bf", "name": "", "topic": "", "qos": "", "retain": "", "respTopic": "", "contentType": "", "userProps": "", "correl": "", "expiry": "", "broker": "178d6e63b26ceeb2", "x": 650, "y": 180, "wires": [] },
-    { "id": "mqtt_broker_out_bombas", "type": "mqtt out", "z": "tab_bombas", "name": "", "topic": "", "qos": "", "retain": "", "respTopic": "", "contentType": "", "userProps": "", "correl": "", "expiry": "", "broker": "178d6e63b26ceeb2", "x": 650, "y": 180, "wires": [] },
-    { "id": "0cdd9b469e781d25", "type": "ui-button", "z": "dc6b0efa941b31bf", "group": "3359fb236d6d775d", "name": "Ligar Solenóide A", "label": "Ligar Solenóide A", "order": 1, "width": 3, "height": 1, "emulateClick": false, "tooltip": "", "className": "", "icon": "", "iconPosition": "left", "payload": "{\"nodeId\":99,\"sensorId\":0,\"command\":1,\"type\":2,\"payload\":\"1\"}", "payloadType": "json", "topic": "", "topicType": "str", "buttonColor": "", "textColor": "", "iconColor": "", "enableClick": true, "enablePointerdown": false, "pointerdownPayload": "", "pointerdownPayloadType": "str", "enablePointerup": false, "pointerupPayload": "", "pointerupPayloadType": "str", "x": 150, "y": 80, "wires": [["mqtt_pub_fn_sol"]] },
-    { "id": "2f0e1e97d3157737", "type": "ui-button", "z": "dc6b0efa941b31bf", "group": "3359fb236d6d775d", "name": "Desligar Solenóide A", "label": "Desligar Solenóide A", "order": 2, "width": 3, "height": 1, "tooltip": "", "icon": "", "payload": "{\"nodeId\":99,\"sensorId\":0,\"command\":1,\"type\":2,\"payload\":\"0\"}", "payloadType": "json", "topic": "", "x": 160, "y": 120, "wires": [["mqtt_pub_fn_sol"]] },
-    { "id": "6c13a0bb6b86a583", "type": "ui-button", "z": "dc6b0efa941b31bf", "group": "3359fb236d6d775d", "name": "Ligar Solenóide B", "label": "Ligar Solenóide B", "order": 3, "width": 3, "height": 1, "tooltip": "", "icon": "", "payload": "{\"nodeId\":99,\"sensorId\":1,\"command\":1,\"type\":2,\"payload\":\"1\"}", "payloadType": "json", "topic": "", "x": 150, "y": 160, "wires": [["mqtt_pub_fn_sol"]] },
-    { "id": "c31779a363538fb2", "type": "ui-button", "z": "dc6b0efa941b31bf", "group": "3359fb236d6d775d", "name": "Desligar Solenóide B", "label": "Desligar Solenóide B", "order": 4, "width": 3, "height": 1, "tooltip": "", "icon": "", "payload": "{\"nodeId\":99,\"sensorId\":1,\"command\":1,\"type\":2,\"payload\":\"0\"}", "payloadType": "json", "topic": "", "x": 160, "y": 200, "wires": [["mqtt_pub_fn_sol"]] },
-    { "id": "2877c8a20fe4663b", "type": "ui-button", "z": "dc6b0efa941b31bf", "group": "3359fb236d6d775d", "name": "Ligar Solenóide C", "label": "Ligar Solenóide C", "order": 5, "width": 3, "height": 1, "tooltip": "", "icon": "", "payload": "{\"nodeId\":99,\"sensorId\":2,\"command\":1,\"type\":2,\"payload\":\"1\"}", "payloadType": "json", "topic": "", "x": 150, "y": 240, "wires": [["mqtt_pub_fn_sol"]] },
-    { "id": "e47601ad44166030", "type": "ui-button", "z": "dc6b0efa941b31bf", "group": "3359fb236d6d775d", "name": "Desligar Solenóide C", "label": "Desligar Solenóide C", "order": 6, "width": 3, "height": 1, "tooltip": "", "icon": "", "payload": "{\"nodeId\":99,\"sensorId\":2,\"command\":1,\"type\":2,\"payload\":\"0\"}", "payloadType": "json", "topic": "", "x": 160, "y": 280, "wires": [["mqtt_pub_fn_sol"]] },
-    { "id": "89051387589dbe50", "type": "ui-button", "z": "dc6b0efa941b31bf", "group": "3359fb236d6d775d", "name": "Re-apresenta Nó 01", "label": "Re-apresenta Nó 01", "order": 11, "width": 6, "height": 1, "emulateClick": false, "tooltip": "", "className": "", "icon": "", "iconPosition": "left", "payload": "{\"nodeId\":1,\"sensorId\":0,\"command\":1,\"type\":48,\"payload\":\"REPRESENT\"}", "payloadType": "json", "topic": "", "topicType": "str", "buttonColor": "", "textColor": "", "iconColor": "", "enableClick": true, "enablePointerdown": false, "pointerdownPayload": "", "pointerdownPayloadType": "str", "enablePointerup": false, "pointerupPayload": "", "pointerupPayloadType": "str", "x": 160, "y": 320, "wires": [["mqtt_pub_fn_sol"]] },
-    { "id": "5c371c83f938b4d2", "type": "ui-button", "z": "dc6b0efa941b31bf", "group": "3359fb236d6d775d", "name": "Re-apresenta Nó 99", "label": "Re-apresenta Nó 99", "order": 12, "width": 6, "height": 1, "emulateClick": false, "tooltip": "", "className": "", "icon": "", "iconPosition": "left", "payload": "{\"nodeId\":99,\"sensorId\":0,\"command\":1,\"type\":48,\"payload\":\"REPRESENT\"}", "payloadType": "json", "topic": "", "topicType": "str", "buttonColor": "", "textColor": "", "iconColor": "", "enableClick": true, "enablePointerdown": false, "pointerdownPayload": "", "pointerdownPayloadType": "str", "enablePointerup": false, "pointerupPayload": "", "pointerupPayloadType": "str", "x": 160, "y": 360, "wires": [["mqtt_pub_fn_sol"]] },
-    { "id": "b3d67e360545059c", "type": "ui-button", "z": "tab_bombas", "group": "3359fb236d6d775d", "name": "Ligar Bomba NFT", "label": "Ligar Bomba NFT", "order": 7, "width": 3, "height": 1, "tooltip": "", "icon": "", "payload": "{\"nodeId\":99,\"sensorId\":16,\"command\":1,\"type\":2,\"payload\":\"1\"}", "payloadType": "json", "topic": "", "x": 150, "y": 80, "wires": [["mqtt_pub_fn_bom"]] },
-    { "id": "d8c344120256133f", "type": "ui-button", "z": "tab_bombas", "group": "3359fb236d6d775d", "name": "Desligar Bomba NFT", "label": "Desligar Bomba NFT", "order": 8, "width": 3, "height": 1, "tooltip": "", "icon": "", "payload": "{\"nodeId\":99,\"sensorId\":16,\"command\":1,\"type\":2,\"payload\":\"0\"}", "payloadType": "json", "topic": "", "x": 170, "y": 120, "wires": [["mqtt_pub_fn_bom"]] },
-    { "id": "579ed25004310fd0", "type": "ui-button", "z": "tab_bombas", "group": "3359fb236d6d775d", "name": "Ligar Bomba Oxi", "label": "Ligar Bomba Oxi", "order": 9, "width": 3, "height": 1, "tooltip": "", "icon": "", "payload": "{\"nodeId\":99,\"sensorId\":17,\"command\":1,\"type\":2,\"payload\":\"1\"}", "payloadType": "json", "topic": "", "x": 150, "y": 160, "wires": [["mqtt_pub_fn_bom"]] },
-    { "id": "65956c800a8908e3", "type": "ui-button", "z": "tab_bombas", "group": "3359fb236d6d775d", "name": "Desligar Bomba Oxi", "label": "Desligar Bomba Oxi", "order": 10, "width": 3, "height": 1, "tooltip": "", "icon": "", "payload": "{\"nodeId\":99,\"sensorId\":17,\"command\":1,\"type\":2,\"payload\":\"0\"}", "payloadType": "json", "topic": "", "x": 160, "y": 200, "wires": [["mqtt_pub_fn_bom"]] }
-
-
-
-
-
-    ,
-    { "id": "8402c0181c628dfd", "type": "inject", "z": "3920c26438dfb356", "name": "Reapresentar nó (99)", "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "trigger", "payload": "{\"nodeId\":99,\"sensorId\":0,\"command\":1,\"type\":48,\"payload\":\"REPRESENT\"}", "payloadType": "json", "x": 280, "y": 380, "wires": [["19580a2b724e102c"]] },
-    { "id": "8f3f2d37cd18e7b1", "type": "inject", "z": "3920c26438dfb356", "name": "Ativar Sincronismo", "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "control", "payload": "true", "payloadType": "bool", "x": 270, "y": 260, "wires": [["19580a2b724e102c"]] },
-    { "id": "167bd931e66ac157", "type": "inject", "z": "3920c26438dfb356", "name": "Desativar Sincronismo (Bypass)", "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "control", "payload": "false", "payloadType": "bool", "x": 310, "y": 320, "wires": [["19580a2b724e102c"]] },
     {
-        "id": "19580a2b724e102c",
+        "id": "562a08860aaed9c5",
+        "type": "tab",
+        "label": "M360 Horta - ACK Handling",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "f15beced9c4b0a92",
+        "type": "inject",
+        "z": "562a08860aaed9c5",
+        "name": "Inicializar Variáveis Globais",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 40,
+        "wires": [
+            [
+                "b77b673ea21fc630"
+            ]
+        ]
+    },
+    {
+        "id": "b77b673ea21fc630",
         "type": "function",
-        "z": "3920c26438dfb356",
+        "z": "562a08860aaed9c5",
+        "name": "Configurações Globais M360",
+        "func": "var prefix = global.get('mqtt_topic_prefix');\nif (!prefix) {\n    prefix = 'm360/DF/0000';\n    global.set('mqtt_topic_prefix', prefix);\n}\nif (flow.get('ack_timeout_ms') === null || flow.get('ack_timeout_ms') === undefined) {\n    flow.set('ack_timeout_ms', 5000);\n}\nif (flow.get('ack_max_retries') === null || flow.get('ack_max_retries') === undefined) {\n    flow.set('ack_max_retries', 3);\n}\nif (flow.get('nodes_ttl_ms') === null || flow.get('nodes_ttl_ms') === undefined) {\n    flow.set('nodes_ttl_ms', 600000);\n}\nnode.status({fill:'green',shape:'dot',text:'prefix='+prefix+' timeout='+flow.get('ack_timeout_ms')+'ms'});\nmsg.payload = {mqtt_topic_prefix:prefix, ack_timeout_ms:flow.get('ack_timeout_ms'), ack_max_retries:flow.get('ack_max_retries')};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 40,
+        "wires": [
+            [
+                "6e358e5d5bdce3c4"
+            ]
+        ]
+    },
+    {
+        "id": "6e358e5d5bdce3c4",
+        "type": "debug",
+        "z": "562a08860aaed9c5",
+        "name": "Globals Inicializados",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "a8d4eb69fb7dbf51",
+        "type": "inject",
+        "z": "562a08860aaed9c5",
+        "name": "Reapresentar nó (99)",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "trigger",
+        "payload": "{\"nodeId\":99,\"sensorId\":0,\"command\":1,\"type\":48,\"payload\":\"REPRESENT\"}",
+        "payloadType": "json",
+        "x": 280,
+        "y": 380,
+        "wires": [
+            [
+                "e65f3aefccd13374"
+            ]
+        ]
+    },
+    {
+        "id": "fc670869dcc5c434",
+        "type": "inject",
+        "z": "562a08860aaed9c5",
+        "name": "Ativar Sincronismo",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "control",
+        "payload": "true",
+        "payloadType": "bool",
+        "x": 270,
+        "y": 260,
+        "wires": [
+            [
+                "e65f3aefccd13374"
+            ]
+        ]
+    },
+    {
+        "id": "863756942bbd1c9f",
+        "type": "inject",
+        "z": "562a08860aaed9c5",
+        "name": "Desativar Sincronismo (Bypass)",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "control",
+        "payload": "false",
+        "payloadType": "bool",
+        "x": 310,
+        "y": 320,
+        "wires": [
+            [
+                "e65f3aefccd13374"
+            ]
+        ]
+    },
+    {
+        "id": "e65f3aefccd13374",
+        "type": "function",
+        "z": "562a08860aaed9c5",
         "name": "Sincronizador ACK / Timeout",
-        "func": "// CORREÇÃO 1: Timeout configurável via flow variable\nvar TIMEOUT_MS = flow.get('ack_timeout_ms') || 5000;\n// CORREÇÃO 3: Retry configurável com backoff\nvar MAX_RETRIES = flow.get('ack_max_retries') || 3;\n// CORREÇÃO 10: Prefixo MQTT centralizado\nvar MQTT_PREFIX = global.get('mqtt_topic_prefix') || 'm360/DF/0000';\n\nvar timer = context.get('timer');\nvar enableSync = flow.get('enable_ack_sync');\nif (enableSync === undefined) enableSync = true;\n\n// Mensagens de controle\nif (msg.topic === 'control') {\n    var state = (msg.payload === 'enable' || msg.payload === true);\n    flow.set('enable_ack_sync', state);\n    if (state) {\n        node.status({fill:'green', shape:'dot', text:'Sincronismo: Ativo'});\n    } else {\n        node.status({fill:'red', shape:'ring', text:'Sincronismo: Inativo (Bypass)'});\n        context.set('waiting', false);\n        context.set('queue', []);\n        if (timer) { clearTimeout(timer); context.set('timer', null); }\n    }\n    return null;\n}\n\nif (enableSync) {\n    node.status({fill:'green', shape:'dot', text:'Sincronismo: Ativo'});\n} else {\n    node.status({fill:'red', shape:'ring', text:'Sincronismo: Inativo (Bypass)'});\n}\n\n// Mensagens de retorno ACK\nif (msg.topic === MQTT_PREFIX + '/out') {\n    if (!enableSync) return null;\n    var data = msg.payload;\n    // CORREÇÃO 6: Tratamento explícito de erro no parse JSON\n    if (typeof data === 'string') {\n        try {\n            data = JSON.parse(data);\n        } catch(e) {\n            node.warn('Erro ao parsear JSON do ACK: ' + e.message + ' | Payload bruto: ' + data);\n            return [null, {payload: 'Erro: JSON malformado recebido no ACK: ' + data}];\n        }\n    }\n    var targetNode = context.get('targetNode');\n    var targetSensor = context.get('targetSensor');\n    if (data && data.direction === 'ack' && data.nodeId === targetNode && data.sensorId === targetSensor && context.get('waiting')) {\n        context.set('waiting', false);\n        context.set('retries', 0);\n        if (timer) { clearTimeout(timer); context.set('timer', null); }\n        // Processa próximo da fila\n        var queue = context.get('queue') || [];\n        if (queue.length > 0) {\n            var next = queue.shift();\n            context.set('queue', queue);\n            node.send([next.mqttMsg, null]);\n            node.status({fill:'yellow', shape:'dot', text:'Fila: ' + queue.length + ' pendentes'});\n        }\n        msg.payload = 'Sucesso: Nó ' + targetNode + ' confirmou o comando!';\n        return [msg, null];\n    }\n} else {\n    // Solicitação de gatilho\n    var requestData = msg.payload;\n    // CORREÇÃO 6: Tratamento explícito de erro no parse JSON do comando\n    if (typeof requestData === 'string') {\n        try {\n            requestData = JSON.parse(requestData);\n        } catch(e) {\n            node.warn('Erro ao parsear JSON do comando: ' + e.message + ' | Payload bruto: ' + requestData);\n            return [null, {payload: 'Erro: JSON malformado no comando enviado: ' + requestData}];\n        }\n    }\n    var targetNode = requestData && requestData.nodeId !== undefined ? requestData.nodeId : 99;\n    var targetSensor = requestData && requestData.sensorId !== undefined ? requestData.sensorId : 255;\n    var mqttMsg = {\n        topic: MQTT_PREFIX + '/in',\n        payload: typeof msg.payload === 'object' ? JSON.stringify(msg.payload) : msg.payload\n    };\n    // Bypass para desativação de sincronismo, broadcast (255) ou mensagens internas (command === 3)\n    if (!enableSync || targetNode === 255 || requestData.command === 3) {\n        return [mqttMsg, null];\n    }\n    // CORREÇÃO 2: Fila FIFO - bloqueia novas solicitações enquanto waiting === true\n    if (context.get('waiting')) {\n        var queue = context.get('queue') || [];\n        queue.push({mqttMsg: mqttMsg, targetNode: targetNode, targetSensor: targetSensor});\n        context.set('queue', queue);\n        node.warn('ACK pendente - comando enfileirado. Fila: ' + queue.length);\n        return [null, {payload: 'Ocupado: ACK pendente para Nó ' + context.get('targetNode') + '. Comando enfileirado (posição ' + queue.length + ')'}];\n    }\n    context.set('waiting', true);\n    context.set('targetNode', targetNode);\n    context.set('targetSensor', targetSensor);\n    context.set('retries', 0);\n    // CORREÇÃO 3: Retry com backoff\n    function agendarTimeout(tentativa) {\n        var delay = TIMEOUT_MS * Math.pow(2, tentativa);\n        var t = setTimeout(function() {\n            if (!context.get('waiting')) return;\n            var retries = context.get('retries') || 0;\n            if (retries < MAX_RETRIES - 1) {\n                retries++;\n                context.set('retries', retries);\n                node.warn('Timeout ACK Nó ' + targetNode + ' - Tentativa ' + (retries + 1) + '/' + MAX_RETRIES);\n                node.send([mqttMsg, null]);\n                agendarTimeout(retries);\n            } else {\n                context.set('waiting', false);\n                context.set('timer', null);\n                context.set('retries', 0);\n                node.send([null, {payload: 'Erro: Timeout após ' + MAX_RETRIES + ' tentativas na comunicação com o Nó ' + targetNode + '!'}]);\n            }\n        }, delay);\n        context.set('timer', t);\n    }\n    agendarTimeout(0);\n    return [mqttMsg, null];\n}\nreturn null;",
+        "func": "// Timeout configurável via flow variable\nvar TIMEOUT_MS = flow.get('ack_timeout_ms') || 5000;\nvar MAX_RETRIES = flow.get('ack_max_retries') || 3;\nvar MQTT_PREFIX = global.get('mqtt_topic_prefix') || 'm360/DF/0000';\n\nvar enableSync = flow.get('enable_ack_sync');\nif (enableSync === undefined) enableSync = true;\n\n// ─── Mensagens de controle ───────────────────────────────────────\nif (msg.topic === 'control') {\n    var state = (msg.payload === 'enable' || msg.payload === true);\n    flow.set('enable_ack_sync', state);\n    if (state) {\n        node.status({ fill: 'green', shape: 'dot', text: 'Sincronismo: Ativo' });\n    } else {\n        node.status({ fill: 'red', shape: 'ring', text: 'Sincronismo: Inativo (Bypass)' });\n        context.set('waiting', false);\n        context.set('queue', []);\n        var t = context.get('timer');\n        if (t) { clearTimeout(t); context.set('timer', null); }\n    }\n    return null;\n}\n\n// ─── Helpers ─────────────────────────────────────────────────────\n\n// CORREÇÃO B+C: iniciarItem configura TODO o estado para qualquer item da fila,\n// incluindo waiting, targetNode, targetSensor e o timer — independente de onde é chamado.\nfunction iniciarItem(item) {\n    context.set('waiting', true);\n    context.set('targetNode', item.targetNode);\n    context.set('targetSensor', item.targetSensor);\n    context.set('retries', 0);\n    agendarTimeout(item, 0);\n    node.status({\n        fill: 'yellow', shape: 'dot',\n        text: 'Aguardando ACK nó ' + item.targetNode + ' sensor ' + item.targetSensor\n    });\n    node.send([item.mqttMsg, null]);\n}\n\nfunction agendarTimeout(item, tentativa) {\n    // CORREÇÃO: limpar timer anterior antes de criar novo (evita timers órfãos)\n    var t = context.get('timer');\n    if (t) { clearTimeout(t); context.set('timer', null); }\n\n    var delay = TIMEOUT_MS * Math.pow(2, tentativa);\n    var newTimer = setTimeout(function () {\n        if (!context.get('waiting')) return;\n        var retries = (context.get('retries') || 0) + 1;\n        context.set('retries', retries);\n\n        if (retries < MAX_RETRIES) {\n            node.warn('Timeout ACK Nó ' + item.targetNode +\n                ' sensor ' + item.targetSensor +\n                ' — Tentativa ' + (retries + 1) + '/' + MAX_RETRIES);\n            node.send([item.mqttMsg, null]);\n            agendarTimeout(item, retries);\n        } else {\n            context.set('waiting', false);\n            context.set('timer', null);\n            context.set('retries', 0);\n            node.error('Falha definitiva — Nó ' + item.targetNode +\n                ' sensor ' + item.targetSensor +\n                ' após ' + MAX_RETRIES + ' tentativas');\n            node.status({\n                fill: 'red', shape: 'ring',\n                text: 'Falha nó ' + item.targetNode +\n                    ' | fila: ' + (context.get('queue') || []).length\n            });\n            // Tenta próximo da fila mesmo após falha\n            var queue = context.get('queue') || [];\n            if (queue.length > 0) {\n                var next = queue.shift();\n                context.set('queue', queue);\n                iniciarItem(next);\n            }\n            node.send([null, {\n                payload:\n                    'Erro: Timeout após ' + MAX_RETRIES + ' tentativas — Nó ' + item.targetNode\n            }]);\n        }\n    }, delay);\n    context.set('timer', newTimer);\n}\n\n// ─── ACK recebido do gateway ──────────────────────────────────────\nif (msg.topic === MQTT_PREFIX + '/out') {\n    if (!enableSync) return null;\n\n    var data = msg.payload;\n    if (typeof data === 'string') {\n        try { data = JSON.parse(data); }\n        catch (e) {\n            node.warn('Erro ao parsear JSON do ACK: ' + e.message);\n            return null;\n        }\n    }\n    if (!data || !context.get('waiting')) return null;\n\n    var targetNode = context.get('targetNode');\n    var targetSensor = context.get('targetSensor');\n\n    // Três formas de confirmação aceitas:\n    //   direction:\"ack\"         → ACK de transporte publicado pelo gateway (preferencial)\n    //   ack:1                   → bit ACK MySensors explícito\n    //   command:1 && type:2     → nó devolveu V_STATUS (fallback; type:2 evita falso\n    //                             positivo com leituras de sensor do mesmo nó)\n    // targetSensor==255: broadcast — aceitar qualquer sensorId do mesmo nó\n    var isConfirmation = (\n        data.nodeId == targetNode &&\n        (targetSensor == 255 || data.sensorId == targetSensor) &&\n        (data.direction === 'ack' || data.ack === 1 || (data.command === 1 && data.type === 2))\n    );\n    if (!isConfirmation) return null;\n\n    // ACK confirmado — limpar estado\n    var t = context.get('timer');\n    if (t) { clearTimeout(t); context.set('timer', null); }\n    context.set('waiting', false);\n    context.set('retries', 0);\n\n    var queue = context.get('queue') || [];\n    node.log('ACK confirmado — nó ' + targetNode +\n        ' sensor ' + targetSensor +\n        ' | fila restante: ' + queue.length);\n    node.status({\n        fill: 'green', shape: 'dot',\n        text: 'OK nó ' + targetNode + ' sensor ' + targetSensor +\n            ' | fila: ' + queue.length\n    });\n\n    // CORREÇÃO C: usa iniciarItem para configurar estado completo do próximo item\n    if (queue.length > 0) {\n        var next = queue.shift();\n        context.set('queue', queue);\n        iniciarItem(next);  // configura waiting, targetNode/Sensor e timer\n    }\n\n    return [null, { payload: 'Sucesso: Nó ' + targetNode + ' sensor ' + targetSensor + ' confirmou' }];\n}\n\n// ─── Novo comando ─────────────────────────────────────────────────\nvar requestData = msg.payload;\nif (typeof requestData === 'string') {\n    try { requestData = JSON.parse(requestData); }\n    catch (e) {\n        node.warn('Erro ao parsear JSON do comando: ' + e.message);\n        return [null, { payload: 'Erro: JSON malformado no comando: ' + msg.payload }];\n    }\n}\n\nvar targetNode = (requestData && requestData.nodeId !== undefined) ? requestData.nodeId : 99;\nvar targetSensor = (requestData && requestData.sensorId !== undefined) ? requestData.sensorId : 255;\n\nvar mqttMsg = {\n    topic: MQTT_PREFIX + '/in',\n    payload: (typeof msg.payload === 'object') ? JSON.stringify(msg.payload) : msg.payload\n};\n\n// ACK aguardado apenas para C_SET V_STATUS (command=1, type=2) — controle de relé/atuador.\n// REPRESENT, FORCE_UPDATE e outros comandos administrativos são enviados sem esperar ACK.\nvar isRelayCmd = (requestData.command === 1 && requestData.type === 2);\nif (!enableSync || targetNode === 255 || requestData.command === 3 || !isRelayCmd) {\n    node.status(!enableSync\n        ? { fill: 'red', shape: 'ring', text: 'Sincronismo: Inativo (Bypass)' }\n        : { fill: 'blue', shape: 'dot', text: 'Enviado: nó ' + targetNode });\n    return [mqttMsg, null];\n}\n\nvar item = { mqttMsg: mqttMsg, targetNode: targetNode, targetSensor: targetSensor };\n\nif (context.get('waiting')) {\n    var queue = context.get('queue') || [];\n    queue.push(item);\n    context.set('queue', queue);\n    node.warn('ACK pendente — enfileirado. Fila: ' + queue.length);\n    return [null, {\n        payload:\n            'Ocupado: ACK pendente para Nó ' + context.get('targetNode') +\n            '. Enfileirado (posição ' + queue.length + ')'\n    }];\n}\n\niniciarItem(item);\nreturn null;\n",
         "outputs": 2,
         "timeout": "",
         "noerr": 0,
         "initialize": "context.set('waiting', false);\ncontext.set('queue', []);\ncontext.set('retries', 0);\ncontext.set('timer', null);",
         "finalize": "",
         "libs": [],
-        "x": 650, "y": 380,
-        "wires": [["3b85bd34fbd6c02a", "aca8fc07f1d413fa"], ["c117e1b60341f919"]]
+        "x": 650,
+        "y": 380,
+        "wires": [
+            [
+                "e2a721d2461f0320",
+                "97f77a9f6d55fbbe"
+            ],
+            [
+                "c3bc3819fd7beaab"
+            ]
+        ]
     },
-    { "id": "aca8fc07f1d413fa", "type": "debug", "z": "3920c26438dfb356", "name": "Sucesso", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 860, "y": 360, "wires": [] },
-    { "id": "c117e1b60341f919", "type": "debug", "z": "3920c26438dfb356", "name": "Erro / Timeout", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 880, "y": 420, "wires": [] },
-    { "id": "3b85bd34fbd6c02a", "type": "function", "z": "3920c26438dfb356", "name": "Pub MQTT ACK out (tópico dinâmico)", "func": "var prefix = global.get('mqtt_topic_prefix') || 'm360/DF/0000';\nmsg.topic = prefix + '/in';\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 890, "y": 300, "wires": [["mqtt_ack_out_broker"]] },
-    { "id": "mqtt_ack_out_broker", "type": "mqtt out", "z": "3920c26438dfb356", "name": "", "topic": "", "qos": "", "retain": "", "respTopic": "", "contentType": "", "userProps": "", "correl": "", "expiry": "", "broker": "178d6e63b26ceeb2", "x": 1120, "y": 300, "wires": [] },
-    { "id": "feb8b811e690f32f", "type": "mqtt in", "z": "3920c26438dfb356", "name": "", "topic": "m360/DF/0000/out", "qos": "2", "datatype": "auto-detect", "broker": "178d6e63b26ceeb2", "nl": false, "rap": true, "rh": 0, "inputs": 0, "x": 250, "y": 460, "wires": [["9ba64049e14bfd6d", "1d70b0b499020265", "96bf433c9c5eda52", "179acf9292854ffd"]] },
-    { "id": "179acf9292854ffd", "type": "json", "z": "3920c26438dfb356", "name": "", "property": "payload", "action": "", "pretty": false, "x": 450, "y": 440, "wires": [["19580a2b724e102c", "d57fa15bd640c8fd"]] },
     {
-        "id": "9ba64049e14bfd6d", "type": "debug", "z": "3920c26438dfb356", "name": "Mensagens da Rede", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 630, "y": 620, "wires": []
+        "id": "97f77a9f6d55fbbe",
+        "type": "debug",
+        "z": "562a08860aaed9c5",
+        "name": "Sucesso",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 860,
+        "y": 360,
+        "wires": []
     },
     {
-        "id": "1d70b0b499020265",
+        "id": "c3bc3819fd7beaab",
+        "type": "debug",
+        "z": "562a08860aaed9c5",
+        "name": "Erro / Timeout",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 880,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "e2a721d2461f0320",
         "type": "function",
-        "z": "3920c26438dfb356",
+        "z": "562a08860aaed9c5",
+        "name": "Pub MQTT ACK out (tópico dinâmico)",
+        "func": "var prefix = global.get('mqtt_topic_prefix') || 'm360/DF/0000';\nmsg.topic = prefix + '/in';\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 890,
+        "y": 300,
+        "wires": [
+            [
+                "955ffadc7b0f1b29"
+            ]
+        ]
+    },
+    {
+        "id": "955ffadc7b0f1b29",
+        "type": "mqtt out",
+        "z": "562a08860aaed9c5",
+        "name": "",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "178d6e63b26ceeb2",
+        "x": 1120,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "b8d4b8c91db2110f",
+        "type": "mqtt in",
+        "z": "562a08860aaed9c5",
+        "name": "",
+        "topic": "m360/DF/0000/out",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "178d6e63b26ceeb2",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 250,
+        "y": 460,
+        "wires": [
+            [
+                "7250aeeb25a63384",
+                "48760a1b27c72723",
+                "9b3fcb2559ccb129",
+                "e11a5ab498088d58"
+            ]
+        ]
+    },
+    {
+        "id": "e11a5ab498088d58",
+        "type": "json",
+        "z": "562a08860aaed9c5",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 450,
+        "y": 440,
+        "wires": [
+            [
+                "e65f3aefccd13374",
+                "823168f458406e31"
+            ]
+        ]
+    },
+    {
+        "id": "7250aeeb25a63384",
+        "type": "debug",
+        "z": "562a08860aaed9c5",
+        "name": "Mensagens da Rede",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 630,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "48760a1b27c72723",
+        "type": "function",
+        "z": "562a08860aaed9c5",
         "name": "Translator Json",
-        "func": "var COMMANDS = {0:'PRESENTATION',1:'SET',2:'REQ',3:'INTERNAL',4:'STREAM'};\nvar PRESENTATION = {0:'S_DOOR',1:'S_MOTION',2:'S_SMOKE',3:'S_BINARY',4:'S_DIMMER',5:'S_COVER',6:'S_TEMP',7:'S_HUM',8:'S_BARO',9:'S_WIND',10:'S_RAIN',11:'S_UV',12:'S_WEIGHT',13:'S_POWER',14:'S_HEATER',15:'S_DISTANCE',16:'S_LIGHT_LEVEL',17:'S_ARDUINO_NODE',18:'S_ARDUINO_REPEATER_NODE',19:'S_LOCK',20:'S_IR',21:'S_WATER',22:'S_AIR_QUALITY',23:'S_CUSTOM',24:'S_DUST',25:'S_SCENE_CONTROLLER',26:'S_RGB_LIGHT',27:'S_RGBW_LIGHT',28:'S_COLOR_SENSOR',29:'S_HVAC',30:'S_MULTIMETER',31:'S_SPRINKLER',32:'S_WATER_LEAK',33:'S_SOUND',34:'S_VIBRATION',35:'S_MOISTURE',36:'S_INFO',37:'S_GAS',38:'S_GPS',39:'S_WATER_QUALITY'};\nvar VARIABLES = {0:['V_TEMP','Temperatura','°C'],1:['V_HUM','Umidade','%'],2:['V_STATUS','Estado',''],3:['V_PERCENTAGE','Percentual','%'],4:['V_PRESSURE','Pressão','hPa'],5:['V_FORECAST','Previsão',''],6:['V_RAIN','Chuva','mm'],7:['V_RAINRATE','Taxa de chuva','mm/h'],8:['V_WIND','Vento','m/s'],9:['V_GUST','Rajada','m/s'],10:['V_DIRECTION','Direção','°'],11:['V_UV','UV',''],12:['V_WEIGHT','Peso','kg'],13:['V_DISTANCE','Distância','cm'],14:['V_IMPEDANCE','Impedância','ohm'],15:['V_ARMED','Armado',''],16:['V_TRIPPED','Disparado',''],17:['V_WATT','Potência','W'],18:['V_KWH','Energia','kWh'],19:['V_SCENE_ON','Cena ON',''],20:['V_SCENE_OFF','Cena OFF',''],21:['V_HVAC_FLOW_STATE','HVAC Estado',''],22:['V_HVAC_SPEED','HVAC Velocidade',''],23:['V_LIGHT_LEVEL','Luminosidade','%'],24:['V_VAR1','VAR1',''],25:['V_VAR2','VAR2',''],26:['V_VAR3','VAR3',''],27:['V_VAR4','VAR4',''],28:['V_VAR5','VAR5',''],29:['V_UP','Subir',''],30:['V_DOWN','Descer',''],31:['V_STOP','Parar',''],32:['V_IR_SEND','IR Enviar',''],33:['V_IR_RECEIVE','IR Recebido',''],34:['V_FLOW','Vazão','L/min'],35:['V_VOLUME','Volume','L'],36:['V_LOCK_STATUS','Fechadura',''],37:['V_LEVEL','Nível',''],38:['V_VOLTAGE','Tensão','V'],39:['V_CURRENT','Corrente','A'],40:['V_RGB','RGB',''],41:['V_RGBW','RGBW',''],42:['V_ID','ID',''],43:['V_UNIT_PREFIX','Prefixo',''],44:['V_HVAC_SETPOINT_COOL','Setpoint Frio','°C'],45:['V_HVAC_SETPOINT_HEAT','Setpoint Quente','°C'],46:['V_HVAC_FLOW_MODE','Modo HVAC',''],47:['V_TEXT','Texto',''],48:['V_CUSTOM','Custom',''],49:['V_POSITION','Posição',''],50:['V_IR_RECORD','IR Gravado',''],51:['V_PH','pH',''],52:['V_ORP','ORP','mV'],53:['V_EC','Condutividade','mS/cm'],54:['V_VAR','Variável',''],55:['V_VA','Potência Aparente','VA'],56:['V_POWER_FACTOR','Fator de Potência','']};\nvar INTERNAL = {0:'I_BATTERY_LEVEL',1:'I_TIME',2:'I_VERSION',3:'I_ID_REQUEST',4:'I_ID_RESPONSE',5:'I_INCLUSION_MODE',6:'I_CONFIG',7:'I_FIND_PARENT',8:'I_FIND_PARENT_RESPONSE',9:'I_LOG_MESSAGE',10:'I_CHILDREN',11:'I_SKETCH_NAME',12:'I_SKETCH_VERSION',13:'I_REBOOT',14:'I_GATEWAY_READY',15:'I_SIGNING_PRESENTATION',16:'I_NONCE_REQUEST',17:'I_NONCE_RESPONSE',18:'I_HEARTBEAT_REQUEST',19:'I_PRESENTATION',20:'I_DISCOVER_REQUEST',21:'I_DISCOVER_RESPONSE',22:'I_HEARTBEAT_RESPONSE',23:'I_LOCKED',24:'I_PING',25:'I_PONG',26:'I_REGISTRATION_REQUEST',27:'I_REGISTRATION_RESPONSE',28:'I_DEBUG',29:'I_SIGNAL_REPORT_REQUEST',30:'I_SIGNAL_REPORT_REVERSE',31:'I_SIGNAL_REPORT_RESPONSE',32:'I_PRE_SLEEP_NOTIFICATION',33:'I_POST_SLEEP_NOTIFICATION'};\nvar MANEJO360 = {V_TEMP:{nome:'Temperatura',contexto:'Temperatura do Solo',faixaIdeal:'18 a 25 °C'},V_HUM:{nome:'Umidade',contexto:'Umidade Relativa do Ar',faixaIdeal:'60 a 80 %'},V_LEVEL:{nome:'Nível',contexto:'Nível do Reservatório',faixaIdeal:'Acima de 30%'},V_FLOW:{nome:'Vazão',contexto:'Vazão da Irrigação',faixaIdeal:'Conforme projeto hidráulico'},V_VOLUME:{nome:'Consumo',contexto:'Volume Acumulado',faixaIdeal:'-'},V_PH:{nome:'pH',contexto:'pH da Solução Nutritiva',faixaIdeal:'5.8 a 6.5'},V_EC:{nome:'Condutividade',contexto:'Condutividade Elétrica',faixaIdeal:'1.2 a 2.2 mS/cm'},V_VOLTAGE:{nome:'Bateria',contexto:'Tensão da Bateria',faixaIdeal:'> 3.3V'},V_CURRENT:{nome:'Corrente',contexto:'Corrente Consumida',faixaIdeal:'-'},V_STATUS:{nome:'Estado',contexto:'Atuador',faixaIdeal:'-'},V_PERCENTAGE:{nome:'Percentual',contexto:'Umidade do Solo',faixaIdeal:'60 a 80%'}};\nfunction avaliarManejo(tipo, valor) {\n    if (valor === null || valor === undefined || valor === '') return '';\n    valor = Number(valor);\n    if (isNaN(valor)) return '⚠ Valor de leitura inválido';\n    switch(tipo) {\n        case 'V_TEMP': if(valor<18) return '⚠ Temperatura abaixo da faixa ideal'; if(valor>25) return '⚠ Temperatura acima da faixa ideal'; return '✓ Temperatura adequada';\n        case 'V_PERCENTAGE': if(valor<60) return '⚠ Solo seco'; if(valor>90) return '⚠ Possível excesso de água'; return '✓ Umidade adequada';\n        case 'V_PH': if(valor<5.8) return '⚠ pH baixo'; if(valor>6.5) return '⚠ pH alto'; return '✓ pH adequado';\n        case 'V_EC': if(valor<1.2) return '⚠ Solução diluída'; if(valor>2.2) return '⚠ Solução concentrada'; return '✓ Condutividade adequada';\n        case 'V_LEVEL': if(valor<30) return '⚠ Reservatório baixo'; return '✓ Nível adequado';\n        case 'V_VOLTAGE': if(valor<3.3) return '⚠ Bateria fraca'; return '✓ Bateria normal';\n        default: return '';\n    }\n}\nvar m = msg.payload;\nvar comando = COMMANDS[m.command] || 'DESCONHECIDO';\nvar tipo = ''; var descricao = ''; var unidade = '';\nswitch(m.command) {\n    case 0: tipo = PRESENTATION[m.type] || 'DESCONHECIDO'; descricao = 'Apresentação de sensor'; break;\n    case 1: case 2: if(VARIABLES[m.type]){tipo=VARIABLES[m.type][0];descricao=VARIABLES[m.type][1];unidade=VARIABLES[m.type][2];} break;\n    case 3: tipo = INTERNAL[m.type] || 'DESCONHECIDO'; descricao = 'Mensagem interna'; break;\n    case 4: tipo = 'STREAM'; descricao = 'Transferência de dados'; break;\n}\nvar contexto=''; var faixaIdeal=''; var diagnostico='';\nif(MANEJO360[tipo]){contexto=MANEJO360[tipo].contexto;faixaIdeal=MANEJO360[tipo].faixaIdeal;diagnostico=avaliarManejo(tipo,m.payload);}\nvar valor = m.payload;\nif(valor===null||valor===undefined) valor='(vazio)';\nvar texto = 'Nó: '+m.nodeId+' : '+tipo+'\\nSensor: '+m.sensorId+'\\nContexto: '+(contexto||descricao)+'\\nComando: '+comando+'\\nValor: '+valor+' '+unidade+'\\nFaixa Ideal: '+(faixaIdeal||'-')+'\\nDiagnóstico: '+(diagnostico||'-')+'\\nACK: '+m.ack+'\\nTimestamp: '+m.timestamp;\nmsg.decoded={nodeId:m.nodeId,sensorId:m.sensorId,command:comando,type:tipo,description:descricao,unit:unidade,value:valor};\nmsg.payload=texto;\nreturn msg;",
-        "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [],
-        "x": 620, "y": 580,
-        "wires": [["b6348f0e112cbdf5"]]
+        "func": "var COMMANDS = {0:'PRESENTATION',1:'SET',2:'REQ',3:'INTERNAL',4:'STREAM'};\nvar PRESENTATION = {0:'S_DOOR',1:'S_MOTION',2:'S_SMOKE',3:'S_BINARY',4:'S_DIMMER',5:'S_COVER',6:'S_TEMP',7:'S_HUM',8:'S_BARO',9:'S_WIND',10:'S_RAIN',11:'S_UV',12:'S_WEIGHT',13:'S_POWER',14:'S_HEATER',15:'S_DISTANCE',16:'S_LIGHT_LEVEL',17:'S_ARDUINO_NODE',18:'S_ARDUINO_REPEATER_NODE',19:'S_LOCK',20:'S_IR',21:'S_WATER',22:'S_AIR_QUALITY',23:'S_CUSTOM',24:'S_DUST',25:'S_SCENE_CONTROLLER',26:'S_RGB_LIGHT',27:'S_RGBW_LIGHT',28:'S_COLOR_SENSOR',29:'S_HVAC',30:'S_MULTIMETER',31:'S_SPRINKLER',32:'S_WATER_LEAK',33:'S_SOUND',34:'S_VIBRATION',35:'S_MOISTURE',36:'S_INFO',37:'S_GAS',38:'S_GPS',39:'S_WATER_QUALITY'};\nvar VARIABLES = {0:['V_TEMP','Temperatura','°C'],1:['V_HUM','Umidade','%'],2:['V_STATUS','Estado',''],3:['V_PERCENTAGE','Percentual','%'],4:['V_PRESSURE','Pressão','hPa'],5:['V_FORECAST','Previsão',''],6:['V_RAIN','Chuva','mm'],7:['V_RAINRATE','Taxa de chuva','mm/h'],8:['V_WIND','Vento','m/s'],9:['V_GUST','Rajada','m/s'],10:['V_DIRECTION','Direção','°'],11:['V_UV','UV',''],12:['V_WEIGHT','Peso','kg'],13:['V_DISTANCE','Distância','cm'],14:['V_IMPEDANCE','Impedância','ohm'],15:['V_ARMED','Armado',''],16:['V_TRIPPED','Disparado',''],17:['V_WATT','Potência','W'],18:['V_KWH','Energia','kWh'],19:['V_SCENE_ON','Cena ON',''],20:['V_SCENE_OFF','Cena OFF',''],21:['V_HVAC_FLOW_STATE','HVAC Estado',''],22:['V_HVAC_SPEED','HVAC Velocidade',''],23:['V_LIGHT_LEVEL','Luminosidade','%'],24:['V_VAR1','VAR1',''],25:['V_VAR2','VAR2',''],26:['V_VAR3','VAR3',''],27:['V_VAR4','VAR4',''],28:['V_VAR5','VAR5',''],29:['V_UP','Subir',''],30:['V_DOWN','Descer',''],31:['V_STOP','Parar',''],32:['V_IR_SEND','IR Enviar',''],33:['V_IR_RECEIVE','IR Recebido',''],34:['V_FLOW','Vazão','L/min'],35:['V_VOLUME','Volume','L'],36:['V_LOCK_STATUS','Fechadura',''],37:['V_LEVEL','Nível',''],38:['V_VOLTAGE','Tensão','V'],39:['V_CURRENT','Corrente','A'],40:['V_RGB','RGB',''],41:['V_RGBW','RGBW',''],42:['V_ID','ID',''],43:['V_UNIT_PREFIX','Prefixo',''],44:['V_HVAC_SETPOINT_COOL','Setpoint Frio','°C'],45:['V_HVAC_SETPOINT_HEAT','Setpoint Quente','°C'],46:['V_HVAC_FLOW_MODE','Modo HVAC',''],47:['V_TEXT','Texto',''],48:['V_CUSTOM','Custom',''],49:['V_POSITION','Posição',''],50:['V_IR_RECORD','IR Gravado',''],51:['V_PH','pH',''],52:['V_ORP','ORP','mV'],53:['V_EC','Condutividade','mS/cm'],54:['V_VAR','Variável',''],55:['V_VA','Potência Aparente','VA'],56:['V_POWER_FACTOR','Fator de Potência','']};\nvar INTERNAL = {0:'I_BATTERY_LEVEL',1:'I_TIME',2:'I_VERSION',3:'I_ID_REQUEST',4:'I_ID_RESPONSE',5:'I_INCLUSION_MODE',6:'I_CONFIG',7:'I_FIND_PARENT',8:'I_FIND_PARENT_RESPONSE',9:'I_LOG_MESSAGE',10:'I_CHILDREN',11:'I_SKETCH_NAME',12:'I_SKETCH_VERSION',13:'I_REBOOT',14:'I_GATEWAY_READY',15:'I_SIGNING_PRESENTATION',16:'I_NONCE_REQUEST',17:'I_NONCE_RESPONSE',18:'I_HEARTBEAT_REQUEST',19:'I_PRESENTATION',20:'I_DISCOVER_REQUEST',21:'I_DISCOVER_RESPONSE',22:'I_HEARTBEAT_RESPONSE',23:'I_LOCKED',24:'I_PING',25:'I_PONG',26:'I_REGISTRATION_REQUEST',27:'I_REGISTRATION_RESPONSE',28:'I_DEBUG',29:'I_SIGNAL_REPORT_REQUEST',30:'I_SIGNAL_REPORT_REVERSE',31:'I_SIGNAL_REPORT_RESPONSE',32:'I_PRE_SLEEP_NOTIFICATION',33:'I_POST_SLEEP_NOTIFICATION'};\nvar MANEJO360 = {V_TEMP:{nome:'Temperatura',contexto:'Temperatura do Solo',faixaIdeal:'18 a 25 °C'},V_HUM:{nome:'Umidade',contexto:'Umidade Relativa do Ar',faixaIdeal:'60 a 80 %'},V_LEVEL:{nome:'Nível',contexto:'Nível do Reservatório',faixaIdeal:'Acima de 30%'},V_FLOW:{nome:'Vazão',contexto:'Vazão da Irrigação',faixaIdeal:'Conforme projeto hidráulico'},V_VOLUME:{nome:'Consumo',contexto:'Volume Acumulado',faixaIdeal:'-'},V_PH:{nome:'pH',contexto:'pH da Solução Nutritiva',faixaIdeal:'5.8 a 6.5'},V_EC:{nome:'Condutividade',contexto:'Condutividade Elétrica',faixaIdeal:'1.2 a 2.2 mS/cm'},V_VOLTAGE:{nome:'Bateria',contexto:'Tensão da Bateria',faixaIdeal:'> 3.3V'},V_CURRENT:{nome:'Corrente',contexto:'Corrente Consumida',faixaIdeal:'-'},V_STATUS:{nome:'Estado',contexto:'Atuador',faixaIdeal:'-'},V_PERCENTAGE:{nome:'Percentual',contexto:'Umidade do Solo',faixaIdeal:'60 a 80%'}};\nfunction avaliarManejo(tipo, valor) {\n    if (valor === null || valor === undefined || valor === '') return '';\n    valor = Number(valor);\n    if (isNaN(valor)) return '⚠ Valor de leitura inválido';\n    switch(tipo) {\n        case 'V_TEMP': if(valor<18) return '⚠ Temperatura abaixo da faixa ideal'; if(valor>25) return '⚠ Temperatura acima da faixa ideal'; return '✓ Temperatura adequada';\n        case 'V_PERCENTAGE': if(valor<60) return '⚠ Solo seco'; if(valor>90) return '⚠ Possível excesso de água'; return '✓ Umidade adequada';\n        case 'V_PH': if(valor<5.8) return '⚠ pH baixo'; if(valor>6.5) return '⚠ pH alto'; return '✓ pH adequado';\n        case 'V_EC': if(valor<1.2) return '⚠ Solução diluída'; if(valor>2.2) return '⚠ Solução concentrada'; return '✓ Condutividade adequada';\n        case 'V_LEVEL': if(valor<30) return '⚠ Reservatório baixo'; return '✓ Nível adequado';\n        case 'V_VOLTAGE': if(valor<3.3) return '⚠ Bateria fraca'; return '✓ Bateria normal';\n        default: return '';\n    }\n}\nvar m = msg.payload;\nvar comando = COMMANDS[m.command] || 'DESCONHECIDO';\nvar tipo = ''; var descricao = ''; var unidade = '';\nswitch(m.command) {\n    case 0: tipo = PRESENTATION[m.type] || 'DESCONHECIDO'; descricao = 'Apresentação de sensor'; break;\n    case 1: case 2: if(VARIABLES[m.type]){tipo=VARIABLES[m.type][0];descricao=VARIABLES[m.type][1];unidade=VARIABLES[m.type][2];} break;\n    case 3: tipo = INTERNAL[m.type] || 'DESCONHECIDO'; descricao = 'Mensagem interna'; break;\n    case 4: tipo = 'STREAM'; descricao = 'Transferência de dados'; break;\n}\nvar LEVEL_COMO_UMIDADE = {1: true, 13: true};\nif (tipo === 'V_LEVEL' && LEVEL_COMO_UMIDADE[m.nodeId]) {\n    tipo      = 'V_PERCENTAGE';\n    descricao = 'Percentual';\n    unidade   = '%';\n}\nvar contexto=''; var faixaIdeal=''; var diagnostico='';\nif(MANEJO360[tipo]){contexto=MANEJO360[tipo].contexto;faixaIdeal=MANEJO360[tipo].faixaIdeal;diagnostico=avaliarManejo(tipo,m.payload);}\nvar valor = m.payload;\nif(valor===null||valor===undefined) valor='(vazio)';\nvar texto = 'Nó: '+m.nodeId+' : '+tipo+'\\nSensor: '+m.sensorId+'\\nContexto: '+(contexto||descricao)+'\\nComando: '+comando+'\\nValor: '+valor+' '+unidade+'\\nFaixa Ideal: '+(faixaIdeal||'-')+'\\nDiagnóstico: '+(diagnostico||'-')+'\\nACK: '+m.ack+'\\nTimestamp: '+m.timestamp;\nmsg.decoded={nodeId:m.nodeId,sensorId:m.sensorId,command:comando,type:tipo,description:descricao,unit:unidade,value:valor};\nmsg.payload=texto;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 620,
+        "y": 580,
+        "wires": [
+            [
+                "01f18ad1469e7ff3"
+            ]
+        ]
     },
-    { "id": "b6348f0e112cbdf5", "type": "debug", "z": "3920c26438dfb356", "name": "debug 2", "active": false, "tosidebar": true, "console": false, "tostatus": false, "complete": "false", "statusVal": "", "statusType": "auto", "x": 800, "y": 580, "wires": [] },
     {
-        "id": "96bf433c9c5eda52",
+        "id": "01f18ad1469e7ff3",
+        "type": "debug",
+        "z": "562a08860aaed9c5",
+        "name": "debug 2",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 800,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "9b3fcb2559ccb129",
         "type": "function",
-        "z": "3920c26438dfb356",
+        "z": "562a08860aaed9c5",
         "name": "Mapeia nós",
-        "func": "// CORREÇÃO 5: TTL para remoção de nós inativos\nvar TTL_MS = flow.get('nodes_ttl_ms') || 600000;\nvar m = msg.payload;\nif (!m.nodeId) return msg;\nvar PRESENTATION = {0:'S_DOOR',1:'S_MOTION',2:'S_SMOKE',3:'S_BINARY',4:'S_DIMMER',5:'S_COVER',6:'S_TEMP',7:'S_HUM',8:'S_BARO',9:'S_WIND',10:'S_RAIN',11:'S_UV',12:'S_WEIGHT',13:'S_POWER',14:'S_HEATER',15:'S_DISTANCE',16:'S_LIGHT_LEVEL',17:'S_ARDUINO_NODE',18:'S_ARDUINO_REPEATER_NODE',19:'S_LOCK',20:'S_IR',21:'S_WATER',22:'S_AIR_QUALITY',23:'S_CUSTOM',24:'S_DUST',25:'S_SCENE_CONTROLLER',26:'S_RGB_LIGHT',27:'S_RGBW_LIGHT',28:'S_COLOR_SENSOR',29:'S_HVAC',30:'S_MULTIMETER',31:'S_SPRINKLER',32:'S_WATER_LEAK',33:'S_SOUND',34:'S_VIBRATION',35:'S_MOISTURE',36:'S_INFO',37:'S_GAS',38:'S_GPS',39:'S_WATER_QUALITY'};\nvar VAR_TO_SENSOR = {0:'S_TEMP',1:'S_HUM',2:'S_BINARY',3:'S_MOISTURE',13:'S_DISTANCE',17:'S_POWER',23:'S_LIGHT_LEVEL',34:'S_WATER',35:'S_WATER',37:'S_MOISTURE',38:'S_POWER',39:'S_POWER'};\nfunction getNomeAmigavel(tipo, childId) {\n    if (tipo === 'S_TEMP') return 'Temperatura';\n    if (tipo === 'S_HUM') return 'Umidade do Ar';\n    if (tipo === 'S_MOISTURE') return 'Umidade do Solo';\n    if (tipo === 'S_BINARY') return 'Atuador / Chave';\n    return 'Sensor Canal ' + childId;\n}\nvar nodes = global.get('mys_nodes') || {};\nvar now = Date.now();\n// Remove entradas antigas (TTL)\nObject.keys(nodes).forEach(function(id) {\n    if (now - nodes[id].lastSeen > TTL_MS) {\n        node.warn('Nó ' + id + ' removido do mapa por TTL (' + Math.round(TTL_MS/60000) + ' min sem atividade)');\n        delete nodes[id];\n    }\n});\nif (!nodes[m.nodeId]) {\n    nodes[m.nodeId] = {nodeId:m.nodeId, discovered:now, lastSeen:now, lastHeartbeat:null, lastAck:null, status:'NEW', messages:0, values:{}, childs:{}, sketchName:'', sketchVersion:''};\n    node.warn('Novo nó descoberto: ' + m.nodeId);\n}\nvar n = nodes[m.nodeId];\nif (!n.values) n.values = {};\nif (!n.childs) n.childs = {};\nn.lastSeen = now;\nn.messages++;\nif (m.command === 0) {\n    if (m.sensorId !== 255) {\n        var tipoStr = PRESENTATION[m.type] || 'S_CUSTOM';\n        n.childs[m.sensorId] = {childId:m.sensorId, tipo:tipoStr, de:getNomeAmigavel(tipoStr, m.sensorId)};\n        node.warn('Nó ' + m.nodeId + ': Sensor registrado (ID ' + m.sensorId + ' : ' + tipoStr + ')');\n    }\n}\nif (m.command === 1) {\n    n.values[m.sensorId] = m.payload;\n    if (!n.childs[m.sensorId]) {\n        var tipoS = VAR_TO_SENSOR[m.type] || 'S_CUSTOM';\n        n.childs[m.sensorId] = {childId:m.sensorId, tipo:tipoS, de:getNomeAmigavel(tipoS, m.sensorId)};\n    }\n}\nif (m.command === 3) {\n    if (m.type === 11) {\n        n.sketchName = m.payload;\n        node.warn('Nó ' + m.nodeId + ': Nome recebido -> ' + m.payload);\n    } else if (m.type === 12) {\n        n.sketchVersion = m.payload;\n    } else if (m.type === 22) {\n        n.lastHeartbeat = now;\n    }\n}\nif (m.ack == 1) {\n    n.lastAck = now;\n}\nglobal.set('mys_nodes', nodes);\nreturn msg;",
-        "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [],
-        "x": 610, "y": 540,
-        "wires": [[]]
+        "func": "// CORREÇÃO 5: TTL para remoção de nós inativos\nvar TTL_MS = flow.get('nodes_ttl_ms') || 600000;\nvar m = msg.payload;\nif (!m.nodeId) return msg;\nvar PRESENTATION = {0:'S_DOOR',1:'S_MOTION',2:'S_SMOKE',3:'S_BINARY',4:'S_DIMMER',5:'S_COVER',6:'S_TEMP',7:'S_HUM',8:'S_BARO',9:'S_WIND',10:'S_RAIN',11:'S_UV',12:'S_WEIGHT',13:'S_POWER',14:'S_HEATER',15:'S_DISTANCE',16:'S_LIGHT_LEVEL',17:'S_ARDUINO_NODE',18:'S_ARDUINO_REPEATER_NODE',19:'S_LOCK',20:'S_IR',21:'S_WATER',22:'S_AIR_QUALITY',23:'S_CUSTOM',24:'S_DUST',25:'S_SCENE_CONTROLLER',26:'S_RGB_LIGHT',27:'S_RGBW_LIGHT',28:'S_COLOR_SENSOR',29:'S_HVAC',30:'S_MULTIMETER',31:'S_SPRINKLER',32:'S_WATER_LEAK',33:'S_SOUND',34:'S_VIBRATION',35:'S_MOISTURE',36:'S_INFO',37:'S_GAS',38:'S_GPS',39:'S_WATER_QUALITY'};\nvar VAR_TO_SENSOR = {0:'S_TEMP',1:'S_HUM',2:'S_BINARY',3:'S_MOISTURE',13:'S_DISTANCE',17:'S_POWER',23:'S_LIGHT_LEVEL',34:'S_WATER',35:'S_WATER',37:'S_MOISTURE',38:'S_POWER',39:'S_POWER'};\nfunction getNomeAmigavel(tipo, childId) {\n    if (tipo === 'S_TEMP') return 'Temperatura';\n    if (tipo === 'S_HUM') return 'Umidade do Ar';\n    if (tipo === 'S_MOISTURE') return 'M360::M360ItemDef[' + childId + ',7]';\n    if (tipo === 'S_BINARY') return 'Atuador / Chave';\n    return 'Sensor Canal ' + childId;\n}\nvar nodes = global.get('mys_nodes') || {};\nvar now = Date.now();\n// Remove entradas antigas (TTL)\nObject.keys(nodes).forEach(function(id) {\n    if (now - nodes[id].lastSeen > TTL_MS) {\n        node.warn('Nó ' + id + ' removido do mapa por TTL (' + Math.round(TTL_MS/60000) + ' min sem atividade)');\n        delete nodes[id];\n    }\n});\nif (!nodes[m.nodeId]) {\n    nodes[m.nodeId] = {nodeId:m.nodeId, discovered:now, lastSeen:now, lastHeartbeat:null, lastAck:null, status:'NEW', messages:0, values:{}, childs:{}, sketchName:'', sketchVersion:''};\n    node.warn('Novo nó descoberto: ' + m.nodeId);\n}\nvar n = nodes[m.nodeId];\nif (!n.values) n.values = {};\nif (!n.childs) n.childs = {};\nn.lastSeen = now;\nn.messages++;\nif (m.command === 0) {\n    if (m.sensorId !== 255) {\n        var tipoStr = PRESENTATION[m.type] || 'S_CUSTOM';\n        var aliasPayload = (m.payload && typeof m.payload === 'string' && m.payload.trim() !== '') ? m.payload.trim() : null;\n        n.childs[m.sensorId] = {childId:m.sensorId, tipo:tipoStr, de: aliasPayload || getNomeAmigavel(tipoStr, m.sensorId)};\n        node.warn('Nó ' + m.nodeId + ': Sensor registrado (ID ' + m.sensorId + ' / ' + (aliasPayload||'sem alias') + ')');\n    }\n}\nif (m.command === 1) {\n    n.values[m.sensorId] = m.payload;\n    if (!n.childs[m.sensorId]) {\n        var tipoS = VAR_TO_SENSOR[m.type] || 'S_CUSTOM';\n        n.childs[m.sensorId] = {childId:m.sensorId, tipo:tipoS, de:getNomeAmigavel(tipoS, m.sensorId)};\n    }\n    var CN1 = ['A_1m_10cm','A_1m_20cm','A_1m_30cm','A_3m_10cm','A_3m_20cm','A_3m_30cm','A_5m_10cm','A_5m_20cm','A_5m_30cm','B_1m_10cm','B_1m_20cm','B_1m_30cm','B_3m_10cm','B_3m_20cm','B_3m_30cm','B_5m_10cm','B_5m_20cm','B_5m_30cm'];\n    var CN13 = {0:'Umidade ZTS',1:'Temp ZTS',2:'Condutividade Solo',3:'pH Solo',4:'N Solo',5:'P Solo',6:'K Solo',7:'Relé ZTS',8:'Umidade Hall',9:'Luminosidade'};\n    if (m.nodeId == 1 && CN1[m.sensorId] && n.childs[m.sensorId]) n.childs[m.sensorId].de = CN1[m.sensorId];\n    if (m.nodeId == 13 && CN13[m.sensorId] !== undefined && n.childs[m.sensorId]) n.childs[m.sensorId].de = CN13[m.sensorId];\n}\nif (m.command === 3) {\n    if (m.type === 11) {\n        n.sketchName = m.payload;\n        node.warn('Nó ' + m.nodeId + ': Nome recebido -> ' + m.payload);\n    } else if (m.type === 12) {\n        n.sketchVersion = m.payload;\n    } else if (m.type === 22) {\n        n.lastHeartbeat = now;\n    }\n}\nif (m.ack == 1) {\n    n.lastAck = now;\n}\nglobal.set('mys_nodes', nodes);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 540,
+        "wires": [
+            []
+        ]
     },
     {
-        "id": "d57fa15bd640c8fd",
+        "id": "823168f458406e31",
         "type": "switch",
-        "z": "3920c26438dfb356",
+        "z": "562a08860aaed9c5",
         "name": "Separar ACK / Leituras",
         "property": "payload.direction",
         "propertyType": "msg",
         "rules": [
-            { "t": "eq", "v": "ack", "vt": "str" },
-            { "t": "eq", "v": "sensor", "vt": "str" }
+            {
+                "t": "eq",
+                "v": "ack",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "sensor",
+                "vt": "str"
+            }
         ],
         "checkall": "false",
         "repair": false,
         "outputs": 2,
-        "x": 640, "y": 480,
-        "wires": [["257ec72db95f0e79"], ["d16bdf1a8aeb2dca"]]
+        "x": 640,
+        "y": 480,
+        "wires": [
+            [
+                "58a0f3f02ae050b5"
+            ],
+            [
+                "b788199a985fc236"
+            ]
+        ]
     },
-    { "id": "257ec72db95f0e79", "type": "debug", "z": "3920c26438dfb356", "name": "ACK Confirmado", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 890, "y": 460, "wires": [] },
-    { "id": "d16bdf1a8aeb2dca", "type": "debug", "z": "3920c26438dfb356", "name": "Dados do Sensor", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 890, "y": 500, "wires": [] },
-    { "id": "399b2d4879719c19", "type": "mqtt in", "z": "3920c26438dfb356", "name": "", "topic": "m360/DF/0000/gateway/status", "qos": "2", "datatype": "auto-detect", "broker": "178d6e63b26ceeb2", "nl": false, "rap": true, "rh": 0, "inputs": 0, "x": 280, "y": 740, "wires": [["gw_watchdog_fn"]] },
     {
-        "id": "gw_watchdog_fn",
+        "id": "58a0f3f02ae050b5",
+        "type": "debug",
+        "z": "562a08860aaed9c5",
+        "name": "ACK Confirmado",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 890,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "b788199a985fc236",
+        "type": "debug",
+        "z": "562a08860aaed9c5",
+        "name": "Dados do Sensor",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 890,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "cb0d19b9d6ffd97c",
+        "type": "mqtt in",
+        "z": "562a08860aaed9c5",
+        "name": "",
+        "topic": "m360/DF/0000/gateway/status",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "178d6e63b26ceeb2",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 280,
+        "y": 740,
+        "wires": [
+            [
+                "1c8446302d2f43f9"
+            ]
+        ]
+    },
+    {
+        "id": "1c8446302d2f43f9",
         "type": "function",
-        "z": "3920c26438dfb356",
+        "z": "562a08860aaed9c5",
         "name": "Gateway Status + Watchdog",
         "func": "// CORREÇÃO 9: Watchdog proativo - registra último contato do gateway\nvar now = Date.now();\nflow.set('gateway_last_seen', now);\nflow.set('gateway_online', true);\nnode.status({fill:'green', shape:'dot', text:'Online: ' + new Date(now).toLocaleTimeString()});\nmsg.payload = {status:'ONLINE', ts: now, raw: msg.payload};\nreturn msg;",
-        "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [],
-        "x": 510, "y": 740,
-        "wires": [["20715342cc48a516"]]
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 620,
+        "y": 740,
+        "wires": [
+            [
+                "8d16450037d05bd7"
+            ]
+        ]
     },
-    { "id": "20715342cc48a516", "type": "debug", "z": "3920c26438dfb356", "name": "Gateway Status", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 740, "y": 740, "wires": [] },
     {
-        "id": "gw_watchdog_inject",
+        "id": "8d16450037d05bd7",
+        "type": "debug",
+        "z": "562a08860aaed9c5",
+        "name": "Gateway Status",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 940,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "10806a42b933231f",
         "type": "inject",
-        "z": "3920c26438dfb356",
+        "z": "562a08860aaed9c5",
         "name": "Watchdog Gateway (periódico)",
-        "props": [{ "p": "payload" }],
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
         "repeat": "60",
         "crontab": "",
         "once": true,
@@ -144,26 +505,61 @@
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 260, "y": 800,
-        "wires": [["gw_watchdog_check"]]
+        "x": 260,
+        "y": 800,
+        "wires": [
+            [
+                "0deebf946e24e4c3"
+            ]
+        ]
     },
     {
-        "id": "gw_watchdog_check",
+        "id": "0deebf946e24e4c3",
         "type": "function",
-        "z": "3920c26438dfb356",
+        "z": "562a08860aaed9c5",
         "name": "Verifica Gateway Offline",
         "func": "// CORREÇÃO 9: Alerta proativo se gateway ficar offline\nvar GATEWAY_TIMEOUT_MS = 120000; // 2 minutos sem mensagem = alerta\nvar lastSeen = flow.get('gateway_last_seen');\nvar now = Date.now();\nif (!lastSeen) {\n    node.status({fill:'grey', shape:'ring', text:'Aguardando primeiro contato...'});\n    return null;\n}\nvar diff = now - lastSeen;\nif (diff > GATEWAY_TIMEOUT_MS) {\n    flow.set('gateway_online', false);\n    node.status({fill:'red', shape:'ring', text:'OFFLINE há ' + Math.round(diff/1000) + 's'});\n    msg.payload = {\n        alerta: 'GATEWAY OFFLINE',\n        ultimoContato: new Date(lastSeen).toLocaleString(),\n        semRespostaHa: Math.round(diff/1000) + ' segundos'\n    };\n    return msg;\n} else {\n    node.status({fill:'green', shape:'dot', text:'OK - último contato há ' + Math.round(diff/1000) + 's'});\n    return null;\n}",
-        "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [],
-        "x": 500, "y": 800,
-        "wires": [["gw_alerta_debug"]]
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 800,
+        "wires": [
+            [
+                "9e83bbbb898c0bea"
+            ]
+        ]
     },
-    { "id": "gw_alerta_debug", "type": "debug", "z": "3920c26438dfb356", "name": "ALERTA Gateway Offline", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 760, "y": 800, "wires": [] },
     {
-        "id": "ttl_inject",
+        "id": "9e83bbbb898c0bea",
+        "type": "debug",
+        "z": "562a08860aaed9c5",
+        "name": "ALERTA Gateway Offline",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 970,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "06b13ad61f09cd0b",
         "type": "inject",
-        "z": "3920c26438dfb356",
+        "z": "562a08860aaed9c5",
         "name": "Limpeza TTL Nós (periódica)",
-        "props": [{ "p": "payload" }],
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
         "repeat": "300",
         "crontab": "",
         "once": true,
@@ -171,35 +567,100 @@
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 240, "y": 860,
-        "wires": [["ttl_cleanup_fn"]]
+        "x": 240,
+        "y": 860,
+        "wires": [
+            [
+                "08a8f9c1690be59e"
+            ]
+        ]
     },
     {
-        "id": "ttl_cleanup_fn",
+        "id": "08a8f9c1690be59e",
         "type": "function",
-        "z": "3920c26438dfb356",
+        "z": "562a08860aaed9c5",
         "name": "Limpeza TTL mys_nodes",
         "func": "// CORREÇÃO 5: Remove nós inativos por TTL\nvar TTL_MS = flow.get('nodes_ttl_ms') || 600000;\nvar nodes = global.get('mys_nodes') || {};\nvar now = Date.now();\nvar removidos = [];\nObject.keys(nodes).forEach(function(id) {\n    if (now - nodes[id].lastSeen > TTL_MS) {\n        removidos.push(id);\n        delete nodes[id];\n    }\n});\nglobal.set('mys_nodes', nodes);\nif (removidos.length > 0) {\n    node.warn('TTL: Nós removidos do mapa global: ' + removidos.join(', '));\n    msg.payload = {removidos: removidos, restantes: Object.keys(nodes).length};\n    return msg;\n}\nreturn null;",
-        "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [],
-        "x": 490, "y": 860,
-        "wires": [["ttl_debug"]]
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 860,
+        "wires": [
+            [
+                "bbf313a7bdb5b0df"
+            ]
+        ]
     },
-    { "id": "ttl_debug", "type": "debug", "z": "3920c26438dfb356", "name": "TTL Limpeza", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 720, "y": 860, "wires": [] },
-    { "id": "fbc3a1293a39e360", "type": "inject", "z": "3920c26438dfb356", "name": "Gatilho Mapa de Rede", "props": [{ "p": "payload" }], "repeat": "60", "crontab": "", "once": true, "onceDelay": 0.5, "topic": "", "payload": "", "payloadType": "date", "x": 430, "y": 100, "wires": [["a1789c63b360f1e2"]] },
     {
-        "id": "a1789c63b360f1e2",
+        "id": "bbf313a7bdb5b0df",
+        "type": "debug",
+        "z": "562a08860aaed9c5",
+        "name": "TTL Limpeza",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 930,
+        "y": 860,
+        "wires": []
+    },
+    {
+        "id": "1c1024c541537179",
+        "type": "inject",
+        "z": "562a08860aaed9c5",
+        "name": "Gatilho Mapa de Rede",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "60",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 430,
+        "y": 100,
+        "wires": [
+            [
+                "74b74fd06c74069f"
+            ]
+        ]
+    },
+    {
+        "id": "74b74fd06c74069f",
         "type": "function",
-        "z": "3920c26438dfb356",
+        "z": "562a08860aaed9c5",
         "name": "Processador do Mapa m360_horta",
-        "func": "var nodes = global.get('mys_nodes') || {};\nvar now = Date.now();\nvar redeMapa = {\n    gateway: {id:'0 (Gateway Central)', topico_status: (global.get('mqtt_topic_prefix')||'m360/DF/0000') + '/gateway/status', status:'ONLINE'},\n    nos: []\n};\nfor (var id in nodes) {\n    var n = nodes[id];\n    var age = (now - n.lastSeen) / 1000;\n    var statusNode = 'ONLINE';\n    if (age > 300) statusNode = 'OFFLINE';\n    else if (n.lastHeartbeat && (now - n.lastHeartbeat) / 1000 > 900) statusNode = 'SEM HEARTBEAT';\n    var descricaoNode = n.sketchName ? n.sketchName + ' (v' + (n.sketchVersion || '?.?') + ')' : '';\n    if (!descricaoNode) {\n        if (id == '99') descricaoNode = 'Atuador Central de Irrigação (Solenóides/Bombas)';\n        else if (id == '1') descricaoNode = 'Nó Sensor de Umidade de Solo (Estufa)';\n        else descricaoNode = 'Nó MySensors Geral';\n    }\n    var noInfo = {nodeId:id, status:statusNode, lastSeenStr:Math.round(age)+'s atrás', descricao:descricaoNode, childs:[]};\n    var values = n.values || {};\n    var childs = n.childs || {};\n    var sensorIds = Object.keys(childs).sort(function(a,b) { return Number(a) - Number(b); });\n    if (sensorIds.length > 0) {\n        sensorIds.forEach(function(childId) {\n            var child = childs[childId];\n            var valorRaw = values[childId];\n            var valorStr = '-';\n            if (valorRaw !== undefined && valorRaw !== null) {\n                if (child.tipo === 'S_BINARY') {\n                    valorStr = (valorRaw == '1' || valorRaw.toString().toUpperCase() == 'LIGADO') ? 'LIGADO' : 'DESLIGADO';\n                } else if (child.tipo === 'S_MOISTURE') {\n                    valorStr = valorRaw + ' %';\n                } else if (child.tipo === 'S_TEMP') {\n                    valorStr = valorRaw + ' °C';\n                } else {\n                    valorStr = valorRaw;\n                }\n            }\n            var de = child.de;\n            if (id == '99') {\n                if (childId == '0') de = 'Solenóide A (Canteiro A)';\n                else if (childId == '1') de = 'Solenóide B (Canteiro B)';\n                else if (childId == '2') de = 'Solenóide C (Canteiro C)';\n                else if (childId == '16') de = 'Bomba NFT Hidroponia';\n                else if (childId == '17') de = 'Bomba de Oxigenação';\n            } else if (id == '1') {\n                if (childId == '0') de = 'Sensor Umidade Solo 1';\n                else if (childId == '1') de = 'Temperatura Solo';\n            }\n            noInfo.childs.push({childId:childId, tipo:child.tipo, de:de, valor:valorStr});\n        });\n    } else {\n        if (id == '99') {\n            noInfo.childs.push(\n                {childId:0, tipo:'S_BINARY', de:'Solenóide A (Canteiro A)', valor: values[0] !== undefined ? (values[0] == '1' ? 'LIGADO' : 'DESLIGADO') : '-'},\n                {childId:1, tipo:'S_BINARY', de:'Solenóide B (Canteiro B)', valor: values[1] !== undefined ? (values[1] == '1' ? 'LIGADO' : 'DESLIGADO') : '-'},\n                {childId:2, tipo:'S_BINARY', de:'Solenóide C (Canteiro C)', valor: values[2] !== undefined ? (values[2] == '1' ? 'LIGADO' : 'DESLIGADO') : '-'},\n                {childId:16, tipo:'S_BINARY', de:'Bomba NFT Hidroponia', valor: values[16] !== undefined ? (values[16] == '1' ? 'LIGADO' : 'DESLIGADO') : '-'},\n                {childId:17, tipo:'S_BINARY', de:'Bomba de Oxigenação', valor: values[17] !== undefined ? (values[17] == '1' ? 'LIGADO' : 'DESLIGADO') : '-'}\n            );\n        } else if (id == '1') {\n            noInfo.childs.push(\n                {childId:0, tipo:'S_MOISTURE', de:'Sensor Umidade Solo 1', valor: values[0] !== undefined ? values[0] + ' %' : '-'},\n                {childId:1, tipo:'S_TEMP', de:'Temperatura Solo', valor: values[1] !== undefined ? values[1] + ' °C' : '-'}\n            );\n        } else {\n            noInfo.childs.push({childId:'255', tipo:'S_ARDUINO_NODE', de:'Dados de Controle', valor:'-'});\n        }\n    }\n    redeMapa.nos.push(noInfo);\n}\nif (redeMapa.nos.length === 0) {\n    redeMapa.nos = [\n        {nodeId:'1', descricao:'Nó Sensor de Umidade de Solo (Multiplexado - Estufa)', status:'ONLINE', lastSeenStr:'12s atrás', childs:[{childId:0,tipo:'S_MOISTURE',de:'Sensor Umidade Solo 1',valor:'65 %'},{childId:1,tipo:'S_TEMP',de:'Temperatura Solo',valor:'24.5 °C'}]},\n        {nodeId:'99', descricao:'Atuador Central de Irrigação (Múltiplas Solenóides/Bombas)', status:'ONLINE', lastSeenStr:'5s atrás', childs:[{childId:0,tipo:'S_BINARY',de:'Solenóide A (Canteiro A)',valor:'DESLIGADO'},{childId:1,tipo:'S_BINARY',de:'Solenóide B (Canteiro B)',valor:'LIGADO'},{childId:2,tipo:'S_BINARY',de:'Solenóide C (Canteiro C)',valor:'DESLIGADO'},{childId:16,tipo:'S_BINARY',de:'Bomba NFT Hidroponia',valor:'LIGADO'},{childId:17,tipo:'S_BINARY',de:'Bomba de Oxigenação',valor:'DESLIGADO'}]}\n    ];\n}\nmsg.payload = redeMapa;\nreturn msg;",
-        "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [],
-        "x": 720, "y": 100,
-        "wires": [["d38902c3b285ea14"]]
+        "func": "var nodes = global.get('mys_nodes') || {};\nvar now = Date.now();\nvar redeMapa = {\n    gateway: {id:'0 (Gateway Central)', topico_status: (global.get('mqtt_topic_prefix')||'m360/DF/0000') + '/gateway/status', status:'ONLINE'},\n    nos: []\n};\nfor (var id in nodes) {\n    var n = nodes[id];\n    var age = (now - n.lastSeen) / 1000;\n    var statusNode = 'ONLINE';\n    if (age > 300) statusNode = 'OFFLINE';\n    else if (n.lastHeartbeat && (now - n.lastHeartbeat) / 1000 > 900) statusNode = 'SEM HEARTBEAT';\n    var descricaoNode = n.sketchName ? n.sketchName + ' (v' + (n.sketchVersion || '?.?') + ')' : '';\n    if (!descricaoNode) {\n        if (id == '99') descricaoNode = 'Atuador Central de Irrigação (Solenóides/Bombas)';\n        else if (id == '1') descricaoNode = 'Nó Sensor de Umidade de Solo (Estufa)';\n        else descricaoNode = 'Nó MySensors Geral';\n    }\n    var noInfo = {nodeId:id, status:statusNode, lastSeenStr:Math.round(age)+'s atrás', descricao:descricaoNode, childs:[]};\n    var values = n.values || {};\n    var childs = n.childs || {};\n    var sensorIds = Object.keys(childs).sort(function(a,b) { return Number(a) - Number(b); });\n    if (sensorIds.length > 0) {\n        sensorIds.forEach(function(childId) {\n            var child = childs[childId];\n            var valorRaw = values[childId];\n            var valorStr = '-';\n            if (valorRaw !== undefined && valorRaw !== null) {\n                if (child.tipo === 'S_BINARY') {\n                    valorStr = (valorRaw == '1' || valorRaw.toString().toUpperCase() == 'LIGADO') ? 'LIGADO' : 'DESLIGADO';\n                } else if (child.tipo === 'S_MOISTURE') {\n                    valorStr = valorRaw + ' %';\n                } else if (child.tipo === 'S_TEMP') {\n                    valorStr = valorRaw + ' °C';\n                } else {\n                    valorStr = valorRaw;\n                }\n            }\n            var de = child.de;\n            var tipo = child.tipo;\n            if (id == '99') {\n                if (childId == '0') de = 'Solenóide A (Canteiro A)';\n                else if (childId == '1') de = 'Solenóide B (Canteiro B)';\n                else if (childId == '2') de = 'Solenóide C (Canteiro C)';\n                else if (childId == '16') de = 'Bomba NFT Hidroponia';\n                else if (childId == '17') de = 'Bomba de Oxigenação';\n            }\n            if (id == '1') {\n                var nomes01b = ['A_1m_10cm','A_1m_20cm','A_1m_30cm','A_3m_10cm','A_3m_20cm','A_3m_30cm','A_5m_10cm','A_5m_20cm','A_5m_30cm','B_1m_10cm','B_1m_20cm','B_1m_30cm','B_3m_10cm','B_3m_20cm','B_3m_30cm','B_5m_10cm','B_5m_20cm','B_5m_30cm'];\n                var ci1b = Number(childId);\n                if (ci1b >= 0 && ci1b < nomes01b.length) tipo = nomes01b[ci1b];\n            }\n            noInfo.childs.push({childId:childId, tipo:tipo, de:de, valor:valorStr});\n        });\n    } else {\n        if (id == '99') {\n            noInfo.childs.push(\n                {childId:0, tipo:'S_BINARY', de:'Solenóide A (Canteiro A)', valor: values[0] !== undefined ? (values[0] == '1' ? 'LIGADO' : 'DESLIGADO') : '-'},\n                {childId:1, tipo:'S_BINARY', de:'Solenóide B (Canteiro B)', valor: values[1] !== undefined ? (values[1] == '1' ? 'LIGADO' : 'DESLIGADO') : '-'},\n                {childId:2, tipo:'S_BINARY', de:'Solenóide C (Canteiro C)', valor: values[2] !== undefined ? (values[2] == '1' ? 'LIGADO' : 'DESLIGADO') : '-'},\n                {childId:16, tipo:'S_BINARY', de:'Bomba NFT Hidroponia', valor: values[16] !== undefined ? (values[16] == '1' ? 'LIGADO' : 'DESLIGADO') : '-'},\n                {childId:17, tipo:'S_BINARY', de:'Bomba de Oxigenação', valor: values[17] !== undefined ? (values[17] == '1' ? 'LIGADO' : 'DESLIGADO') : '-'}\n            );\n        } else if (id == '1') {\n            var nomes01 = ['A_1m_10cm','A_1m_20cm','A_1m_30cm','A_3m_10cm','A_3m_20cm','A_3m_30cm','A_5m_10cm','A_5m_20cm','A_5m_30cm','B_1m_10cm','B_1m_20cm','B_1m_30cm','B_3m_10cm','B_3m_20cm','B_3m_30cm','B_5m_10cm','B_5m_20cm','B_5m_30cm'];\n            for (var ci = 0; ci < 18; ci++) {\n                noInfo.childs.push({childId:ci, tipo:'S_MOISTURE', de:nomes01[ci], valor: values[ci] !== undefined ? values[ci] + ' %' : '-'});\n            }\n        } else if (id == '13') {\n            var child13 = [\n                {childId:0, tipo:'S_MOISTURE',     de:'Umidade ZTS',       u:' %'},\n                {childId:1, tipo:'S_TEMP',         de:'Temp ZTS',          u:' °C'},\n                {childId:2, tipo:'S_CUSTOM',       de:'Condutividade Solo', u:' µS/cm'},\n                {childId:3, tipo:'S_CUSTOM',       de:'pH Solo',           u:''},\n                {childId:4, tipo:'S_CUSTOM',       de:'N Solo',            u:' mg/kg'},\n                {childId:5, tipo:'S_CUSTOM',       de:'P Solo',            u:' mg/kg'},\n                {childId:6, tipo:'S_CUSTOM',       de:'K Solo',            u:' mg/kg'},\n                {childId:7, tipo:'S_BINARY',       de:'Relé ZTS',          u:''},\n                {childId:8, tipo:'S_HUM',          de:'Umidade Hall',      u:' %'},\n                {childId:9, tipo:'S_LIGHT_LEVEL',  de:'Luminosidade',      u:' %'}\n            ];\n            child13.forEach(function(c) {\n                var v = values[c.childId];\n                var vs = v !== undefined ? (c.tipo === 'S_BINARY' ? (v == '1' ? 'LIGADO' : 'DESLIGADO') : v + c.u) : '-';\n                noInfo.childs.push({childId:c.childId, tipo:c.tipo, de:c.de, valor:vs});\n            });\n        } else {\n            noInfo.childs.push({childId:'255', tipo:'S_ARDUINO_NODE', de:'Dados de Controle', valor:'-'});\n        }\n    }\n    redeMapa.nos.push(noInfo);\n}\nif (redeMapa.nos.length === 0) {\n    redeMapa.nos = [\n        {nodeId:'1', descricao:'Nó Sensor de Umidade de Solo (Multiplexado - Estufa)', status:'ONLINE', lastSeenStr:'12s atrás', childs:[{childId:0,tipo:'S_MOISTURE',de:'Sensor Umidade Solo 1',valor:'65 %'},{childId:1,tipo:'S_TEMP',de:'Temperatura Solo',valor:'24.5 °C'}]},\n        {nodeId:'99', descricao:'Atuador Central de Irrigação (Múltiplas Solenóides/Bombas)', status:'ONLINE', lastSeenStr:'5s atrás', childs:[{childId:0,tipo:'S_BINARY',de:'Solenóide A (Canteiro A)',valor:'DESLIGADO'},{childId:1,tipo:'S_BINARY',de:'Solenóide B (Canteiro B)',valor:'LIGADO'},{childId:2,tipo:'S_BINARY',de:'Solenóide C (Canteiro C)',valor:'DESLIGADO'},{childId:16,tipo:'S_BINARY',de:'Bomba NFT Hidroponia',valor:'LIGADO'},{childId:17,tipo:'S_BINARY',de:'Bomba de Oxigenação',valor:'DESLIGADO'}]}\n    ];\n}\nmsg.payload = redeMapa;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 100,
+        "wires": [
+            [
+                "93fccb595cb55217"
+            ]
+        ]
     },
     {
-        "id": "d38902c3b285ea14",
+        "id": "93fccb595cb55217",
         "type": "ui-template",
-        "z": "3920c26438dfb356",
+        "z": "562a08860aaed9c5",
         "group": "3359fb236d6d775d",
         "page": "",
         "ui": "",
@@ -207,13 +668,145 @@
         "order": 12,
         "width": 6,
         "height": 0,
-        "format": "<div class=\"m360-container\">\n  <div class=\"m360-header\">\n    <h3>Mapa da Rede M360 Horta</h3>\n    <div class=\"header-actions\">\n      <button class=\"m360-btn\" title=\"Solicitar Reapresentação de Toda a Rede\" @click=\"send({payload: {nodeId: 255, sensorId: 255, command: 3, type: 19, payload: ''}})\">\n        <svg class=\"btn-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67\"/></svg>\n        Reapresentar Rede\n      </button>\n      <div class=\"gway-status\">\n        <span class=\"status-pulse gway\"></span>\n        <span class=\"m360-badge gway\">Gateway Central: ONLINE</span>\n      </div>\n    </div>\n  </div>\n  <div class=\"m360-grid\">\n    <div v-for=\"no in msg.payload.nos\" :key=\"no.nodeId\" class=\"m360-card\" :class=\"no.status.toLowerCase().replace(' ', '-')\">\n      <div class=\"card-header-row\">\n        <div class=\"card-title\">\n          <div class=\"node-id-row\">\n            <strong>Nó físico ID: {{ no.nodeId }}</strong>\n            <button class=\"node-btn-sync\" title=\"Solicitar Reapresentação do Nó\" @click=\"send({payload: {nodeId: Number(no.nodeId), sensorId: 0, command: 1, type: 48, payload: 'REPRESENT'}})\">\n              <svg class=\"icon-sync\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67\"/></svg>\n            </button>\n          </div>\n          <p class=\"desc\">{{ no.descricao }}</p>\n        </div>\n        <div class=\"status-wrapper\">\n          <span class=\"status-pulse\"></span>\n          <span class=\"status-tag\">{{ no.status }}</span>\n        </div>\n      </div>\n      <p class=\"time\">Visto por último: {{ no.lastSeenStr }}</p>\n      <div class=\"child-box\">\n        <h5>Sensores e Atuadores Associados</h5>\n        <div v-for=\"child in no.childs\" :key=\"child.childId\" class=\"child-item\">\n          <div class=\"c-info-col\">\n            <span class=\"c-icon\">\n              <svg v-if=\"child.tipo === 'S_MOISTURE'\" class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z\"/></svg>\n              <svg v-else-if=\"child.tipo === 'S_TEMP'\" class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z\"/></svg>\n              <svg v-else-if=\"child.tipo === 'S_BINARY'\" class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"/><path d=\"M9 3v18\"/><path d=\"M14 9h3\"/><path d=\"M14 15h3\"/></svg>\n              <svg v-else class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"16\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"8\" x2=\"12.01\" y2=\"8\"/></svg>\n            </span>\n            <span class=\"c-name\"><strong>{{ child.de }}</strong> <span class=\"c-meta\">({{ child.tipo }})</span></span>\n          </div>\n          <span class=\"c-val badge\" :class=\"{'val-on': child.valor === 'LIGADO' || child.valor === '1', 'val-off': child.valor === 'DESLIGADO' || child.valor === '0', 'val-reading': child.valor !== 'LIGADO' && child.valor !== 'DESLIGADO' && child.valor !== '-'}\">{{ child.valor }}</span>\n        </div>\n      </div>\n    </div>\n  </div>\n</div>\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');\n.m360-container {\n  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;\n  padding: 18px;\n  color: #e2e8f0;\n  background-color: #0b0f19;\n  border-radius: 12px;\n  box-shadow: 0 10px 30px rgba(0,0,0,0.4);\n  height: auto !important;\n}\n.m360-header {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  border-bottom: 1px solid rgba(255, 255, 255, 0.1);\n  padding-bottom: 12px;\n  margin-bottom: 20px;\n}\n.m360-header h3 {\n  margin: 0;\n  font-size: 18px;\n  font-weight: 600;\n  letter-spacing: -0.5px;\n  background: linear-gradient(135deg, #38bdf8 0%, #0094CE 100%);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n}\n.header-actions {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n}\n.m360-btn {\n  display: flex;\n  align-items: center;\n  gap: 6px;\n  background: rgba(56, 189, 248, 0.1);\n  border: 1px solid rgba(56, 189, 248, 0.2);\n  color: #38bdf8;\n  padding: 5px 12px;\n  border-radius: 6px;\n  font-size: 11px;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.2s;\n}\n.m360-btn:hover {\n  background: rgba(56, 189, 248, 0.25);\n  border-color: rgba(56, 189, 248, 0.4);\n  transform: translateY(-1px);\n}\n.btn-icon {\n  width: 12px;\n  height: 12px;\n}\n.gway-status {\n  display: flex;\n  align-items: center;\n  background: rgba(16, 185, 129, 0.1);\n  border: 1px solid rgba(16, 185, 129, 0.2);\n  padding: 5px 12px;\n  border-radius: 20px;\n}\n.m360-badge {\n  font-size: 11px;\n  font-weight: 600;\n  color: #34d399;\n}\n.status-pulse {\n  width: 8px;\n  height: 8px;\n  border-radius: 50%;\n  margin-right: 8px;\n  display: inline-block;\n}\n.status-pulse.gway, .online .status-pulse {\n  background-color: #10b981;\n  box-shadow: 0 0 8px #10b981;\n  animation: pulse-green 2s infinite;\n}\n.offline .status-pulse {\n  background-color: #ef4444;\n  box-shadow: 0 0 8px #ef4444;\n  animation: pulse-red 2s infinite;\n}\n.sem-heartbeat .status-pulse {\n  background-color: #f59e0b;\n  box-shadow: 0 0 8px #f59e0b;\n  animation: pulse-orange 2s infinite;\n}\n@keyframes pulse-green {\n  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }\n  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }\n  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }\n}\n@keyframes pulse-red {\n  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }\n  70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }\n  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }\n}\n@keyframes pulse-orange {\n  0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }\n  70% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }\n  100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }\n}\n.m360-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));\n  gap: 16px;\n}\n.m360-card {\n  background: rgba(30, 41, 59, 0.45);\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.05);\n  border-left: 4px solid #64748b;\n  padding: 16px;\n  border-radius: 10px;\n  box-shadow: 0 4px 6px rgba(0,0,0,0.15);\n  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s, box-shadow 0.3s;\n}\n.m360-card:hover {\n  transform: translateY(-4px);\n  box-shadow: 0 12px 20px rgba(0,0,0,0.25);\n  border-color: rgba(255, 255, 255, 0.12);\n}\n.m360-card.online {\n  border-left-color: #10b981;\n}\n.m360-card.offline {\n  border-left-color: #ef4444;\n  background: rgba(239, 68, 68, 0.03);\n}\n.m360-card.sem-heartbeat {\n  border-left-color: #f59e0b;\n  background: rgba(245, 158, 11, 0.03);\n}\n.card-header-row {\n  display: flex;\n  justify-content: space-between;\n  align-items: flex-start;\n  margin-bottom: 12px;\n}\n.node-id-row {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n.node-btn-sync {\n  background: none;\n  border: none;\n  color: #64748b;\n  cursor: pointer;\n  padding: 2px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  border-radius: 4px;\n  transition: all 0.2s;\n}\n.node-btn-sync:hover {\n  color: #38bdf8;\n  background: rgba(255,255,255,0.05);\n}\n.icon-sync {\n  width: 12px;\n  height: 12px;\n}\n.card-title strong {\n  font-size: 15px;\n  color: #f8fafc;\n  font-weight: 600;\n}\n.status-wrapper {\n  display: flex;\n  align-items: center;\n  background: rgba(255,255,255,0.05);\n  padding: 4px 10px;\n  border-radius: 12px;\n  border: 1px solid rgba(255,255,255,0.05);\n}\n.status-tag {\n  font-size: 9px;\n  font-weight: 700;\n  text-transform: uppercase;\n  color: #cbd5e1;\n  letter-spacing: 0.5px;\n}\n.online .status-tag { color: #34d399; }\n.offline .status-tag { color: #f87171; }\n.sem-heartbeat .status-tag { color: #fbbf24; }\n.desc {\n  font-size: 12px;\n  color: #94a3b8;\n  margin: 4px 0 0 0;\n  line-height: 1.4;\n}\n.time {\n  font-size: 10px;\n  color: #64748b;\n  margin: 0 0 12px 0;\n}\n.child-box {\n  background: rgba(15, 23, 42, 0.5);\n  border: 1px solid rgba(255,255,255,0.03);\n  padding: 12px;\n  border-radius: 8px;\n}\n.child-box h5 {\n  margin: 0 0 10px 0;\n  font-size: 11px;\n  font-weight: 600;\n  text-transform: uppercase;\n  letter-spacing: 0.5px;\n  color: #38bdf8;\n}\n.child-item {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  padding: 8px 0;\n  border-bottom: 1px solid rgba(255,255,255,0.04);\n}\n.child-item:last-child {\n  border-bottom: none;\n}\n.c-info-col {\n  display: flex;\n  align-items: center;\n  flex-grow: 1;\n}\n.c-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  color: #38bdf8;\n  margin-right: 8px;\n  opacity: 0.85;\n}\n.icon {\n  width: 14px;\n  height: 14px;\n}\n.c-name {\n  font-size: 12px;\n  color: #e2e8f0;\n}\n.c-meta {\n  font-size: 10px;\n  color: #64748b;\n  margin-left: 2px;\n}\n.c-val.badge {\n  font-size: 11px;\n  font-weight: 600;\n  padding: 2px 8px;\n  border-radius: 4px;\n  background: rgba(255,255,255,0.04);\n  color: #94a3b8;\n  border: 1px solid rgba(255,255,255,0.05);\n}\n.c-val.badge.val-on {\n  color: #34d399;\n  background: rgba(16, 185, 129, 0.1);\n  border-color: rgba(16, 185, 129, 0.2);\n}\n.c-val.badge.val-off {\n  color: #f87171;\n  background: rgba(239, 68, 68, 0.1);\n  border-color: rgba(239, 68, 68, 0.2);\n}\n.c-val.badge.val-reading {\n  color: #38bdf8;\n  background: rgba(56, 189, 248, 0.1);\n  border-color: rgba(56, 189, 248, 0.2);\n}\n</style>",
+        "format": "<div class=\"m360-container\">\n  <div class=\"m360-header\">\n    <h3>Mapa da Rede M360 Horta</h3>\n    <div class=\"header-actions\">\n      <button class=\"m360-btn\" title=\"Solicitar Reapresentação de Toda a Rede\" @click=\"send({payload: {nodeId: 255, sensorId: 255, command: 3, type: 19, payload: ''}})\">\n        <svg class=\"btn-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67\"/></svg>\n        Reapresentar Rede\n      </button>\n      <div class=\"gway-status\">\n        <span class=\"status-pulse gway\"></span>\n        <span class=\"m360-badge gway\">Gateway Central: ONLINE</span>\n      </div>\n    </div>\n  </div>\n  <div class=\"m360-grid\">\n    <div v-for=\"no in msg.payload.nos\" :key=\"no.nodeId\" class=\"m360-card\" :class=\"no.status.toLowerCase().replace(' ', '-')\">\n      <div class=\"card-header-row\">\n        <div class=\"card-title\">\n          <div class=\"node-id-row\">\n            <strong>Nó físico ID: {{ no.nodeId }}</strong>\n            <button class=\"node-btn-sync\" title=\"Solicitar Reapresentação do Nó\" @click=\"send({payload: {nodeId: Number(no.nodeId), sensorId: 0, command: 1, type: 48, payload: 'REPRESENT'}})\">\n              <svg class=\"icon-sync\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67\"/></svg>\n            </button>\n          </div>\n          <p class=\"desc\">{{ no.descricao }}</p>\n        </div>\n        <div class=\"status-wrapper\">\n          <span class=\"status-pulse\"></span>\n          <span class=\"status-tag\">{{ no.status }}</span>\n        </div>\n      </div>\n      <p class=\"time\">Visto por último: {{ no.lastSeenStr }}</p>\n      <div class=\"child-box\">\n        <h5>Sensores e Atuadores Associados</h5>\n        <div v-for=\"child in no.childs\" :key=\"child.childId\" class=\"child-item\">\n          <div class=\"c-info-col\">\n            <span class=\"c-icon\">\n              <svg v-if=\"child.tipo === 'S_MOISTURE'\" class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z\"/></svg>\n              <svg v-else-if=\"child.tipo === 'S_TEMP'\" class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z\"/></svg>\n              <svg v-else-if=\"child.tipo === 'S_BINARY'\" class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"/><path d=\"M9 3v18\"/><path d=\"M14 9h3\"/><path d=\"M14 15h3\"/></svg>\n              <svg v-else class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"16\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"8\" x2=\"12.01\" y2=\"8\"/></svg>\n            </span>\n            <span class=\"c-name\"><strong>{{ child.de }}</strong> <span class=\"c-meta\" v-if=\"!child.de.startsWith('M360::M360ItemDef')\">({{ child.tipo }})</span></span>\n          </div>\n          <span class=\"c-val badge\" :class=\"{'val-on': child.valor === 'LIGADO' || child.valor === '1', 'val-off': child.valor === 'DESLIGADO' || child.valor === '0', 'val-reading': child.valor !== 'LIGADO' && child.valor !== 'DESLIGADO' && child.valor !== '-'}\">{{ child.valor }}</span>\n          <button v-if=\"child.tipo === 'S_BINARY'\" class=\"toggle-btn\" :class=\"{'btn-on': child.valor === 'LIGADO', 'btn-off': child.valor !== 'LIGADO'}\" @click=\"send({payload: {nodeId: Number(no.nodeId), sensorId: Number(child.childId), command: 1, type: 2, payload: child.valor === 'LIGADO' ? '0' : '1'}})\">{{ child.valor === 'LIGADO' ? 'Desligar' : 'Ligar' }}</button>\n        </div>\n      </div>\n    </div>\n  </div>\n</div>\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');\n.m360-container {\n  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;\n  padding: 18px;\n  color: #e2e8f0;\n  background-color: #0b0f19;\n  border-radius: 12px;\n  box-shadow: 0 10px 30px rgba(0,0,0,0.4);\n  height: auto !important;\n}\n.m360-header {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  border-bottom: 1px solid rgba(255, 255, 255, 0.1);\n  padding-bottom: 12px;\n  margin-bottom: 20px;\n}\n.m360-header h3 {\n  margin: 0;\n  font-size: 18px;\n  font-weight: 600;\n  letter-spacing: -0.5px;\n  background: linear-gradient(135deg, #38bdf8 0%, #0094CE 100%);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n}\n.header-actions {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n}\n.m360-btn {\n  display: flex;\n  align-items: center;\n  gap: 6px;\n  background: rgba(56, 189, 248, 0.1);\n  border: 1px solid rgba(56, 189, 248, 0.2);\n  color: #38bdf8;\n  padding: 5px 12px;\n  border-radius: 6px;\n  font-size: 11px;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.2s;\n}\n.m360-btn:hover {\n  background: rgba(56, 189, 248, 0.25);\n  border-color: rgba(56, 189, 248, 0.4);\n  transform: translateY(-1px);\n}\n.btn-icon {\n  width: 12px;\n  height: 12px;\n}\n.gway-status {\n  display: flex;\n  align-items: center;\n  background: rgba(16, 185, 129, 0.1);\n  border: 1px solid rgba(16, 185, 129, 0.2);\n  padding: 5px 12px;\n  border-radius: 20px;\n}\n.m360-badge {\n  font-size: 11px;\n  font-weight: 600;\n  color: #34d399;\n}\n.status-pulse {\n  width: 8px;\n  height: 8px;\n  border-radius: 50%;\n  margin-right: 8px;\n  display: inline-block;\n}\n.status-pulse.gway, .online .status-pulse {\n  background-color: #10b981;\n  box-shadow: 0 0 8px #10b981;\n  animation: pulse-green 2s infinite;\n}\n.offline .status-pulse {\n  background-color: #ef4444;\n  box-shadow: 0 0 8px #ef4444;\n  animation: pulse-red 2s infinite;\n}\n.sem-heartbeat .status-pulse {\n  background-color: #f59e0b;\n  box-shadow: 0 0 8px #f59e0b;\n  animation: pulse-orange 2s infinite;\n}\n@keyframes pulse-green {\n  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }\n  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }\n  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }\n}\n@keyframes pulse-red {\n  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }\n  70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }\n  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }\n}\n@keyframes pulse-orange {\n  0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }\n  70% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }\n  100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }\n}\n.m360-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));\n  gap: 16px;\n}\n.m360-card {\n  background: rgba(30, 41, 59, 0.45);\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.05);\n  border-left: 4px solid #64748b;\n  padding: 16px;\n  border-radius: 10px;\n  box-shadow: 0 4px 6px rgba(0,0,0,0.15);\n  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s, box-shadow 0.3s;\n}\n.m360-card:hover {\n  transform: translateY(-4px);\n  box-shadow: 0 12px 20px rgba(0,0,0,0.25);\n  border-color: rgba(255, 255, 255, 0.12);\n}\n.m360-card.online {\n  border-left-color: #10b981;\n}\n.m360-card.offline {\n  border-left-color: #ef4444;\n  background: rgba(239, 68, 68, 0.03);\n}\n.m360-card.sem-heartbeat {\n  border-left-color: #f59e0b;\n  background: rgba(245, 158, 11, 0.03);\n}\n.card-header-row {\n  display: flex;\n  justify-content: space-between;\n  align-items: flex-start;\n  margin-bottom: 12px;\n}\n.node-id-row {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n.node-btn-sync {\n  background: none;\n  border: none;\n  color: #64748b;\n  cursor: pointer;\n  padding: 2px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  border-radius: 4px;\n  transition: all 0.2s;\n}\n.node-btn-sync:hover {\n  color: #38bdf8;\n  background: rgba(255,255,255,0.05);\n}\n.icon-sync {\n  width: 12px;\n  height: 12px;\n}\n.card-title strong {\n  font-size: 15px;\n  color: #f8fafc;\n  font-weight: 600;\n}\n.status-wrapper {\n  display: flex;\n  align-items: center;\n  background: rgba(255,255,255,0.05);\n  padding: 4px 10px;\n  border-radius: 12px;\n  border: 1px solid rgba(255,255,255,0.05);\n}\n.status-tag {\n  font-size: 9px;\n  font-weight: 700;\n  text-transform: uppercase;\n  color: #cbd5e1;\n  letter-spacing: 0.5px;\n}\n.online .status-tag { color: #34d399; }\n.offline .status-tag { color: #f87171; }\n.sem-heartbeat .status-tag { color: #fbbf24; }\n.desc {\n  font-size: 12px;\n  color: #94a3b8;\n  margin: 4px 0 0 0;\n  line-height: 1.4;\n}\n.time {\n  font-size: 10px;\n  color: #64748b;\n  margin: 0 0 12px 0;\n}\n.child-box {\n  background: rgba(15, 23, 42, 0.5);\n  border: 1px solid rgba(255,255,255,0.03);\n  padding: 12px;\n  border-radius: 8px;\n}\n.child-box h5 {\n  margin: 0 0 10px 0;\n  font-size: 11px;\n  font-weight: 600;\n  text-transform: uppercase;\n  letter-spacing: 0.5px;\n  color: #38bdf8;\n}\n.child-item {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  padding: 8px 0;\n  border-bottom: 1px solid rgba(255,255,255,0.04);\n}\n.child-item:last-child {\n  border-bottom: none;\n}\n.c-info-col {\n  display: flex;\n  align-items: center;\n  flex-grow: 1;\n}\n.c-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  color: #38bdf8;\n  margin-right: 8px;\n  opacity: 0.85;\n}\n.icon {\n  width: 14px;\n  height: 14px;\n}\n.c-name {\n  font-size: 12px;\n  color: #e2e8f0;\n}\n.c-meta {\n  font-size: 10px;\n  color: #64748b;\n  margin-left: 2px;\n}\n.c-val.badge {\n  font-size: 11px;\n  font-weight: 600;\n  padding: 2px 8px;\n  border-radius: 4px;\n  background: rgba(255,255,255,0.04);\n  color: #94a3b8;\n  border: 1px solid rgba(255,255,255,0.05);\n}\n.c-val.badge.val-on {\n  color: #34d399;\n  background: rgba(16, 185, 129, 0.1);\n  border-color: rgba(16, 185, 129, 0.2);\n}\n.c-val.badge.val-off {\n  color: #f87171;\n  background: rgba(239, 68, 68, 0.1);\n  border-color: rgba(239, 68, 68, 0.2);\n}\n.c-val.badge.val-reading {\n  color: #38bdf8;\n  background: rgba(56, 189, 248, 0.1);\n  border-color: rgba(56, 189, 248, 0.2);\n}\n.toggle-btn {\n  margin-left: 8px;\n  flex-shrink: 0;\n  padding: 3px 10px;\n  border-radius: 4px;\n  font-size: 10px;\n  font-weight: 600;\n  cursor: pointer;\n  border: 1px solid;\n  transition: all 0.2s;\n}\n.toggle-btn.btn-on {\n  background: rgba(239, 68, 68, 0.1);\n  border-color: rgba(239, 68, 68, 0.3);\n  color: #f87171;\n}\n.toggle-btn.btn-on:hover {\n  background: rgba(239, 68, 68, 0.2);\n}\n.toggle-btn.btn-off {\n  background: rgba(16, 185, 129, 0.1);\n  border-color: rgba(16, 185, 129, 0.3);\n  color: #34d399;\n}\n.toggle-btn.btn-off:hover {\n  background: rgba(16, 185, 129, 0.2);\n}\n</style>",
         "storeOutMessages": true,
         "passthru": true,
         "templateScope": "local",
         "className": "",
-        "x": 1010, "y": 100,
-        "wires": [["19580a2b724e102c"]]
+        "x": 1010,
+        "y": 100,
+        "wires": [
+            [
+                "e65f3aefccd13374"
+            ]
+        ]
     },
-    { "id": "5de30ac568b040b4", "type": "global-config", "env": [], "modules": { "@flowfuse/node-red-dashboard": "1.30.2" } }
+    {
+        "id": "178d6e63b26ceeb2",
+        "type": "mqtt-broker",
+        "name": "mqtt.viridiotech.com.br",
+        "broker": "72.62.142.165",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "3359fb236d6d775d",
+        "type": "ui-group",
+        "name": "Controle Manual",
+        "page": "63a203c3875719db",
+        "width": "6",
+        "height": "1",
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "63a203c3875719db",
+        "type": "ui-page",
+        "name": "Page 1",
+        "ui": "82c01b7088685b89",
+        "path": "/page1",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "06f15db32b51c3ef",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": 0,
+                "cols": 3
+            },
+            {
+                "name": "Tablet",
+                "px": 576,
+                "cols": 6
+            },
+            {
+                "name": "Small Desktop",
+                "px": 768,
+                "cols": 9
+            },
+            {
+                "name": "Desktop",
+                "px": 1024,
+                "cols": 12
+            }
+        ],
+        "order": 1,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "82c01b7088685b89",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": true,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 5,
+        "showDisconnectNotification": true,
+        "allowInstall": true
+    },
+    {
+        "id": "06f15db32b51c3ef",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094CE",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "0da1df64b097db7b",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@flowfuse/node-red-dashboard": "1.30.2"
+        }
+    }
 ]

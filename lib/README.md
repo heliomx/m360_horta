@@ -12,3 +12,5 @@ A biblioteca core que padroniza o comportamento dos nós MySensors, separando a 
 
 ---
 *Documentação gerada autonomamente pela Paige.*
+
+
