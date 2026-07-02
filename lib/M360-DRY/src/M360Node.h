@@ -81,7 +81,8 @@ namespace M360
 		 *
 		 * @param items       Array const de M360ItemDef definido pelo nó.
 		 * @param count       Número de itens em `items` (NODE_ITEMS_COUNT).
-		 * @param messages    Buffer de MyMessage alocado pelo nó: MyMessage[count + 2].
+		 * @param messages    Buffer de MyMessage alocado pelo nó: MyMessage[count + 3]
+		 *                    (+1 intervalo, +1 bateria, +1 debug remoto).
 		 * @param lastValues  Buffer float alocado pelo nó: float[count].
 		 * @param nNoUpdates  Buffer uint8_t alocado pelo nó: uint8_t[count].
 		 */
@@ -111,6 +112,11 @@ namespace M360
 		// Registra função de escrita: recebe nodeIndex e estado bool
 		void onWrite(void (*callback)(uint8_t nodeIndex, bool state));
 
+		// Envia string de debug pela rede (CHILD_ID_DEBUG, V_TEXT) — visível no
+		// MQTT/Node-RED via gateway sem necessidade de acesso serial ao nó.
+		// Payload truncado em 24 chars (limite MAX_PAYLOAD_SIZE do MySensors).
+		void sendDebug(const char* text);
+
 		// ----- Configuração de pinos (opcional, baseado em items[].pin) -----
 		void setupPins();
 
@@ -133,7 +139,8 @@ namespace M360
 		float (*_readCb)(uint8_t);
 		void  (*_writeCb)(uint8_t, bool);
 
-		void _readAndSendAll();
+		// forceAll=true ignora o filtro de "mudou o suficiente" (usado por CMD_FORCE_UPDATE)
+		void _readAndSendAll(bool forceAll = false);
 		void _processBattery();
 		void _printNetDiag();
 		void _rePresent();

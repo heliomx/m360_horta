@@ -33,7 +33,7 @@ A peça central que coordena a vida do nó.
 M360Node(const M360ItemDef* items, uint8_t count, MyMessage* messages, float* lastValues, uint8_t* nNoUpdates, M360PowerProfile profile = M360_LOW_POWER);
 ```
 - **Frequência de Uso:** No início do arquivo do nó antes do `setup()`.
-- **Dica:** O buffer `messages` deve ter tamanho `count + 2` para acomodar baterias e intervalo.
+- **Dica:** O buffer `messages` deve ter tamanho `count + 3` para acomodar bateria, intervalo e debug remoto.
 
 ### `M360_PASSIVE` (O Sentinela Reativo)
 - **Comportamento:** Acorda no intervalo -> Faz Check-in -> Volta a Dormir.
@@ -52,6 +52,7 @@ M360Node(const M360ItemDef* items, uint8_t count, MyMessage* messages, float* la
 - `onWrite(callback)`: Registra sua função de atuação para relés e válvulas.
 - `setupPins()`: Configura automaticamente os pinos definidos na struct `M360ItemDef` como INPUT ou OUTPUT.
 - `getInterval()`: Retorna o intervalo atual em minutos.
+- `sendDebug(text)`: Envia string arbitrária pelo child `CHILD_ID_DEBUG` (253, `V_TEXT`). Chega ao MQTT/Node-RED via gateway sem precisar de acesso Serial ao nó — canal de debug remoto. Payload truncado em 24 chars (limite `MAX_PAYLOAD_SIZE`).
 
 ### Comandos `V_CUSTOM` processados por `handleMessage()`
 
@@ -59,9 +60,16 @@ Todos os payloads são strings. Constantes definidas em `M360Constants.h`.
 
 | Constante | Payload | Efeito |
 |-----------|---------|--------|
-| `CMD_FORCE_UPDATE` | `"FORCE_UPDATE"` | Dispara `_readAndSendAll()` imediatamente; em `M360_PASSIVE` liga/desliga periféricos |
+| `CMD_FORCE_UPDATE` | `"FORCE_UPDATE"` | Dispara `_readAndSendAll(true)` imediatamente: lê e **sempre envia** o valor atual de cada sensor, ignorando o filtro de "mudou mais que 0.05" e o contador de 10 ciclos sem atualização; em `M360_PASSIVE` liga/desliga periféricos |
 | `CMD_REPRESENT` | `"REPRESENT"` | Dispara `_rePresent()`: re-executa `present()` para todos os children sem resetar `lastValues[]`; imprime `REPRES:OK` no Serial |
+| `CMD_DEBUG_NET` | `"DEBUG_NET"` | Envia diagnóstico de rede (`parent`/`dist`/`transportReady`) via `sendDebug()` — equivalente remoto de `_printNetDiag()` |
 | `CMD_RESET` | `"RESET"` | Não processado pelo motor — disponível para uso customizado no nó |
+
+**Exemplo MQTT para solicitar diagnóstico remoto do nó 13:**
+```json
+{ "nodeId": 13, "sensorId": 0, "command": 1, "type": 48, "payload": "DEBUG_NET" }
+```
+A resposta chega em `m360/{UF}/{CAR}/out` com `sensorId: 253` e o payload `"P:0 D:1 R:S"`.
 
 **Exemplo MQTT para acionar reapresentação:**
 ```json

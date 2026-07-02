@@ -132,7 +132,7 @@ static const M360::M360ItemDef NODE_ITEMS[] = {
 };
 static const uint8_t NODE_ITEMS_COUNT = sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
 
-static MyMessage messages[NODE_ITEMS_COUNT + 2];  // SEMPRE +2
+static MyMessage messages[NODE_ITEMS_COUNT + 3];  // SEMPRE +3 (intervalo, bateria, debug)
 static float     lastValues[NODE_ITEMS_COUNT];
 static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
 
@@ -204,7 +204,7 @@ include/
 ## Convenções de Código
 
 - **Linguagem dos comentários e logs Serial:** português
-- **IDs reservados:** 254 = Intervalo (`V_VAR1`), 255 = Bateria (`V_VOLTAGE`)
+- **IDs reservados:** 254 = Intervalo (`V_VAR1`), 255 = Bateria (`V_VOLTAGE`), 253 = Debug remoto (`V_TEXT`, apenas lib M360-DRY — ver `M360Node::sendDebug()` / `CMD_DEBUG_NET`)
 - **EEPROM nós (AVR):** endereços 512–515 via `M360Config` / `nodeEngine_saveInterval()` — nunca `EEPROM.put()` direto
 - **EEPROM gateway (ESP):** região 0–511 = MySensors (reservado), 512–520 = M360NodeConfig, 521+ = `DeviceConfig`/`M360DeviceConfig` com CRC
 - **Perfil de energia:** definir exatamente um dos dois — nunca ambos simultaneamente

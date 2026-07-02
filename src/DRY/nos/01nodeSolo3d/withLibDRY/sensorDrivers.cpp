@@ -69,6 +69,14 @@ float readNodeItem(uint8_t itemIndex) {
 	// Leitura real
 	int rawAdc = analogRead(pinToRead);
 
+	// DEBUG TEMPORÁRIO: valor bruto do ADC por canal, para diagnosticar o MUX.
+	// Se travado perto de 1023 (ou 0) em todos os canais 0-15 enquanto 16/17
+	// variam normalmente, suspeitar do pino EN do CD74HC4067 (deve ir ao GND).
+	Serial.print(F("CH"));
+	Serial.print(itemIndex);
+	Serial.print(F(" ADC:"));
+	Serial.println(rawAdc);
+
 	// Compensação de divisor de tensão (Opção B - pull-up de 10k único no SIG)
 	float rPullup = 10000.0f; // Pull-up de 10kΩ
 	

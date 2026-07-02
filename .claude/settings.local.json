@@ -28,7 +28,13 @@
       "Bash(python3 *)",
       "PowerShell(& \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run -e d1_mini_libdry 2>&1 | Select-Object -Last 10)",
       "PowerShell(& \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run -e d1_mini_libdry 2>&1 | Select-Object -Last 8)",
-      "PowerShell(& \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run -e d1_mini_libdry -e nano_13nodeZTS_UmidadeHall -e nano_80nodeAqua 2>&1 | Select-Object -Last 15)"
+      "PowerShell(& \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run -e d1_mini_libdry -e nano_13nodeZTS_UmidadeHall -e nano_80nodeAqua 2>&1 | Select-Object -Last 15)",
+      "Bash(grep -rn \"S_INFO\\\\|V_TEXT\" \"C:/Users/jmarc/.platformio/packages\" 2>/dev/null | grep -i mysensors | head -5; find / -iname \"MyMessage.h\" 2>/dev/null | head -3)",
+      "PowerShell(& \"C:\\\\Users\\\\jmarc\\\\.platformio\\\\penv\\\\Scripts\\\\platformio.exe\" run -e nano_80nodeAqua 2>&1)",
+      "PowerShell(& \"C:\\\\Users\\\\jmarc\\\\.platformio\\\\penv\\\\Scripts\\\\platformio.exe\" run -e nano_01nodeSolo3d -e nano_13nodeZTS_UmidadeHall -e nano_99_reles_nano 2>&1)",
+      "PowerShell(& \"C:\\\\Users\\\\jmarc\\\\.platformio\\\\penv\\\\Scripts\\\\platformio.exe\" run -e ProMini_01nodeSolo3d -e nano_13nodeZTS_UmidadeHall -e nano_99reles 2>&1)",
+      "PowerShell(& \"C:\\\\Users\\\\jmarc\\\\.platformio\\\\penv\\\\Scripts\\\\platformio.exe\" check -e check_m360_dry 2>&1)",
+      "PowerShell(& \"C:\\\\Users\\\\jmarc\\\\.platformio\\\\penv\\\\Scripts\\\\platformio.exe\" run -e d1_mini_libdry 2>&1)"
     ]
   }
 }

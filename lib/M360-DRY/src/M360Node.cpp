@@ -44,6 +44,10 @@ namespace M360
 		_writeCb = callback;
 	}
 
+	void M360Node::sendDebug(const char* text) {
+		send(_messages[_count + 2].set(text));
+	}
+
 	// ===== SETUP DE PINOS =====
 
 	void M360Node::setupPins() {
@@ -88,8 +92,10 @@ namespace M360
 
 		present(M360_CHILD_ID_INTERVAL, S_CUSTOM,     F("Intervalo"));
 		present(M360_CHILD_ID_BATTERY,  S_MULTIMETER, F("Bateria"));
+		present(M360_CHILD_ID_DEBUG,    S_INFO,       F("Debug"));
 		_messages[_count]     = MyMessage(M360_CHILD_ID_INTERVAL, V_VAR1);
 		_messages[_count + 1] = MyMessage(M360_CHILD_ID_BATTERY,  V_VOLTAGE);
+		_messages[_count + 2] = MyMessage(M360_CHILD_ID_DEBUG,    V_TEXT);
 
 		_interval = loadInterval();
 
@@ -194,18 +200,29 @@ namespace M360
 				if (_profile == M360_PASSIVE) {
 					powerUp();
 				}
-				_readAndSendAll();
+				_readAndSendAll(true); // ignora o filtro de "mudou o suficiente"
 				_processBattery();
 				if (_profile == M360_PASSIVE) {
 					powerDown();
 				}
+				return;
+			}
+			if (strcmp(buf, CMD_DEBUG_NET) == 0) {
+				// Envia o mesmo diagnóstico de _printNetDiag(), mas pela rede em
+				// vez do Serial — permite consultar parent/dist/ready remotamente.
+				char diag[25];
+				snprintf(diag, sizeof(diag), "P:%u D:%u R:%c",
+				         getParentNodeId(), getDistanceGW(),
+				         isTransportReady() ? 'S' : 'N');
+				sendDebug(diag);
+				return;
 			}
 		}
 	}
 
 	// ===== PRIVADOS =====
 
-	void M360Node::_readAndSendAll() {
+	void M360Node::_readAndSendAll(bool forceAll) {
 		if (!_readCb) {
 			return;
 		}
@@ -220,10 +237,10 @@ namespace M360
 				continue;
 			}
 
-			bool forceUpdate = (_nNoUpdates[i] >= 10);
+			bool staleForced = (_nNoUpdates[i] >= 10);
 			bool changed     = isnan(_lastValues[i]) || (fabsf(val - _lastValues[i]) > 0.05f);
 
-			if (changed || forceUpdate) {
+			if (forceAll || changed || staleForced) {
 				_lastValues[i]  = val;
 				_nNoUpdates[i]  = 0;
 				if (_items[i].flags & 0x01) {
@@ -261,6 +278,7 @@ namespace M360
 		}
 		present(M360_CHILD_ID_INTERVAL, S_CUSTOM,     F("Intervalo"));
 		present(M360_CHILD_ID_BATTERY,  S_MULTIMETER, F("Bateria"));
+		present(M360_CHILD_ID_DEBUG,    S_INFO,       F("Debug"));
 		Serial.println(F("REPRES:OK"));
 	}
 

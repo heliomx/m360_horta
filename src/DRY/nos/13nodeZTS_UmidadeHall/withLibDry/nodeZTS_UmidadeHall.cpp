@@ -46,7 +46,7 @@ static const uint8_t NODE_ITEMS_COUNT =
     sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
 
 // ===== BUFFERS (alocados pelo nó, gerenciados pelo M360Node) =====
-static MyMessage messages[NODE_ITEMS_COUNT + 2];
+static MyMessage messages[NODE_ITEMS_COUNT + 3]; // +1 Intervalo (254) +1 Bateria (255) +1 Debug (253)
 static float lastValues[NODE_ITEMS_COUNT];
 static uint8_t nNoUpdates[NODE_ITEMS_COUNT];
 

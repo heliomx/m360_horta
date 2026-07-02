@@ -63,7 +63,7 @@ static const M360::M360ItemDef nodeItems[] = {
 
 static const uint8_t numItems = sizeof(nodeItems) / sizeof(M360::M360ItemDef);
 
-static MyMessage messages[numItems + 2];
+static MyMessage messages[numItems + 3]; // +1 Intervalo (254) +1 Bateria (255) +1 Debug (253)
 static float lastValues[numItems];
 static uint8_t nNoUpdates[numItems];
 

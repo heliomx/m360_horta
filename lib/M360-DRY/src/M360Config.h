@@ -81,6 +81,7 @@ namespace M360 {
 
 #define M360_CHILD_ID_INTERVAL 254  // V_VAR1
 #define M360_CHILD_ID_BATTERY  255  // V_VOLTAGE
+#define M360_CHILD_ID_DEBUG    253  // V_TEXT — debug remoto (ver M360Node::sendDebug)
 
 // ===== TIMING =====
 
