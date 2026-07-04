@@ -141,6 +141,9 @@ namespace M360
 
 		// forceAll=true ignora o filtro de "mudou o suficiente" (usado por CMD_FORCE_UPDATE)
 		void _readAndSendAll(bool forceAll = false);
+		// Envia _lastValues[i] já em cache (sem reler o hardware), usada tanto por
+		// _readAndSendAll() quanto pela resposta a C_REQ.
+		void _sendCachedValue(uint8_t i);
 		void _processBattery();
 		void _printNetDiag();
 		void _rePresent();

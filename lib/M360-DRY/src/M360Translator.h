@@ -51,8 +51,10 @@ namespace M360 {
 		 */
 		static bool fromJSON(const String& json, MyMessage& outMsg, uint8_t& targetNode);
 
-		// Retorna descrição amigável do tipo MySensors (V_..., I_...)
-		static const char* getTypeDescription(uint8_t type);
+		// Retorna descrição amigável do tipo MySensors (V_... para C_SET/C_REQ,
+		// I_... para C_INTERNAL — os dois enums compartilham o mesmo espaço
+		// numérico, então o command é obrigatório para desambiguar).
+		static const char* getTypeDescription(uint8_t command, uint8_t type);
 
 		// Modo nativo MySensors MQTT (usar com -D M360_NATIVE_MQTT=1 no platformio.ini)
 		// buildNativeTopic: monta {prefix}/{nodeId}/{sensorId}/{command}/{ack}/{type}

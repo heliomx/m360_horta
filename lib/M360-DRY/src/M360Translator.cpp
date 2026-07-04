@@ -24,7 +24,7 @@ namespace M360 {
 		char payloadBuf[MAX_PAYLOAD + 1];
 		doc["payload"]	 = msg.getString(payloadBuf);
 		doc["timestamp"]   = millis() / 1000;
-		doc["description"] = getTypeDescription(msg.getType());
+		doc["description"] = getTypeDescription(msg.getCommand(), msg.getType());
 		doc["direction"]   = isAck ? "ack" : "sensor";
 
 		String json;
@@ -36,9 +36,9 @@ namespace M360 {
 		DynamicJsonDocument doc(DOC_SIZE_HB);
 		doc["nodeId"]	  = 0;
 		doc["sensorId"]	= CHILD_ID_BATTERY;
-		doc["command"]	 = 3;   // C_INTERNAL
+		doc["command"]	 = C_INTERNAL;
 		doc["ack"]		 = 0;
-		doc["type"]		= 22;  // I_HEARTBEAT_RESPONSE
+		doc["type"]		= I_HEARTBEAT_RESPONSE;
 		doc["payload"]	 = "";
 		doc["timestamp"]   = millis() / 1000;
 		doc["description"] = "heartbeat";
@@ -156,7 +156,33 @@ namespace M360 {
 		return String(msg.getString(buf));
 	}
 
-	const char* Translator::getTypeDescription(uint8_t type) {
+	// V_* e I_* compartilham o mesmo espaço numérico (ex: V_TEMP=0 == I_BATTERY_LEVEL=0),
+	// por isso só é seguro resolver a descrição de mensagens C_INTERNAL separadamente.
+	static const char* getInternalTypeDescription(uint8_t type) {
+		switch (type) {
+			case I_BATTERY_LEVEL:         return "Battery Level";
+			case I_TIME:                  return "Time";
+			case I_VERSION:               return "Version";
+			case I_ID_REQUEST:            return "ID Request";
+			case I_ID_RESPONSE:           return "ID Response";
+			case I_CONFIG:                return "Config Request";
+			case I_PRESENTATION:          return "Presentation";
+			case I_HEARTBEAT_REQUEST:     return "Heartbeat Request";
+			case I_HEARTBEAT_RESPONSE:    return "Heartbeat Response";
+			case I_DISCOVER_REQUEST:      return "Discover Request";
+			case I_DISCOVER_RESPONSE:     return "Discover Response";
+			case I_REGISTRATION_REQUEST:  return "Registration Request";
+			case I_REGISTRATION_RESPONSE: return "Registration Response";
+			case I_LOG_MESSAGE:           return "Log Message";
+			case I_REBOOT:                return "Reboot";
+			default:                      return "Internal";
+		}
+	}
+
+	const char* Translator::getTypeDescription(uint8_t command, uint8_t type) {
+		if (command == C_INTERNAL) {
+			return getInternalTypeDescription(type);
+		}
 		switch (type) {
 			case V_TEMP:              return "Temperature";
 			case V_HUM:               return "Humidity";

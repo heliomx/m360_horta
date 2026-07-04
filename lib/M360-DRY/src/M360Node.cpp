@@ -149,6 +149,18 @@ namespace M360
 			return;
 		}
 
+		// C_REQ: controlador pediu o valor atual de um sensor (ex: "atualizar agora"
+		// no Domoticz/Home Assistant) — responde com o último valor em cache.
+		if (msg.getCommand() == C_REQ) {
+			for (uint8_t i = 0; i < _count; i++) {
+				if (_items[i].kind == M360_SENSOR && msg.getSensor() == _items[i].childId) {
+					_sendCachedValue(i);
+					break;
+				}
+			}
+			return;
+		}
+
 		if (msg.getCommand() != C_SET) {
 			return;
 		}
@@ -243,15 +255,22 @@ namespace M360
 			if (forceAll || changed || staleForced) {
 				_lastValues[i]  = val;
 				_nNoUpdates[i]  = 0;
-				if (_items[i].flags & 0x01) {
-					// Usa int32_t para evitar overflow em valores > 327 (ex: tensões)
-					send(_messages[i].set((int32_t)(val * 100)));
-				} else {
-					send(_messages[i].set(val, 1));
-				}
+				_sendCachedValue(i);
 			} else {
 				_nNoUpdates[i]++;
 			}
+		}
+	}
+
+	void M360Node::_sendCachedValue(uint8_t i) {
+		if (isnan(_lastValues[i])) {
+			return;
+		}
+		if (_items[i].flags & 0x01) {
+			// Usa int32_t para evitar overflow em valores > 327 (ex: tensões)
+			send(_messages[i].set((int32_t)(_lastValues[i] * 100)));
+		} else {
+			send(_messages[i].set(_lastValues[i], 1));
 		}
 	}
 
@@ -264,6 +283,9 @@ namespace M360
 			    (isnan(_lastBattVoltage) || fabsf(voltage - _lastBattVoltage) >= 0.1f)) {
 				_lastBattVoltage = voltage;
 				send(_messages[_count + 1].set(voltage, 1));
+				// Percentual padrão MySensors (I_BATTERY_LEVEL) — usado pela UI nativa
+				// de bateria dos controladores, além do V_VOLTAGE bruto acima.
+				sendBatteryLevel(voltageToPercent(voltage));
 				Serial.print(F("Bat:"));
 				Serial.println(voltage, 1);
 			}
