@@ -14,11 +14,13 @@ namespace M360 {
 
 	String Translator::toJSON(const MyMessage& msg, bool isAck) {
 		DynamicJsonDocument doc(DOC_SIZE_MSG);
-		doc["nodeId"]	  = msg.getSender();
-		doc["sensorId"]	= msg.getSensor();
+		doc["nodeId"]	   = msg.getSender();
+		doc["sensorId"]	 = msg.getSensor();
+		doc["destination"] = msg.getDestination();
 		doc["command"]	 = msg.getCommand();
 		doc["ack"]		 = isAck ? 1 : 0;
 		doc["type"]		= msg.getType();
+		doc["payloadType"] = msg.getPayloadType();
 		// getString() sem buffer retorna nullptr para payloads não-string (P_FLOAT32,
 		// P_LONG32, etc.), gerando payload:null. getString(buf) converte qualquer tipo.
 		char payloadBuf[MAX_PAYLOAD + 1];
