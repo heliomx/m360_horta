@@ -2272,7 +2272,7 @@
         "type": "function",
         "z": "6453c4babf1719c7",
         "name": "Filtro Umidade Solo Canteiro A",
-        "func": "var m = msg.payload;\nif (m.nodeId == 1 && m.sensorId >= 0 && m.sensorId <= 5) {\n    var names = ['A_1m_10cm', 'A_1m_20cm', 'A_1m_30cm', 'A_3m_10cm', 'A_3m_20cm', 'A_3m_30cm'];\n    msg.topic = names[m.sensorId];\n    msg.payload = parseFloat(m.payload);\n    return msg;\n}\nreturn null;",
+        "func": "var m = msg.payload;\nif (m.nodeId == 1 && m.sensorId >= 0 && m.sensorId <= 5) {\n    var names = ['A_1m_10cm', 'A_1m_20cm', 'A_1m_30cm', 'A_3m_10cm', 'A_3m_20cm', 'A_3m_30cm'];\n    msg.topic = names[m.sensorId];\n    msg.payload = parseFloat(m.payload);\n    msg.ts = Date.now();\n    return msg;\n}\nreturn null;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2283,7 +2283,7 @@
         "y": 580,
         "wires": [
             [
-                "03a103c16c024cd8"
+                "persist_hist_solo_A"
             ]
         ]
     },
@@ -2292,7 +2292,7 @@
         "type": "function",
         "z": "6453c4babf1719c7",
         "name": "Filtro Temp/Hum Ar",
-        "func": "var m = msg.payload;\nif (m.nodeId == 99) {\n    if (m.sensorId == 18) {\n        msg.topic = 'Temperatura';\n        msg.payload = parseFloat(m.payload);\n        return msg;\n    } else if (m.sensorId == 19) {\n        msg.topic = 'Umidade do Ar';\n        msg.payload = parseFloat(m.payload);\n        return msg;\n    }\n}\nreturn null;",
+        "func": "var m = msg.payload;\nif (m.nodeId == 99) {\n    if (m.sensorId == 18) {\n        msg.topic = 'Temperatura';\n        msg.payload = parseFloat(m.payload);\n        msg.ts = Date.now();\n        return msg;\n    } else if (m.sensorId == 19) {\n        msg.topic = 'Umidade do Ar';\n        msg.payload = parseFloat(m.payload);\n        msg.ts = Date.now();\n        return msg;\n    }\n}\nreturn null;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2303,7 +2303,7 @@
         "y": 540,
         "wires": [
             [
-                "77bf70e53a90ee6e"
+                "persist_hist_clima"
             ]
         ]
     },
@@ -2318,8 +2318,8 @@
         "chartType": "line",
         "category": "topic",
         "categoryType": "msg",
-        "xAxisProperty": "",
-        "xAxisPropertyType": "timestamp",
+        "xAxisProperty": "ts",
+        "xAxisPropertyType": "msg",
         "xAxisType": "time",
         "yAxisProperty": "payload",
         "yAxisPropertyType": "msg",
@@ -2345,8 +2345,8 @@
         "chartType": "line",
         "category": "topic",
         "categoryType": "msg",
-        "xAxisProperty": "",
-        "xAxisPropertyType": "timestamp",
+        "xAxisProperty": "ts",
+        "xAxisPropertyType": "msg",
         "xAxisType": "time",
         "yAxisProperty": "payload",
         "yAxisPropertyType": "msg",
@@ -2484,5 +2484,93 @@
         "modules": {
             "@flowfuse/node-red-dashboard": "1.30.2"
         }
+    },
+    {
+        "id": "persist_hist_solo_A",
+        "type": "function",
+        "z": "6453c4babf1719c7",
+        "name": "Salvar Histórico Solo",
+        "func": "var CUTOFF = 86400000; // 24h em ms\nvar hist = flow.get('hist_solo_A', 'file') || [];\nhist.push({{ topic: msg.topic, payload: msg.payload, ts: msg.ts }});\nvar now = Date.now();\nhist = hist.filter(function(p) {{ return (now - p.ts) < CUTOFF; }});\nflow.set('hist_solo_A', hist, 'file');\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1010,
+        "y": 580,
+        "wires": [
+            [
+                "03a103c16c024cd8"
+            ]
+        ]
+    },
+    {
+        "id": "persist_hist_clima",
+        "type": "function",
+        "z": "6453c4babf1719c7",
+        "name": "Salvar Histórico Clima",
+        "func": "var CUTOFF = 86400000; // 24h em ms\nvar hist = flow.get('hist_clima', 'file') || [];\nhist.push({{ topic: msg.topic, payload: msg.payload, ts: msg.ts }});\nvar now = Date.now();\nhist = hist.filter(function(p) {{ return (now - p.ts) < CUTOFF; }});\nflow.set('hist_clima', hist, 'file');\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1040,
+        "y": 540,
+        "wires": [
+            [
+                "77bf70e53a90ee6e"
+            ]
+        ]
+    },
+    {
+        "id": "replay_start_inject",
+        "type": "inject",
+        "z": "6453c4babf1719c7",
+        "name": "Replay no Deploy",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 2,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 430,
+        "y": 680,
+        "wires": [
+            [
+                "replay_historico_fn"
+            ]
+        ]
+    },
+    {
+        "id": "replay_historico_fn",
+        "type": "function",
+        "z": "6453c4babf1719c7",
+        "name": "Replay Histórico Gráficos",
+        "func": "var histSolo  = flow.get('hist_solo_A', 'file') || [];\nvar histClima = flow.get('hist_clima',  'file') || [];\n\nvar msgsSolo = histSolo.map(function(p) {\n    return { topic: p.topic, payload: p.payload, ts: p.ts };\n});\nvar msgsClima = histClima.map(function(p) {\n    return { topic: p.topic, payload: p.payload, ts: p.ts };\n});\n\nnode.status({ fill: 'blue', shape: 'dot',\n    text: 'replay: ' + msgsSolo.length + ' solo / ' + msgsClima.length + ' clima' });\n\nreturn [ msgsSolo.length ? msgsSolo : null,\n         msgsClima.length ? msgsClima : null ];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 680,
+        "wires": [
+            [
+                "03a103c16c024cd8"
+            ],
+            [
+                "77bf70e53a90ee6e"
+            ]
+        ]
     }
 ]
