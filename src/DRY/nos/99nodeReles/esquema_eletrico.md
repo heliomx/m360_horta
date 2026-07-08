@@ -22,8 +22,8 @@ graph TD
     MUX[Módulo MUX CD74HC4067]
     
     %% Módulos de Relés Nativos
-    ReleNFT[Módulo Relé NFT - D2]
-    ReleOxi[Módulo Relé Oxi - D8]
+    ReleNFT[Módulo Relé NFT - A0]
+    ReleOxi[Módulo Relé Oxi - A1]
     
     %% Módulos de Relés MUX
     ReleM0[Módulo Relé MUX 0]
@@ -35,7 +35,7 @@ graph TD
     ReleM6[Módulo Relé MUX 6]
     
     %% Sensores Nativos
-    DHT[Sensor DHT11 - A0]
+    DHT[Sensor DHT11 - D2]
     
     %% Atuadores (Cargas 12V e 220V)
     BombaNFT[Bomba Circulação NFT<br/>220V AC]
@@ -82,13 +82,13 @@ graph TD
     Nano -->|D9 CE, D10 CSN| NRF
     
     %% Conexões de Controle Nativas (Arduino -> Relés)
-    Nano -->|D2| ReleNFT
-    Nano -->|D8| ReleOxi
-    Nano -->|A0 Sinal Digital| DHT
+    Nano -->|A0| ReleNFT
+    Nano -->|A1| ReleOxi
+    Nano -->|D2 Sinal Digital| DHT
     
     %% Conexões de Controle MUX (Arduino -> MUX)
     Nano -->|D4..D7 S0..S3| MUX
-    Nano -->|D3 SIG| MUX
+    Nano -->|D8 SIG| MUX
     
     %% Conexões de Controle MUX -> Relés
     MUX -->|Ch 0| ReleM0
@@ -148,7 +148,7 @@ Este módulo recebe o sinal de controle e o distribui para apenas 1 dos 16 canai
 | VCC | 5V DC | Alimentação lógica |
 | GND | GND Comum | Referência de Terra |
 | EN | GND | Habilitação (sempre ativado) |
-| SIG | D3 | Sinal de controle a ser chaveado (LOW/HIGH) |
+| SIG | D8 | Sinal de controle a ser chaveado (LOW/HIGH) |
 | S0 | D4 | Bit 0 da seleção de canal |
 | S1 | D5 | Bit 1 da seleção de canal |
 | S2 | D6 | Bit 2 da seleção de canal |
@@ -158,14 +158,14 @@ Este módulo recebe o sinal de controle e o distribui para apenas 1 dos 16 canai
 Os relés listados abaixo possuem pinos dedicados no Arduino e podem operar simultaneamente a qualquer outro relé.
 | Canal Relé | Pino Arduino | Carga (Atuador) | Especificação Alimentação |
 | :--- | :--- | :--- | :--- |
-| **Relé NFT** | D2 | Bomba Circulação NFT | 220V AC |
-| **Relé Oxi** | D8 | Bomba Oxigenação | 220V AC |
+| **Relé NFT** | A0 (D14) | Bomba Circulação NFT | 220V AC |
+| **Relé Oxi** | A1 (D15) | Bomba Oxigenação | 220V AC |
 
 ### Sensores Nativos (Operação Concorrente)
 O sensor abaixo possui pino dedicado no Arduino e pode operar simultaneamente a qualquer outro item.
 | Sensor | Pino Arduino | Medição | Especificação Alimentação |
 | :--- | :--- | :--- | :--- |
-| **DHT11** | A0 (D14) | Temperatura e Umidade ambiente do quadro | 5V DC (Sinal com resistor pull-up de 4.7kΩ a 10kΩ para VCC) |
+| **DHT11** | D2 | Temperatura e Umidade ambiente do quadro | 5V DC (Sinal com resistor pull-up de 4.7kΩ a 10kΩ para VCC) |
 
 ### Relés e Atuadores Multiplexados (Concorrência Restrita)
 Os relés listados abaixo são controlados pelas saídas do MUX. Apenas **UM** relé desta lista pode ser ativado simultaneamente.

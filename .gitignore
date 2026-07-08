@@ -16,3 +16,5 @@ node_modules/
 .DS_Store
 Thumbs.db
 
+.bmad-loop/runs/
+.bmad-loop/cache/

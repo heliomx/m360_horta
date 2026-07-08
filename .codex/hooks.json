@@ -1,0 +1,24 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run --no-project python C:\\Users\\jmarc\\Documents\\PlatformIO\\Projects\\m360_horta\\.bmad-loop\\bmad_loop_hook.py SessionStart"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run --no-project python C:\\Users\\jmarc\\Documents\\PlatformIO\\Projects\\m360_horta\\.bmad-loop\\bmad_loop_hook.py Stop"
+          }
+        ]
+      }
+    ]
+  }
+}

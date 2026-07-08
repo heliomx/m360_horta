@@ -118,38 +118,12 @@ float readNodeItem(uint8_t itemIndex) {
   Serial.print(F(") ADC:"));
   Serial.println(rawAdc);
 
-  // Compensação de divisor de tensão (Pull-up de 10k conectado ao
-  // PIN_POWER_SENSORS)
-  float rPullup = 10000.0f; // Pull-up de 10kΩ
-
-  if (rawAdc >= 1023) {
-    rawAdc = 1022; // Evita divisão por zero
-  }
-
-  // Calcula a resistência real do solo (sem multiplexador, Ron é 0.0f)
-  float rSolo = rPullup * ((float)rawAdc / (1023.0f - (float)rawAdc));
-  if (rSolo < 0.0f) {
-    rSolo = 0.0f;
-  }
-
-  // Converte para porcentagem equivalente: R_pullup / (R_pullup + R_solo) *
-  // 100.0%
-  float percentage = (rPullup / (rPullup + rSolo)) * 100.0f;
-
-  // Limita o valor final entre 0 e 100
-  if (percentage < 0.0f) {
-    percentage = 0.0f;
-  }
-  if (percentage > 100.0f) {
-    percentage = 100.0f;
-  }
-
   // Ao final da varredura (último sensor, index 5), desliga os sensores
   if (itemIndex == numItems - 1) {
     powerDownSensors();
   }
 
-  return percentage;
+  return (float)rawAdc;
 }
 
 // Hooks do M360-DRY para acordar e dormir

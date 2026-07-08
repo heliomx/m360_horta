@@ -51,15 +51,15 @@
 #include <DHT.h>
 
 // ===== PINOS MUX CD74HC4067 =====
-#define MUX_SIG_PIN     3
+#define MUX_SIG_PIN     8
 #define MUX_S0_PIN      4
 #define MUX_S1_PIN      5
 #define MUX_S2_PIN      6
 #define MUX_S3_PIN      7
 
 // ===== PINOS NATIVOS CONCORRENTES =====
-#define PIN_NFT_PUMP    2   // Bomba Circulação Principal — Hidroponia NFT
-#define PIN_NFT_OXI     8   // Bomba Oxigenação — Hidroponia NFT
+#define PIN_NFT_PUMP    A0  // Bomba Circulação Principal — Hidroponia NFT
+#define PIN_NFT_OXI     A1  // Bomba Oxigenação — Hidroponia NFT
 
 // ===== CHILD IDs =====
 #define CHILD_ID_SOL_A      0   // Canal MUX 0
@@ -70,13 +70,13 @@
 #define CHILD_ID_PH_PLUS    5   // Canal MUX 5
 #define CHILD_ID_PH_MINUS   6   // Canal MUX 6
 
-#define CHILD_ID_NFT_PUMP   16  // Pino nativo D2
-#define CHILD_ID_NFT_OXI    17  // Pino nativo D8
+#define CHILD_ID_NFT_PUMP   16  // Pino nativo A0
+#define CHILD_ID_NFT_OXI    17  // Pino nativo A1
 #define CHILD_ID_DHT_TEMP   18  // Temperatura DHT11
 #define CHILD_ID_DHT_HUM    19  // Umidade DHT11
 
 // ===== PINO NATIVO DHT11 =====
-#define PIN_DHT             A0
+#define PIN_DHT             2
 
 static DHT dht(PIN_DHT, DHT11);
 

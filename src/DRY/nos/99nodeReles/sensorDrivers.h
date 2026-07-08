@@ -5,15 +5,16 @@
  * Hardware: Arduino Nano (5V) + CD74HC4067 (MUX 16ch) + 16 Relés 10A
  *
  * Arquitetura de Pinos:
- *   MUX SIG  : D3  (sinal comum do CD74HC4067)
+ *   MUX SIG  : D8  (sinal comum do CD74HC4067)
  *   MUX S0   : D4  |
  *   MUX S1   : D5  | Seleção de canal (4 bits — 0..15)
  *   MUX S2   : D6  |
  *   MUX S3   : D7  |
  *   MUX EN   : GND (sempre habilitado — sem pino de controle)
  *
- *   D2 : Bomba Circulação Principal NFT  (pino nativo, operação concorrente)
- *   D8 : Bomba Oxigenação NFT            (pino nativo, operação concorrente)
+ *   A0 (D14) : Bomba Circulação Principal NFT  (pino nativo, operação concorrente)
+ *   A1 (D15) : Bomba Oxigenação NFT            (pino nativo, operação concorrente)
+ *   D2       : Sensor DHT11 DATA                (operação concorrente)
  *
  * Lógica dos Relés (optoacoplador): Active-LOW (LOW = Liga)
  *
@@ -21,22 +22,22 @@
  *   Apenas UM canal MUX pode estar ativo por vez.
  *   Ao ligar um canal MUX, o canal anteriormente ativo é desligado
  *   automaticamente antes de selecionar o novo (proteção contra picos).
- *   Pinos nativos D2 e D8 operam independentemente do MUX e entre si.
+ *   Pinos nativos A0 e A1 operam independentemente do MUX e entre si.
  */
 
 #pragma once
 #include <Arduino.h>
 
 // ===== PINOS MUX CD74HC4067 =====
-#define MUX_SIG_PIN     3
+#define MUX_SIG_PIN     8
 #define MUX_S0_PIN      4
 #define MUX_S1_PIN      5
 #define MUX_S2_PIN      6
 #define MUX_S3_PIN      7
 
 // ===== PINOS NATIVOS CONCORRENTES =====
-#define PIN_NFT_PUMP    2   // Bomba Circulação Principal — Hidroponia NFT
-#define PIN_NFT_OXI     8   // Bomba Oxigenação — Hidroponia NFT
+#define PIN_NFT_PUMP    A0  // Bomba Circulação Principal — Hidroponia NFT
+#define PIN_NFT_OXI     A1  // Bomba Oxigenação — Hidroponia NFT
 
 // ===== CHILD IDs — Canais via MUX CD74HC4067 =====
 #define CHILD_ID_SOL_A      0   // Canal 0 — Solenóide Gotejamento Canteiro A
@@ -49,19 +50,19 @@
 // Canais 7-15: Reservados para expansão (climatização/iluminação)
 
 // ===== CHILD IDs — Pinos Nativos Concorrentes =====
-#define CHILD_ID_NFT_PUMP   16  // D2 — Bomba Circulação Principal NFT
-#define CHILD_ID_NFT_OXI    17  // D8 — Bomba Oxigenação NFT
+#define CHILD_ID_NFT_PUMP   16  // A0 — Bomba Circulação Principal NFT
+#define CHILD_ID_NFT_OXI    17  // A1 — Bomba Oxigenação NFT
 #define CHILD_ID_DHT_TEMP   18  // Sensor de Temperatura DHT11
 #define CHILD_ID_DHT_HUM    19  // Sensor de Umidade DHT11
 
 // ===== PINO NATIVO DHT11 =====
-#define PIN_DHT             A0  // A0 (D14) para sinal digital do DHT11
+#define PIN_DHT             2   // D2 para sinal digital do DHT11
 
 // ===== ENCODING DE PINOS VIRTUAIS (MUX) =====
 // Canais MUX são representados como pinos virtuais no campo `pin` de M360ItemDef:
 //   pin = MUX_CHANNEL_OFFSET + channelNumber
 // Exemplos: Canal 0 → 100 | Canal 4 → 104 | Canal 7 → 107
-// Pinos nativos (2, 8) são usados diretamente sem offset.
+// Pinos nativos (A0, A1) são usados diretamente sem offset.
 #define MUX_CHANNEL_OFFSET  100
 #define IS_MUX_CH(pin)      ((pin) >= MUX_CHANNEL_OFFSET && (pin) < (MUX_CHANNEL_OFFSET + 16))
 #define MUX_CH(pin)         ((uint8_t)((pin) - MUX_CHANNEL_OFFSET))

@@ -6,7 +6,7 @@
  *
  * Arquitetura de Atuação:
  *
- *   Canais via MUX CD74HC4067 (SIG=D3 | S0-S3=D4-D7 | EN=GND):
+ *   Canais via MUX CD74HC4067 (SIG=D8 | S0-S3=D4-D7 | EN=GND):
  *   ┌─────────┬───────────────────────────────────────────────┐
  *   │ Canal 0 │ Solenóide Irrigação Gotejamento — Canteiro A  │
  *   │ Canal 1 │ Solenóide Irrigação Gotejamento — Canteiro B  │
@@ -21,8 +21,9 @@
  *
  *   Pinos Nativos — Operação Concorrente Independente:
  *   ┌──────┬──────────────────────────────────────────────────┐
- *   │  D2  │ Bomba Circulação Principal — Hidroponia NFT      │
- *   │  D8  │ Bomba Oxigenação — Hidroponia NFT                │
+ *   │  A0  │ Bomba Circulação Principal — Hidroponia NFT      │
+ *   │  A1  │ Bomba Oxigenação — Hidroponia NFT                │
+ *   │  D2  │ Sensor DHT11 DATA                                │
  *   └──────┴──────────────────────────────────────────────────┘
  *
  * Macros MY_* definidas no platformio.ini [env:node_99_reles_nano]
@@ -59,8 +60,8 @@ static const M360::M360ItemDef NODE_ITEMS[] = {
     {CHILD_ID_NFT_PUMP, M360::M360_ACTUATOR, S_BINARY, V_STATUS, PIN_NFT_PUMP,            0, 1, "BombaNFT",     false, 0},
     {CHILD_ID_NFT_OXI,  M360::M360_ACTUATOR, S_BINARY, V_STATUS, PIN_NFT_OXI,             0, 1, "BombaOxi",     false, 0},
     // --- Sensores Nativos (DHT11 - Concorrência livre) ---
-    {CHILD_ID_DHT_TEMP, M360::M360_SENSOR,   S_TEMP,   V_TEMP,   PIN_DHT,                 0, 1, "TempReles",    false, 0},
-    {CHILD_ID_DHT_HUM,  M360::M360_SENSOR,   S_HUM,    V_HUM,    PIN_DHT,                 0, 1, "UmidReles",    false, 0},
+    {CHILD_ID_DHT_TEMP, M360::M360_SENSOR,   S_TEMP,   V_TEMP,   PIN_DHT,                 0, 1, "Temperatura do Ar",    false, 0},
+    {CHILD_ID_DHT_HUM,  M360::M360_SENSOR,   S_HUM,    V_HUM,    PIN_DHT,                 0, 1, "Umidade do Ar",    false, 0},
 };
 static const uint8_t NODE_ITEMS_COUNT =
     sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);

@@ -66,8 +66,8 @@ graph TD
     MUX[Módulo MUX CD74HC4067]
     
     %% Módulos de Relés Nativos
-    ReleNFT[Módulo Relé NFT - D2]
-    ReleOxi[Módulo Relé Oxi - D8]
+    ReleNFT[Módulo Relé NFT - A0]
+    ReleOxi[Módulo Relé Oxi - A1]
     
     %% Módulos de Relés MUX
     ReleM0[Módulo Relé MUX 0]
@@ -79,7 +79,7 @@ graph TD
     ReleM6[Módulo Relé MUX 6]
     
     %% Sensores Nativos
-    DHT[Sensor DHT11 - A0]
+    DHT[Sensor DHT11 - D2]
     
     %% Atuadores (Cargas 12V e 220V)
     BombaNFT[Bomba Circulação NFT<br/>220V AC]
@@ -126,13 +126,13 @@ graph TD
     Nano -->|D9 CE, D10 CSN| NRF
     
     %% Conexões de Controle Nativas (Arduino -> Relés)
-    Nano -->|D2| ReleNFT
-    Nano -->|D8| ReleOxi
-    Nano -->|A0 Sinal Digital| DHT
+    Nano -->|A0| ReleNFT
+    Nano -->|A1| ReleOxi
+    Nano -->|D2 Sinal Digital| DHT
     
     %% Conexões de Controle MUX (Arduino -> MUX)
     Nano -->|D4..D7 S0..S3| MUX
-    Nano -->|D3 SIG| MUX
+    Nano -->|D8 SIG| MUX
     
     %% Conexões de Controle MUX -> Relés
     MUX -->|Ch 0| ReleM0
@@ -193,7 +193,7 @@ graph TD
 | VCC | 5V DC | Alimentação lógica |
 | GND | GND Comum | Referência de Terra |
 | EN | GND | Habilitação (sempre ativado no GND) |
-| SIG | D3 | Sinal de controle comum (LOW/HIGH a ser roteado) |
+| SIG | D8 | Sinal de controle comum (LOW/HIGH a ser roteado) |
 | S0 | D4 | Bit 0 de seleção de canal |
 | S1 | D5 | Bit 1 de seleção de canal |
 | S2 | D6 | Bit 2 de seleção de canal |
@@ -203,14 +203,14 @@ graph TD
 Os relés listados abaixo possuem pinos dedicados no Arduino e operam de forma independente e simultânea a qualquer outro canal.
 | Canal Relé | Pino Arduino | Carga (Atuador) | Especificação Alimentação |
 | :--- | :--- | :--- | :--- |
-| **Relé NFT** | D2 | Bomba Circulação NFT | 220V AC |
-| **Relé Oxi** | D8 | Bomba Oxigenação | 220V AC |
+| **Relé NFT** | A0 (D14) | Bomba Circulação NFT | 220V AC |
+| **Relé Oxi** | A1 (D15) | Bomba Oxigenação | 220V AC |
 
 ### 3.4 Sensores Nativos (Operação Concorrente)
 O sensor abaixo possui conexão direta ao Arduino, permitindo leituras periódicas sem interferência no estado de chaveamento do MUX.
 | Sensor | Pino Arduino | Medição | Especificação Alimentação |
 | :--- | :--- | :--- | :--- |
-| **DHT11** | A0 (D14) | Temperatura e Umidade interna do quadro | 5V DC (Sinal digital com pull-up de 4.7kΩ-10kΩ para VCC) |
+| **DHT11** | D2 | Temperatura e Umidade interna do quadro | 5V DC (Sinal digital com pull-up de 4.7kΩ-10kΩ para VCC) |
 
 ### 3.5 Relés e Atuadores Multiplexados (Concorrência Restrita)
 Os relés listados abaixo são controlados pelas saídas lógicas do MUX. Apenas **UM** relé desta lista pode ser ativado simultaneamente.
@@ -253,9 +253,9 @@ O driver de software (`sensorDrivers.cpp`) impõe via código que **apenas um ca
 * Isso impede que múltiplos relés sejam ligados ao mesmo tempo no barramento do multiplexador, limitando o consumo de corrente na fonte de 12V e transientes na rede elétrica.
 
 ### 5.3 Tratamento do DHT11 (Sensor Nativo)
-Por ser um protocolo bidirecional, o DHT11 é conectado diretamente ao pino nativo `A0`. A leitura dele ocorre no callback `readItem()` em `99nodeReles.cpp`:
+Por ser um protocolo bidirecional, o DHT11 é conectado diretamente ao pino nativo `D2`. A leitura dele ocorre no callback `readItem()` em `99nodeReles.cpp`:
 * Quando o motor solicita a leitura do ID 18 (temperatura) ou ID 19 (umidade), a lógica desvia a requisição direto para `readDHTTemp()` ou `readDHTHum()`.
-* Essas funções realizam a leitura direta no pino A0 usando a biblioteca Adafruit DHT, tratando erros de leitura (retornando `NAN` caso ocorram problemas físicos) e mantendo a integridade do barramento MUX.
+* Essas funções realizam a leitura direta no pino D2 usando a biblioteca Adafruit DHT, tratando erros de leitura (retornando `NAN` caso ocorram problemas físicos) e mantendo a integridade do barramento MUX.
 
 ---
 
