@@ -11,6 +11,7 @@ Orientar a criação completa de um novo nó da rede **M360 Horta**, garantindo 
 - Configuração do `platformio.ini`
 
 Sempre utilizar como referências primárias:
+- Skill obrigatória de codificação: [bmad-mysensors-node-coding](file:///c:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/.agent/skills/bmad-mysensors-node-coding/SKILL.md)
 - Template: `lib/M360-DRY/examples/NodeTemplate/`
 - Nós existentes: `src/DRY/nos/` (99nodeReles, 80nodeAqua, 13nodeZTS_UmidadeHall, 01nodeSolo3d)
 - API: `lib/M360-DRY/API_REFERENCE.md`
@@ -177,6 +178,7 @@ Pino CE  (default D9):
 Pino CSN (default D10):
 Potência RF: [ ] LOW  [ ] HIGH (default)  [ ] MAX
 Timeout de rádio MY_RADIO_TIMEOUT_MS (deixar em branco para omitir):
+Habilitar função de repetidor (somente para ALWAYS_ON)? [ ] Sim  [ ] Não
 ```
 
 > ⚠️ Se o nó usa SoftwareSerial (RS485, GPS), verificar conflito com CE/CSN nos pinos 9/10.
@@ -272,6 +274,7 @@ Verificar no projeto inteiro:
 | Conflito de pino com rádio nRF24 | CE e CSN definidos devem ser únicos |
 | Conflito de pino com Serial (D0/D1) | Pinos D0 e D1 reservados para UART |
 | Conflito de pino com interrupções | D2=INT0, D3=INT1 — confirmar se necessário |
+| Repetidor em nó de baixo consumo | Confirmar que `MY_REPEATER_FEATURE` só é ativo se o perfil for `M360_ALWAYS_ON` |
 
 Emitir relatório antes de gerar qualquer código.
 
@@ -480,6 +483,7 @@ build_flags =
     -D MY_NODE_ID=<ID>
     -D MY_RF24_CE_PIN=<CE>
     -D MY_RF24_CSN_PIN=<CSN>
+    ; -D MY_REPEATER_FEATURE        ← apenas se for repetidor (requer ALWAYS_ON)
     ; -D MY_RADIO_TIMEOUT_MS=500   ← apenas para nós ALWAYS_ON
     ; -D MY_DEBUG                   ← apenas em desenvolvimento
     ; -D MY_RSSI_LOG_INTERVAL=30000 ← se RSSI log habilitado no Passo 1.6
@@ -536,6 +540,7 @@ Verificar cada item antes de entregar o código:
 | 13 | `build_src_filter` com casing inconsistente | `withLibDRY` (DRY maiúsculo) |
 | 14 | childId 254 ou 255 em `NODE_ITEMS[]` | Reservados para intervalo e bateria |
 | 15 | Ordem errada de includes (`M360.h` antes de `MySensors.h`) | Causa banner truncado + hang; ordem correta: `Arduino.h` → `MySensors.h` → `M360.h` → `sensorDrivers.h` |
+| 16 | `MY_REPEATER_FEATURE` ativa em nó LOW_POWER ou PASSIVE | Nós de baixo consumo não podem atuar como repetidores |
 
 ---
 

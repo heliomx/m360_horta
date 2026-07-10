@@ -89,11 +89,12 @@ O código implementa padrões específicos para comunicação avançada. Todas a
 
 ## 5. Checklist Anti-Padrões (Verificar antes de Commit)
 
-- [ ] ❌ **Definir MY_NODE_ID após MySensors.h** → Deve vir ANTES.
-- [ ] ❌ **EEPROM.put() direto no nó** → Use `nodeEngine_saveInterval()`.
-- [ ] ❌ **Hardcoding de strings de comando** → Use `CMD_FORCE_UPDATE` de `config.h`.
-- [ ] ❌ **Dois perfis de energia** → Escolha apenas `POWER_PROFILE_LOW_POWER` ou `ALWAYS_ON`.
-- [ ] ❌ **Mensagens sem dimensionamento correto** → Use `messages[NODE_ITEMS_COUNT + X]`.
+- [ ] ❌ **Definir `MY_NODE_ID` ou `MY_REPEATER_FEATURE` no código C++** → Devem vir exclusivamente nas build flags do `platformio.ini`.
+- [ ] ❌ **EEPROM.put() direto no nó** → Use `nodeEngine_saveInterval()` (ou `M360::saveInterval()`).
+- [ ] ❌ **Hardcoding de strings de comando** → Use `CMD_FORCE_UPDATE` de `M360Constants.h`.
+- [ ] ❌ **Perfil de energia incorreto** → Escolha apenas um perfil canônico `M360_LOW_POWER`, `M360_ALWAYS_ON` ou `M360_PASSIVE`.
+- [ ] ❌ **Mensagens sem dimensionamento correto** → Use `messages[NODE_ITEMS_COUNT + 2]` (alocação obrigatória para intervalo e bateria).
+- [ ] ❌ **Função de repetidor ativa em nó de baixo consumo** → `MY_REPEATER_FEATURE` é compatível apenas com o perfil `M360_ALWAYS_ON`.
 
 ---
 ---
@@ -123,9 +124,9 @@ Este guia resume os elementos core da biblioteca MySensors necessários para o d
 | **Variáveis (V_)** | `V_TEMP`, `V_HUM`, `V_STATUS`, `V_FLOW`, `V_CUSTOM` | Usado em `send()` / `request()`. |
 | **Internas (I_)** | `I_BATTERY_LEVEL`, `I_TIME`, `I_SKETCH_NAME` | Configuração e status interno. |
 
-### 6.4 Macros de Configuração (Colocar ANTES de #include <MySensors.h>)
+### 6.4 Macros de Configuração (Definir preferencialmente no `platformio.ini`)
 - **Radio**: `MY_RADIO_RF24`, `MY_RADIO_RFM69`, `MY_RADIO_NRF5_ESB`.
-- **Node**: `MY_NODE_ID 254`, `MY_REPEATER_FEATURE`.
+- **Node**: `MY_NODE_ID <ID>`, `MY_REPEATER_FEATURE` (apenas para nós `M360_ALWAYS_ON`).
 - **Gateway**: `MY_GATEWAY_ESP8266`, `MY_GATEWAY_MQTT_CLIENT`.
 - **Debug**: `MY_DEBUG`.
 

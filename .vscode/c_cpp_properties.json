@@ -10,7 +10,7 @@
             "includePath": [
                 "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/src",
                 "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/lib/M360-DRY/src",
-                "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/.pio/libdeps/nano_01nodeSolo3d/MySensors",
+                "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/.pio/libdeps/nano_05nodeSolo3dNanoMux/MySensors",
                 "C:/Users/jmarc/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
                 "C:/Users/jmarc/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
                 "C:/Users/jmarc/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
@@ -26,7 +26,7 @@
                 "path": [
                     "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/src",
                     "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/lib/M360-DRY/src",
-                    "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/.pio/libdeps/nano_01nodeSolo3d/MySensors",
+                    "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/.pio/libdeps/nano_05nodeSolo3dNanoMux/MySensors",
                     "C:/Users/jmarc/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
                     "C:/Users/jmarc/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
                     "C:/Users/jmarc/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
@@ -46,7 +46,7 @@
                 "MY_RF24_DATARATE=RF24_250KBPS",
                 "MY_RF24_PA_LEVEL=RF24_PA_HIGH",
                 "MY_REBOOT_FEATURE",
-                "MY_NODE_ID=1",
+                "MY_NODE_ID=5",
                 "MY_DEBUG",
                 "MY_TRANSPORT_SANITY_CHECK_INTERVAL_MS=15000",
                 "F_CPU=16000000L",
