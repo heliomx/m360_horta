@@ -1728,7 +1728,7 @@
         "type": "function",
         "z": "6453c4babf1719c7",
         "name": "Translator Json",
-        "func": "var COMMANDS = {0:'PRESENTATION',1:'SET',2:'REQ',3:'INTERNAL',4:'STREAM'};\nvar PRESENTATION = {0:'S_DOOR',1:'S_MOTION',2:'S_SMOKE',3:'S_BINARY',4:'S_DIMMER',5:'S_COVER',6:'S_TEMP',7:'S_HUM',8:'S_BARO',9:'S_WIND',10:'S_RAIN',11:'S_UV',12:'S_WEIGHT',13:'S_POWER',14:'S_HEATER',15:'S_DISTANCE',16:'S_LIGHT_LEVEL',17:'S_ARDUINO_NODE',18:'S_ARDUINO_REPEATER_NODE',19:'S_LOCK',20:'S_IR',21:'S_WATER',22:'S_AIR_QUALITY',23:'S_CUSTOM',24:'S_DUST',25:'S_SCENE_CONTROLLER',26:'S_RGB_LIGHT',27:'S_RGBW_LIGHT',28:'S_COLOR_SENSOR',29:'S_HVAC',30:'S_MULTIMETER',31:'S_SPRINKLER',32:'S_WATER_LEAK',33:'S_SOUND',34:'S_VIBRATION',35:'S_MOISTURE',36:'S_INFO',37:'S_GAS',38:'S_GPS',39:'S_WATER_QUALITY'};\nvar VARIABLES = {0:['V_TEMP','Temperatura','°C'],1:['V_HUM','Umidade','%'],2:['V_STATUS','Estado',''],3:['V_PERCENTAGE','Percentual','%'],4:['V_PRESSURE','Pressão','hPa'],5:['V_FORECAST','Previsão',''],6:['V_RAIN','Chuva','mm'],7:['V_RAINRATE','Taxa de chuva','mm/h'],8:['V_WIND','Vento','m/s'],9:['V_GUST','Rajada','m/s'],10:['V_DIRECTION','Direção','°'],11:['V_UV','UV',''],12:['V_WEIGHT','Peso','kg'],13:['V_DISTANCE','Distância','cm'],14:['V_IMPEDANCE','Impedância','ohm'],15:['V_ARMED','Armado',''],16:['V_TRIPPED','Disparado',''],17:['V_WATT','Potência','W'],18:['V_KWH','Energia','kWh'],19:['V_SCENE_ON','Cena ON',''],20:['V_SCENE_OFF','Cena OFF',''],21:['V_HVAC_FLOW_STATE','HVAC Estado',''],22:['V_HVAC_SPEED','HVAC Velocidade',''],23:['V_LIGHT_LEVEL','Luminosidade','%'],24:['V_VAR1','VAR1',''],25:['V_VAR2','VAR2',''],26:['V_VAR3','VAR3',''],27:['V_VAR4','VAR4',''],28:['V_VAR5','VAR5',''],29:['V_UP','Subir',''],30:['V_DOWN','Descer',''],31:['V_STOP','Parar',''],32:['V_IR_SEND','IR Enviar',''],33:['V_IR_RECEIVE','IR Recebido',''],34:['V_FLOW','Vazão','L/min'],35:['V_VOLUME','Volume','L'],36:['V_LOCK_STATUS','Fechadura',''],37:['V_LEVEL','Nível',''],38:['V_VOLTAGE','Tensão','V'],39:['V_CURRENT','Corrente','A'],40:['V_RGB','RGB',''],41:['V_RGBW','RGBW',''],42:['V_ID','ID',''],43:['V_UNIT_PREFIX','Prefixo',''],44:['V_HVAC_SETPOINT_COOL','Setpoint Frio','°C'],45:['V_HVAC_SETPOINT_HEAT','Setpoint Quente','°C'],46:['V_HVAC_FLOW_MODE','Modo HVAC',''],47:['V_TEXT','Texto',''],48:['V_CUSTOM','Custom',''],49:['V_POSITION','Posição',''],50:['V_IR_RECORD','IR Gravado',''],51:['V_PH','pH',''],52:['V_ORP','ORP','mV'],53:['V_EC','Condutividade','mS/cm'],54:['V_VAR','Variável',''],55:['V_VA','Potência Aparente','VA'],56:['V_POWER_FACTOR','Fator de Potência','']};\nvar INTERNAL = {0:'I_BATTERY_LEVEL',1:'I_TIME',2:'I_VERSION',3:'I_ID_REQUEST',4:'I_ID_RESPONSE',5:'I_INCLUSION_MODE',6:'I_CONFIG',7:'I_FIND_PARENT',8:'I_FIND_PARENT_RESPONSE',9:'I_LOG_MESSAGE',10:'I_CHILDREN',11:'I_SKETCH_NAME',12:'I_SKETCH_VERSION',13:'I_REBOOT',14:'I_GATEWAY_READY',15:'I_SIGNING_PRESENTATION',16:'I_NONCE_REQUEST',17:'I_NONCE_RESPONSE',18:'I_HEARTBEAT_REQUEST',19:'I_PRESENTATION',20:'I_DISCOVER_REQUEST',21:'I_DISCOVER_RESPONSE',22:'I_HEARTBEAT_RESPONSE',23:'I_LOCKED',24:'I_PING',25:'I_PONG',26:'I_REGISTRATION_REQUEST',27:'I_REGISTRATION_RESPONSE',28:'I_DEBUG',29:'I_SIGNAL_REPORT_REQUEST',30:'I_SIGNAL_REPORT_REVERSE',31:'I_SIGNAL_REPORT_RESPONSE',32:'I_PRE_SLEEP_NOTIFICATION',33:'I_POST_SLEEP_NOTIFICATION'};\nvar MANEJO360 = {V_TEMP:{nome:'Temperatura',contexto:'Temperatura do Solo',faixaIdeal:'18 a 25 °C'},V_HUM:{nome:'Umidade',contexto:'Umidade Relativa do Ar',faixaIdeal:'60 a 80 %'},V_LEVEL:{nome:'Nível',contexto:'Nível do Reservatório',faixaIdeal:'Acima de 30%'},V_FLOW:{nome:'Vazão',contexto:'Vazão da Irrigação',faixaIdeal:'Conforme projeto hidráulico'},V_VOLUME:{nome:'Consumo',contexto:'Volume Acumulado',faixaIdeal:'-'},V_PH:{nome:'pH',contexto:'pH da Solução Nutritiva',faixaIdeal:'5.8 a 6.5'},V_EC:{nome:'Condutividade',contexto:'Condutividade Elétrica',faixaIdeal:'1.2 a 2.2 mS/cm'},V_VOLTAGE:{nome:'Bateria',contexto:'Tensão da Bateria',faixaIdeal:'> 3.3V'},V_CURRENT:{nome:'Corrente',contexto:'Corrente Consumida',faixaIdeal:'-'},V_STATUS:{nome:'Estado',contexto:'Atuador',faixaIdeal:'-'},V_PERCENTAGE:{nome:'Percentual',contexto:'Umidade do Solo',faixaIdeal:'60 a 80%'}};\nfunction avaliarManejo(tipo, valor) {\n    if (valor === null || valor === undefined || valor === '') return '';\n    valor = Number(valor);\n    if (isNaN(valor)) return '⚠ Valor de leitura inválido';\n    switch(tipo) {\n        case 'V_TEMP': if(valor<18) return '⚠ Temperatura abaixo da faixa ideal'; if(valor>25) return '⚠ Temperatura acima da faixa ideal'; return '✓ Temperatura adequada';\n        case 'V_PERCENTAGE': if(valor<60) return '⚠ Solo seco'; if(valor>90) return '⚠ Possível excesso de água'; return '✓ Umidade adequada';\n        case 'V_PH': if(valor<5.8) return '⚠ pH baixo'; if(valor>6.5) return '⚠ pH alto'; return '✓ pH adequado';\n        case 'V_EC': if(valor<1.2) return '⚠ Solução diluída'; if(valor>2.2) return '⚠ Solução concentrada'; return '✓ Condutividade adequada';\n        case 'V_LEVEL': if(valor<30) return '⚠ Reservatório baixo'; return '✓ Nível adequado';\n        case 'V_VOLTAGE': if(valor<3.3) return '⚠ Bateria fraca'; return '✓ Bateria normal';\n        default: return '';\n    }\n}\nvar m = msg.payload;\nvar comando = COMMANDS[m.command] || 'DESCONHECIDO';\nvar tipo = ''; var descricao = ''; var unidade = '';\nswitch(m.command) {\n    case 0: tipo = PRESENTATION[m.type] || 'DESCONHECIDO'; descricao = 'Apresentação de sensor'; break;\n    case 1: case 2: if(VARIABLES[m.type]){tipo=VARIABLES[m.type][0];descricao=VARIABLES[m.type][1];unidade=VARIABLES[m.type][2];} break;\n    case 3: tipo = INTERNAL[m.type] || 'DESCONHECIDO'; descricao = 'Mensagem interna'; break;\n    case 4: tipo = 'STREAM'; descricao = 'Transferência de dados'; break;\n}\nvar LEVEL_COMO_UMIDADE = {1: true, 13: true};\nif (tipo === 'V_LEVEL' && LEVEL_COMO_UMIDADE[m.nodeId]) {\n    tipo      = 'V_PERCENTAGE';\n    descricao = 'Percentual';\n    unidade   = '%';\n}\nvar contexto=''; var faixaIdeal=''; var diagnostico='';\nif(MANEJO360[tipo]){contexto=MANEJO360[tipo].contexto;faixaIdeal=MANEJO360[tipo].faixaIdeal;diagnostico=avaliarManejo(tipo,m.payload);}\nvar valor = m.payload;\nif(valor===null||valor===undefined) valor='(vazio)';\nvar texto = 'Nó: '+m.nodeId+' : '+tipo+'\\nSensor: '+m.sensorId+'\\nContexto: '+(contexto||descricao)+'\\nComando: '+comando+'\\nValor: '+valor+' '+unidade+'\\nFaixa Ideal: '+(faixaIdeal||'-')+'\\nDiagnóstico: '+(diagnostico||'-')+'\\nACK: '+m.ack+'\\nTimestamp: '+m.timestamp;\nmsg.decoded={nodeId:m.nodeId,sensorId:m.sensorId,command:comando,type:tipo,description:descricao,unit:unidade,value:valor};\nmsg.payload=texto;\nreturn msg;",
+        "func": "var COMMANDS = {0:'PRESENTATION',1:'SET',2:'REQ',3:'INTERNAL',4:'STREAM'};\nvar PRESENTATION = {0:'S_DOOR',1:'S_MOTION',2:'S_SMOKE',3:'S_BINARY',4:'S_DIMMER',5:'S_COVER',6:'S_TEMP',7:'S_HUM',8:'S_BARO',9:'S_WIND',10:'S_RAIN',11:'S_UV',12:'S_WEIGHT',13:'S_POWER',14:'S_HEATER',15:'S_DISTANCE',16:'S_LIGHT_LEVEL',17:'S_ARDUINO_NODE',18:'S_ARDUINO_REPEATER_NODE',19:'S_LOCK',20:'S_IR',21:'S_WATER',22:'S_AIR_QUALITY',23:'S_CUSTOM',24:'S_DUST',25:'S_SCENE_CONTROLLER',26:'S_RGB_LIGHT',27:'S_RGBW_LIGHT',28:'S_COLOR_SENSOR',29:'S_HVAC',30:'S_MULTIMETER',31:'S_SPRINKLER',32:'S_WATER_LEAK',33:'S_SOUND',34:'S_VIBRATION',35:'S_MOISTURE',36:'S_INFO',37:'S_GAS',38:'S_GPS',39:'S_WATER_QUALITY'};\nvar VARIABLES = {0:['V_TEMP','Temperatura','°C'],1:['V_HUM','Umidade','%'],2:['V_STATUS','Estado',''],3:['V_PERCENTAGE','Percentual','%'],4:['V_PRESSURE','Pressão','hPa'],5:['V_FORECAST','Previsão',''],6:['V_RAIN','Chuva','mm'],7:['V_RAINRATE','Taxa de chuva','mm/h'],8:['V_WIND','Vento','m/s'],9:['V_GUST','Rajada','m/s'],10:['V_DIRECTION','Direção','°'],11:['V_UV','UV',''],12:['V_WEIGHT','Peso','kg'],13:['V_DISTANCE','Distância','cm'],14:['V_IMPEDANCE','Impedância','ohm'],15:['V_ARMED','Armado',''],16:['V_TRIPPED','Disparado',''],17:['V_WATT','Potência','W'],18:['V_KWH','Energia','kWh'],19:['V_SCENE_ON','Cena ON',''],20:['V_SCENE_OFF','Cena OFF',''],21:['V_HVAC_FLOW_STATE','HVAC Estado',''],22:['V_HVAC_SPEED','HVAC Velocidade',''],23:['V_LIGHT_LEVEL','Luminosidade','%'],24:['V_VAR1','VAR1',''],25:['V_VAR2','VAR2',''],26:['V_VAR3','VAR3',''],27:['V_VAR4','VAR4',''],28:['V_VAR5','VAR5',''],29:['V_UP','Subir',''],30:['V_DOWN','Descer',''],31:['V_STOP','Parar',''],32:['V_IR_SEND','IR Enviar',''],33:['V_IR_RECEIVE','IR Recebido',''],34:['V_FLOW','Vazão','L/min'],35:['V_VOLUME','Volume','L'],36:['V_LOCK_STATUS','Fechadura',''],37:['V_LEVEL','Nível',''],38:['V_VOLTAGE','Tensão','V'],39:['V_CURRENT','Corrente','A'],40:['V_RGB','RGB',''],41:['V_RGBW','RGBW',''],42:['V_ID','ID',''],43:['V_UNIT_PREFIX','Prefixo',''],44:['V_HVAC_SETPOINT_COOL','Setpoint Frio','°C'],45:['V_HVAC_SETPOINT_HEAT','Setpoint Quente','°C'],46:['V_HVAC_FLOW_MODE','Modo HVAC',''],47:['V_TEXT','Texto',''],48:['V_CUSTOM','Custom',''],49:['V_POSITION','Posição',''],50:['V_IR_RECORD','IR Gravado',''],51:['V_PH','pH',''],52:['V_ORP','ORP','mV'],53:['V_EC','Condutividade','mS/cm'],54:['V_VAR','Variável',''],55:['V_VA','Potência Aparente','VA'],56:['V_POWER_FACTOR','Fator de Potência','']};\nvar INTERNAL = {0:'I_BATTERY_LEVEL',1:'I_TIME',2:'I_VERSION',3:'I_ID_REQUEST',4:'I_ID_RESPONSE',5:'I_INCLUSION_MODE',6:'I_CONFIG',7:'I_FIND_PARENT',8:'I_FIND_PARENT_RESPONSE',9:'I_LOG_MESSAGE',10:'I_CHILDREN',11:'I_SKETCH_NAME',12:'I_SKETCH_VERSION',13:'I_REBOOT',14:'I_GATEWAY_READY',15:'I_SIGNING_PRESENTATION',16:'I_NONCE_REQUEST',17:'I_NONCE_RESPONSE',18:'I_HEARTBEAT_REQUEST',19:'I_PRESENTATION',20:'I_DISCOVER_REQUEST',21:'I_DISCOVER_RESPONSE',22:'I_HEARTBEAT_RESPONSE',23:'I_LOCKED',24:'I_PING',25:'I_PONG',26:'I_REGISTRATION_REQUEST',27:'I_REGISTRATION_RESPONSE',28:'I_DEBUG',29:'I_SIGNAL_REPORT_REQUEST',30:'I_SIGNAL_REPORT_REVERSE',31:'I_SIGNAL_REPORT_RESPONSE',32:'I_PRE_SLEEP_NOTIFICATION',33:'I_POST_SLEEP_NOTIFICATION'};\nvar MANEJO360 = {V_TEMP:{nome:'Temperatura',contexto:'Temperatura do Solo',faixaIdeal:'18 a 25 °C'},V_HUM:{nome:'Umidade',contexto:'Umidade Relativa do Ar',faixaIdeal:'60 a 80 %'},V_LEVEL:{nome:'Nível',contexto:'Nível do Reservatório',faixaIdeal:'Acima de 30%'},V_FLOW:{nome:'Vazão',contexto:'Vazão da Irrigação',faixaIdeal:'Conforme projeto hidráulico'},V_VOLUME:{nome:'Consumo',contexto:'Volume Acumulado',faixaIdeal:'-'},V_PH:{nome:'pH',contexto:'pH da Solução Nutritiva',faixaIdeal:'5.8 a 6.5'},V_EC:{nome:'Condutividade',contexto:'Condutividade Elétrica',faixaIdeal:'1.2 a 2.2 mS/cm'},V_VOLTAGE:{nome:'Bateria',contexto:'Tensão da Bateria',faixaIdeal:'> 3.3V'},V_CURRENT:{nome:'Corrente',contexto:'Corrente Consumida',faixaIdeal:'-'},V_STATUS:{nome:'Estado',contexto:'Atuador',faixaIdeal:'-'},V_PERCENTAGE:{nome:'Percentual',contexto:'Umidade do Solo',faixaIdeal:'60 a 80%'}};\nfunction avaliarManejo(tipo, valor) {\n    if (valor === null || valor === undefined || valor === '') return '';\n    valor = Number(valor);\n    if (isNaN(valor)) return '⚠ Valor de leitura inválido';\n    switch(tipo) {\n        case 'V_TEMP': if(valor<18) return '⚠ Temperatura abaixo da faixa ideal'; if(valor>25) return '⚠ Temperatura acima da faixa ideal'; return '✓ Temperatura adequada';\n        case 'V_PERCENTAGE': if(valor<60) return '⚠ Solo seco'; if(valor>90) return '⚠ Possível excesso de água'; return '✓ Umidade adequada';\n        case 'V_PH': if(valor<5.8) return '⚠ pH baixo'; if(valor>6.5) return '⚠ pH alto'; return '✓ pH adequado';\n        case 'V_EC': if(valor<1.2) return '⚠ Solução diluída'; if(valor>2.2) return '⚠ Solução concentrada'; return '✓ Condutividade adequada';\n        case 'V_LEVEL': if(valor<30) return '⚠ Reservatório baixo'; return '✓ Nível adequado';\n        case 'V_VOLTAGE': if(valor<3.3) return '⚠ Bateria fraca'; return '✓ Bateria normal';\n        default: return '';\n    }\n}\nvar m = msg.payload;\nvar comando = COMMANDS[m.command] || 'DESCONHECIDO';\nvar tipo = ''; var descricao = ''; var unidade = '';\nswitch(m.command) {\n    case 0: tipo = PRESENTATION[m.type] || 'DESCONHECIDO'; descricao = 'Apresentação de sensor'; break;\n    case 1: case 2: if(VARIABLES[m.type]){tipo=VARIABLES[m.type][0];descricao=VARIABLES[m.type][1];unidade=VARIABLES[m.type][2];} break;\n    case 3: tipo = INTERNAL[m.type] || 'DESCONHECIDO'; descricao = 'Mensagem interna'; break;\n    case 4: tipo = 'STREAM'; descricao = 'Transferência de dados'; break;\n}\n// Remap programatico: se o child foi apresentado como S_MOISTURE, V_LEVEL representa umidade (%).\nif (tipo === 'V_LEVEL') {\n    var _n; try { _n = global.get('mys_nodes', 'file') || {}; } catch(e) { _n = global.get('mys_nodes') || {}; }\n    var _c = _n[m.nodeId] && _n[m.nodeId].childs && _n[m.nodeId].childs[m.sensorId];\n    if (_c && _c.tipo === 'S_MOISTURE') { tipo = 'V_PERCENTAGE'; descricao = 'Percentual'; unidade = '%'; }\n}\nvar contexto=''; var faixaIdeal=''; var diagnostico='';\nif(MANEJO360[tipo]){contexto=MANEJO360[tipo].contexto;faixaIdeal=MANEJO360[tipo].faixaIdeal;diagnostico=avaliarManejo(tipo,m.payload);}\nvar valor = m.payload;\nif(valor===null||valor===undefined) valor='(vazio)';\nvar texto = 'Nó: '+m.nodeId+' : '+tipo+'\\nSensor: '+m.sensorId+'\\nContexto: '+(contexto||descricao)+'\\nComando: '+comando+'\\nValor: '+valor+' '+unidade+'\\nFaixa Ideal: '+(faixaIdeal||'-')+'\\nDiagnóstico: '+(diagnostico||'-')+'\\nACK: '+m.ack+'\\nTimestamp: '+m.timestamp;\nmsg.decoded={nodeId:m.nodeId,sensorId:m.sensorId,command:comando,type:tipo,description:descricao,unit:unidade,value:valor};\nmsg.payload=texto;\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1764,7 +1764,7 @@
         "type": "function",
         "z": "6453c4babf1719c7",
         "name": "Mapeia nós",
-        "func": "// CORREÇÃO 5: TTL para remoção de nós inativos\nvar TTL_MS = flow.get('nodes_ttl_ms') || 172800000;\nvar m = msg.payload;\nif (typeof m === 'string') {\n    try { m = JSON.parse(m); } catch(e) { return null; }\n}\nif (!m || !m.nodeId) return null;\nvar PRESENTATION = {0:'S_DOOR',1:'S_MOTION',2:'S_SMOKE',3:'S_BINARY',4:'S_DIMMER',5:'S_COVER',6:'S_TEMP',7:'S_HUM',8:'S_BARO',9:'S_WIND',10:'S_RAIN',11:'S_UV',12:'S_WEIGHT',13:'S_POWER',14:'S_HEATER',15:'S_DISTANCE',16:'S_LIGHT_LEVEL',17:'S_ARDUINO_NODE',18:'S_ARDUINO_REPEATER_NODE',19:'S_LOCK',20:'S_IR',21:'S_WATER',22:'S_AIR_QUALITY',23:'S_CUSTOM',24:'S_DUST',25:'S_SCENE_CONTROLLER',26:'S_RGB_LIGHT',27:'S_RGBW_LIGHT',28:'S_COLOR_SENSOR',29:'S_HVAC',30:'S_MULTIMETER',31:'S_SPRINKLER',32:'S_WATER_LEAK',33:'S_SOUND',34:'S_VIBRATION',35:'S_MOISTURE',36:'S_INFO',37:'S_GAS',38:'S_GPS',39:'S_WATER_QUALITY'};\nvar VAR_TO_SENSOR = {0:'S_TEMP',1:'S_HUM',2:'S_BINARY',3:'S_MOISTURE',13:'S_DISTANCE',17:'S_POWER',23:'S_LIGHT_LEVEL',34:'S_WATER',35:'S_WATER',37:'S_MOISTURE',38:'S_POWER',39:'S_POWER'};\nfunction getNomeAmigavel(tipo, childId) {\n    if (tipo === 'S_TEMP') return 'Temperatura';\n    if (tipo === 'S_HUM') return 'Umidade do Ar';\n    if (tipo === 'S_MOISTURE') return 'M360::M360ItemDef[' + childId + ',7]';\n    if (tipo === 'S_BINARY') return 'Atuador / Chave';\n    return 'Sensor Canal ' + childId;\n}\nvar nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\nvar now = Date.now();\n// Remove entradas antigas (TTL)\nObject.keys(nodes).forEach(function(id) {\n    if (now - nodes[id].lastSeen > TTL_MS) {\n        node.warn('Nó ' + id + ' removido do mapa por TTL (' + Math.round(TTL_MS/60000) + ' min sem atividade)');\n        delete nodes[id];\n    }\n});\nif (!nodes[m.nodeId]) {\n    nodes[m.nodeId] = {nodeId:m.nodeId, discovered:now, lastSeen:now, lastHeartbeat:null, lastAck:null, status:'NEW', messages:0, values:{}, childs:{}, sketchName:'', sketchVersion:'', batteryLevel:null};\n    node.warn('Novo nó descoberto: ' + m.nodeId);\n}\nvar n = nodes[m.nodeId];\nif (!n.values) n.values = {};\nif (!n.childs) n.childs = {};\n// Cadencia observada entre ciclos de despertar (gap > 15s = novo ciclo, nao rajada de filhos)\nvar prevSeen = n.lastSeen;\nif (prevSeen) { var gap = now - prevSeen; if (gap > 15000) { n.cycleMs = n.cycleMs ? Math.round(0.7 * n.cycleMs + 0.3 * gap) : gap; } }\nn.lastSeen = now;\nn.messages++;\nif (m.command === 0) {\n    if (m.sensorId !== 255) {\n        var tipoStr = PRESENTATION[m.type] || 'S_CUSTOM';\n        var aliasPayload = (m.payload && typeof m.payload === 'string' && m.payload.trim() !== '') ? m.payload.trim() : null;\n        n.childs[m.sensorId] = {childId:m.sensorId, tipo:tipoStr, de: aliasPayload || getNomeAmigavel(tipoStr, m.sensorId)};\n        node.warn('Nó ' + m.nodeId + ': Sensor registrado (ID ' + m.sensorId + ' / ' + (aliasPayload||'sem alias') + ')');\n    }\n}\nif (m.command === 1) {\n    n.values[m.sensorId] = m.payload;\n    if (m.sensorId === 255) {\n        n.batteryLevel = parseInt(m.payload);\n    } else {\n        if (!n.childs[m.sensorId]) {\n            var tipoS = VAR_TO_SENSOR[m.type] || 'S_CUSTOM';\n            n.childs[m.sensorId] = {childId:m.sensorId, tipo:tipoS, de:getNomeAmigavel(tipoS, m.sensorId)};\n        }\n        var CN1 = ['A_1m_10cm','A_1m_20cm','A_1m_30cm','A_3m_10cm','A_3m_20cm','A_3m_30cm','A_5m_10cm','A_5m_20cm','A_5m_30cm','B_1m_10cm','B_1m_20cm','B_1m_30cm','B_3m_10cm','B_3m_20cm','B_3m_30cm','B_5m_10cm','B_5m_20cm','B_5m_30cm'];\n        var CN13 = {0:'Umidade ZTS',1:'Temp ZTS',2:'Condutividade Solo',3:'pH Solo',4:'N Solo',5:'P Solo',6:'K Solo',7:'Relé ZTS',8:'Umidade Hall',9:'Luminosidade'};\n        if (m.nodeId == 1 && CN1[m.sensorId] && n.childs[m.sensorId]) n.childs[m.sensorId].de = CN1[m.sensorId];\n        if (m.nodeId == 13 && CN13[m.sensorId] !== undefined && n.childs[m.sensorId]) n.childs[m.sensorId].de = CN13[m.sensorId];\n    }\n}\nif (m.command === 3) {\n    if (m.type === 0) {\n        n.batteryLevel = parseInt(m.payload);\n    } else if (m.type === 11) {\n        n.sketchName = m.payload;\n        node.warn('Nó ' + m.nodeId + ': Nome recebido -> ' + m.payload);\n    } else if (m.type === 12) {\n        n.sketchVersion = m.payload;\n    } else if (m.type === 22) {\n        n.lastHeartbeat = now;\n    }\n}\nif (m.ack == 1) {\n    n.lastAck = now;\n}\ntry { global.set('mys_nodes', nodes, 'file'); } catch (e) { global.set('mys_nodes', nodes); }\nreturn msg;",
+        "func": "// Registro de nos dirigido pela apresentacao do proprio no.\n// Tipo e rotulo de cada child vem do payload de present(); nome do no vem de I_SKETCH_NAME.\n// Nenhum atributo de no/child e hardcoded aqui.\nvar TTL_MS = flow.get('nodes_ttl_ms') || 172800000;\nvar m = msg.payload;\nif (typeof m === 'string') { try { m = JSON.parse(m); } catch(e) { return null; } }\nif (!m || !m.nodeId) return null;\nvar PRESENTATION = {0:'S_DOOR',1:'S_MOTION',2:'S_SMOKE',3:'S_BINARY',4:'S_DIMMER',5:'S_COVER',6:'S_TEMP',7:'S_HUM',8:'S_BARO',9:'S_WIND',10:'S_RAIN',11:'S_UV',12:'S_WEIGHT',13:'S_POWER',14:'S_HEATER',15:'S_DISTANCE',16:'S_LIGHT_LEVEL',17:'S_ARDUINO_NODE',18:'S_ARDUINO_REPEATER_NODE',19:'S_LOCK',20:'S_IR',21:'S_WATER',22:'S_AIR_QUALITY',23:'S_CUSTOM',24:'S_DUST',25:'S_SCENE_CONTROLLER',26:'S_RGB_LIGHT',27:'S_RGBW_LIGHT',28:'S_COLOR_SENSOR',29:'S_HVAC',30:'S_MULTIMETER',31:'S_SPRINKLER',32:'S_WATER_LEAK',33:'S_SOUND',34:'S_VIBRATION',35:'S_MOISTURE',36:'S_INFO',37:'S_GAS',38:'S_GPS',39:'S_WATER_QUALITY'};\nvar nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\nvar now = Date.now();\nObject.keys(nodes).forEach(function(id) {\n    if (now - nodes[id].lastSeen > TTL_MS) {\n        node.warn('No ' + id + ' removido do mapa por TTL');\n        delete nodes[id];\n    }\n});\nif (!nodes[m.nodeId]) {\n    nodes[m.nodeId] = {nodeId:m.nodeId, discovered:now, lastSeen:now, lastHeartbeat:null, lastAck:null,\n        status:'NEW', messages:0, values:{}, childs:{}, sketchName:'', sketchVersion:'', presentName:'', batteryLevel:null};\n    node.warn('Novo no descoberto: ' + m.nodeId);\n}\nvar n = nodes[m.nodeId];\nif (!n.values) n.values = {};\nif (!n.childs) n.childs = {};\n// Cadencia observada entre ciclos de despertar (gap > 15s = novo ciclo, nao rajada de filhos)\nvar prevSeen = n.lastSeen;\nif (prevSeen) { var gap = now - prevSeen; if (gap > 15000) { n.cycleMs = n.cycleMs ? Math.round(0.7 * n.cycleMs + 0.3 * gap) : gap; } }\nn.lastSeen = now;\nn.messages++;\n// Apresentacao (command 0): captura tipo e rotulo enviados pelo no\nif (m.command === 0) {\n    if (m.sensorId !== 255) {\n        var tipoStr = PRESENTATION[m.type] || 'S_CUSTOM';\n        var alias = (m.payload && typeof m.payload === 'string' && m.payload.trim() !== '') ? m.payload.trim() : null;\n        var existing = n.childs[m.sensorId] || {};\n        n.childs[m.sensorId] = {childId:m.sensorId, tipo:tipoStr, de: alias || existing.de || ('Sensor ' + m.sensorId)};\n        node.warn('No ' + m.nodeId + ': child apresentado (ID ' + m.sensorId + ' / ' + (alias||'sem rotulo') + ' / ' + tipoStr + ')');\n    } else if (m.payload && typeof m.payload === 'string' && m.payload.trim() !== '') {\n        n.presentName = m.payload.trim();\n    }\n}\n// Leitura (command 1): so armazena o valor; NUNCA sobrescreve o rotulo apresentado\nif (m.command === 1) {\n    n.values[m.sensorId] = m.payload;\n    if (m.sensorId === 255) {\n        n.batteryLevel = parseInt(m.payload);\n    } else if (!n.childs[m.sensorId]) {\n        n.childs[m.sensorId] = {childId:m.sensorId, tipo:'S_CUSTOM', de:'Sensor ' + m.sensorId};\n    }\n}\n// Internas (command 3): nome/versao do sketch e heartbeat (atribuicao programatica)\nif (m.command === 3) {\n    if (m.type === 0) { n.batteryLevel = parseInt(m.payload); }\n    else if (m.type === 11) { n.sketchName = m.payload; node.warn('No ' + m.nodeId + ': nome -> ' + m.payload); }\n    else if (m.type === 12) { n.sketchVersion = m.payload; }\n    else if (m.type === 22) { n.lastHeartbeat = now; }\n}\nif (m.ack == 1) { n.lastAck = now; }\ntry { global.set('mys_nodes', nodes, 'file'); } catch (e) { global.set('mys_nodes', nodes); }\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1810,6 +1810,7 @@
             [
                 "97d3242f4e6b7216",
                 "a90832dd8507acab",
+                "filter_solo_B",
                 "2368f0f56c29b3ab",
                 "filter_clima_solar",
                 "filter_bateria_solar",
@@ -2063,7 +2064,7 @@
         "type": "function",
         "z": "6453c4babf1719c7",
         "name": "Processador do Mapa m360_horta",
-        "func": "var nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\nvar now = Date.now();\nvar redeMapa = {\n    gateway: {id:'0 (Gateway Central)', topico_status: (global.get('mqtt_topic_prefix')||'m360/DF/0000') + '/gateway/status', status:'ONLINE'},\n    nos: []\n};\nfor (var id in nodes) {\n    var n = nodes[id];\n    var age = (now - n.lastSeen) / 1000;\n    var expInt = (n.cycleMs ? n.cycleMs : 60000) / 1000;\n    var offThr = Math.min(21600, Math.max(300, 3 * expInt));\n    var statusNode = 'ONLINE';\n    if (age > offThr) statusNode = 'OFFLINE';\n    else if (n.lastHeartbeat && (now - n.lastHeartbeat) / 1000 > 900) statusNode = 'SEM HEARTBEAT';\n    var descricaoNode = n.sketchName ? n.sketchName + ' (v' + (n.sketchVersion || '?.?') + ')' : '';\n    if (!descricaoNode) {\n        if (id == '99') descricaoNode = 'Atuador Central de Irrigação (Solenóides/Bombas)';\n        else if (id == '1') descricaoNode = 'Nó Sensor de Umidade de Solo (Estufa)';\n        else if (id == '4') descricaoNode = 'Nó Sensor Solar Mini (Clima)';\n        else descricaoNode = 'Nó MySensors Geral';\n    }\n    var noInfo = {nodeId:id, status:statusNode, lastSeenStr:Math.round(age)+'s atrás', descricao:descricaoNode, batteryLevel:n.batteryLevel, childs:[]};\n    var values = n.values || {};\n    var childs = n.childs || {};\n    var sensorIds = Object.keys(childs).sort(function(a,b) { return Number(a) - Number(b); });\n    if (sensorIds.length > 0) {\n        sensorIds.forEach(function(childId) {\n            var child = childs[childId];\n            var valorRaw = values[childId];\n            var valorStr = '-';\n            if (valorRaw !== undefined && valorRaw !== null) {\n                if (child.tipo === 'S_BINARY') {\n                    valorStr = (valorRaw == '1' || valorRaw.toString().toUpperCase() == 'LIGADO') ? 'LIGADO' : 'DESLIGADO';\n                } else if (child.tipo === 'S_MOISTURE') {\n                    valorStr = valorRaw + ' %';\n                } else if (child.tipo === 'S_TEMP') {\n                    valorStr = valorRaw + ' °C';\n                } else if (child.tipo === 'S_HUM') {\n                    valorStr = valorRaw + ' %';\n                } else {\n                    valorStr = valorRaw;\n                }\n            }\n            var de = child.de;\n            var tipo = child.tipo;\n            if (id == '99') {\n                if (childId == '0') de = 'Solenóide A (Canteiro A)';\n                else if (childId == '1') de = 'Solenóide B (Canteiro B)';\n                else if (childId == '2') de = 'Solenóide C (Canteiro C)';\n                else if (childId == '3') de = 'Peristáltica Suplemento A';\n                else if (childId == '4') de = 'Peristáltica Suplemento B';\n                else if (childId == '5') de = 'Peristáltica pH+';\n                else if (childId == '6') de = 'Peristáltica pH-';\n                else if (childId == '16') de = 'Bomba NFT Hidroponia';\n                else if (childId == '17') de = 'Bomba de Oxigenação';\n            }\n            if (id == '1') {\n                var nomes01b = ['A_1m_10cm','A_1m_20cm','A_1m_30cm','A_3m_10cm','A_3m_20cm','A_3m_30cm','A_5m_10cm','A_5m_20cm','A_5m_30cm','B_1m_10cm','B_1m_20cm','B_1m_30cm','B_3m_10cm','B_3m_20cm','B_3m_30cm','B_5m_10cm','B_5m_20cm','B_5m_30cm'];\n                var ci1b = Number(childId);\n                if (ci1b >= 0 && ci1b < nomes01b.length) tipo = nomes01b[ci1b];\n            }\n            if (id == '4') {\n                if (childId == '0') de = 'Temperatura';\n                else if (childId == '1') de = 'Umidade do Ar';\n            }\n            noInfo.childs.push({childId:childId, tipo:tipo, de:de, valor:valorStr});\n        });\n    } else {\n        if (id == '99') {\n            noInfo.childs.push(\n                {childId:0, tipo:'S_BINARY', de:'Solenóide A (Canteiro A)', valor: values[0] !== undefined ? (values[0] == '1' ? 'LIGADO' : 'DESLIGADO') : '-'},\n                {childId:1, tipo:'S_BINARY', de:'Solenóide B (Canteiro B)', valor: values[1] !== undefined ? (values[1] == '1' ? 'LIGADO' : 'DESLIGADO') : '-'},\n                {childId:2, tipo:'S_BINARY', de:'Solenóide C (Canteiro C)', valor: values[2] !== undefined ? (values[2] == '1' ? 'LIGADO' : 'DESLIGADO') : '-'},\n                {childId:3, tipo:'S_BINARY', de:'Peristáltica Suplemento A', valor: values[3] !== undefined ? (values[3] == '1' ? 'LIGADO' : 'DESLIGADO') : '-'},\n                {childId:4, tipo:'S_BINARY', de:'Peristáltica Suplemento B', valor: values[4] !== undefined ? (values[4] == '1' ? 'LIGADO' : 'DESLIGADO') : '-'},\n                {childId:5, tipo:'S_BINARY', de:'Peristáltica pH+', valor: values[5] !== undefined ? (values[5] == '1' ? 'LIGADO' : 'DESLIGADO') : '-'},\n                {childId:6, tipo:'S_BINARY', de:'Peristáltica pH-', valor: values[6] !== undefined ? (values[6] == '1' ? 'LIGADO' : 'DESLIGADO') : '-'},\n                {childId:16, tipo:'S_BINARY', de:'Bomba NFT Hidroponia', valor: values[16] !== undefined ? (values[16] == '1' ? 'LIGADO' : 'DESLIGADO') : '-'},\n                {childId:17, tipo:'S_BINARY', de:'Bomba de Oxigenação', valor: values[17] !== undefined ? (values[17] == '1' ? 'LIGADO' : 'DESLIGADO') : '-'}\n            );\n        } else if (id == '1') {\n            var nomes01 = ['A_1m_10cm','A_1m_20cm','A_1m_30cm','A_3m_10cm','A_3m_20cm','A_3m_30cm','A_5m_10cm','A_5m_20cm','A_5m_30cm','B_1m_10cm','B_1m_20cm','B_1m_30cm','B_3m_10cm','B_3m_20cm','B_3m_30cm','B_5m_10cm','B_5m_20cm','B_5m_30cm'];\n            for (var ci = 0; ci < 18; ci++) {\n                noInfo.childs.push({childId:ci, tipo:'S_MOISTURE', de:nomes01[ci], valor: values[ci] !== undefined ? values[ci] + ' %' : '-'});\n            }\n        } else if (id == '4') {\n            noInfo.childs.push(\n                {childId:0, tipo:'S_TEMP', de:'Temperatura', valor: values[0] !== undefined ? values[0] + ' °C' : '-'},\n                {childId:1, tipo:'S_HUM',  de:'Umidade do Ar', valor: values[1] !== undefined ? values[1] + ' %' : '-'}\n            );\n        } else if (id == '13') {\n            var child13 = [\n                {childId:0, tipo:'S_MOISTURE',     de:'Umidade ZTS',       u:' %'},\n                {childId:1, tipo:'S_TEMP',         de:'Temp ZTS',          u:' °C'},\n                {childId:2, tipo:'S_CUSTOM',       de:'Condutividade Solo', u:' µS/cm'},\n                {childId:3, tipo:'S_CUSTOM',       de:'pH Solo',           u:''},\n                {childId:4, tipo:'S_CUSTOM',       de:'N Solo',            u:' mg/kg'},\n                {childId:5, tipo:'S_CUSTOM',       de:'P Solo',            u:' mg/kg'},\n                {childId:6, tipo:'S_CUSTOM',       de:'K Solo',            u:' mg/kg'},\n                {childId:7, tipo:'S_BINARY',       de:'Relé ZTS',          u:''},\n                {childId:8, tipo:'S_HUM',          de:'Umidade Hall',      u:' %'},\n                {childId:9, tipo:'S_LIGHT_LEVEL',  de:'Luminosidade',      u:' %'}\n            ];\n            child13.forEach(function(c) {\n                var v = values[c.childId];\n                var vs = v !== undefined ? (c.tipo === 'S_BINARY' ? (v == '1' ? 'LIGADO' : 'DESLIGADO') : v + c.u) : '-';\n                noInfo.childs.push({childId:c.childId, tipo:c.tipo, de:c.de, valor:vs});\n            });\n        } else {\n            noInfo.childs.push({childId:'255', tipo:'S_ARDUINO_NODE', de:'Dados de Controle', valor:'-'});\n        }\n    }\n    redeMapa.nos.push(noInfo);\n}\nif (redeMapa.nos.length === 0) {\n    redeMapa.nos = [\n        {nodeId:'1', descricao:'Nó Sensor de Umidade de Solo (Multiplexado - Estufa)', status:'ONLINE', lastSeenStr:'12s atrás', childs:[{childId:0,tipo:'S_MOISTURE',de:'Sensor Umidade Solo 1',valor:'65 %'},{childId:1,tipo:'S_TEMP',de:'Temperatura Solo',valor:'24.5 °C'}]},\n        {nodeId:'99', descricao:'Atuador Central de Irrigação (Múltiplas Solenóides/Bombas)', status:'ONLINE', lastSeenStr:'5s atrás', childs:[{childId:0,tipo:'S_BINARY',de:'Solenóide A (Canteiro A)',valor:'DESLIGADO'},{childId:1,tipo:'S_BINARY',de:'Solenóide B (Canteiro B)',valor:'LIGADO'},{childId:2,tipo:'S_BINARY',de:'Solenóide C (Canteiro C)',valor:'DESLIGADO'},{childId:3,tipo:'S_BINARY',de:'Peristáltica Suplemento A',valor:'DESLIGADO'},{childId:4,tipo:'S_BINARY',de:'Peristáltica Suplemento B',valor:'DESLIGADO'},{childId:5,tipo:'S_BINARY',de:'Peristáltica pH+',valor:'DESLIGADO'},{childId:6,tipo:'S_BINARY',de:'Peristáltica pH-',valor:'DESLIGADO'},{childId:16,tipo:'S_BINARY',de:'Bomba NFT Hidroponia',valor:'LIGADO'},{childId:17,tipo:'S_BINARY',de:'Bomba de Oxigenação',valor:'DESLIGADO'}]}\n    ];\n}\nmsg.payload = redeMapa;\nreturn msg;",
+        "func": "// Mapa construido apenas a partir dos atributos apresentados pelo no.\n// Sem relabel hardcoded por nodeId e sem dados de demonstracao.\nvar nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\nvar now = Date.now();\nvar prefix = global.get('mqtt_topic_prefix') || 'm360/DF/0000';\nvar UNIT = {S_TEMP:' \\u00b0C', S_HUM:' %', S_MOISTURE:' %', S_LIGHT_LEVEL:' %', S_WATER:' L/min', S_DISTANCE:' cm'};\nfunction fmtValor(tipo, v) {\n    if (v === undefined || v === null) return '-';\n    if (tipo === 'S_BINARY') return (v == '1' || String(v).toUpperCase() === 'LIGADO') ? 'LIGADO' : 'DESLIGADO';\n    return String(v) + (UNIT[tipo] || '');\n}\nvar redeMapa = {\n    gateway: {id:'0 (Gateway Central)', topico_status: prefix + '/gateway/status', status:'ONLINE'},\n    nos: []\n};\nfor (var id in nodes) {\n    var n = nodes[id];\n    var age = (now - n.lastSeen) / 1000;\n    var expInt = (n.cycleMs ? n.cycleMs : 60000) / 1000;\n    var offThr = Math.min(21600, Math.max(300, 3 * expInt));\n    var statusNode = 'ONLINE';\n    if (age > offThr) statusNode = 'OFFLINE';\n    else if (n.lastHeartbeat && (now - n.lastHeartbeat) / 1000 > 900) statusNode = 'SEM HEARTBEAT';\n    var descricaoNode = n.sketchName ? (n.sketchName + (n.sketchVersion ? ' (v' + n.sketchVersion + ')' : ''))\n                                     : (n.presentName || ('No ' + id));\n    var noInfo = {nodeId:id, status:statusNode, lastSeenStr:Math.round(age)+'s atras',\n        descricao:descricaoNode, batteryLevel:n.batteryLevel, childs:[]};\n    var values = n.values || {};\n    var childs = n.childs || {};\n    var sensorIds = Object.keys(childs).sort(function(a,b) { return Number(a) - Number(b); });\n    sensorIds.forEach(function(childId) {\n        var child = childs[childId];\n        noInfo.childs.push({childId:childId, tipo:child.tipo, de:child.de, valor:fmtValor(child.tipo, values[childId])});\n    });\n    redeMapa.nos.push(noInfo);\n}\nmsg.payload = redeMapa;\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2107,7 +2108,7 @@
         "type": "function",
         "z": "6453c4babf1719c7",
         "name": "Filtro Umidade Solo Canteiro A",
-        "func": "var m = msg.payload;\nif (m.nodeId == 1 && m.sensorId >= 0 && m.sensorId <= 5) {\n    var names = ['A_1m_10cm', 'A_1m_20cm', 'A_1m_30cm', 'A_3m_10cm', 'A_3m_20cm', 'A_3m_30cm'];\n    msg.topic = names[m.sensorId];\n    msg.payload = parseFloat(m.payload);\n    msg.ts = Date.now();\n    return msg;\n}\nreturn null;",
+        "func": "// Roteia por atributo apresentado: child S_MOISTURE cujo rotulo comeca com 'A_'.\n// Topico da serie = proprio rotulo apresentado pelo no (sem tabela fixa).\nvar m = msg.payload;\nvar nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\nvar n = nodes[m.nodeId];\nvar child = n && n.childs && n.childs[m.sensorId];\nif (child && child.tipo === 'S_MOISTURE' && typeof child.de === 'string' && child.de.indexOf('A_') === 0) {\n    msg.topic = child.de;\n    msg.payload = parseFloat(m.payload);\n    msg.ts = Date.now();\n    return msg;\n}\nreturn null;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2151,6 +2152,8 @@
         "label": "Umidade do Solo - Canteiro A",
         "order": 1,
         "chartType": "line",
+        "ymin": "",
+        "ymax": "",
         "category": "topic",
         "categoryType": "msg",
         "xAxisProperty": "ts",
@@ -2178,6 +2181,8 @@
         "label": "Clima - Temperatura e Umidade do Ar (Nó 99)",
         "order": 2,
         "chartType": "line",
+        "ymin": "",
+        "ymax": "",
         "category": "topic",
         "categoryType": "msg",
         "xAxisProperty": "ts",
@@ -2353,6 +2358,8 @@
         "label": "Clima - Temperatura e Umidade (Nó 04 SolarMini)",
         "order": 3,
         "chartType": "line",
+        "ymin": "",
+        "ymax": "",
         "category": "topic",
         "categoryType": "msg",
         "xAxisProperty": "ts",
@@ -2453,24 +2460,7 @@
         "height": 1,
         "passthru": true,
         "multiple": false,
-        "options": [
-            {
-                "label": "Nó 01 (Solo/Estufa)",
-                "value": 1
-            },
-            {
-                "label": "Nó 04 (Clima/Solar)",
-                "value": 4
-            },
-            {
-                "label": "Nó 13 (Solo Modbus/ZTS)",
-                "value": 13
-            },
-            {
-                "label": "Nó 99 (Atuador Central)",
-                "value": 99
-            }
-        ],
+        "options": [],
         "payloadType": "num",
         "topic": "selectedNodeId",
         "topicType": "str",
@@ -2576,7 +2566,7 @@
         "type": "function",
         "z": "fa3d647aa002afc8",
         "name": "Atualiza Opções do Dropdown",
-        "func": "var nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\nvar options = [];\n\n// Adiciona os nós descobertos ordenados por ID\nObject.keys(nodes).sort(function(a,b) { return Number(a) - Number(b); }).forEach(function(id) {\n    var n = nodes[id];\n    var label = 'Nó ' + id;\n    if (n.sketchName) {\n        label += ' (' + n.sketchName + ')';\n    } else {\n        if (id == '99') label += ' (Atuador Central)';\n        else if (id == '1') label += ' (Solo/Estufa)';\n        else if (id == '4') label += ' (Clima/Solar)';\n        else label += ' (MySensors Geral)';\n    }\n    options.push({ label: label, value: Number(id) });\n});\n\n// Se a lista estiver vazia, coloca fallbacks padrão\nif (options.length === 0) {\n    options = [\n        { label: \"Nó 01 (Solo/Estufa)\", value: 1 },\n        { label: \"Nó 04 (Clima/Solar)\", value: 4 },\n        { label: \"Nó 13 (Solo Modbus/ZTS)\", value: 13 },\n        { label: \"Nó 99 (Atuador Central)\", value: 99 }\n    ];\n}\n\nmsg.options = options;\n\n// Preserva a seleção atual se houver\nvar currentSelected = flow.get('ui_selected_node_id');\nif (currentSelected !== undefined) {\n    msg.payload = currentSelected;\n} else {\n    delete msg.payload;\n}\n\nreturn msg;",
+        "func": "// Opcoes do dropdown a partir dos nos descobertos (mys_nodes).\n// Dedupe: so envia quando o CONJUNTO de nos muda, evitando flood a cada mensagem\n// MySensors que faria o ui-dropdown engasgar. Nunca envia lista vazia (nao apaga o widget).\nvar nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\nvar options = [];\nObject.keys(nodes).sort(function(a,b) { return Number(a) - Number(b); }).forEach(function(id) {\n    var n = nodes[id];\n    var nome = n.sketchName || n.presentName || '';\n    options.push({ label: 'No ' + id + (nome ? ' (' + nome + ')' : ''), value: Number(id) });\n});\nvar sig = options.map(function(o) { return o.value + ':' + o.label; }).join('|');\nif (options.length === 0) { return null; }\nif (sig === flow.get('dropdown_sig')) { return null; }\nflow.set('dropdown_sig', sig);\nreturn { options: options };",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2669,6 +2659,8 @@
         "label": "Nível de Bateria - Nó 04 SolarMini",
         "order": 4,
         "chartType": "line",
+        "ymin": "",
+        "ymax": "",
         "category": "topic",
         "categoryType": "msg",
         "xAxisProperty": "ts",
@@ -2759,6 +2751,8 @@
         "label": "Vazão Instantânea dos Canteiros",
         "order": 5,
         "chartType": "line",
+        "ymin": "",
+        "ymax": "",
         "category": "topic",
         "categoryType": "msg",
         "xAxisProperty": "ts",
@@ -2786,6 +2780,8 @@
         "label": "Volume de Irrigação Acumulado (Litros)",
         "order": 6,
         "chartType": "line",
+        "ymin": "",
+        "ymax": "",
         "category": "topic",
         "categoryType": "msg",
         "xAxisProperty": "ts",
@@ -2802,6 +2798,120 @@
         "y": 560,
         "wires": [
             []
+        ]
+    },
+    {
+        "id": "filter_solo_B",
+        "type": "function",
+        "z": "6453c4babf1719c7",
+        "name": "Filtro Umidade Solo Canteiro B",
+        "func": "// Roteia por atributo apresentado: child S_MOISTURE cujo rotulo comeca com 'B_'.\n// Topico da serie = proprio rotulo apresentado pelo no (sem tabela fixa).\nvar m = msg.payload;\nvar nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\nvar n = nodes[m.nodeId];\nvar child = n && n.childs && n.childs[m.sensorId];\nif (child && child.tipo === 'S_MOISTURE' && typeof child.de === 'string' && child.de.indexOf('B_') === 0) {\n    msg.topic = child.de;\n    msg.payload = parseFloat(m.payload);\n    msg.ts = Date.now();\n    return msg;\n}\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 890,
+        "y": 620,
+        "wires": [
+            [
+                "persist_hist_solo_B"
+            ]
+        ]
+    },
+    {
+        "id": "persist_hist_solo_B",
+        "type": "function",
+        "z": "6453c4babf1719c7",
+        "name": "Salvar Histórico Solo B",
+        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_solo_B') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nflow.set('hist_solo_B', hist);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1040,
+        "y": 620,
+        "wires": [
+            [
+                "chart_solo_B"
+            ]
+        ]
+    },
+    {
+        "id": "chart_solo_B",
+        "type": "ui-chart",
+        "z": "6453c4babf1719c7",
+        "group": "a07f08860aaed900",
+        "name": "Umidade do Solo Canteiro B",
+        "label": "Umidade do Solo - Canteiro B",
+        "order": 7,
+        "chartType": "line",
+        "ymin": "",
+        "ymax": "",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisProperty": "ts",
+        "xAxisPropertyType": "msg",
+        "xAxisType": "time",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "removeOlder": 1,
+        "removeOlderUnit": "86400",
+        "removeOlderPoints": "",
+        "width": "6",
+        "height": "5",
+        "x": 1190,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "replay_solo_B_inject",
+        "type": "inject",
+        "z": "6453c4babf1719c7",
+        "name": "Replay Solo B no Deploy",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 2.5,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 440,
+        "y": 740,
+        "wires": [
+            [
+                "replay_solo_B_fn"
+            ]
+        ]
+    },
+    {
+        "id": "replay_solo_B_fn",
+        "type": "function",
+        "z": "6453c4babf1719c7",
+        "name": "Replay Histórico Solo B",
+        "func": "var hist = flow.get('hist_solo_B') || [];\nvar msgs = hist.map(function(p) { return { topic: p.topic, payload: p.payload, ts: p.ts }; });\nnode.status({ fill: 'blue', shape: 'dot', text: 'replay B: ' + msgs.length + ' pontos' });\nreturn [ msgs.length ? msgs : null ];",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 740,
+        "wires": [
+            [
+                "chart_solo_B"
+            ]
         ]
     }
 ]
