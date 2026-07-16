@@ -19,6 +19,15 @@ static DHT dht(PIN_DHT, DHT11);
 static int8_t s_activeMuxChannel    = -1;       // -1 = nenhum canal MUX ativo
 static bool   s_muxChannelState[16] = {false};  // estado lógico de cada canal MUX
 
+// ===== VARIÁVEIS E INTERRUPÇÃO DO SENSOR DE VAZÃO =====
+static volatile uint32_t s_pulseCount = 0;
+static float s_currentFlow = 0.0f;
+
+static void pulseCounter()
+{
+	s_pulseCount++;
+}
+
 // ===== FUNÇÕES INTERNAS =====
 
 /** Configura as 4 linhas de seleção S0-S3 para o canal MUX desejado. */
@@ -50,6 +59,10 @@ void initSensors()
 	pinMode(PIN_NFT_OXI,  OUTPUT);
 	digitalWrite(PIN_NFT_PUMP, HIGH); // relay OFF (Active-LOW)
 	digitalWrite(PIN_NFT_OXI,  HIGH); // relay OFF (Active-LOW)
+
+	// --- Sensor de Vazão YF-201 no D2 ---
+	pinMode(PIN_FLOW, INPUT_PULLUP);
+	attachInterrupt(digitalPinToInterrupt(PIN_FLOW), pulseCounter, FALLING);
 
 	// --- Inicialização do DHT11 ---
 	dht.begin();
@@ -108,4 +121,65 @@ float readDHTHum()
 {
 	float h = dht.readHumidity();
 	return isnan(h) ? NAN : h;
+}
+
+static float calculateFlow(volatile uint32_t &pCount, unsigned long &lastTime)
+{
+	unsigned long now = millis();
+	
+	if (lastTime == 0) {
+		lastTime = now;
+		return 0.0f;
+	}
+	
+	unsigned long duration = now - lastTime;
+	if (duration < 200) {
+		return 0.0f; // Evita medições instáveis em intervalos muito pequenos
+	}
+	
+	noInterrupts();
+	uint32_t pulses = pCount;
+	pCount = 0;
+	interrupts();
+	
+	lastTime = now;
+	
+	// Frequência de pulsos (Hz)
+	float hz = (pulses * 1000.0f) / (float)duration;
+	
+	// YF-201: F (Hz) = 7.5 * Q (L/min) => Q (L/min) = Hz / 7.5
+	// Q (L/s) = Q (L/min) / 60 => Q (L/s) = Hz / 450.0f
+	float flowRate = hz / 450.0f;
+	
+	return flowRate;
+}
+
+void updateFlows()
+{
+	static unsigned long lastUpdate = 0;
+	unsigned long now = millis();
+	
+	// Atualiza a cada 2 segundos
+	if (lastUpdate == 0 || (now - lastUpdate) >= 2000) {
+		lastUpdate = now;
+		static unsigned long lastFlowTime = 0;
+		s_currentFlow = calculateFlow(s_pulseCount, lastFlowTime);
+	}
+}
+
+float getFlowForCanteiro(uint8_t canteiroId)
+{
+	int8_t targetCh = -1;
+	if (canteiroId == CHILD_ID_SOL_A) {
+		targetCh = 0;
+	} else if (canteiroId == CHILD_ID_SOL_B) {
+		targetCh = 1;
+	} else if (canteiroId == CHILD_ID_SOL_C) {
+		targetCh = 2; // Canteiro N (Sol.CanteiroN)
+	}
+	
+	if (targetCh == s_activeMuxChannel) {
+		return s_currentFlow;
+	}
+	return 0.0f;
 }

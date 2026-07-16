@@ -54,9 +54,13 @@
 #define CHILD_ID_NFT_OXI    17  // A1 — Bomba Oxigenação NFT
 #define CHILD_ID_DHT_TEMP   18  // Sensor de Temperatura DHT11
 #define CHILD_ID_DHT_HUM    19  // Sensor de Umidade DHT11
+#define CHILD_ID_FLOW_A     20  // Vazão Canteiro A
+#define CHILD_ID_FLOW_B     21  // Vazão Canteiro B
+#define CHILD_ID_FLOW_N     22  // Vazão Canteiro N
 
-// ===== PINO NATIVO DHT11 =====
-#define PIN_DHT             2   // D2 para sinal digital do DHT11
+// ===== PINOS NATIVOS =====
+#define PIN_DHT             3   // D3 para sinal digital do DHT11
+#define PIN_FLOW            2   // D2 para sinal do sensor de vazão YF-201
 
 // ===== ENCODING DE PINOS VIRTUAIS (MUX) =====
 // Canais MUX são representados como pinos virtuais no campo `pin` de M360ItemDef:
@@ -99,3 +103,14 @@ float readDHTTemp();
  * Lê a umidade do sensor DHT11.
  */
 float readDHTHum();
+
+/**
+ * Atualiza a leitura de vazão baseada em pulsos (deve ser chamada periodicamente no loop).
+ */
+void updateFlows();
+
+/**
+ * Retorna o fluxo atual de vazão direcionado a um canteiro específico,
+ * se este estiver ativo. Caso contrário, retorna 0.0f.
+ */
+float getFlowForCanteiro(uint8_t canteiroId);
