@@ -14,7 +14,8 @@
  *
  *   A0 (D14) : Bomba Circulação Principal NFT  (pino nativo, operação concorrente)
  *   A1 (D15) : Bomba Oxigenação NFT            (pino nativo, operação concorrente)
- *   D2       : Sensor DHT11 DATA                (operação concorrente)
+ *   D2       : Sensor de Vazão YF-201          (operação concorrente)
+ *   D3       : Sensor DHT11 DATA               (operação concorrente)
  *
  * Lógica dos Relés (optoacoplador): Active-LOW (LOW = Liga)
  *

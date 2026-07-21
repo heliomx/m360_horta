@@ -28,9 +28,10 @@ O rádio utiliza os pinos padrão da interface SPI do Arduino Pro Mini:
 ### Sensor DHT11 e Controle de VCC Chaveado
 Para maximizar a economia de energia da bateria, a linha de alimentação (VCC) do sensor DHT11 é conectada a um pino digital do microcontrolador (D3), permitindo desligá-lo completamente durante os ciclos de repouso (smartSleep).
 
-| Sensor | Pino de Sinal | Pino de Energia (VCC) | Pino de GND |
+| Sensor / Medição | Pino de Sinal / Leitura | Pino de Energia (VCC) | Pino de GND |
 | :--- | :--- | :--- | :--- |
 | **DHT11 (Temp/Hum)** | D4 (Dados) | D3 (VCC Chaveado) | GND |
+| **Leitura da Bateria** | A0 (Analógico) | Polo (+) da Bateria (antes do LDO) | GND (via resistor) |
 
 ---
 
@@ -44,3 +45,12 @@ Para maximizar a economia de energia da bateria, a linha de alimentação (VCC) 
 
 ### 2. Barramento de Dados (D4)
 *   *Nota: O pino **D4** de comunicação do DHT11 requer um resistor de pull-up físico de 4.7kΩ a 10kΩ conectado entre o sinal (D4) e a linha de alimentação controlada (D3).*
+
+### 3. Circuito de Medição da Bateria (Divisor de Tensão)
+*   **Divisor de Tensão:** Para medir a tensão real da bateria (variável entre 3.0V e 4.2V) sem que o regulador LDO de 3.3V mascare a leitura com uma saída constante, instala-se um divisor de tensão composto por dois resistores de **100kΩ** em série.
+*   **Esquema de Ligação:**
+    - O topo do divisor é conectado ao polo positivo (+) da bateria (antes da entrada do regulador LDO 3.3V).
+    - O ponto central (entre os dois resistores) é conectado ao pino analógico **A0** do Arduino Pro Mini.
+    - A base do divisor é ligada ao terra comum (**GND**).
+*   **Funcionamento:** Como os resistores são iguais, a tensão é dividida exatamente por 2. Quando a bateria estiver totalmente carregada em 4.2V, o pino **A0** receberá 2.1V (nível seguro, inferior ao limite de 3.3V do pino analógico). O firmware faz a leitura analógica e multiplica o valor lido por `(6.6V / 1023)` para recompor a leitura real da bateria em Volts.
+

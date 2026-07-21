@@ -35,7 +35,8 @@ graph TD
     ReleM6[Módulo Relé MUX 6]
     
     %% Sensores Nativos
-    DHT[Sensor DHT11 - D2]
+    DHT[Sensor DHT11 - D3]
+    Flow[Sensor de Vazão YF-201 - D2]
     
     %% Atuadores (Cargas 12V e 220V)
     BombaNFT[Bomba Circulação NFT<br/>220V AC]
@@ -84,7 +85,8 @@ graph TD
     %% Conexões de Controle Nativas (Arduino -> Relés)
     Nano -->|A0| ReleNFT
     Nano -->|A1| ReleOxi
-    Nano -->|D2 Sinal Digital| DHT
+    Nano -->|D3 Sinal Digital| DHT
+    Nano -->|D2 Sinal de Pulsos| Flow
     
     %% Conexões de Controle MUX (Arduino -> MUX)
     Nano -->|D4..D7 S0..S3| MUX
@@ -123,7 +125,7 @@ graph TD
     class Nano mcu;
     class NRF radio;
     class MUX mux;
-    class DHT sensor;
+    class DHT,Flow sensor;
     class ReleNFT,ReleOxi,ReleM0,ReleM1,ReleM2,ReleM3,ReleM4,ReleM5,ReleM6 relay;
     class BombaNFT,BombaOxi,SolA,SolB,SolC,PeriSuplA,PeriSuplB,PeriPH_Mais,PeriPH_Menos actuator;
 ```
@@ -162,10 +164,11 @@ Os relés listados abaixo possuem pinos dedicados no Arduino e podem operar simu
 | **Relé Oxi** | A1 (D15) | Bomba Oxigenação | 220V AC |
 
 ### Sensores Nativos (Operação Concorrente)
-O sensor abaixo possui pino dedicado no Arduino e pode operar simultaneamente a qualquer outro item.
+Os sensores abaixo possuem pinos dedicados no Arduino e podem operar simultaneamente a qualquer outro item.
 | Sensor | Pino Arduino | Medição | Especificação Alimentação |
 | :--- | :--- | :--- | :--- |
-| **DHT11** | D2 | Temperatura e Umidade ambiente do quadro | 5V DC (Sinal com resistor pull-up de 4.7kΩ a 10kΩ para VCC) |
+| **DHT11** | D3 | Temperatura e Umidade ambiente do quadro | 5V DC (Sinal com resistor pull-up de 4.7kΩ a 10kΩ para VCC) |
+| **YF-201** | D2 | Sensor de Vazão de Água na Irrigação | 5V DC (Sinal de pulsos com interrupção externa INT0) |
 
 ### Relés e Atuadores Multiplexados (Concorrência Restrita)
 Os relés listados abaixo são controlados pelas saídas do MUX. Apenas **UM** relé desta lista pode ser ativado simultaneamente.

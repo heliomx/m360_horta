@@ -8,6 +8,7 @@
 // ===== PINOS DE HARDWARE =====
 #define PIN_POWER_SENSORS  3  // Pino VCC controlado para economizar bateria
 #define PIN_DHT            4  // Pino de dados do DHT11
+#define PIN_BATTERY_ADC    A0 // Divisor de tensão da bateria (100k/100k)
 
 // ===== CHILD IDs (Canais do Nó) =====
 #define CHILD_ID_TEMP      0  // Temperatura

@@ -24,7 +24,7 @@
  *   ┌──────┬──────────────────────────────────────────────────┐
  *   │  A0  │ Bomba Circulação Principal — Hidroponia NFT      │
  *   │  A1  │ Bomba Oxigenação — Hidroponia NFT                │
- *   │  D2  │ Sensor DHT11 DATA                                │
+ *   │  D3 │ Sensor DHT11 DATA                                │
  *   └──────┴──────────────────────────────────────────────────┘
  *
  * Macros MY_* definidas no platformio.ini [env:node_99_reles_nano]

@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 560" width="100%" height="100%">
+  <!-- Estilos CSS para fontes e efeitos -->
+  <style>
+    .title { font-family: sans-serif; font-size: 16px; font-weight: bold; fill: #1a237e; }
+    .subtitle { font-family: sans-serif; font-size: 11px; fill: #5c6bc0; }
+    .box-mcu { fill: #e3f0ff; stroke: #0055aa; stroke-width: 2; }
+    .box-radio { fill: #e8f5e9; stroke: #1a7a3a; stroke-width: 2; }
+    .box-mux { fill: #f3e5f5; stroke: #6f42c1; stroke-width: 2; }
+    .box-power { fill: #fff8e1; stroke: #f9a825; stroke-width: 2; }
+    .box-sensors { fill: #e0f2f1; stroke: #00796b; stroke-width: 2; }
+    .text-bold { font-family: sans-serif; font-size: 12px; font-weight: bold; fill: #333; }
+    .text-normal { font-family: sans-serif; font-size: 10px; fill: #444; }
+    .text-pin { font-family: sans-serif; font-size: 11px; font-weight: bold; fill: #b71c1c; }
+    .text-vcc { font-family: sans-serif; font-size: 10px; font-weight: bold; fill: #e65100; }
+  </style>
+
+  <!-- Definição de Marcadores para Setas -->
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#333" />
+    </marker>
+  </defs>
+
+  <!-- Cabeçalho -->
+  <text x="20" y="30" class="title">Nó 01 (Solo3dMini) — Monitoramento 3D de Solo (18 Canais)</text>
+  <text x="20" y="48" class="subtitle">Diagrama de Blocos de Hardware e Mapeamento de Sinais</text>
+
+  <!-- FONTE DE ALIMENTAÇÃO -->
+  <rect x="20" y="80" width="160" height="70" rx="6" class="box-power"/>
+  <text x="100" y="100" class="text-bold" text-anchor="middle">🔋 FONTE 5V DC</text>
+  <text x="100" y="120" class="text-normal" text-anchor="middle">Alimentação Fixa</text>
+  <text x="100" y="135" class="text-normal" text-anchor="middle">(Estufa Central)</text>
+
+  <!-- MICROCONTROLADOR (ARDUINO PRO MINI) -->
+  <rect x="240" y="80" width="280" height="230" rx="6" class="box-mcu"/>
+  <text x="380" y="105" class="text-bold" text-anchor="middle">🧠 ARDUINO PRO MINI</text>
+  <text x="380" y="122" class="text-normal" text-anchor="middle">ATmega328P (5V / 16MHz)</text>
+  <text x="380" y="137" class="text-normal" text-anchor="middle">Modo: ALWAYS_ON</text>
+
+  <!-- Transceptor Rádio nRF24L01+ -->
+  <rect x="240" y="370" width="280" height="80" rx="6" class="box-radio"/>
+  <text x="380" y="395" class="text-bold" text-anchor="middle">📡 TRANSCEPTOR RF</text>
+  <text x="380" y="415" class="text-normal" text-anchor="middle">Módulo nRF24L01+ (2.4 GHz)</text>
+  <text x="380" y="430" class="text-normal" text-anchor="middle">SPI Bus Dedicado</text>
+
+  <!-- MULTIPLEXADOR ANALÓGICO CD74HC4067 -->
+  <rect x="20" y="240" width="160" height="150" rx="6" class="box-mux"/>
+  <text x="100" y="260" class="text-bold" text-anchor="middle">🔌 MUX ANALÓGICO</text>
+  <text x="100" y="278" class="text-normal" text-anchor="middle">CD74HC4067 (16 Canais)</text>
+  <text x="100" y="293" class="text-normal" text-anchor="middle">LOW-resistance switch</text>
+
+  <!-- SENSORES DE UMIDADE DE SOLO -->
+  <rect x="20" y="440" width="160" height="90" rx="6" class="box-sensors"/>
+  <text x="100" y="465" class="text-bold" text-anchor="middle">🌱 SENSORES SOLO</text>
+  <text x="100" y="485" class="text-normal" text-anchor="middle">18 Canais Resistivos</text>
+  <text x="100" y="500" class="text-normal" text-anchor="middle">16 via MUX + 2 Diretos</text>
+  <text x="100" y="515" class="text-normal" text-anchor="middle">(Canteiro A)</text>
+
+  <!-- LINHAS DE SINAL E CONEXÕES -->
+
+  <!-- Alimentação 5V DC -> Pro Mini -->
+  <path d="M 180,115 L 240,115" fill="none" stroke="#f9a825" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="210" y="110" class="text-vcc" text-anchor="middle">5V DC</text>
+
+  <!-- Barramento SPI (Arduino -> Rádio) -->
+  <path d="M 380,310 L 380,370" fill="none" stroke="#1a7a3a" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="390" y="340" class="text-normal" font-weight="bold">D11-D13 (SPI) / D9,D10 (CE,CSN)</text>
+
+  <!-- Pinos de Controle MUX (Arduino -> MUX) -->
+  <path d="M 240,260 L 180,260" fill="none" stroke="#6f42c1" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="210" y="250" class="text-normal" text-anchor="middle" font-weight="bold">D4-D7 (S0-S3)</text>
+
+  <!-- Linha de leitura analógica do MUX (MUX SIG -> Arduino A0) -->
+  <path d="M 180,290 L 240,290" fill="none" stroke="#0055aa" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="210" y="285" class="text-pin" text-anchor="middle">A0 (SIG)</text>
+
+  <!-- Pinos Nativos Diretos (Sensores -> Arduino A1 e A2) -->
+  <path d="M 180,485 L 210,485 L 210,210 L 240,210" fill="none" stroke="#0055aa" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="220" y="200" class="text-pin">A1, A2 (Sensores 16, 17)</text>
+
+  <!-- Controle de Pull-ups / Chaveamento VCC (Arduino D3 -> Resistores) -->
+  <path d="M 240,175 L 210,175 L 210,225 L 100,225 L 100,240" fill="none" stroke="#e65100" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#arr)"/>
+  <text x="175" y="170" class="text-pin">D3 (VCC Chaveado)</text>
+  <text x="100" y="215" class="text-normal" text-anchor="middle" font-weight="bold">Barra Pull-Up</text>
+
+  <!-- Sensores -> MUX canais (0 a 15) -->
+  <path d="M 100,440 L 100,390" fill="none" stroke="#00796b" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="110" y="420" class="text-normal">Canais 0-15</text>
+
+</svg>

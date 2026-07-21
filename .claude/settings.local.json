@@ -35,7 +35,9 @@
       "PowerShell(& \"C:\\\\Users\\\\jmarc\\\\.platformio\\\\penv\\\\Scripts\\\\platformio.exe\" run -e ProMini_01nodeSolo3d -e nano_13nodeZTS_UmidadeHall -e nano_99reles 2>&1)",
       "PowerShell(& \"C:\\\\Users\\\\jmarc\\\\.platformio\\\\penv\\\\Scripts\\\\platformio.exe\" check -e check_m360_dry 2>&1)",
       "PowerShell(& \"C:\\\\Users\\\\jmarc\\\\.platformio\\\\penv\\\\Scripts\\\\platformio.exe\" run -e d1_mini_libdry 2>&1)",
-      "Bash(find / -iname \"MyMessage.h\" 2>/dev/null | head -20; find / -ipath \"*MySensors*/core*\" -iname \"*.cpp\" 2>/dev/null | head -20)"
+      "Bash(find / -iname \"MyMessage.h\" 2>/dev/null | head -20; find / -ipath \"*MySensors*/core*\" -iname \"*.cpp\" 2>/dev/null | head -20)",
+      "Bash(node -e \"const d=require\\('./src/nodered/mapa da rede/nodered m360.json'\\); console.log\\('JSON OK — nós:', d.length\\);\")",
+      "Bash(python -c \"import json; d=json.load\\(open\\('src/nodered/mapa da rede/nodered m360.json', encoding='utf-8'\\)\\); print\\('JSON OK — nos:', len\\(d\\)\\)\")"
     ]
   }
 }

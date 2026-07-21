@@ -39,6 +39,15 @@ namespace M360
 	{
 		powerDownSensors();
 	}
+
+	float readBatteryVoltage()
+	{
+		// Lê a tensão no divisor de 100k/100k conectado ao pino A0.
+		// O divisor por 2 divide a tensão da bateria pela metade (max 4.2V -> 2.1V).
+		// Usando a referência AVcc = 3.3V e 1023 passos: Vbat = (raw * 3.3 / 1023) * 2
+		int raw = analogRead(PIN_BATTERY_ADC);
+		return (float)raw * (6.6f / 1023.0f);
+	}
 } // namespace M360
 
 // ===== MYSENSORS HOOKS =====

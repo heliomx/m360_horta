@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 580" width="100%" height="100%">
+  <style>
+    .title { font-family: sans-serif; font-size: 16px; font-weight: bold; fill: #1a237e; }
+    .subtitle { font-family: sans-serif; font-size: 11px; fill: #5c6bc0; }
+    .box-mcu { fill: #e3f0ff; stroke: #0055aa; stroke-width: 2; }
+    .box-radio { fill: #e8f5e9; stroke: #1a7a3a; stroke-width: 2; }
+    .box-power { fill: #fff8e1; stroke: #f9a825; stroke-width: 2; }
+    .box-sensors { fill: #e0f2f1; stroke: #00796b; stroke-width: 2; }
+    .box-relay { fill: #ffebee; stroke: #c62828; stroke-width: 2; }
+    .box-interface { fill: #fff3e0; stroke: #ef6c00; stroke-width: 2; }
+    .text-bold { font-family: sans-serif; font-size: 12px; font-weight: bold; fill: #333; }
+    .text-normal { font-family: sans-serif; font-size: 10px; fill: #444; }
+    .text-pin { font-family: sans-serif; font-size: 11px; font-weight: bold; fill: #b71c1c; }
+    .text-vcc { font-family: sans-serif; font-size: 10px; font-weight: bold; fill: #e65100; }
+  </style>
+
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#333" />
+    </marker>
+  </defs>
+
+  <!-- Cabeçalho -->
+  <text x="20" y="30" class="title">Nó 13 (ZTS_UmidadeHall) — Parâmetros de Solo e Solenoide</text>
+  <text x="20" y="48" class="subtitle">Diagrama de Blocos de Hardware e Comunicação RS485 / Modbus</text>
+
+  <!-- ALIMENTAÇÃO PRINCIPAL -->
+  <rect x="20" y="80" width="160" height="70" rx="6" class="box-power"/>
+  <text x="100" y="100" class="text-bold" text-anchor="middle">🔋 FONTE 12V DC</text>
+  <text x="100" y="120" class="text-normal" text-anchor="middle">Alimentação de Campo</text>
+
+  <!-- REGULADOR LDO (3.3V) -->
+  <rect x="20" y="180" width="160" height="50" rx="6" class="box-power"/>
+  <text x="100" y="200" class="text-bold" text-anchor="middle">⚡ REGULADOR LDO</text>
+  <text x="100" y="215" class="text-normal" text-anchor="middle">Saída Estabilizada 3.3V</text>
+
+  <!-- ARDUINO PRO MINI (3.3V) -->
+  <rect x="240" y="80" width="280" height="230" rx="6" class="box-mcu"/>
+  <text x="380" y="105" class="text-bold" text-anchor="middle">🧠 ARDUINO PRO MINI</text>
+  <text x="380" y="122" class="text-normal" text-anchor="middle">ATmega328P (3.3V / 8MHz)</text>
+  <text x="380" y="137" class="text-normal" text-anchor="middle">Modo: PASSIVE (Sleep)</text>
+
+  <!-- Transceptor Rádio nRF24L01+ -->
+  <rect x="240" y="370" width="280" height="75" rx="6" class="box-radio"/>
+  <text x="380" y="395" class="text-bold" text-anchor="middle">📡 TRANSCEPTOR RF</text>
+  <text x="380" y="415" class="text-normal" text-anchor="middle">nRF24L01+ (CE=D9, CSN=D10)</text>
+  <text x="380" y="430" class="text-normal" text-anchor="middle">SPI Bus Padrão</text>
+
+  <!-- INTERFACE RS485 (MAX485) -->
+  <rect x="20" y="270" width="160" height="90" rx="6" class="box-interface"/>
+  <text x="100" y="292" class="text-bold" text-anchor="middle">🔌 INTERFACE RS485</text>
+  <text x="100" y="310" class="text-normal" text-anchor="middle">Módulo MAX485 (TTL)</text>
+  <text x="100" y="325" class="text-normal" text-anchor="middle">RO=D2, DI=D3, DE/RE=D7/D8</text>
+
+  <!-- MÓDULO RELÉ (CONTROLE CHAVEADO) -->
+  <rect x="240" y="480" width="120" height="70" rx="6" class="box-relay"/>
+  <text x="300" y="505" class="text-bold" text-anchor="middle">🎛️ MÓDULO RELÉ</text>
+  <text x="300" y="522" class="text-normal" text-anchor="middle">Chaveia 12V (D5)</text>
+  <text x="300" y="535" class="text-normal" text-anchor="middle">Active LOW (NA)</text>
+
+  <!-- SENSORES EXTERNOS E ATUADOR -->
+  <rect x="20" y="410" width="160" height="140" rx="6" class="box-sensors"/>
+  <text x="100" y="432" class="text-bold" text-anchor="middle">🌱 SENSORES &amp; VALVULA</text>
+  <text x="100" y="452" class="text-normal" text-anchor="middle">ZTS-3002 Modbus (Solo)</text>
+  <text x="100" y="467" class="text-normal" text-anchor="middle">Sensor Hall (A0) / LDR (A1)</text>
+  <text x="100" y="482" class="text-normal" text-anchor="middle">Válvula Solenoide 12V</text>
+
+  <!-- CONEXÕES DE SINAL E ENERGIA -->
+
+  <!-- 12V Fonte -> Regulador -->
+  <path d="M 100,150 L 100,180" fill="none" stroke="#f9a825" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- 3.3V LDO -> Pro Mini -->
+  <path d="M 180,205 L 240,205" fill="none" stroke="#e65100" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="210" y="195" class="text-vcc" text-anchor="middle">3.3V DC</text>
+
+  <!-- SPI Bus (Pro Mini -> Rádio) -->
+  <path d="M 380,310 L 380,370" fill="none" stroke="#1a7a3a" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- RS485 Sinais Serial e Fluxo (Pro Mini -> MAX485) -->
+  <path d="M 240,230 L 150,230 L 150,270" fill="none" stroke="#d35400" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="200" y="225" class="text-normal">Serial RX/TX (D2/D3)</text>
+  <path d="M 240,250 L 120,250 L 120,270" fill="none" stroke="#d35400" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="195" y="245" class="text-normal">DE/RE (D7/D8)</text>
+
+  <!-- Controle Relé (Pro Mini -> Relé D5) -->
+  <path d="M 300,310 L 300,480" fill="none" stroke="#c62828" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#arr)"/>
+  <text x="310" y="340" class="text-pin">Relé (D5)</text>
+
+  <!-- MAX485 A/B -> ZTS Sensor -->
+  <path d="M 100,360 L 100,410" fill="none" stroke="#00796b" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="110" y="385" class="text-normal">Linha A+/B-</text>
+
+  <!-- Alimentação Chaveada 12V (Relé -> Válvula/ZTS) -->
+  <path d="M 240,515 L 180,515" fill="none" stroke="#f9a825" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="210" y="505" class="text-vcc" text-anchor="middle">12V Chaveado</text>
+
+  <!-- Pinos analógicos (Sensores locais -> A0/A1) -->
+  <path d="M 180,430 L 210,430 L 210,130 L 240,130" fill="none" stroke="#0055aa" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="220" y="120" class="text-pin">A0 (Hall), A1 (LDR)</text>
+
+</svg>

@@ -27,13 +27,13 @@ static const M360::M360ItemDef nodeItems[] = {
      0},
     {1, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A1, 0, 1, "B_1m_30cm", false,
      0},
-    {2, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A2, 0, 1, "B_2m_10cm", false,
+    {2, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A2, 0, 1, "B_3m_10cm", false,
      0},
-    {3, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A3, 0, 1, "B_2m_30cm", false,
+    {3, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A3, 0, 1, "B_3m_30cm", false,
      0},
-    {4, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A4, 0, 1, "B_3m_10cm", false,
+    {4, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A4, 0, 1, "B_5m_10cm", false,
      0},
-    {5, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A5, 0, 1, "B_3m_30cm", false,
+    {5, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A5, 0, 1, "B_5m_30cm", false,
      0}};
 
 static const uint8_t numItems = sizeof(nodeItems) / sizeof(M360::M360ItemDef);
