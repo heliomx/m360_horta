@@ -1,0 +1,18 @@
+C:\Users\jmarc\Documents\PlatformIO\Projects\m360_horta\_bmad-output\implementation-artifacts\deferred-work.md
+C:\Users\jmarc\Documents\PlatformIO\Projects\m360_horta\_bmad-output\implementation-artifacts\final-sprint-status.md
+C:\Users\jmarc\Documents\PlatformIO\Projects\m360_horta\_bmad-output\implementation-artifacts\integration_test_plan.md
+C:\Users\jmarc\Documents\PlatformIO\Projects\m360_horta\_bmad-output\implementation-artifacts\prompt_blind_hunter.txt
+C:\Users\jmarc\Documents\PlatformIO\Projects\m360_horta\_bmad-output\implementation-artifacts\prompt_edge_case_hunter.txt
+C:\Users\jmarc\Documents\PlatformIO\Projects\m360_horta\_bmad-output\implementation-artifacts\review_node_selenoide_vazao.md
+C:\Users\jmarc\Documents\PlatformIO\Projects\m360_horta\_bmad-output\implementation-artifacts\spec-estabilizar-contratos-configuracao-m360.md
+C:\Users\jmarc\Documents\PlatformIO\Projects\m360_horta\_bmad-output\implementation-artifacts\sprint-status.yaml
+C:\Users\jmarc\Documents\PlatformIO\Projects\m360_horta\_bmad-output\planning-artifacts\2-1-develop-node-umidade-temperatura-core.md
+C:\Users\jmarc\Documents\PlatformIO\Projects\m360_horta\_bmad-output\planning-artifacts\2-2-gestao-de-energia-e-bateria.md
+C:\Users\jmarc\Documents\PlatformIO\Projects\m360_horta\_bmad-output\planning-artifacts\epics.md
+C:\Users\jmarc\Documents\PlatformIO\Projects\m360_horta\_bmad-output\planning-artifacts\prd.md
+C:\Users\jmarc\Documents\PlatformIO\Projects\m360_horta\docs\Documento de Especificação e Detalhamento Técnico da Rede de Nós IoT da Estufa.md
+C:\Users\jmarc\Documents\PlatformIO\Projects\m360_horta\docs\Nó de Sensoriamento Tridimensional de Umidade do Solo (1).md
+C:\Users\jmarc\Documents\PlatformIO\Projects\m360_horta\hardware\adapter_rfm95w_nrf24socket\README.md
+C:\Users\jmarc\Documents\PlatformIO\Projects\m360_horta\docs\RFM95_96_97_98W.pdf
+C:\Users\jmarc\Documents\PlatformIO\Projects\m360_horta\docs\mysensors.pdf
+C:\Users\jmarc\Documents\PlatformIO\Projects\m360_horta\src\test\MAX\Guia_de_Conexão__Arduino_Pro_Mini,_Módulo_MAX485_e.pdf

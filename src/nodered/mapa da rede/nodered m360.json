@@ -577,7 +577,7 @@
         "columns": [],
         "mobileBreakpoint": "sm",
         "mobileBreakpointType": "defaults",
-        "action": "append",
+        "action": "replace",
         "className": "tabela-watchdog",
         "x": 470,
         "y": 380,
@@ -621,7 +621,8 @@
         "y": 460,
         "wires": [
             [
-                "86ea08b522ebb084"
+                "86ea08b522ebb084",
+                "fn_tag_mqtt_out"
             ]
         ]
     },
@@ -1117,7 +1118,7 @@
         "columns": [],
         "mobileBreakpoint": "sm",
         "mobileBreakpointType": "defaults",
-        "action": "append",
+        "action": "replace",
         "className": "",
         "x": 470,
         "y": 380,
@@ -1141,7 +1142,8 @@
         "y": 180,
         "wires": [
             [
-                "f8e5bf464667af05"
+                "f8e5bf464667af05",
+                "fn_tag_mqtt_out"
             ]
         ]
     },
@@ -1423,7 +1425,8 @@
         "y": 180,
         "wires": [
             [
-                "mqtt_broker_out_bombas"
+                "mqtt_broker_out_bombas",
+                "fn_tag_mqtt_out"
             ]
         ]
     },
@@ -1639,7 +1642,8 @@
         "y": 300,
         "wires": [
             [
-                "e9887bb7fd57ff7a"
+                "e9887bb7fd57ff7a",
+                "fn_tag_mqtt_out"
             ]
         ]
     },
@@ -1680,7 +1684,8 @@
             [
                 "6546ce4e86d0900c",
                 "d14e79a07d9e25e1",
-                "919b8458c05bf28a"
+                "919b8458c05bf28a",
+                "fn_tag_mqtt_in"
             ]
         ]
     },
@@ -1869,7 +1874,8 @@
         "y": 740,
         "wires": [
             [
-                "a8ec0e310562a35d"
+                "a8ec0e310562a35d",
+                "fn_tag_mqtt_in"
             ]
         ]
     },
@@ -2163,7 +2169,6 @@
         "yAxisPropertyType": "msg",
         "removeOlder": 1,
         "removeOlderUnit": "86400",
-        "removeOlderPoints": "",
         "width": "6",
         "height": "5",
         "x": 1140,
@@ -2192,7 +2197,6 @@
         "yAxisPropertyType": "msg",
         "removeOlder": 1,
         "removeOlderUnit": "86400",
-        "removeOlderPoints": "",
         "width": "6",
         "height": "5",
         "x": 1190,
@@ -2214,7 +2218,7 @@
         "type": "function",
         "z": "6453c4babf1719c7",
         "name": "Salvar Histórico Solo",
-        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_solo_A') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nflow.set('hist_solo_A', hist);\nreturn msg;",
+        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_solo_A') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nif (hist.length > 500) { hist = hist.slice(-500); }\nflow.set('hist_solo_A', hist);\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2234,7 +2238,7 @@
         "type": "function",
         "z": "6453c4babf1719c7",
         "name": "Salvar Histórico Clima",
-        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_clima') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nflow.set('hist_clima', hist);\nreturn msg;",
+        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_clima') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nif (hist.length > 500) { hist = hist.slice(-500); }\nflow.set('hist_clima', hist);\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2334,7 +2338,7 @@
         "type": "function",
         "z": "6453c4babf1719c7",
         "name": "Salvar Histórico Clima SolarMini",
-        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_solar') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nflow.set('hist_solar', hist);\nreturn msg;",
+        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_solar') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nif (hist.length > 500) { hist = hist.slice(-500); }\nflow.set('hist_solar', hist);\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2369,7 +2373,6 @@
         "yAxisPropertyType": "msg",
         "removeOlder": 1,
         "removeOlderUnit": "86400",
-        "removeOlderPoints": "",
         "width": "6",
         "height": "5",
         "x": 1190,
@@ -2394,7 +2397,8 @@
         "y": 460,
         "wires": [
             [
-                "e728d29c43d32cd3"
+                "e728d29c43d32cd3",
+                "fn_tag_mqtt_out"
             ]
         ]
     },
@@ -2635,7 +2639,7 @@
         "type": "function",
         "z": "6453c4babf1719c7",
         "name": "Salvar Histórico Bateria",
-        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_bateria') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nflow.set('hist_bateria', hist);\nreturn msg;",
+        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_bateria') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nif (hist.length > 500) { hist = hist.slice(-500); }\nflow.set('hist_bateria', hist);\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2670,7 +2674,6 @@
         "yAxisPropertyType": "msg",
         "removeOlder": 1,
         "removeOlderUnit": "86400",
-        "removeOlderPoints": "",
         "width": "6",
         "height": "5",
         "x": 1190,
@@ -2707,7 +2710,7 @@
         "type": "function",
         "z": "6453c4babf1719c7",
         "name": "Salvar Histórico Vazão",
-        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_vazao') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nflow.set('hist_vazao', hist);\nreturn msg;",
+        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_vazao') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nif (hist.length > 500) { hist = hist.slice(-500); }\nflow.set('hist_vazao', hist);\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2727,7 +2730,7 @@
         "type": "function",
         "z": "6453c4babf1719c7",
         "name": "Salvar Histórico Volume",
-        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_volume') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nflow.set('hist_volume', hist);\nreturn msg;",
+        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_volume') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nif (hist.length > 500) { hist = hist.slice(-500); }\nflow.set('hist_volume', hist);\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2762,7 +2765,6 @@
         "yAxisPropertyType": "msg",
         "removeOlder": 1,
         "removeOlderUnit": "86400",
-        "removeOlderPoints": "",
         "width": "6",
         "height": "5",
         "x": 1190,
@@ -2791,7 +2793,6 @@
         "yAxisPropertyType": "msg",
         "removeOlder": 1,
         "removeOlderUnit": "86400",
-        "removeOlderPoints": "",
         "width": "6",
         "height": "5",
         "x": 1190,
@@ -2825,7 +2826,7 @@
         "type": "function",
         "z": "6453c4babf1719c7",
         "name": "Salvar Histórico Solo B",
-        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_solo_B') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nflow.set('hist_solo_B', hist);\nreturn msg;",
+        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_solo_B') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nif (hist.length > 500) { hist = hist.slice(-500); }\nflow.set('hist_solo_B', hist);\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2860,7 +2861,6 @@
         "yAxisPropertyType": "msg",
         "removeOlder": 1,
         "removeOlderUnit": "86400",
-        "removeOlderPoints": "",
         "width": "6",
         "height": "5",
         "x": 1190,
@@ -2913,5 +2913,223 @@
                 "chart_solo_B"
             ]
         ]
+    },
+    {
+        "id": "group_mqtt_log",
+        "type": "ui-group",
+        "name": "Log de Mensagens MQTT",
+        "page": "63a203c3875719db",
+        "width": "12",
+        "height": "0",
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "fn_tag_mqtt_in",
+        "type": "function",
+        "z": "6453c4babf1719c7",
+        "name": "Tag MQTT IN",
+        "func": "msg.mqtt_dir = 'IN';\nreturn msg;",
+        "outputs": 1,
+        "x": 300,
+        "y": 750,
+        "wires": [
+            [
+                "fn_mqtt_logger"
+            ]
+        ]
+    },
+    {
+        "id": "fn_tag_mqtt_out",
+        "type": "function",
+        "z": "6453c4babf1719c7",
+        "name": "Tag MQTT OUT",
+        "func": "msg.mqtt_dir = 'OUT';\nreturn msg;",
+        "outputs": 1,
+        "x": 300,
+        "y": 810,
+        "wires": [
+            [
+                "fn_mqtt_logger"
+            ]
+        ]
+    },
+    {
+        "id": "fn_mqtt_logger",
+        "type": "function",
+        "z": "6453c4babf1719c7",
+        "name": "Central Logger MQTT",
+        "func": "var logs = global.get('mqtt_logs') || [];\nvar dir = msg.mqtt_dir || 'IN';\nvar topic = msg.topic || 'N/A';\nvar payload = msg.payload;\n\nvar payloadStr = '';\nif (typeof payload === 'object') {\n    try { payloadStr = JSON.stringify(payload); } catch(e) { payloadStr = String(payload); }\n} else {\n    payloadStr = String(payload);\n}\n\nvar entry = {\n    timestamp: new Date().toISOString(),\n    dir: dir,\n    topic: topic,\n    payload: payloadStr\n};\n\nlogs.push(entry);\nif (logs.length > 2000) {\n    logs.shift();\n}\nglobal.set('mqtt_logs', logs);\n\nvar recent = logs.slice(-100).reverse();\nmsg.payload = recent.map(function(item) {\n    return {\n        DataHora: item.timestamp.replace('T', ' ').substring(0, 19),\n        Direcao: item.dir,\n        Topico: item.topic,\n        Payload: item.payload\n    };\n});\nreturn msg;",
+        "outputs": 1,
+        "x": 520,
+        "y": 780,
+        "wires": [
+            [
+                "ui_table_mqtt_log"
+            ]
+        ]
+    },
+    {
+        "id": "ui_table_mqtt_log",
+        "type": "ui-table",
+        "z": "6453c4babf1719c7",
+        "group": "group_mqtt_log",
+        "name": "Tabela de Log MQTT",
+        "label": "Histórico Recente de Mensagens MQTT (Entradas e Saídas)",
+        "order": 1,
+        "width": "12",
+        "height": "16",
+        "maxrows": 0,
+        "passthru": false,
+        "autocols": true,
+        "showSearch": true,
+        "deselect": true,
+        "selectionType": "none",
+        "columns": [],
+        "mobileBreakpoint": "sm",
+        "mobileBreakpointType": "defaults",
+        "action": "replace",
+        "className": "tabela-mqtt-log",
+        "x": 750,
+        "y": 780,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ui_btn_export_mqtt_log",
+        "type": "ui-button",
+        "z": "6453c4babf1719c7",
+        "group": "group_mqtt_log",
+        "name": "Exportar Log (CSV)",
+        "label": "Exportar Log (CSV)",
+        "order": 2,
+        "width": "3",
+        "height": "1",
+        "passthru": false,
+        "tooltip": "Baixar arquivo de log MQTT em formato CSV",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "download",
+        "payload": "export",
+        "payloadType": "str",
+        "topic": "export",
+        "x": 300,
+        "y": 880,
+        "wires": [
+            [
+                "ui_template_download_csv"
+            ]
+        ]
+    },
+    {
+        "id": "ui_template_download_csv",
+        "type": "ui-template",
+        "z": "6453c4babf1719c7",
+        "group": "group_mqtt_log",
+        "name": "Download CSV Handler",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "format": "<script>\n(function(scope) {\n    scope.$watch('msg', function(msg) {\n        if (msg && msg.payload === 'export') {\n            window.open('/api/mqtt-log/export', '_blank');\n        }\n    });\n})(this);\n</script>",
+        "storeOutMessages": false,
+        "passthru": false,
+        "templateScope": "local",
+        "className": "",
+        "x": 520,
+        "y": 880,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ui_btn_clear_mqtt_log",
+        "type": "ui-button",
+        "z": "6453c4babf1719c7",
+        "group": "group_mqtt_log",
+        "name": "Esvaziar Log",
+        "label": "Esvaziar Log",
+        "order": 4,
+        "width": "3",
+        "height": "1",
+        "passthru": false,
+        "tooltip": "Limpar todo o histórico de logs MQTT",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "trash",
+        "payload": "clear",
+        "payloadType": "str",
+        "topic": "clear",
+        "x": 300,
+        "y": 940,
+        "wires": [
+            [
+                "fn_clear_mqtt_log"
+            ]
+        ]
+    },
+    {
+        "id": "fn_clear_mqtt_log",
+        "type": "function",
+        "z": "6453c4babf1719c7",
+        "name": "Esvaziar Log MQTT",
+        "func": "global.set('mqtt_logs', []);\nmsg.payload = [];\nreturn msg;",
+        "outputs": 1,
+        "x": 520,
+        "y": 940,
+        "wires": [
+            [
+                "ui_table_mqtt_log"
+            ]
+        ]
+    },
+    {
+        "id": "http_in_export_mqtt_log",
+        "type": "http in",
+        "z": "6453c4babf1719c7",
+        "name": "GET /api/mqtt-log/export",
+        "url": "/api/mqtt-log/export",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 300,
+        "y": 1000,
+        "wires": [
+            [
+                "fn_http_export_csv"
+            ]
+        ]
+    },
+    {
+        "id": "fn_http_export_csv",
+        "type": "function",
+        "z": "6453c4babf1719c7",
+        "name": "Formata CSV de Log",
+        "func": "var logs = global.get('mqtt_logs') || [];\nvar lines = [];\nlines.push('\"Timestamp\",\"Direction\",\"Topic\",\"Payload\"');\n\nfor (var i = 0; i < logs.length; i++) {\n    var item = logs[i];\n    var ts = item.timestamp || '';\n    var dir = item.dir || '';\n    var topic = (item.topic || '').replace(/\"/g, '\"\"');\n    var payload = (item.payload || '').replace(/\"/g, '\"\"');\n    lines.push('\"' + ts + '\",\"' + dir + '\",\"' + topic + '\",\"' + payload + '\"');\n}\n\nvar csvStr = lines.join('\\n');\nmsg.headers = {\n    'Content-Type': 'text/csv; charset=utf-8',\n    'Content-Disposition': 'attachment; filename=\"mqtt_log_m360_' + Date.now() + '.csv\"'\n};\nmsg.payload = csvStr;\nreturn msg;",
+        "outputs": 1,
+        "x": 520,
+        "y": 1000,
+        "wires": [
+            [
+                "http_out_export_mqtt_log"
+            ]
+        ]
+    },
+    {
+        "id": "http_out_export_mqtt_log",
+        "type": "http response",
+        "z": "6453c4babf1719c7",
+        "name": "Resposta HTTP CSV",
+        "statusCode": "",
+        "headers": {},
+        "x": 750,
+        "y": 1000,
+        "wires": []
     }
 ]

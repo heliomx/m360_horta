@@ -5,7 +5,8 @@
 - **Rádio**: nRF24L01+ 
 - **Alimentação**: Bateria + Painel Solar / Regulador (M360_LOW_POWER)
 - **Sensores**: 
-  - DHT11 (Sensor de Temperatura e Umidade)
+  - DHT11 (Sensor de Temperatura e Umidade do Ar)
+  - DS18B20 (Sensor de Temperatura do Solo)
 
 ---
 
@@ -25,12 +26,13 @@ O rádio utiliza os pinos padrão da interface SPI do Arduino Pro Mini:
 | MISO | D12 | SPI Master In Slave Out |
 | IRQ | Não Conectado | Interrupção não usada |
 
-### Sensor DHT11 e Controle de VCC Chaveado
-Para maximizar a economia de energia da bateria, a linha de alimentação (VCC) do sensor DHT11 é conectada a um pino digital do microcontrolador (D3), permitindo desligá-lo completamente durante os ciclos de repouso (smartSleep).
+### Sensores e Controle de VCC Chaveado
+Para maximizar a economia de energia da bateria, a linha de alimentação (VCC) dos sensores DHT11 e DS18B20 é conectada ao pino digital do microcontrolador (**D3**), permitindo desligá-los completamente durante os ciclos de repouso (smartSleep).
 
 | Sensor / Medição | Pino de Sinal / Leitura | Pino de Energia (VCC) | Pino de GND |
 | :--- | :--- | :--- | :--- |
-| **DHT11 (Temp/Hum)** | D4 (Dados) | D3 (VCC Chaveado) | GND |
+| **DHT11 (Temp/Hum Ar)** | D4 (Dados) | D3 (VCC Chaveado) | GND |
+| **DS18B20 (Temp Solo)** | D5 (OneWire Dados) | D3 (VCC Chaveado) | GND |
 | **Leitura da Bateria** | A0 (Analógico) | Polo (+) da Bateria (antes do LDO) | GND (via resistor) |
 
 ---
@@ -39,12 +41,13 @@ Para maximizar a economia de energia da bateria, a linha de alimentação (VCC) 
 
 ### 1. Inicialização e Estabilização
 *   O pino **D3** é mantido em nível baixo (`LOW`) durante o período em que o nó está dormindo.
-*   Ao acordar, o firmware coloca o pino **D3** em nível alto (`HIGH`), energizando o DHT11.
-*   **Tempo de Estabilização:** O DHT11 precisa de pelo menos 1 a 1.5 segundos após ser alimentado para que suas leituras estejam estáveis. O driver executa um `wait(1500)` para garantir este intervalo antes de efetuar a leitura física dos dados no pino **D4**.
+*   Ao acordar, o firmware coloca o pino **D3** em nível alto (`HIGH`), energizando o DHT11 e o DS18B20.
+*   **Tempo de Estabilização:** O DHT11 precisa de 1 a 1.5s após ser alimentado e o DS18B20 requer ~750ms para a conversão de 12 bits. O driver executa um `wait(1500)` para garantir ambos os intervalos antes de efetuar a leitura física dos dados nos pinos **D4** e **D5**.
 *   Após a leitura de todos os canais de sensores, o pino **D3** retorna para `LOW` e o nó entra em smartSleep via rádio.
 
-### 2. Barramento de Dados (D4)
-*   *Nota: O pino **D4** de comunicação do DHT11 requer um resistor de pull-up físico de 4.7kΩ a 10kΩ conectado entre o sinal (D4) e a linha de alimentação controlada (D3).*
+### 2. Barramento de Dados DHT11 (D4) e OneWire DS18B20 (D5)
+*   *Nota DHT11: O pino **D4** requer um resistor de pull-up físico de 4.7kΩ a 10kΩ conectado entre o sinal (D4) e a linha de alimentação controlada (D3).*
+*   *Nota DS18B20: O pino **D5** (barramento OneWire) requer um resistor de pull-up de 4.7kΩ conectado entre o sinal de dados (D5) e a linha de alimentação controlada (D3).*
 
 ### 3. Circuito de Medição da Bateria (Divisor de Tensão)
 *   **Divisor de Tensão:** Para medir a tensão real da bateria (variável entre 3.0V e 4.2V) sem que o regulador LDO de 3.3V mascare a leitura com uma saída constante, instala-se um divisor de tensão composto por dois resistores de **100kΩ** em série.

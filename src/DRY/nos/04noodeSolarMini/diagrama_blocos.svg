@@ -4,10 +4,10 @@
   
   <!-- Title -->
   <text x="400" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#004d40">
-    Diagrama de Blocos — Nó 4 (Monitoramento Solar de Clima)
+    Diagrama de Blocos — Nó 4 (Monitoramento Solar de Clima e Solo)
   </text>
   <text x="400" y="52" text-anchor="middle" font-size="12" fill="#555">
-    Arduino Pro Mini 3.3V/8MHz · nRF24L01+ · DHT11 com VCC Controlado (Baixo Consumo)
+    Arduino Pro Mini 3.3V/8MHz · nRF24L01+ · DHT11 + DS18B20 com VCC Controlado (Baixo Consumo)
   </text>
 
   <!-- DEFS -->
@@ -24,7 +24,7 @@
   <text x="400" y="140" text-anchor="middle" font-size="11" fill="#7a5000">Regulador LDO 3.3V (VCC constante para o Nó)</text>
 
   <!-- ARDUINO PRO MINI -->
-  <rect x="260" y="200" width="280" height="190" rx="6" fill="#e0f2f1" stroke="#008080" stroke-width="2.5"/>
+  <rect x="260" y="200" width="280" height="210" rx="6" fill="#e0f2f1" stroke="#008080" stroke-width="2.5"/>
   <text x="400" y="225" text-anchor="middle" font-size="14" font-weight="bold" fill="#004d40">ARDUINO PRO MINI</text>
   <text x="400" y="243" text-anchor="middle" font-size="11" fill="#004d40">ATmega328P — 3.3V / 8MHz</text>
   <line x1="270" y1="253" x2="530" y2="253" stroke="#008080" stroke-width="1"/>
@@ -32,35 +32,45 @@
   <!-- Pinos -->
   <!-- VCC Chaveado -->
   <text x="275" y="275" font-size="11" fill="#004d40" font-weight="bold">D3</text>
-  <text x="300" y="275" font-size="11" fill="#333">→ VCC Controlado (Alimentação DHT11)</text>
+  <text x="300" y="275" font-size="11" fill="#333">→ VCC Controlado (DHT11 / DS18B20)</text>
 
   <!-- DHT Dados -->
-  <text x="275" y="300" font-size="11" fill="#004d40" font-weight="bold">D4</text>
-  <text x="300" y="300" font-size="11" fill="#333">← Barramento Dados DHT11</text>
+  <text x="275" y="298" font-size="11" fill="#004d40" font-weight="bold">D4</text>
+  <text x="300" y="298" font-size="11" fill="#333">← Barramento Dados DHT11</text>
+
+  <!-- DS18B20 Dados -->
+  <text x="275" y="320" font-size="11" fill="#004d40" font-weight="bold">D5</text>
+  <text x="300" y="320" font-size="11" fill="#333">← Dados OneWire DS18B20</text>
 
   <!-- Rádio CE / CSN -->
-  <text x="275" y="330" font-size="11" fill="#004d40" font-weight="bold">D9 / D10</text>
-  <text x="335" y="330" font-size="11" fill="#333">→ Rádio CE / CSN</text>
+  <text x="275" y="345" font-size="11" fill="#004d40" font-weight="bold">D9 / D10</text>
+  <text x="335" y="345" font-size="11" fill="#333">→ Rádio CE / CSN</text>
 
   <!-- SPI Bus -->
-  <text x="275" y="355" font-size="11" fill="#004d40" font-weight="bold">D11-D13</text>
-  <text x="335" y="355" font-size="11" fill="#333">⇄ SPI Bus (MOSI, MISO, SCK)</text>
+  <text x="275" y="370" font-size="11" fill="#004d40" font-weight="bold">D11-D13</text>
+  <text x="335" y="370" font-size="11" fill="#333">⇄ SPI Bus (MOSI, MISO, SCK)</text>
 
   <!-- Bat Analog Read -->
-  <text x="275" y="375" font-size="11" fill="#004d40" font-weight="bold">A0</text>
-  <text x="300" y="375" font-size="11" fill="#333">← Leitura da Bateria (Divisor 100k/100k)</text>
+  <text x="275" y="393" font-size="11" fill="#004d40" font-weight="bold">A0</text>
+  <text x="300" y="393" font-size="11" fill="#333">← Leitura Bateria (Divisor 100k/100k)</text>
 
   <!-- RÁDIO NRF24L01+ -->
-  <rect x="295" y="425" width="210" height="75" rx="6" fill="#e8f5e9" stroke="#1a7a3a" stroke-width="2"/>
-  <text x="400" y="445" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a5c2e">nRF24L01+</text>
-  <text x="400" y="462" text-anchor="middle" font-size="10.5" fill="#333">CE: D9 | CSN: D10 | SPI: D11–D13</text>
-  <text x="400" y="478" text-anchor="middle" font-size="10.5" fill="#333">Alimentação: 3.3V Direto (Sempre On)</text>
+  <rect x="295" y="435" width="210" height="70" rx="6" fill="#e8f5e9" stroke="#1a7a3a" stroke-width="2"/>
+  <text x="400" y="455" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a5c2e">nRF24L01+</text>
+  <text x="400" y="472" text-anchor="middle" font-size="10.5" fill="#333">CE: D9 | CSN: D10 | SPI: D11–D13</text>
+  <text x="400" y="488" text-anchor="middle" font-size="10.5" fill="#333">Alimentação: 3.3V Direto (Sempre On)</text>
 
-  <!-- SENSOR DHT11 (ESQUERDA) -->
-  <rect x="25" y="240" width="170" height="90" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
-  <text x="110" y="265" text-anchor="middle" font-size="13" font-weight="bold" fill="#0d47a1">DHT11</text>
-  <text x="110" y="285" text-anchor="middle" font-size="11" fill="#333">Sensor Temp &amp; Umidade</text>
-  <text x="110" y="305" text-anchor="middle" font-size="10" fill="#0d47a1">VCC Controlado por D3</text>
+  <!-- SENSOR DHT11 (ESQUERDA SUPERIOR) -->
+  <rect x="25" y="225" width="170" height="75" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+  <text x="110" y="247" text-anchor="middle" font-size="13" font-weight="bold" fill="#0d47a1">DHT11</text>
+  <text x="110" y="265" text-anchor="middle" font-size="11" fill="#333">Temp &amp; Umidade do Ar</text>
+  <text x="110" y="283" text-anchor="middle" font-size="10" fill="#0d47a1">VCC Controlado por D3</text>
+
+  <!-- SENSOR DS18B20 (ESQUERDA INFERIOR) -->
+  <rect x="25" y="315" width="170" height="75" rx="6" fill="#e8eaf6" stroke="#283593" stroke-width="2"/>
+  <text x="110" y="337" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a237e">DS18B20</text>
+  <text x="110" y="355" text-anchor="middle" font-size="11" fill="#333">Temperatura do Solo</text>
+  <text x="110" y="373" text-anchor="middle" font-size="10" fill="#1a237e">OneWire (D5) / VCC D3</text>
 
   <!-- ======================== CONEXÕES ======================== -->
 
@@ -69,23 +79,30 @@
   <text x="410" y="182" font-size="10" fill="#7a5000" font-weight="bold">3.3V (VCC)</text>
 
   <!-- SPI / Rádio -->
-  <line x1="390" y1="390" x2="390" y2="425" stroke="#1a7a3a" stroke-width="2" marker-end="url(#arr)"/>
-  <line x1="410" y1="425" x2="410" y2="390" stroke="#1a7a3a" stroke-width="2" marker-end="url(#arr)"/>
-  <text x="420" y="412" font-size="9" fill="#1a5c2e" font-weight="bold">SPI / Controle</text>
+  <line x1="390" y1="410" x2="390" y2="435" stroke="#1a7a3a" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="410" y1="435" x2="410" y2="410" stroke="#1a7a3a" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="420" y="425" font-size="9" fill="#1a5c2e" font-weight="bold">SPI / Controle</text>
 
   <!-- D3 Linha VCC Chaveada (Energia Controlada) -->
-  <path d="M 260,275 L 225,275 L 225,260 L 195,260" fill="none" stroke="#f9a825" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr)"/>
-  <text x="210" y="292" font-size="9" fill="#7a5000" font-weight="bold" text-anchor="middle">VCC (D3)</text>
+  <path d="M 260,275 L 225,275 L 225,245 L 195,245" fill="none" stroke="#f9a825" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+  <path d="M 225,275 L 225,335 L 195,335" fill="none" stroke="#f9a825" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+  <text x="210" y="260" font-size="9" fill="#7a5000" font-weight="bold" text-anchor="middle">VCC (D3)</text>
 
   <!-- D4 DHT Dados -->
-  <path d="M 195,295 L 260,295" fill="none" stroke="#0055aa" stroke-width="1.5" marker-end="url(#arr)"/>
-  <text x="227" y="312" font-size="9" fill="#0055aa" font-weight="bold" text-anchor="middle">Dados (D4)</text>
+  <path d="M 195,270 L 260,298" fill="none" stroke="#0055aa" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="227" y="290" font-size="9" fill="#0055aa" font-weight="bold" text-anchor="middle">Dados (D4)</text>
+
+  <!-- D5 DS18B20 Dados -->
+  <path d="M 195,360 L 260,320" fill="none" stroke="#283593" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="227" y="352" font-size="9" fill="#283593" font-weight="bold" text-anchor="middle">OneWire (D5)</text>
 
   <!-- Conexão da Bateria ao Divisor e A0 -->
-  <path d="M 260,120 L 210,120 L 210,340" fill="none" stroke="#f9a825" stroke-width="1.5"/>
-  <rect x="180" y="340" width="60" height="30" rx="3" fill="#ffffff" stroke="#f9a825" stroke-width="1.5"/>
-  <text x="210" y="358" text-anchor="middle" font-size="9" fill="#7a5000" font-weight="bold">Divisor 2x</text>
-  <path d="M 210,370 L 210,375 L 260,375" fill="none" stroke="#f9a825" stroke-width="1.5" marker-end="url(#arr)"/>
-  <text x="235" y="390" font-size="9" fill="#7a5000" font-weight="bold" text-anchor="middle">Vbat (A0)</text>
+  <path d="M 260,120 L 210,120 L 210,380" fill="none" stroke="#f9a825" stroke-width="1.5"/>
+  <rect x="180" y="380" width="60" height="30" rx="3" fill="#ffffff" stroke="#f9a825" stroke-width="1.5"/>
+  <text x="210" y="398" text-anchor="middle" font-size="9" fill="#7a5000" font-weight="bold">Divisor 2x</text>
+  <path d="M 210,410 L 210,415 L 260,393" fill="none" stroke="#f9a825" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="235" y="422" font-size="9" fill="#7a5000" font-weight="bold" text-anchor="middle">Vbat (A0)</text>
+
+</svg>
 
 </svg>

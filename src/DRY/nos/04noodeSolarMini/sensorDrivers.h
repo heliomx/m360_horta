@@ -8,11 +8,13 @@
 // ===== PINOS DE HARDWARE =====
 #define PIN_POWER_SENSORS  3  // Pino VCC controlado para economizar bateria
 #define PIN_DHT            4  // Pino de dados do DHT11
+#define PIN_ONEWIRE        5  // Pino de dados OneWire do DS18B20 (Temperatura Solo)
 #define PIN_BATTERY_ADC    A0 // Divisor de tensão da bateria (100k/100k)
 
 // ===== CHILD IDs (Canais do Nó) =====
-#define CHILD_ID_TEMP      0  // Temperatura
-#define CHILD_ID_HUM       1  // Umidade Relativa
+#define CHILD_ID_TEMP      0  // Temperatura do Ar (DHT11)
+#define CHILD_ID_HUM       1  // Umidade Relativa do Ar (DHT11)
+#define CHILD_ID_SOIL_TEMP 2  // Temperatura do Solo (DS18B20)
 
 // ===== INTERFACE DO DRIVER =====
 void initSensors();
