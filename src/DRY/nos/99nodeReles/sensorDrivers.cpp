@@ -169,17 +169,10 @@ void updateFlows()
 
 float getFlowForCanteiro(uint8_t canteiroId)
 {
-	int8_t targetCh = -1;
-	if (canteiroId == CHILD_ID_SOL_A) {
-		targetCh = 0;
-	} else if (canteiroId == CHILD_ID_SOL_B) {
-		targetCh = 1;
-	} else if (canteiroId == CHILD_ID_SOL_C) {
-		targetCh = 2; // Canteiro N (Sol.CanteiroN)
-	}
-	
-	if (targetCh == s_activeMuxChannel) {
+	// Mede a vazão no sensor único D2 se qualquer solenóide de canteiro (0=SolA, 1=SolB, 2=SolC) estiver ativo no MUX
+	if (s_activeMuxChannel >= 0 && s_activeMuxChannel <= 2) {
 		return s_currentFlow;
 	}
 	return 0.0f;
 }
+

@@ -54,9 +54,31 @@ if (abs(val - lastValues[i]) > 0.5 || nNoUpdates[i] >= 10) {
 }
 ```
 
+### 2.4 Padronização de IDs, Tópicos MQTT e Auto-Discovery (Proxy MCP v2.0)
+
+#### Faixas Normativas de Node ID (1–254)
+- **0:** Gateway / Broker Hub (Gateway Central / MQTT Proxy)
+- **1 – 50:** Estações Meteorológicas / Sensores de Clima
+- **51 – 150:** Nós de Monitoramento de Solo (Talhões)
+- **151 – 200:** Nós de Atuação / Controle de Irrigação
+- **201 – 254:** Nós Especiais / Reservatórios / Qualidade de Água
+
+#### Faixas Normativas de Child ID (0–40+)
+- **0:** Status do Próprio Nó / Bateria (`S_MULTIMETER` / `V_VOLTAGE`, `V_LEVEL`)
+- **1 – 10:** Sensores de Solo (`S_MOISTURE` / `V_LEVEL` ou `V_IMPEDANCE`)
+- **11 – 20:** Sensores Ambientais / Clima (`S_TEMP`, `S_HUM`, `S_LIGHT` / `V_TEMP`, `V_HUM`, `V_LIGHT_LEVEL`)
+- **21 – 30:** Sensores de Fluxo / Hidrometria (`S_WATER` / `V_FLOW`, `V_VOLUME`)
+- **31 – 40:** Atuadores / Relés / Válvulas (`S_BINARY` / `V_STATUS`)
+
+#### Estrutura de Tópicos e Autodescoberta
+- **Tópicos MQTT MySensors:** Publicação (`m360/DF/0000/out`) | Subscrição (`m360/DF/0000/in`)
+- **Formato:** `PREFIXO / node-id / child-sensor-id / command / ack / type`
+- **Auto-Discovery Nativo:** A função `presentation()` deve registrar o sketch com `sendSketchInfo()` e cada child com `present()`. O backend/Proxy MCP v2.0 escuta `C_PRESENTATION` e `C_INTERNAL` para popular dinamicamente a topologia da rede e habilitar diagnósticos de infraestrutura (failsafe).
+
 ---
 
 ## 3. Comandos e Eventos Customizados (V_CUSTOM / V_VAR1)
+
 
 O código implementa padrões específicos para comunicação avançada. Todas as constantes de comando estão em `lib/M360-DRY/src/M360Constants.h`.
 

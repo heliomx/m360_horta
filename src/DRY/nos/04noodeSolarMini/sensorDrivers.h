@@ -11,10 +11,11 @@
 #define PIN_ONEWIRE        5  // Pino de dados OneWire do DS18B20 (Temperatura Solo)
 #define PIN_BATTERY_ADC    A0 // Divisor de tensão da bateria (100k/100k)
 
-// ===== CHILD IDs (Canais do Nó) =====
-#define CHILD_ID_TEMP      0  // Temperatura do Ar (DHT11)
-#define CHILD_ID_HUM       1  // Umidade Relativa do Ar (DHT11)
-#define CHILD_ID_SOIL_TEMP 2  // Temperatura do Solo (DS18B20)
+// ===== CHILD IDs (Canais do Nó conforme R13) =====
+#define CHILD_ID_TEMP      11 // Temperatura do Ar (DHT11 - Clima 11–20)
+#define CHILD_ID_HUM       12 // Umidade Relativa do Ar (DHT11 - Clima 11–20)
+#define CHILD_ID_SOIL_TEMP 1  // Temperatura do Solo (DS18B20 - Solo 1–10)
+
 
 // ===== INTERFACE DO DRIVER =====
 void initSensors();

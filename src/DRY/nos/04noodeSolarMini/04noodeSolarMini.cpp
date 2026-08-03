@@ -20,7 +20,7 @@ static const M360::M360ItemDef NODE_ITEMS[] = {
 static const uint8_t NODE_ITEMS_COUNT = sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
 
 // ===== BUFFERS ESTÁTICOS (M360Node) =====
-static MyMessage messages[NODE_ITEMS_COUNT + 3]; // +1 Intervalo (254) +1 Bateria (255) +1 Debug (253)
+static MyMessage messages[NODE_ITEMS_COUNT + 2]; // +2 reservado para intervalo (254) e bateria (0/255)
 static float     lastValues[NODE_ITEMS_COUNT];
 static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
 
@@ -61,8 +61,9 @@ void before()
 
 void presentation()
 {
-	node.begin("SolarMini", "1.0");
+	node.begin("SolarMini", "2.0.0");
 }
+
 
 void setup()
 {

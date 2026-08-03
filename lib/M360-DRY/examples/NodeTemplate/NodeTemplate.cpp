@@ -26,25 +26,22 @@
 #include "sensorDrivers.h"
 
 // ===== CHILD IDs =====
-// Valores permitidos: 0–253. IDs 254 (intervalo) e 255 (bateria) são reservados pelo motor.
-#define CHILD_TEMP   0
-#define CHILD_HUM    1
-// #define CHILD_RELAY  2  // descomente se o nó tiver atuador
+// IDs normativos R13: 0 Status/Bateria, 1-10 Solo, 11-20 Clima, 21-30 Fluxo, 31-40 Atuadores
+#define CHILD_SOLO_10CM     1  // Umidade solo 10cm
+#define CHILD_SOLO_30CM     2  // Umidade solo 30cm
+#define CHILD_FLUXO_AGUA    21 // Fluxômetro
+#define CHILD_RELE_VALVULA  31 // Solenoide de Irrigação
 
 // ===== DEFINIÇÃO DOS ITENS DO NÓ =====
 // Colunas: childId | kind | presentType | valueType | pin | intervalMin | samples | label | wakeOnRadio | flags
-//
-// pin      : pino físico (-1 se leitura via código no driver, 100+ para canais MUX CD74HC4067)
-// intervalMin: intervalo mínimo de reporte em minutos (0 = envia sempre que mudar)
-// samples  : número de amostras para média antes do envio (1 = leitura única)
-// wakeOnRadio: true → solicita estado ao gateway após acordar (útil para atuadores)
-// flags    : bit0=1 → multiplica valor × 100 antes de enviar (ex: para tensão em cV)
 static const M360::M360ItemDef NODE_ITEMS[] = {
-	{ CHILD_TEMP, M360::M360_SENSOR,   S_TEMP,   V_TEMP,   -1, 1, 3, "Temperatura", false, 0 },
-	{ CHILD_HUM,  M360::M360_SENSOR,   S_HUM,    V_HUM,    -1, 1, 3, "Umidade",     false, 0 },
-	// { CHILD_RELAY, M360::M360_ACTUATOR, S_BINARY, V_STATUS, 5, 0, 1, "Rele", true, 0 },
+	{ CHILD_SOLO_10CM,    M360::M360_SENSOR,   S_MOISTURE, V_LEVEL,  -1, 1, 3, "Umidade Solo 10cm", false, 0 },
+	{ CHILD_SOLO_30CM,    M360::M360_SENSOR,   S_MOISTURE, V_LEVEL,  -1, 1, 3, "Umidade Solo 30cm", false, 0 },
+	{ CHILD_FLUXO_AGUA,   M360::M360_SENSOR,   S_WATER,    V_FLOW,   -1, 1, 1, "Fluxo de Agua",     false, 0 },
+	{ CHILD_RELE_VALVULA, M360::M360_ACTUATOR, S_BINARY,   V_STATUS,  5, 0, 1, "Valvula Setor 01",  true,  0 },
 };
 static const uint8_t NODE_ITEMS_COUNT = sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
+
 
 // ===== BUFFERS ESTÁTICOS (gerenciados pelo M360Node — nunca acessar diretamente) =====
 // messages: +2 obrigatório para os canais reservados intervalo (254) e bateria (255)
@@ -99,7 +96,8 @@ void setup()
 	// setup() é executado APÓS o rádio estar ativo.
 	// Registrar callbacks — onRead e onWrite recebem nodeIndex (índice no NODE_ITEMS[]).
 	node.onRead(readNodeItem);
-	// node.onWrite(writeNodeItem);  // descomente apenas se houver atuadores em NODE_ITEMS[]
+	node.onWrite(writeNodeItem);
+
 
 	// node.setupPins();
 	// Descomente APENAS se os pinos em NODE_ITEMS[].pin são todos físicos reais (≥ 0 e < 100).

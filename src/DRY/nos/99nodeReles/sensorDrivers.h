@@ -40,24 +40,24 @@
 #define PIN_NFT_PUMP    A0  // Bomba Circulação Principal — Hidroponia NFT
 #define PIN_NFT_OXI     A1  // Bomba Oxigenação — Hidroponia NFT
 
-// ===== CHILD IDs — Canais via MUX CD74HC4067 =====
-#define CHILD_ID_SOL_A      0   // Canal 0 — Solenóide Gotejamento Canteiro A
-#define CHILD_ID_SOL_B      1   // Canal 1 — Solenóide Gotejamento Canteiro B
-#define CHILD_ID_SOL_C      2   // Canal 2 — Solenóide Gotejamento Canteiro C
-#define CHILD_ID_PERIST_A   3   // Canal 3 — Peristáltica Suplemento A
-#define CHILD_ID_PERIST_B   4   // Canal 4 — Peristáltica Suplemento B
-#define CHILD_ID_PH_PLUS    5   // Canal 5 — Peristáltica pH+
-#define CHILD_ID_PH_MINUS   6   // Canal 6 — Peristáltica pH-
+// ===== CHILD IDs — Canais via MUX CD74HC4067 (Atuadores: Faixa 31–40 conforme R13) =====
+#define CHILD_ID_SOL_A      31  // Canal 0 — Solenóide Gotejamento Canteiro A
+#define CHILD_ID_SOL_B      32  // Canal 1 — Solenóide Gotejamento Canteiro B
+#define CHILD_ID_SOL_C      33  // Canal 2 — Solenóide Gotejamento Canteiro C
+#define CHILD_ID_PERIST_A   34  // Canal 3 — Peristáltica Suplemento A
+#define CHILD_ID_PERIST_B   35  // Canal 4 — Peristáltica Suplemento B
+#define CHILD_ID_PH_PLUS    36  // Canal 5 — Peristáltica pH+
+#define CHILD_ID_PH_MINUS   37  // Canal 6 — Peristáltica pH-
 // Canais 7-15: Reservados para expansão (climatização/iluminação)
 
-// ===== CHILD IDs — Pinos Nativos Concorrentes =====
-#define CHILD_ID_NFT_PUMP   16  // A0 — Bomba Circulação Principal NFT
-#define CHILD_ID_NFT_OXI    17  // A1 — Bomba Oxigenação NFT
-#define CHILD_ID_DHT_TEMP   18  // Sensor de Temperatura DHT11
-#define CHILD_ID_DHT_HUM    19  // Sensor de Umidade DHT11
-#define CHILD_ID_FLOW_A     20  // Vazão Canteiro A
-#define CHILD_ID_FLOW_B     21  // Vazão Canteiro B
-#define CHILD_ID_FLOW_N     22  // Vazão Canteiro N
+// ===== CHILD IDs — Pinos Nativos Concorrentes (Conforme R13) =====
+#define CHILD_ID_NFT_PUMP   38  // A0 — Bomba Circulação Principal NFT (Atuador - Faixa 31-40)
+#define CHILD_ID_NFT_OXI    39  // A1 — Bomba Oxigenação NFT (Atuador - Faixa 31-40)
+#define CHILD_ID_DHT_TEMP   11  // D3 — Sensor de Temperatura DHT11 (Clima - Faixa 11-20)
+#define CHILD_ID_DHT_HUM    12  // D3 — Sensor de Umidade DHT11 (Clima - Faixa 11-20)
+#define CHILD_ID_FLOW_A     21  // D2 — Sensor Único de Vazão de Irrigação (Hidrometria - Faixa 21-30)
+
+
 
 // ===== PINOS NATIVOS =====
 #define PIN_DHT             3   // D3 para sinal digital do DHT11

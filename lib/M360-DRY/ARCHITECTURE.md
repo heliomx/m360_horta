@@ -70,4 +70,19 @@ namespace M360 {
 ```
 
 ---
+
+## 5. Integração MQTT, Auto-Discovery & Proxy MCP v2.0
+
+A arquitetura de mensageria da LibDRY desacopla os nós de rádio do ecossistema IP através dos prefixos MQTT padronizados:
+- **Tópico Outbound:** `m360/DF/0000/out`
+- **Tópico Inbound:** `m360/DF/0000/in`
+
+### Estrutura de Tópico Nativo
+$$\text{PREFIXO} / \text{node-id} / \text{child-sensor-id} / \text{command} / \text{ack} / \text{type}$$
+
+### Mecanismo de Autodescoberta (Auto-Discovery)
+O `M360Node::begin()` e `presentation()` disparam frames MySensors (`I_SKETCH_NAME`, `I_SKETCH_VERSION` e `C_PRESENTATION`), permitindo que o `M360Translator` e o Proxy MCP v2.0 auto-descubram a topologia em campo e populam os atributos e funções sem necessidade de cadastro exaustivo manual no banco de dados.
+
+---
 *Retornar ao [README.md](README.md)*
+

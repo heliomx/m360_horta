@@ -101,7 +101,41 @@ Para nós com MUX CD74HC4067 (encoding virtual `pin = 100 + canal`), `setupPins(
 | 254 | Intervalo (`V_VAR1`) |
 | 255 | Bateria (`V_VOLTAGE`) |
 
+## R12 — Padronização de Faixas de Node ID (1–254)
+
+Para garantir a autodescoberta e compatibilidade com o Proxy MCP v2.0 do Manejo360, os IDs de nós devem respeitar estritamente a alocação por camada de campo:
+
+| Faixa de Node ID | Camada / Aplicação | Exemplos |
+|---|---|---|
+| 0 | Gateway / Broker Hub | Gateway Central / MQTT Proxy |
+| 1 – 50 | Estações Meteorológicas / Clima | Pluviômetro, Pyranômetro, Temp/Umidade Ar |
+| 51 – 150 | Nós de Monitoramento de Solo (Talhões) | Sondas de Umidade RS485/NPK, Impedância |
+| 151 – 200 | Nós de Atuação / Controle de Irrigação | Quadros de bombas, Solenoides, Válvulas |
+| 201 – 254 | Nós Especiais / Reservatórios | Nível de caixa d'água, pH, Condutividade Elétrica |
+
+## R13 — Padronização de Faixas de Child ID (0–40+)
+
+Cada sensor/atuador dentro do nó deve utilizar IDs alocados por funcionalidade:
+
+| Faixa de Child ID | Tipo de Dispositivo | Macro MySensors (`S_TYPE`) | Tipo de Dado (`V_TYPE`) |
+|---|---|---|---|
+| 0 | Status do Próprio Nó / Bateria | `S_MULTIMETER` / Internal | `V_VOLTAGE`, `V_LEVEL` |
+| 1 – 10 | Sensores de Solo | `S_MOISTURE` | `V_LEVEL` (%) ou `V_IMPEDANCE` |
+| 11 – 20 | Sensores Ambientais / Clima | `S_TEMP`, `S_HUM`, `S_LIGHT` | `V_TEMP`, `V_HUM`, `V_LIGHT_LEVEL` |
+| 21 – 30 | Sensores de Fluxo / Hidrometria | `S_WATER` | `V_FLOW`, `V_VOLUME` |
+| 31 – 40 | Atuadores / Relés / Válvulas | `S_BINARY` | `V_STATUS` (0=OFF, 1=ON) |
+
+## R14 — Tópicos MQTT, Auto-Discovery e Proxy MCP v2.0
+
+1. **Prefixos de Tópicos MQTT Nativo MySensors:**
+   - Publicação (Out): `m360/DF/0000/out`
+   - Subscrição (In): `m360/DF/0000/in`
+   - Estrutura do Tópico: `PREFIXO/node-id/child-sensor-id/command/ack/type`
+2. **Auto-Discovery Nativo:** A função `presentation()` deve enviar informações amigáveis via `sendSketchInfo()` e `present()`. O backend/Proxy MCP intercepta `C_PRESENTATION` e `C_INTERNAL` para autodescobrir a topologia sem cadastro manual.
+3. **Failsafe & Diagnóstico:** O nó deve reportar bateria (Child 0) e RSSI para permitir que o Motor de Inferência v2.0 invalide regras com segurança se a bateria cair para < 15% ou se o nó perder conectividade.
+
 ## R11 — Comandos `V_CUSTOM` suportados pelo motor M360Node
+
 
 O motor `M360Node` processa os seguintes payloads via `V_CUSTOM` + `C_SET` — todos definidos em `M360Constants.h`:
 
@@ -143,11 +177,12 @@ Apresentar as perguntas a seguir e aguardar resposta completa antes de prossegui
 
 ```
 Nome do sketch (ex: "nodeValvula"):
-MY_NODE_ID (1–253, único na rede):
+MY_NODE_ID (Conforme R12: 1-50 Clima, 51-150 Solo, 151-200 Atuação, 201-254 Reservatórios/Qualidade de Água):
 Descrição funcional breve:
 ```
 
 ## 1.2 Placa
+
 
 Opções suportadas pelo projeto (AVR + MySensors RF24):
 
@@ -223,11 +258,12 @@ if (millis() - lastRssiLog >= MY_RSSI_LOG_INTERVAL) {
 Para **cada** sensor ou atuador solicitar:
 
 ```
-childId (0–253, único neste nó):
+childId (Conforme R13: 0 Bateria/Status, 1-10 Solo, 11-20 Clima, 21-30 Fluxo, 31-40 Atuadores):
 Tipo (M360_SENSOR / M360_ACTUATOR):
-Label (nome exibido no controller, ex: "Temp Estufa"):
+Label (nome exibido no controller e no Auto-Discovery, ex: "Umidade Solo 10cm"):
 Pino físico ou -1 se não aplicável:
 ```
+
 
 O agente escolhe `S_*` e `V_*` mais adequados e apresenta para confirmação:
 
@@ -541,6 +577,9 @@ Verificar cada item antes de entregar o código:
 | 14 | childId 254 ou 255 em `NODE_ITEMS[]` | Reservados para intervalo e bateria |
 | 15 | Ordem errada de includes (`M360.h` antes de `MySensors.h`) | Causa banner truncado + hang; ordem correta: `Arduino.h` → `MySensors.h` → `M360.h` → `sensorDrivers.h` |
 | 16 | `MY_REPEATER_FEATURE` ativa em nó LOW_POWER ou PASSIVE | Nós de baixo consumo não podem atuar como repetidores |
+| 17 | Node ID fora da faixa da camada de aplicação | Verificar conformidade com R12 (1-50 Clima, 51-150 Solo, 151-200 Atuação, 201-254 Água) |
+| 18 | Child ID fora da faixa funcional | Verificar conformidade com R13 (0 Bateria, 1-10 Solo, 11-20 Clima, 21-30 Fluxo, 31-40 Atuadores) |
+
 
 ---
 

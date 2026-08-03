@@ -67,18 +67,32 @@ void updateLEDStatus();
 
 // ==== FUNÇÕES MYSENSORS ====
 
+static const char* getNodeCategoryLabel(uint8_t nodeId) {
+    if (nodeId == M360::NODE_ID_GATEWAY) return "Gateway";
+    if (M360::isClimaNode(nodeId))    return "Clima (1-50)";
+    if (M360::isSoloNode(nodeId))     return "Solo (51-150)";
+    if (M360::isActuatorNode(nodeId)) return "Atuação (151-200)";
+    if (M360::isWaterNode(nodeId))    return "Água/Reservatório (201-254)";
+    return "Fora da Faixa Normativa";
+}
+
 void presentation() {
-	sendSketchInfo("Manejo360 Gateway MQTT", "2.0");
-	Serial.println("📡 Gateway MySensors apresentado");
+	sendSketchInfo("Manejo360 Gateway MQTT", "2.0.0");
+	Serial.println("📡 Gateway MySensors apresentado (v2.0.0)");
 	// publishTransportEvent movido para setup() — MQTT não está inicializado aqui
 }
 
 void receive(const MyMessage &message) {
+	uint8_t nodeId = message.getSender();
+	uint8_t childId = message.getSensor();
+	uint8_t cmd = message.getCommand();
+
 	Serial.println("📨 Mensagem MySensors recebida:");
 	ledFlicker(LED_GREEN);
-	Serial.print("   Nó: ");     Serial.print(message.getSender());
-	Serial.print(", Sensor: ");  Serial.print(message.getSensor());
-	Serial.print(", Comando: "); Serial.print(message.getCommand());
+	Serial.print("   Nó: ");     Serial.print(nodeId);
+	Serial.print(" [");          Serial.print(getNodeCategoryLabel(nodeId)); Serial.print("]");
+	Serial.print(", Child: ");   Serial.print(childId);
+	Serial.print(", Comando: "); Serial.print(cmd);
 	Serial.print(", Tipo: ");    Serial.println(message.getType());
 
 	if (message.getLength() > 0) {
@@ -87,16 +101,41 @@ void receive(const MyMessage &message) {
 		Serial.println(message.getString(payloadDbg));
 	}
 
-	if (gateway.registry().update(message.getSender())) {
-		publishTransportEvent(M360::EVT_NODE_RECONN, "Node back online or discovered", message.getSender());
+	if (gateway.registry().update(nodeId)) {
+		publishTransportEvent(M360::EVT_NODE_RECONN, "Node back online or discovered", nodeId);
 	}
 
-	if (message.getCommand() == C_INTERNAL) {
-		int nodeId = message.getSender();
+	// Auto-Discovery: Tratar Apresentação de Childs (C_PRESENTATION)
+	if (cmd == C_PRESENTATION) {
+		char aliasBuf[MAX_PAYLOAD + 1];
+		message.getString(aliasBuf);
+		char details[128];
+		snprintf(details, sizeof(details), "Child presentation: ID %d, Type %d, Label: %s", childId, message.getType(), aliasBuf);
+		publishTransportEvent("child_presentation", details, nodeId);
+	}
+
+	// Auto-Discovery: Tratar Mensagens Internas (C_INTERNAL)
+	if (cmd == C_INTERNAL) {
 		switch (message.getType()) {
 			case I_PRESENTATION:
 				publishTransportEvent("node_presentation", "Node presented itself to gateway", nodeId);
 				break;
+			case I_SKETCH_NAME: {
+				char nameBuf[MAX_PAYLOAD + 1];
+				message.getString(nameBuf);
+				char details[128];
+				snprintf(details, sizeof(details), "Sketch Name: %s", nameBuf);
+				publishTransportEvent("node_sketch_name", details, nodeId);
+				break;
+			}
+			case I_SKETCH_VERSION: {
+				char verBuf[MAX_PAYLOAD + 1];
+				message.getString(verBuf);
+				char details[128];
+				snprintf(details, sizeof(details), "Sketch Version: %s", verBuf);
+				publishTransportEvent("node_sketch_version", details, nodeId);
+				break;
+			}
 			case I_REGISTRATION_REQUEST:
 				publishTransportEvent("node_registration_request", "Node requesting registration", nodeId);
 				break;
@@ -120,6 +159,7 @@ void receive(const MyMessage &message) {
 
 	sendMQTT(message, message.isAck());
 }
+
 
 // ==== ENVIO MQTT ====
 

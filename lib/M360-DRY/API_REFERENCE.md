@@ -22,7 +22,22 @@ Define as propriedades de um sensor ou atuador no nó.
 | `wakeOnRadio` | `bool` | Se `true`, solicita estado ao gateway logo após acordar. |
 | `flags` | `uint8_t` | Bit 0: Multiplica valor por 100 antes de enviar (Útil p/ Volts). |
 
+### Faixas Normativas de Node ID (Camadas de Campo)
+- **0:** Gateway / Broker Hub (`NODE_ID_GATEWAY`)
+- **1 – 50:** Estações Meteorológicas / Sensores de Clima (`NODE_ID_CLIMA_MIN`..`MAX`)
+- **51 – 150:** Nós de Monitoramento de Solo / Talhões (`NODE_ID_SOLO_MIN`..`MAX`)
+- **151 – 200:** Nós de Atuação / Controle de Irrigação (`NODE_ID_ACTUATOR_MIN`..`MAX`)
+- **201 – 254:** Nós Especiais / Reservatórios / Qualidade de Água (`NODE_ID_WATER_MIN`..`MAX`)
+
+### Faixas Normativas de Child ID (Funcionalidades)
+- **0:** Status do Próprio Nó / Bateria (`CHILD_ID_STATUS`: `S_MULTIMETER` / `V_VOLTAGE`, `V_LEVEL`)
+- **1 – 10:** Sensores de Solo (`CHILD_ID_SOLO_MIN`..`MAX`: `S_MOISTURE` / `V_LEVEL`)
+- **11 – 20:** Sensores Ambientais / Clima (`CHILD_ID_CLIMA_MIN`..`MAX`: `S_TEMP`, `S_HUM`, `S_LIGHT`)
+- **21 – 30:** Sensores de Fluxo / Hidrometria (`CHILD_ID_FLOW_MIN`..`MAX`: `S_WATER` / `V_FLOW`)
+- **31 – 40:** Atuadores / Relés / Válvulas (`CHILD_ID_ACTUATOR_MIN`..`MAX`: `S_BINARY` / `V_STATUS`)
+
 ---
+
 
 ## 2. Classe `M360::M360Node`
 

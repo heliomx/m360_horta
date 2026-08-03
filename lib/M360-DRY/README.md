@@ -43,14 +43,15 @@ graph TD
 ## 🚀 Como Começar (Guia Rápido)
 
 ### 1. Defina o DNA do seu Nó
-Crie um array `NODE_ITEMS` com os sensores e atuadores. Isso é o que o gateway verá.
+Crie um array `NODE_ITEMS` com os sensores e atuadores alocados nas faixas normativas (R12 / R13). Isso é o que o gateway e o Proxy MCP verão no Auto-Discovery.
 
 ```cpp
 static const M360::M360ItemDef NODE_ITEMS[] = {
-    // ID | Tipo            | Present | Value   | Pin | Smp | Label   | Wake | Flags
-    { 0, M360_SENSOR,   S_HUM,    V_HUM,    A0,   5,  "Umidade", false, 0 }
+    // ID | Tipo        | Present   | Value   | Pin | Min | Smp | Label             | Wake | Flags
+    { 1,  M360_SENSOR,  S_MOISTURE, V_LEVEL,  A0,   0,    5,    "Umidade Solo 10cm", false, 0 }
 };
 ```
+
 
 ### 2. Conecte os Cabos (Callbacks)
 A LibDRY chamará sua função quando precisar de um dado:

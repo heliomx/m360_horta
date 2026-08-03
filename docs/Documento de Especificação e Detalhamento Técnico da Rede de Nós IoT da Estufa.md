@@ -18,14 +18,14 @@ A infraestrutura é dividida em **um nó atuador centralizador** e **quatro nós
                                         ▲  
                                         │ (Rede Sem Fios nRF24L01+)  
     ┌───────────────────┼───────────────┼───────────────┼─────────────┐  
-    ▼                                               ▼                                     ▼                                     ▼                                 ▼  
-\[Nó 00: Atuador\]                   \[Nó 01: Solo\]                   \[Nó 02: Solo\]                   \[Nó 03: Hidro\]                  \[Nó 04: Clima\]  
- (Q. Central 5V)                     (3D \- A e B)                    (C \- Modbus)                     (NFT/Solução)              (Painel/Solar)  
+    ▼                                               ▼                                     ▼                                     ▼                                     (NFT/Solução)              (Painel/Solar)  
  Atuadores Ativos                Alimentado 5V                 Alimentado 5V                  Alimentado 5V               smartSleep()
 
-## **2\. Detalhamento Técnico por Nó**
+## **### **Nó 00: Central de Atuação da Estufa (Concentrador de Po ▼  
+\[Nó 00: Atuador\]                   \[Nó 01: Solo\]                   \[Nó 02: Solo\]                   \[Nó 03: Hidro\]                  \[Nó 04: Clima\]  
+ (Q. Central 5V)                     (3D \- A e B)                    (C \- Modbus)                tência)**
+2\. Detalhamento Técnico por Nó**
 
-### **Nó 00: Central de Atuação da Estufa (Concentrador de Potência)**
 
 * **Localização:** Quadro Central de Energia da estufa (220V $\\rightarrow$ 12V, 5V, 3.3V).  
 * **Hardware:** Arduino Nano (5V) \+ Multiplexador Digital CD74HC4067 \+ 16 Módulos de Relé 10A com isolamento por optoacoplador \+ Rádio nRF24L01+ (com adaptador de socket regulador de 3,3V).  
@@ -284,4 +284,204 @@ void loop() {
    	Cátodo (barra do diodo): ligado ao \+12V (cátodo para o positivo)  
    	Anodo (sem barra): ligado ao GND (anodo para o negativo)  
 3. **Isolamento de Junções nos Sensores:** Os fios AWG24 extraídos dos cabos Ethernet FTP e conectados aos parafusos das barras de Sindal devem ser vedados contra a atmosfera corrosiva da estufa. Aplique **silicone neutro** e feche a cabeça do sensor com **manga termorretor com adesivo (cola interna)** garantindo vedação com padrão industrial de campo.
+
+---
+
+## **5\. Integração com a Camada de Mapeamento, Autodescoberta e Proxy MCP v2.0**
+
+Para integrar a rede MySensors ao ecossistema Manejo360 (respeitando o barramento MQTT e o modelo Proxy MCP v2.0), alinha-se a hierarquia física dos Nós e Childs à estrutura de publicação e subscrição.
+
+### **5.1 Tópicos MQTT e Padrão de IDs**
+Prefixos configurados no firmware Gateway:
+- **Publicação (Out):** `#define MY_MQTT_PUBLISH_TOPIC_PREFIX "m360/DF/0000/out"`
+- **Subscrição (In):** `#define MY_MQTT_SUBSCRIBE_TOPIC_PREFIX "m360/DF/0000/in"`
+
+Formato nativo de tópico MySensors:
+$$\text{PREFIXO} / \text{node-id} / \text{child-sensor-id} / \text{command} / \text{ack} / \text{type}$$
+
+#### Estrutura de IDs de Nó (node-id)
+- **0:** Gateway / Broker Hub (Gateway Central / MQTT Proxy)
+- **1 – 50:** Estações Meteorológicas / Sensores de Clima (Pluviômetro, Pyranômetro, Temp/Umidade Ar)
+- **51 – 150:** Nós de Monitoramento de Solo (Talhões) (Sondas de Umidade RS485/NPK, Impedância)
+- **151 – 200:** Nós de Atuação / Controle de Irrigação (Quadros de bombas, Solenoides, Válvulas de setor)
+- **201 – 254:** Nós Especiais / Reservatórios / Qualidade de Água (Nível, pH, Condutividade Elétrica)
+
+#### Estrutura de IDs de Filho (child-sensor-id)
+- **0:** Status do Próprio Nó / Bateria (`S_MULTIMETER` / `V_VOLTAGE`, `V_LEVEL`)
+- **1 – 10:** Sensores de Solo (`S_MOISTURE` / `V_LEVEL` % ou `V_IMPEDANCE`)
+- **11 – 20:** Sensores Ambientais / Clima (`S_TEMP`, `S_HUM`, `S_LIGHT` / `V_TEMP`, `V_HUM`, `V_LIGHT_LEVEL`)
+- **21 – 30:** Sensores de Fluxo / Hidrometria (`S_WATER` / `V_FLOW`, `V_VOLUME`)
+- **31 – 40:** Atuadores / Relés / Válvulas (`S_BINARY` / `V_STATUS` 0=OFF, 1=ON)
+
+### **5.2 Exemplo de Firmware Homologado em C++ (Nó de Solo/Irrigação - ID 51)**
+
+```cpp
+// --- CONFIGURAÇÃO MQTT M360 ---
+#define MY_RADIO_RF24 // ou RS485
+#define MY_GATEWAY_MQTT_CLIENT
+
+#define MY_MQTT_PUBLISH_TOPIC_PREFIX "m360/DF/0000/out"
+#define MY_MQTT_SUBSCRIBE_TOPIC_PREFIX "m360/DF/0000/in"
+#define MY_MQTT_CLIENT_ID "M360_GW_DF_0000"
+
+#include <MySensors.h>
+
+// --- PADRONIZAÇÃO DE NODE E CHILDS (Nó de Irrigação/Solo Exemplo: ID 51) ---
+#define NODE_ID 51
+
+// Mapeamento dos Childs
+#define CHILD_ID_BATTERIA      0  // Tensão/Nível da bateria
+#define CHILD_ID_SOLO_10CM     1  // Umidade Solo Superficial
+#define CHILD_ID_SOLO_30CM     2  // Umidade Solo Profundo
+#define CHILD_ID_FLUXO_AGUA    21 // Fluxômetro de Irrigação
+#define CHILD_ID_RELE_VALVULA  31 // Solenoide de Acionamento
+
+// Instanciação das mensagens MySensors
+MyMessage msgSolo10(CHILD_ID_SOLO_10CM, V_LEVEL);
+MyMessage msgSolo30(CHILD_ID_SOLO_30CM, V_LEVEL);
+MyMessage msgFluxo(CHILD_ID_FLUXO_AGUA, V_FLOW);
+MyMessage msgValvula(CHILD_ID_RELE_VALVULA, V_STATUS);
+
+void presentation() {
+  // Apresentação do Nó ao Gateway e ao Proxy MCP
+  sendSketchInfo("M360_Nodo_Talhao_01", "2.0.0");
+
+  // Apresentação dos Childs com suas devidas Macros
+  present(CHILD_ID_SOLO_10CM, S_MOISTURE, "Umidade Solo 10cm");
+  present(CHILD_ID_SOLO_30CM, S_MOISTURE, "Umidade Solo 30cm");
+  present(CHILD_ID_FLUXO_AGUA, S_WATER, "Fluxo de Agua Irrigacao");
+  present(CHILD_ID_RELE_VALVULA, S_BINARY, "Valvula Setor 01");
+}
+```
+
+### **5.3 Mapeamento de Tópicos MQTT Práticos e JSON de Binding (Proxy MCP v2.0)**
+
+- **Envio de Telemetria (Out):** `m360/DF/0000/out/51/1/1/0/35` (Node 51, Child 1, C_SET=1, Ack=0, V_LEVEL=35, Payload: 42.5)
+- **Comando de Atuação (In):** `m360/DF/0000/in/51/31/1/0/2` (Node 51, Child 31, C_SET=1, Ack=0, V_STATUS=2, Payload: 1)
+
+#### JSON de Instanciação do Talhão (Binding MCP v2.0)
+```json
+{
+  "mapeamento_atributos": [
+    {
+      "atributo_conceitual": "umidade_solo_avg",
+      "estrategia": "MEDIA",
+      "fontes": [
+        { "topico_mqtt": "m360/DF/0000/out/51/1/1/0/35" },
+        { "topico_mqtt": "m360/DF/0000/out/51/2/1/0/35" }
+      ]
+    }
+  ],
+  "mapeamento_funcoes": [
+    {
+      "funcao_conceitual": "RELE_BOMBA_IRRIG",
+      "topico_comando_mqtt": "m360/DF/0000/in/51/31/1/0/2",
+      "payload_ligar": "1",
+      "payload_desligar": "0"
+    }
+  ]
+}
+```
+
+### **5.4 Mecanismo de Autodescoberta (Auto-Discovery) e Grafo de Dispositivos**
+
+O backend intercepta os tipos de mensagens `C_PRESENTATION` e `C_INTERNAL` durante o boot do nó para autodescobrir a topologia sem cadastros manuais:
+
+```
+┌─────────────────┐       MQTT (out)       ┌──────────────────┐       Popula       ┌─────────────────┐
+│ Nó MySensors    │ ─────────────────────► │ Backend / Proxy  │ ─────────────────► │ Banco / Grafo   │
+│ (Boot & Config) │                        │ MCP              │                    │ de Dispositivos │
+└─────────────────┘                        └──────────────────┘                    └─────────────────┘
+```
+
+#### Documento JSON de Persistência da Topologia no Backend
+```json
+{
+  "id_dispositivo_m360": "DEV-DF0000-NODE-51",
+  "node_id": 51,
+  "gateway_prefix": "m360/DF/0000",
+  "sketch_info": {
+    "nome": "M360_Nodo_Talhao_01",
+    "versao": "2.0.0"
+  },
+  "status_operacional": {
+    "bateria_porcentagem": 88,
+    "rssi_sinal": -65,
+    "ultima_comunicacao": "2026-07-28T14:38:22Z"
+  },
+  "mcp_modelo_auto_descoberto": {
+    "atributos": [
+      {
+        "nome": "node51_child1_S_MOISTURE",
+        "child_id": 1,
+        "s_type": "S_MOISTURE",
+        "v_type": "V_LEVEL",
+        "descricao_firmware": "Umidade Solo 10cm",
+        "topico_mqtt": "m360/DF/0000/out/51/1/1/0/35"
+      },
+      {
+        "nome": "node51_child2_S_MOISTURE",
+        "child_id": 2,
+        "s_type": "S_MOISTURE",
+        "v_type": "V_LEVEL",
+        "descricao_firmware": "Umidade Solo 30cm",
+        "topico_mqtt": "m360/DF/0000/out/51/2/1/0/35"
+      }
+    ],
+    "funcoes": [
+      {
+        "nome": "node51_child31_S_BINARY",
+        "child_id": 31,
+        "s_type": "S_BINARY",
+        "descricao_firmware": "Valvula Setor 01",
+        "topico_comando_mqtt": "m360/DF/0000/in/51/31/1/0/2",
+        "operacoes": [
+          { "nome": "LIGAR", "payload_mqtt": "1" },
+          { "nome": "DESLIGAR", "payload_mqtt": "0" }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### **5.5 Diagnóstico de Infraestrutura e Failsafe no Motor de Inferência**
+Com os dados de saúde capturados dinamicamente pelo backend, o Motor de Inferência v2.0 avalia regras de segurança da irrigação:
+
+```json
+{
+  "regras_aplicacao": [
+    {
+      "id_regra": "ALERTA_BATERIA_BAIXA_NODO",
+      "descricao": "Gera evento se a bateria de algum nó do talhão estiver criticamente baixa.",
+      "prioridade": 1,
+      "condicoes": {
+        "logica": "AND",
+        "clausulas": [
+          {
+            "variavel_entrada": "DEV-DF0000-NODE-51.bateria_porcentagem",
+            "operador": "<",
+            "valor_referencia": 15
+          }
+        ]
+      },
+      "acoes": [
+        {
+          "tipo_acao": "GERAR_EVENTO",
+          "nome_evento": "ALERTA_MANUTENCAO_HARDWARE",
+          "valores_parametros": {
+            "mensagem_alerta": "Atenção: O nó de sensor do Talhão 01 (ID 51) está com bateria em 15%. Substituição recomendada."
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+### **5.6 Benefícios do Auto-Discovery**
+- **Plug-and-Play em Campo:** Reconhecimento automático de novos nós e sensores ao ligar o equipamento.
+- **Segurança na Execução (Failsafe):** Invalidação temporária de regras se um nó falhar ou perder o sinal, evitando irrigação/acionamentos indevidos.
+- **Mapeamento Facilitado no Front-End:** Apresentação dinâmica dos nomes definidos no firmware ("Umidade Solo 10cm", "Valvula Setor 01") na interface do usuário.
+
 

@@ -35,10 +35,10 @@
 // MySensors.h deve vir antes de M360.h para garantir sei() antes dos
 // construtores globais
 
-#include "sensorDrivers.h"
 #include <Arduino.h>
-#include <M360.h>
 #include <MySensors.h>
+#include <M360.h>
+#include "sensorDrivers.h"
 
 
 #if defined(MY_DEBUG) && defined(MY_RSSI_LOG_INTERVAL)
@@ -77,26 +77,18 @@ static const M360::M360ItemDef NODE_ITEMS[] = {
      "Temperatura do Ar", false, 0},
     {CHILD_ID_DHT_HUM, M360::M360_SENSOR, S_HUM, V_HUM, PIN_DHT, 0, 1,
      "Umidade do Ar", false, 0},
-    // --- Sensores de Vazão Virtuais ---
+    // --- Sensor de Vazão Único de Irrigação ---
     {CHILD_ID_FLOW_A, M360::M360_SENSOR, S_WATER, V_FLOW, -1, 1, 1,
      "Vazao.CanteiroA", false, 0},
-    {CHILD_ID_FLOW_B, M360::M360_SENSOR, S_WATER, V_FLOW, -1, 1, 1,
-     "Vazao.CanteiroB", false, 0},
-    {CHILD_ID_FLOW_N, M360::M360_SENSOR, S_WATER, V_FLOW, -1, 1, 1,
-     "Vazao.CanteiroN", false, 0},
 };
 static const uint8_t NODE_ITEMS_COUNT =
     sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
 
-// Índices para reporte rápido das vazões de cada canteiro
+// Índice para reporte rápido da vazão de irrigação
 static const uint8_t IDX_FLOW_A = 11;
-static const uint8_t IDX_FLOW_B = 12;
-static const uint8_t IDX_FLOW_N = 13;
 
 // ===== BUFFERS =====
-static MyMessage
-    messages[NODE_ITEMS_COUNT +
-             3]; // +1 Intervalo (ID 254) +1 Bateria (ID 255) +1 Debug (ID 253)
+static MyMessage messages[NODE_ITEMS_COUNT + 2]; // +2 reservado para intervalo (254) e bateria (0/255)
 static float lastValues[NODE_ITEMS_COUNT];
 static uint8_t nNoUpdates[NODE_ITEMS_COUNT];
 
@@ -123,12 +115,6 @@ static float readItem(uint8_t index) {
   if (NODE_ITEMS[index].childId == CHILD_ID_FLOW_A) {
     return getFlowForCanteiro(CHILD_ID_SOL_A);
   }
-  if (NODE_ITEMS[index].childId == CHILD_ID_FLOW_B) {
-    return getFlowForCanteiro(CHILD_ID_SOL_B);
-  }
-  if (NODE_ITEMS[index].childId == CHILD_ID_FLOW_N) {
-    return getFlowForCanteiro(CHILD_ID_SOL_C); // Canteiro N no MUX é CHILD_ID_SOL_C
-  }
   return readNodeItem(NODE_ITEMS[index].pin);
 }
 
@@ -148,7 +134,8 @@ void powerDown() {
 
 // ===== MYSENSORS HOOKS =====
 
-void presentation() { node.begin("NodeReles", "1.0"); }
+void presentation() { node.begin("NodeReles", "2.0.0"); }
+
 
 void before() {
   Serial.begin(MY_BAUD_RATE);
@@ -173,28 +160,17 @@ void loop() {
 
   // Reporte rápido de vazão em tempo real sempre que houver variação significativa
   static float lastSentFlowA = -1.0f;
-  static float lastSentFlowB = -1.0f;
-  static float lastSentFlowN = -1.0f;
 
   float flowA = getFlowForCanteiro(CHILD_ID_SOL_A);
-  float flowB = getFlowForCanteiro(CHILD_ID_SOL_B);
-  float flowN = getFlowForCanteiro(CHILD_ID_SOL_C); // Canteiro N no MUX é CHILD_ID_SOL_C
 
   // Envia atualização imediata se mudar significativamente
   if (fabsf(flowA - lastSentFlowA) > 0.02f || (flowA == 0.0f && lastSentFlowA > 0.0f)) {
     lastSentFlowA = flowA;
     send(messages[IDX_FLOW_A].set(flowA, 1));
   }
-  if (fabsf(flowB - lastSentFlowB) > 0.02f || (flowB == 0.0f && lastSentFlowB > 0.0f)) {
-    lastSentFlowB = flowB;
-    send(messages[IDX_FLOW_B].set(flowB, 1));
-  }
-  if (fabsf(flowN - lastSentFlowN) > 0.02f || (flowN == 0.0f && lastSentFlowN > 0.0f)) {
-    lastSentFlowN = flowN;
-    send(messages[IDX_FLOW_N].set(flowN, 1));
-  }
 
   node.process();
+
 
   // Log periódico de RSSI (saída Serial apenas — não enviado como sensor
   // MySensors)

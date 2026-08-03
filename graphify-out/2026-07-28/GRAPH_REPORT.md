@@ -1,7 +1,7 @@
 # Graph Report - m360_horta  (2026-07-28)
 
 ## Corpus Check
-- 1186 files · ~1,135,972 words
+- 1186 files · ~1,136,006 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
