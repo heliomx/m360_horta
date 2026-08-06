@@ -2342,8 +2342,7 @@
         "y": 420,
         "wires": [
             [
-                "bfefeccb117e5e57",
-                "format_log_csv"
+                "bfefeccb117e5e57"
             ]
         ]
     },
@@ -2358,8 +2357,7 @@
         "y": 360,
         "wires": [
             [
-                "bfefeccb117e5e57",
-                "format_log_csv"
+                "bfefeccb117e5e57"
             ]
         ]
     },
@@ -2368,7 +2366,7 @@
         "type": "function",
         "z": "50fbcdf0053fa19f",
         "name": "Central Logger MQTT",
-        "func": "// Logger centralizado com amostragem/debounce de atualizacao para proteger o Dashboard\nvar logs = global.get('mqtt_logs') || [];\nvar dir = msg.mqtt_dir || 'IN';\nvar topic = msg.topic || 'N/A';\nvar payload = msg.payload;\n\nvar payloadStr = '';\nif (typeof payload === 'object') {\n    try { payloadStr = JSON.stringify(payload); } catch(e) { payloadStr = String(payload); }\n} else {\n    payloadStr = String(payload);\n}\n\nvar entry = {\n    timestamp: new Date().toISOString(),\n    dir: dir,\n    topic: topic,\n    payload: payloadStr\n};\n\nlogs.push(entry);\nif (logs.length > 2000) {\n    logs.shift();\n}\nglobal.set('mqtt_logs', logs);\n\n// Throttle UI table updates (maximo 1 atualizacao a cada 800ms para evitar travamentos)\nvar lastUiUpdate = flow.get('mqtt_log_last_ui') || 0;\nvar now = Date.now();\nif (now - lastUiUpdate < 800) {\n    return null; // Acumula no log sem re-renderizar a tabela na UI\n}\nflow.set('mqtt_log_last_ui', now);\n\nvar recent = logs.slice(-100).reverse();\nmsg.payload = recent.map(function(item) {\n    var d = new Date(item.timestamp);\n    var pad = function(n) { return n < 10 ? '0' + n : n; };\n    var timeStr = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());\n    var dateStr = pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + timeStr;\n    return {\n        DataHora: dateStr,\n        Direcao: item.dir,\n        Topico: item.topic,\n        Payload: item.payload\n    };\n});\nreturn msg;",
+        "func": "// Logger centralizado com amostragem/debounce de atualizacao para proteger o Dashboard\nvar logs = global.get('mqtt_logs') || [];\nvar dir = msg.mqtt_dir || 'IN';\nvar topic = msg.topic || 'N/A';\nvar payload = msg.payload;\n\nvar payloadStr = '';\nif (typeof payload === 'object') {\n    try { payloadStr = JSON.stringify(payload); } catch(e) { payloadStr = String(payload); }\n} else {\n    payloadStr = String(payload);\n}\n\nvar entry = {\n    timestamp: new Date().toISOString(),\n    dir: dir,\n    topic: topic,\n    payload: payloadStr\n};\n\nlogs.push(entry);\nif (logs.length > 6000) {\n    logs.shift();\n}\nglobal.set('mqtt_logs', logs);\n\n// Throttle UI table updates (maximo 1 atualizacao a cada 800ms para evitar travamentos)\nvar lastUiUpdate = flow.get('mqtt_log_last_ui') || 0;\nvar now = Date.now();\nif (now - lastUiUpdate < 800) {\n    return null; // Acumula no log sem re-renderizar a tabela na UI\n}\nflow.set('mqtt_log_last_ui', now);\n\nvar recent = logs.slice(-100).reverse();\nmsg.payload = recent.map(function(item) {\n    var d = new Date(item.timestamp);\n    var pad = function(n) { return n < 10 ? '0' + n : n; };\n    var timeStr = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());\n    var dateStr = pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + timeStr;\n    return {\n        DataHora: dateStr,\n        Direcao: item.dir,\n        Topico: item.topic,\n        Payload: item.payload\n    };\n});\nreturn msg;",
         "outputs": 1,
         "x": 1620,
         "y": 400,
@@ -2620,37 +2618,6 @@
         "info": "Gera o diário diário da horta com base nos logs."
     },
     {
-        "id": "format_log_csv",
-        "type": "function",
-        "z": "6e38860673f8fc3a",
-        "name": "Formatar Linha Log",
-        "func": "var dir = msg.mqtt_dir || 'IN';\nvar t = msg.topic || '';\nvar p = msg.payload;\nif(typeof p === 'object') { try { p = JSON.stringify(p); }catch(e){} }\nmsg.payload = new Date().toISOString() + ' | ' + dir + ' | ' + t + ' | ' + p + '\\n';\nreturn msg;",
-        "outputs": 1,
-        "x": 800,
-        "y": 150,
-        "wires": [
-            [
-                "write_log_csv"
-            ]
-        ]
-    },
-    {
-        "id": "write_log_csv",
-        "type": "file",
-        "z": "6e38860673f8fc3a",
-        "name": "Gravar /data/mqtt_logs_24h.txt",
-        "filename": "mqtt_logs_24h.txt",
-        "appendNewline": false,
-        "createDir": true,
-        "overwriteFile": "false",
-        "encoding": "setbyuser",
-        "x": 1050,
-        "y": 150,
-        "wires": [
-            []
-        ]
-    },
-    {
         "id": "agent_trigger",
         "type": "inject",
         "z": "ai_reporter_tab",
@@ -2671,43 +2638,8 @@
         "y": 100,
         "wires": [
             [
-                "read_log_csv"
+                "build_prompt"
             ]
-        ]
-    },
-    {
-        "id": "read_log_csv",
-        "type": "file in",
-        "z": "ai_reporter_tab",
-        "name": "Ler Logs 24h",
-        "filename": "mqtt_logs_24h.txt",
-        "format": "utf8",
-        "chunk": false,
-        "sendError": false,
-        "encoding": "none",
-        "x": 350,
-        "y": 100,
-        "wires": [
-            [
-                "build_prompt",
-                "wipe_log_csv"
-            ]
-        ]
-    },
-    {
-        "id": "wipe_log_csv",
-        "type": "file",
-        "z": "ai_reporter_tab",
-        "name": "Limpar Arquivo",
-        "filename": "mqtt_logs_24h.txt",
-        "appendNewline": false,
-        "createDir": false,
-        "overwriteFile": "true",
-        "encoding": "setbyuser",
-        "x": 350,
-        "y": 160,
-        "wires": [
-            []
         ]
     },
     {
@@ -2715,7 +2647,7 @@
         "type": "function",
         "z": "ai_reporter_tab",
         "name": "Montar Contexto e Prompt Gemini",
-        "func": "// Chaves de Configuração (Preencher pelo usuário no dashboard / vars)\nvar GEMINI_API_KEY = global.get('GEMINI_API_KEY') || 'COLE_AQUI';\nvar TELEGRAM_BOT_TOKEN = global.get('TELEGRAM_BOT_TOKEN') || 'COLE_AQUI';\nvar TELEGRAM_CHAT_ID = global.get('TELEGRAM_CHAT_ID') || 'COLE_AQUI';\n\nvar logs = msg.payload;\n\nvar system_prompt = \"Você é um agente autônomo analista de dados de uma Horta Inteligente (Projeto M360 Horta).\\n\\n\" +\n\"O usuário solicitou um DIÁRIO COMPLETO das últimas 24 horas. Seu foco:\\n\" +\n\"1. RESUMO OPERACIONAL: Resuma quantos comandos e ativações automáticas de atuadores (Bombas, Solenóides) ocorreram.\\n\" +\n\"2. SAÚDE DA HORTA: Analise criticamente os sensores (Umidade, vazão). Houve falta de água? Algum nó ficou muito tempo sem enviar leitura?\\n\" +\n\"3. CONCLUSÃO: Dê uma nota de saúde (Ex: 9/10) e diga se alguma ação manual é recomendada hoje.\\n\\n\" +\n\"Retorne EXCLUSIVAMENTE o texto formatado em MARKDOWN, curto, direto e objetivo para ser lido no Telegram.\\n\\n\" +\n\"Abaixo estão os logs crus em CSV (Data | Dir | Tópico | Payload):\\n\\n\";\n\n// Se o log for absurdamente grande, limita os caracteres (ex: 80.000 chars ~ 20.000 tokens)\nif (logs.length > 80000) {\n    logs = logs.substring(logs.length - 80000);\n}\n\nmsg.gemini_key = GEMINI_API_KEY;\nmsg.telegram_token = TELEGRAM_BOT_TOKEN;\nmsg.telegram_chat_id = TELEGRAM_CHAT_ID;\n\nmsg.payload = {\n    \"contents\": [{\n        \"parts\": [{\"text\": system_prompt + logs}]\n    }],\n    \"systemInstruction\": {\n        \"parts\": [{\"text\": \"Escreva sempre em PT-BR. Use emojis adequados.\"}]\n    }\n};\n\nmsg.headers = { \"Content-Type\": \"application/json\" };\nreturn msg;",
+        "func": "// Chaves de Configuração\nvar GEMINI_API_KEY = global.get('GEMINI_API_KEY') || 'COLE_AQUI';\nvar TELEGRAM_BOT_TOKEN = global.get('TELEGRAM_BOT_TOKEN') || 'COLE_AQUI';\nvar TELEGRAM_CHAT_ID = global.get('TELEGRAM_CHAT_ID') || 'COLE_AQUI';\n\n// Puxa o log direto da RAM (Central Logger armazena aqui)\nvar logsArray = global.get('mqtt_logs') || [];\nvar logs = \"\";\n\n// Converte os ultimos logs para string CSV\nlogsArray.forEach(function(item) {\n    logs += item.timestamp + ' | ' + item.dir + ' | ' + item.topic + ' | ' + JSON.stringify(item.payload) + '\\n';\n});\n\nvar system_prompt = \"Você é um agente autônomo analista de dados de uma Horta Inteligente (Projeto M360 Horta).\\n\\n\" +\n\"O usuário solicitou um DIÁRIO COMPLETO das últimas 24 horas. Seu foco:\\n\" +\n\"1. RESUMO OPERACIONAL: Resuma quantos comandos e ativações automáticas de atuadores (Bombas, Solenóides) ocorreram.\\n\" +\n\"2. SAÚDE DA HORTA: Analise criticamente os sensores (Umidade, vazão). Houve falta de água? Algum nó ficou muito tempo sem enviar leitura?\\n\" +\n\"3. CONCLUSÃO: Dê uma nota de saúde (Ex: 9/10) e diga se alguma ação manual é recomendada hoje.\\n\\n\" +\n\"Retorne EXCLUSIVAMENTE o texto formatado em MARKDOWN, curto, direto e objetivo para ser lido no Telegram.\\n\\n\" +\n\"Abaixo estão os logs crus:\\n\\n\";\n\nif (logs.length > 80000) {\n    logs = logs.substring(logs.length - 80000);\n}\n\nmsg.gemini_key = GEMINI_API_KEY;\nmsg.telegram_token = TELEGRAM_BOT_TOKEN;\nmsg.telegram_chat_id = TELEGRAM_CHAT_ID;\n\nmsg.payload = {\n    \"contents\": [{\n        \"parts\": [{\"text\": system_prompt + logs}]\n    }],\n    \"systemInstruction\": {\n        \"parts\": [{\"text\": \"Escreva sempre em PT-BR. Use emojis adequados.\"}]\n    }\n};\n\nmsg.headers = { \"Content-Type\": \"application/json\" };\nreturn msg;",
         "outputs": 1,
         "x": 600,
         "y": 100,
@@ -2804,30 +2736,5 @@
         "x": 1510,
         "y": 100,
         "wires": []
-    },
-    {
-        "id": "init_log_file_trigger",
-        "type": "inject",
-        "z": "6e38860673f8fc3a",
-        "name": "Init Log File",
-        "props": [
-            {
-                "p": "payload"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": true,
-        "onceDelay": "2",
-        "topic": "",
-        "payload": "--- Início dos Logs (Arquivo Criado) ---\\n",
-        "payloadType": "str",
-        "x": 800,
-        "y": 200,
-        "wires": [
-            [
-                "write_log_csv"
-            ]
-        ]
     }
 ]
