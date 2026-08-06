@@ -2804,5 +2804,30 @@
         "x": 1510,
         "y": 100,
         "wires": []
+    },
+    {
+        "id": "init_log_file_trigger",
+        "type": "inject",
+        "z": "6e38860673f8fc3a",
+        "name": "Init Log File",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "2",
+        "topic": "",
+        "payload": "--- Início dos Logs (Arquivo Criado) ---\\n",
+        "payloadType": "str",
+        "x": 800,
+        "y": 200,
+        "wires": [
+            [
+                "write_log_csv"
+            ]
+        ]
     }
 ]
