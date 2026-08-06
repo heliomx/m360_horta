@@ -1,0 +1,2610 @@
+[
+    {
+        "id": "6e38860673f8fc3a",
+        "type": "tab",
+        "label": "MQTT",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "a757ff0be26f944a",
+        "type": "tab",
+        "label": "Fluxo 2 - Solenóides",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "1e714cfec06339e2",
+        "type": "tab",
+        "label": "Fluxo 2 - Bombas",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "50fbcdf0053fa19f",
+        "type": "tab",
+        "label": "M360 Horta - ACK Handling",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "178d6e63b26ceeb2",
+        "type": "mqtt-broker",
+        "name": "mqtt.viridiotech.com.br",
+        "broker": "72.62.142.165",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "2b8b56ca852d12bb",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@flowfuse/node-red-dashboard": "1.30.2"
+        }
+    },
+    {
+        "id": "82c01b7088685b89",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": true,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 5,
+        "showDisconnectNotification": true,
+        "allowInstall": true
+    },
+    {
+        "id": "06f15db32b51c3ef",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094CE",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "63a203c3875719db",
+        "type": "ui-page",
+        "name": "Page 1",
+        "ui": "82c01b7088685b89",
+        "path": "/page1",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "06f15db32b51c3ef",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": 0,
+                "cols": 3
+            },
+            {
+                "name": "Tablet",
+                "px": 576,
+                "cols": 6
+            },
+            {
+                "name": "Small Desktop",
+                "px": 768,
+                "cols": 9
+            },
+            {
+                "name": "Desktop",
+                "px": 1024,
+                "cols": 12
+            }
+        ],
+        "order": 1,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "3359fb236d6d775d",
+        "type": "ui-group",
+        "name": "Controle Manual",
+        "page": "63a203c3875719db",
+        "width": "6",
+        "height": "1",
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "a07f08860aaed900",
+        "type": "ui-group",
+        "name": "Gráficos de Monitoramento",
+        "page": "63a203c3875719db",
+        "width": "6",
+        "height": "1",
+        "order": 2,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "group_mqtt_log",
+        "type": "ui-group",
+        "name": "Log de Mensagens MQTT",
+        "page": "63a203c3875719db",
+        "width": "12",
+        "height": "0",
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "d626b61e2f670799",
+        "type": "mqtt out",
+        "z": "6e38860673f8fc3a",
+        "name": "",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "178d6e63b26ceeb2",
+        "x": 1050,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "edb4bf7230aa0cd5",
+        "type": "inject",
+        "z": "6e38860673f8fc3a",
+        "name": "Ligar Solenóide A",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 31, \"command\": 1, \"type\": 2, \"payload\": \"1\"}",
+        "payloadType": "json",
+        "x": 200,
+        "y": 220,
+        "wires": [
+            [
+                "31b4efb799974b27"
+            ]
+        ]
+    },
+    {
+        "id": "44e93fde43dcf915",
+        "type": "inject",
+        "z": "6e38860673f8fc3a",
+        "name": "Desligar Solenóide A",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 31, \"command\": 1, \"type\": 2, \"payload\": \"0\"}",
+        "payloadType": "json",
+        "x": 210,
+        "y": 260,
+        "wires": [
+            [
+                "31b4efb799974b27"
+            ]
+        ]
+    },
+    {
+        "id": "113476f26ebaab2f",
+        "type": "inject",
+        "z": "6e38860673f8fc3a",
+        "name": "Ligar Solenóide B",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 32, \"command\": 1, \"type\": 2, \"payload\": \"1\"}",
+        "payloadType": "json",
+        "x": 210,
+        "y": 300,
+        "wires": [
+            [
+                "31b4efb799974b27"
+            ]
+        ]
+    },
+    {
+        "id": "115a26713dcc4f3d",
+        "type": "inject",
+        "z": "6e38860673f8fc3a",
+        "name": "Desligar Solenóide B",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 32, \"command\": 1, \"type\": 2, \"payload\": \"0\"}",
+        "payloadType": "json",
+        "x": 220,
+        "y": 340,
+        "wires": [
+            [
+                "31b4efb799974b27"
+            ]
+        ]
+    },
+    {
+        "id": "e9da0cd4d7a91062",
+        "type": "inject",
+        "z": "6e38860673f8fc3a",
+        "name": "Ligar Solenóide C",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 33, \"command\": 1, \"type\": 2, \"payload\": \"1\"}",
+        "payloadType": "json",
+        "x": 210,
+        "y": 380,
+        "wires": [
+            [
+                "31b4efb799974b27"
+            ]
+        ]
+    },
+    {
+        "id": "51ab8198dbdbb5d8",
+        "type": "inject",
+        "z": "6e38860673f8fc3a",
+        "name": "Desligar Solenóide C",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 33, \"command\": 1, \"type\": 2, \"payload\": \"0\"}",
+        "payloadType": "json",
+        "x": 220,
+        "y": 420,
+        "wires": [
+            [
+                "31b4efb799974b27"
+            ]
+        ]
+    },
+    {
+        "id": "215c4e63826d733c",
+        "type": "inject",
+        "z": "6e38860673f8fc3a",
+        "name": "Ligar Bomba NFT",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 38, \"command\": 1, \"type\": 2, \"payload\": \"1\"}",
+        "payloadType": "json",
+        "x": 200,
+        "y": 460,
+        "wires": [
+            [
+                "31b4efb799974b27"
+            ]
+        ]
+    },
+    {
+        "id": "fc3b6b085d25557c",
+        "type": "inject",
+        "z": "6e38860673f8fc3a",
+        "name": "Ligar Bomba Oxi",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 39, \"command\": 1, \"type\": 2, \"payload\": \"1\"}",
+        "payloadType": "json",
+        "x": 200,
+        "y": 540,
+        "wires": [
+            [
+                "31b4efb799974b27"
+            ]
+        ]
+    },
+    {
+        "id": "8d068f3cf26f7327",
+        "type": "inject",
+        "z": "6e38860673f8fc3a",
+        "name": "Desligar Bomba NFT",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 38, \"command\": 1, \"type\": 2, \"payload\": \"0\"}",
+        "payloadType": "json",
+        "x": 220,
+        "y": 500,
+        "wires": [
+            [
+                "31b4efb799974b27"
+            ]
+        ]
+    },
+    {
+        "id": "05e8ea76c93f693a",
+        "type": "inject",
+        "z": "6e38860673f8fc3a",
+        "name": "Desligar Bomba Oxi",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 39, \"command\": 1, \"type\": 2, \"payload\": \"0\"}",
+        "payloadType": "json",
+        "x": 210,
+        "y": 580,
+        "wires": [
+            [
+                "31b4efb799974b27"
+            ]
+        ]
+    },
+    {
+        "id": "b57868f09ba2b5b4",
+        "type": "inject",
+        "z": "6e38860673f8fc3a",
+        "name": "Reboot Gateway",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"nodeId\":0,\"action\":\"REBOOT_GATEWAY\"}",
+        "payloadType": "json",
+        "x": 200,
+        "y": 640,
+        "wires": [
+            [
+                "31b4efb799974b27"
+            ]
+        ]
+    },
+    {
+        "id": "a07d6e5c57987166",
+        "type": "inject",
+        "z": "6e38860673f8fc3a",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "60",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 220,
+        "y": 180,
+        "wires": [
+            [
+                "c4ab3d2aa1de6268"
+            ]
+        ]
+    },
+    {
+        "id": "c4ab3d2aa1de6268",
+        "type": "function",
+        "z": "6e38860673f8fc3a",
+        "name": "Watchdog da rede",
+        "func": "let nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\nlet now = Date.now();\nlet result = [];\n\nfor (const id in nodes) {\n    let n = nodes[id];\n    let age = (now - n.lastSeen) / 1000;\n    let hb = n.lastHeartbeat ? (now - n.lastHeartbeat) / 1000 : 999999;\n    let ack = n.lastAck ? (now - n.lastAck) / 1000 : 999999;\n    let expInt = (n.cycleMs ? n.cycleMs : 60000) / 1000;\n    let offThr = Math.min(21600, Math.max(300, 3 * expInt));\n\n    let status = \"ONLINE\";\n    if (age > offThr) {\n        status = \"OFFLINE\";\n    } else if (hb > 900) {\n        status = \"SEM HEARTBEAT\";\n    } else if (ack > 1800) {\n        status = \"SEM ACK\";\n    }\n    n.status = status;\n\n    let lastSeenStr = Math.round(age) + \"s atrás\";\n    let heartbeatStr = n.lastHeartbeat ? Math.round(hb) + \"s atrás\" : \"-\";\n    let ackStr = n.lastAck ? Math.round(ack) + \"s atrás\" : \"-\";\n\n    result.push({\n        nodeId: id,\n        status: status,\n        lastSeen: lastSeenStr,\n        heartbeat: heartbeatStr,\n        ack: ackStr\n    });\n}\n\nmsg.payload = result;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 180,
+        "wires": [
+            [
+                "6398e777f8945ce6"
+            ]
+        ]
+    },
+    {
+        "id": "6398e777f8945ce6",
+        "type": "ui-table",
+        "z": "6e38860673f8fc3a",
+        "group": "3359fb236d6d775d",
+        "name": "",
+        "label": "",
+        "order": 16,
+        "width": 0,
+        "height": 0,
+        "maxrows": 0,
+        "passthru": false,
+        "autocols": true,
+        "showSearch": true,
+        "deselect": true,
+        "selectionType": "none",
+        "columns": [],
+        "mobileBreakpoint": "sm",
+        "mobileBreakpointType": "defaults",
+        "action": "replace",
+        "className": "tabela-watchdog",
+        "x": 650,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "48ed255550b85ece",
+        "type": "ui-template",
+        "z": "6e38860673f8fc3a",
+        "group": "3359fb236d6d775d",
+        "name": "CSS Tabela Watchdog",
+        "order": 17,
+        "width": 0,
+        "height": 0,
+        "format": "<style>\n.tabela-watchdog {\n  height: 440px !important;\n}\n.tabela-watchdog .v-table__wrapper {\n  max-height: 380px !important;\n  overflow-y: auto !important;\n}\n</style>",
+        "storeOutMessages": false,
+        "passthru": false,
+        "templateScope": "local",
+        "className": "",
+        "x": 200,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "31b4efb799974b27",
+        "type": "function",
+        "z": "6e38860673f8fc3a",
+        "name": "Pub MQTT Injects (tópico dinâmico)",
+        "func": "var prefix = global.get('mqtt_topic_prefix') || 'm360/DF/0000';\nvar m = msg.payload;\nif (typeof m === 'string') {\n    try { m = JSON.parse(m); } catch(e) {}\n}\nif (m && typeof m === 'object' && m.nodeId !== undefined) {\n    var nodeId   = m.nodeId;\n    var sensorId = m.sensorId !== undefined ? m.sensorId : 0;\n    var command  = m.command !== undefined ? m.command : 1;\n    var ack      = m.ack !== undefined ? m.ack : 0;\n    var type     = m.type !== undefined ? m.type : 2;\n    var payload  = m.payload !== undefined ? String(m.payload) : '';\n    msg.topic = prefix + '/in/' + nodeId + '/' + sensorId + '/' + command + '/' + ack + '/' + type;\n    msg.payload = payload;\n} else {\n    msg.topic = prefix + '/in';\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 800,
+        "y": 460,
+        "wires": [
+            [
+                "d626b61e2f670799"
+            ]
+        ]
+    },
+    {
+        "id": "4dacb45e9c2dd9b8",
+        "type": "inject",
+        "z": "6e38860673f8fc3a",
+        "name": "Enviar Comando Genérico",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "trigger",
+        "payload": "{\"nodeId\": 1, \"action\": \"REPRESENT\"}",
+        "payloadType": "json",
+        "x": 230,
+        "y": 700,
+        "wires": [
+            [
+                "f0ceed83774730fd"
+            ]
+        ]
+    },
+    {
+        "id": "f0ceed83774730fd",
+        "type": "function",
+        "z": "6e38860673f8fc3a",
+        "name": "Tradutor Comando Backend",
+        "func": "var m = msg.payload;\nvar nodeId = m.nodeId || 1;\nvar action = m.action || \"REPRESENT\";\n\nvar payloadObj = {};\nif (action === \"REPRESENT\") {\n    payloadObj = {\n        nodeId: Number(nodeId),\n        sensorId: 0,\n        command: 1,\n        type: 48,\n        payload: \"REPRESENT\"\n    };\n} else if (action === \"FORCE_UPDATE\") {\n    payloadObj = {\n        nodeId: Number(nodeId),\n        sensorId: 0,\n        command: 1,\n        type: 48,\n        payload: \"FORCE_UPDATE\"\n    };\n} else if (action === \"DEBUG\") {\n    payloadObj = {\n        nodeId: Number(nodeId),\n        sensorId: 0,\n        command: 1,\n        type: 48,\n        payload: \"DEBUG_NET\"\n    };\n}\nmsg.payload = payloadObj;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 700,
+        "wires": [
+            [
+                "31b4efb799974b27"
+            ]
+        ]
+    },
+    {
+        "id": "c653e7a93833f87b",
+        "type": "inject",
+        "z": "6e38860673f8fc3a",
+        "name": "Re-apresenta Nó 02",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"nodeId\": 2, \"sensorId\": 0, \"command\": 1, \"type\": 48, \"payload\": \"REPRESENT\"}",
+        "payloadType": "json",
+        "x": 210,
+        "y": 920,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e31851372e516fc0",
+        "type": "inject",
+        "z": "6e38860673f8fc3a",
+        "name": "Lê Umidade Nó 02",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"nodeId\": 2, \"sensorId\": 0, \"command\": 1, \"type\": 48, \"payload\": \"FORCE_UPDATE\"}",
+        "payloadType": "json",
+        "x": 210,
+        "y": 880,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "48efd5a69fc61884",
+        "type": "inject",
+        "z": "6e38860673f8fc3a",
+        "name": "Re-apresenta Nó 04 (SolarMini)",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"nodeId\": 4, \"sensorId\": 0, \"command\": 1, \"type\": 48, \"payload\": \"REPRESENT\"}",
+        "payloadType": "json",
+        "x": 250,
+        "y": 760,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "bcace5f3557c912a",
+        "type": "inject",
+        "z": "6e38860673f8fc3a",
+        "name": "Lê Sensores Nó 04 (SolarMini)",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"nodeId\": 4, \"sensorId\": 0, \"command\": 1, \"type\": 48, \"payload\": \"FORCE_UPDATE\"}",
+        "payloadType": "json",
+        "x": 250,
+        "y": 800,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "32f6c0d47940e7a3",
+        "type": "inject",
+        "z": "6e38860673f8fc3a",
+        "name": "Lê Sensores Nó 99",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 0, \"command\": 1, \"type\": 48, \"payload\": \"FORCE_UPDATE\"}",
+        "payloadType": "json",
+        "x": 210,
+        "y": 840,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4eadad94c4c9d871",
+        "type": "function",
+        "z": "a757ff0be26f944a",
+        "name": "Pub MQTT Solenóides (tópico dinâmico)",
+        "func": "var prefix = global.get('mqtt_topic_prefix') || 'm360/DF/0000';\nvar m = msg.payload;\nif (typeof m === 'string') {\n    try { m = JSON.parse(m); } catch(e) {}\n}\nif (m && typeof m === 'object' && m.nodeId !== undefined) {\n    var nodeId   = m.nodeId;\n    var sensorId = m.sensorId !== undefined ? m.sensorId : 0;\n    var command  = m.command !== undefined ? m.command : 1;\n    var ack      = m.ack !== undefined ? m.ack : 0;\n    var type     = m.type !== undefined ? m.type : 2;\n    var payload  = m.payload !== undefined ? String(m.payload) : '';\n    msg.topic = prefix + '/in/' + nodeId + '/' + sensorId + '/' + command + '/' + ack + '/' + type;\n    msg.payload = payload;\n} else {\n    msg.topic = prefix + '/in';\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 880,
+        "y": 180,
+        "wires": [
+            [
+                "3ce607812261d4c5"
+            ]
+        ]
+    },
+    {
+        "id": "3ce607812261d4c5",
+        "type": "mqtt out",
+        "z": "a757ff0be26f944a",
+        "name": "",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "178d6e63b26ceeb2",
+        "x": 1130,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "d24ac9884d836b5f",
+        "type": "ui-button",
+        "z": "a757ff0be26f944a",
+        "group": "3359fb236d6d775d",
+        "name": "Ligar Solenóide A",
+        "label": "Ligar Solenóide A",
+        "order": 2,
+        "width": 3,
+        "height": 1,
+        "emulateClick": false,
+        "tooltip": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 31, \"command\": 1, \"type\": 2, \"payload\": \"1\"}",
+        "payloadType": "json",
+        "topic": "",
+        "topicType": "str",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 150,
+        "y": 80,
+        "wires": [
+            [
+                "4eadad94c4c9d871"
+            ]
+        ]
+    },
+    {
+        "id": "5a74fe774d0b8e06",
+        "type": "ui-button",
+        "z": "a757ff0be26f944a",
+        "group": "3359fb236d6d775d",
+        "name": "Desligar Solenóide A",
+        "label": "Desligar Solenóide A",
+        "order": 3,
+        "width": 3,
+        "height": 1,
+        "tooltip": "",
+        "icon": "",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 31, \"command\": 1, \"type\": 2, \"payload\": \"0\"}",
+        "payloadType": "json",
+        "topic": "",
+        "x": 160,
+        "y": 120,
+        "wires": [
+            [
+                "4eadad94c4c9d871"
+            ]
+        ]
+    },
+    {
+        "id": "d5113aa8b58b627f",
+        "type": "ui-button",
+        "z": "a757ff0be26f944a",
+        "group": "3359fb236d6d775d",
+        "name": "Ligar Solenóide B",
+        "label": "Ligar Solenóide B",
+        "order": 4,
+        "width": 3,
+        "height": 1,
+        "tooltip": "",
+        "icon": "",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 32, \"command\": 1, \"type\": 2, \"payload\": \"1\"}",
+        "payloadType": "json",
+        "topic": "",
+        "x": 150,
+        "y": 160,
+        "wires": [
+            [
+                "4eadad94c4c9d871"
+            ]
+        ]
+    },
+    {
+        "id": "f322977c0cdba1a5",
+        "type": "ui-button",
+        "z": "a757ff0be26f944a",
+        "group": "3359fb236d6d775d",
+        "name": "Desligar Solenóide B",
+        "label": "Desligar Solenóide B",
+        "order": 5,
+        "width": 3,
+        "height": 1,
+        "tooltip": "",
+        "icon": "",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 32, \"command\": 1, \"type\": 2, \"payload\": \"0\"}",
+        "payloadType": "json",
+        "topic": "",
+        "x": 160,
+        "y": 200,
+        "wires": [
+            [
+                "4eadad94c4c9d871"
+            ]
+        ]
+    },
+    {
+        "id": "06bc82b2a8afaa23",
+        "type": "ui-button",
+        "z": "a757ff0be26f944a",
+        "group": "3359fb236d6d775d",
+        "name": "Ligar Solenóide C",
+        "label": "Ligar Solenóide C",
+        "order": 6,
+        "width": 3,
+        "height": 1,
+        "tooltip": "",
+        "icon": "",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 33, \"command\": 1, \"type\": 2, \"payload\": \"1\"}",
+        "payloadType": "json",
+        "topic": "",
+        "x": 150,
+        "y": 240,
+        "wires": [
+            [
+                "4eadad94c4c9d871"
+            ]
+        ]
+    },
+    {
+        "id": "fe082f23b6ace22b",
+        "type": "ui-button",
+        "z": "a757ff0be26f944a",
+        "group": "3359fb236d6d775d",
+        "name": "Desligar Solenóide C",
+        "label": "Desligar Solenóide C",
+        "order": 7,
+        "width": 3,
+        "height": 1,
+        "tooltip": "",
+        "icon": "",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 33, \"command\": 1, \"type\": 2, \"payload\": \"0\"}",
+        "payloadType": "json",
+        "topic": "",
+        "x": 160,
+        "y": 280,
+        "wires": [
+            [
+                "4eadad94c4c9d871"
+            ]
+        ]
+    },
+    {
+        "id": "a223962e8d10b09b",
+        "type": "ui-dropdown",
+        "z": "a757ff0be26f944a",
+        "group": "3359fb236d6d775d",
+        "name": "Seletor de Nó",
+        "label": "Selecionar Nó",
+        "tooltip": "Selecione o nó alvo",
+        "order": 12,
+        "width": 3,
+        "height": 1,
+        "passthru": true,
+        "multiple": false,
+        "options": [],
+        "topic": "selectedNodeId",
+        "topicType": "str",
+        "x": 660,
+        "y": 340,
+        "wires": [
+            [
+                "df4aaf4278ebec2f"
+            ]
+        ]
+    },
+    {
+        "id": "cca630546e8cdb64",
+        "type": "ui-dropdown",
+        "z": "a757ff0be26f944a",
+        "group": "3359fb236d6d775d",
+        "name": "Seletor de Ação",
+        "label": "Selecionar Ação",
+        "tooltip": "Selecione a ação",
+        "order": 13,
+        "width": 3,
+        "height": 1,
+        "passthru": true,
+        "multiple": false,
+        "options": [
+            {
+                "label": "Re-apresentar",
+                "value": "REPRESENT"
+            },
+            {
+                "label": "FORCE_UPDATE",
+                "value": "FORCE_UPDATE"
+            },
+            {
+                "label": "Debug",
+                "value": "DEBUG"
+            }
+        ],
+        "topic": "selectedAction",
+        "topicType": "str",
+        "x": 660,
+        "y": 380,
+        "wires": [
+            [
+                "df4aaf4278ebec2f"
+            ]
+        ]
+    },
+    {
+        "id": "2c4b494c55bff84b",
+        "type": "ui-button",
+        "z": "a757ff0be26f944a",
+        "group": "3359fb236d6d775d",
+        "name": "Botão Enviar Comando",
+        "label": "Enviar Comando",
+        "order": 14,
+        "width": 6,
+        "height": 1,
+        "emulateClick": false,
+        "tooltip": "Enviar ação ao nó selecionado",
+        "className": "",
+        "icon": "send",
+        "iconPosition": "left",
+        "payload": "trigger",
+        "payloadType": "str",
+        "topic": "trigger",
+        "topicType": "str",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "x": 690,
+        "y": 420,
+        "wires": [
+            [
+                "df4aaf4278ebec2f"
+            ]
+        ]
+    },
+    {
+        "id": "df4aaf4278ebec2f",
+        "type": "function",
+        "z": "a757ff0be26f944a",
+        "name": "Processador do Comando UI",
+        "func": "// Salva o estado dos seletores no contexto do fluxo\nif (msg.topic === \"selectedNodeId\") {\n    flow.set(\"ui_selected_node_id\", msg.payload);\n    return null;\n}\nif (msg.topic === \"selectedAction\") {\n    flow.set(\"ui_selected_action\", msg.payload);\n    return null;\n}\n\n// Ao receber o trigger do botão\nif (msg.topic === \"trigger\") {\n    var nodeId = flow.get(\"ui_selected_node_id\") || 1;\n    var action = flow.get(\"ui_selected_action\") || \"REPRESENT\";\n    \n    var payloadObj = {};\n    if (action === \"REPRESENT\") {\n        payloadObj = {\n            nodeId: Number(nodeId),\n            sensorId: 0,\n            command: 1,\n            type: 48,\n            payload: \"REPRESENT\"\n        };\n    } else if (action === \"FORCE_UPDATE\") {\n        payloadObj = {\n            nodeId: Number(nodeId),\n            sensorId: 0,\n            command: 1,\n            type: 48,\n            payload: \"FORCE_UPDATE\"\n        };\n    } else if (action === \"DEBUG\") {\n        payloadObj = {\n            nodeId: Number(nodeId),\n            sensorId: 0,\n            command: 1,\n            type: 48,\n            payload: \"DEBUG_NET\"\n        };\n    }\n    \n    msg.payload = payloadObj;\n    return msg;\n}\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 940,
+        "y": 380,
+        "wires": [
+            [
+                "4eadad94c4c9d871"
+            ]
+        ]
+    },
+    {
+        "id": "ebedc6108943d61b",
+        "type": "function",
+        "z": "a757ff0be26f944a",
+        "name": "Atualiza Opções do Dropdown",
+        "func": "// Opcoes do dropdown a partir dos nos descobertos (mys_nodes).\n// Dedupe: so envia quando o CONJUNTO de nos muda, evitando flood a cada mensagem\n// MySensors que faria o ui-dropdown engasgar. Nunca envia lista vazia (nao apaga o widget).\nvar nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\nvar options = [];\nObject.keys(nodes).sort(function(a,b) { return Number(a) - Number(b); }).forEach(function(id) {\n    var n = nodes[id];\n    var nome = n.sketchName || n.presentName || '';\n    options.push({ label: 'No ' + id + (nome ? ' (' + nome + ')' : ''), value: Number(id) });\n});\nvar sig = options.map(function(o) { return o.value + ':' + o.label; }).join('|');\nif (options.length === 0) { return null; }\nif (sig === flow.get('dropdown_sig')) { return null; }\nflow.set('dropdown_sig', sig);\nreturn { options: options };",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 340,
+        "wires": [
+            [
+                "a223962e8d10b09b"
+            ]
+        ]
+    },
+    {
+        "id": "dc6f4826cb2c7532",
+        "type": "inject",
+        "z": "a757ff0be26f944a",
+        "name": "Gatilho Inicial",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "topic": "init",
+        "payload": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 340,
+        "wires": [
+            [
+                "ebedc6108943d61b"
+            ]
+        ]
+    },
+    {
+        "id": "ad676d3d3b01fdfb",
+        "type": "ui-button",
+        "z": "1e714cfec06339e2",
+        "group": "3359fb236d6d775d",
+        "name": "Ligar Bomba NFT",
+        "label": "Ligar Bomba NFT",
+        "order": 8,
+        "width": 3,
+        "height": 1,
+        "tooltip": "",
+        "icon": "",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 38, \"command\": 1, \"type\": 2, \"payload\": \"1\"}",
+        "payloadType": "json",
+        "topic": "",
+        "x": 150,
+        "y": 80,
+        "wires": [
+            [
+                "c45c49f934245b7e"
+            ]
+        ]
+    },
+    {
+        "id": "e159c6a41b612278",
+        "type": "ui-button",
+        "z": "1e714cfec06339e2",
+        "group": "3359fb236d6d775d",
+        "name": "Desligar Bomba NFT",
+        "label": "Desligar Bomba NFT",
+        "order": 9,
+        "width": 3,
+        "height": 1,
+        "tooltip": "",
+        "icon": "",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 38, \"command\": 1, \"type\": 2, \"payload\": \"0\"}",
+        "payloadType": "json",
+        "topic": "",
+        "x": 160,
+        "y": 120,
+        "wires": [
+            [
+                "c45c49f934245b7e"
+            ]
+        ]
+    },
+    {
+        "id": "816fdc9c18b87b2f",
+        "type": "ui-button",
+        "z": "1e714cfec06339e2",
+        "group": "3359fb236d6d775d",
+        "name": "Ligar Bomba Oxi",
+        "label": "Ligar Bomba Oxi",
+        "order": 10,
+        "width": 3,
+        "height": 1,
+        "tooltip": "",
+        "icon": "",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 39, \"command\": 1, \"type\": 2, \"payload\": \"1\"}",
+        "payloadType": "json",
+        "topic": "",
+        "x": 150,
+        "y": 160,
+        "wires": [
+            [
+                "c45c49f934245b7e"
+            ]
+        ]
+    },
+    {
+        "id": "1b2ef9f3f78dd3e4",
+        "type": "ui-button",
+        "z": "1e714cfec06339e2",
+        "group": "3359fb236d6d775d",
+        "name": "Desligar Bomba Oxi",
+        "label": "Desligar Bomba Oxi",
+        "order": 11,
+        "width": 3,
+        "height": 1,
+        "tooltip": "",
+        "icon": "",
+        "payload": "{\"nodeId\": 99, \"sensorId\": 39, \"command\": 1, \"type\": 2, \"payload\": \"0\"}",
+        "payloadType": "json",
+        "topic": "",
+        "x": 160,
+        "y": 200,
+        "wires": [
+            [
+                "c45c49f934245b7e"
+            ]
+        ]
+    },
+    {
+        "id": "c45c49f934245b7e",
+        "type": "function",
+        "z": "1e714cfec06339e2",
+        "name": "Pub MQTT Bombas (tópico dinâmico)",
+        "func": "var prefix = global.get('mqtt_topic_prefix') || 'm360/DF/0000';\nvar m = msg.payload;\nif (typeof m === 'string') {\n    try { m = JSON.parse(m); } catch(e) {}\n}\nif (m && typeof m === 'object' && m.nodeId !== undefined) {\n    var nodeId   = m.nodeId;\n    var sensorId = m.sensorId !== undefined ? m.sensorId : 0;\n    var command  = m.command !== undefined ? m.command : 1;\n    var ack      = m.ack !== undefined ? m.ack : 0;\n    var type     = m.type !== undefined ? m.type : 2;\n    var payload  = m.payload !== undefined ? String(m.payload) : '';\n    msg.topic = prefix + '/in/' + nodeId + '/' + sensorId + '/' + command + '/' + ack + '/' + type;\n    msg.payload = payload;\n} else {\n    msg.topic = prefix + '/in';\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 180,
+        "wires": [
+            [
+                "a8dc9ab7df0ef1bc"
+            ]
+        ]
+    },
+    {
+        "id": "a8dc9ab7df0ef1bc",
+        "type": "mqtt out",
+        "z": "1e714cfec06339e2",
+        "name": "",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "178d6e63b26ceeb2",
+        "x": 750,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "18095edd2e91ae65",
+        "type": "inject",
+        "z": "50fbcdf0053fa19f",
+        "name": "Inicializar Variáveis Globais",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 280,
+        "y": 40,
+        "wires": [
+            [
+                "4e5859bc77b54931"
+            ]
+        ]
+    },
+    {
+        "id": "4e5859bc77b54931",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Configurações Globais M360",
+        "func": "var prefix = global.get('mqtt_topic_prefix');\nif (!prefix) {\n    prefix = 'm360/DF/0000';\n    global.set('mqtt_topic_prefix', prefix);\n}\nif (flow.get('ack_timeout_ms') === null || flow.get('ack_timeout_ms') === undefined) {\n    flow.set('ack_timeout_ms', 5000);\n}\nif (flow.get('ack_max_retries') === null || flow.get('ack_max_retries') === undefined) {\n    flow.set('ack_max_retries', 3);\n}\nif (flow.get('nodes_ttl_ms') === null || flow.get('nodes_ttl_ms') === undefined) {\n    flow.set('nodes_ttl_ms', 172800000);\n}\nnode.status({fill:'green',shape:'dot',text:'prefix='+prefix+' timeout='+flow.get('ack_timeout_ms')+'ms'});\nmsg.payload = {mqtt_topic_prefix:prefix, ack_timeout_ms:flow.get('ack_timeout_ms'), ack_max_retries:flow.get('ack_max_retries')};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 700,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fdeb72cf45fb91ee",
+        "type": "inject",
+        "z": "50fbcdf0053fa19f",
+        "name": "Ativar Sincronismo",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "control",
+        "payload": "true",
+        "payloadType": "bool",
+        "x": 270,
+        "y": 260,
+        "wires": [
+            [
+                "9bc7d791f76c952b"
+            ]
+        ]
+    },
+    {
+        "id": "7673836da92d0ae6",
+        "type": "inject",
+        "z": "50fbcdf0053fa19f",
+        "name": "Desativar Sincronismo (Bypass)",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "control",
+        "payload": "false",
+        "payloadType": "bool",
+        "x": 310,
+        "y": 320,
+        "wires": [
+            [
+                "9bc7d791f76c952b"
+            ]
+        ]
+    },
+    {
+        "id": "9bc7d791f76c952b",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Sincronizador ACK / Timeout",
+        "func": "// Timeout configurável via flow variable\nvar TIMEOUT_MS = flow.get('ack_timeout_ms') || 5000;\nvar MAX_RETRIES = flow.get('ack_max_retries') || 3;\nvar MQTT_PREFIX = global.get('mqtt_topic_prefix') || 'm360/DF/0000';\n\nvar enableSync = flow.get('enable_ack_sync');\nif (enableSync === undefined) enableSync = true;\n\n// ─── Mensagens de controle ───────────────────────────────────────\nif (msg.topic === 'control') {\n    var state = (msg.payload === 'enable' || msg.payload === true);\n    flow.set('enable_ack_sync', state);\n    if (state) {\n        node.status({ fill: 'green', shape: 'dot', text: 'Sincronismo: Ativo' });\n    } else {\n        node.status({ fill: 'red', shape: 'ring', text: 'Sincronismo: Inativo (Bypass)' });\n        context.set('waiting', false);\n        context.set('queue', []);\n        var t = context.get('timer');\n        if (t) { clearTimeout(t); context.set('timer', null); }\n    }\n    return null;\n}\n\n// ─── Helpers ─────────────────────────────────────────────────────\n\n// CORREÇÃO B+C: iniciarItem configura TODO o estado para qualquer item da fila,\n// incluindo waiting, targetNode, targetSensor e o timer — independente de onde é chamado.\nfunction iniciarItem(item) {\n    context.set('waiting', true);\n    context.set('targetNode', item.targetNode);\n    context.set('targetSensor', item.targetSensor);\n    context.set('retries', 0);\n    agendarTimeout(item, 0);\n    node.status({\n        fill: 'yellow', shape: 'dot',\n        text: 'Aguardando ACK nó ' + item.targetNode + ' sensor ' + item.targetSensor\n    });\n    node.send([item.mqttMsg, null]);\n}\n\nfunction agendarTimeout(item, tentativa) {\n    // CORREÇÃO: limpar timer anterior antes de criar novo (evita timers órfãos)\n    var t = context.get('timer');\n    if (t) { clearTimeout(t); context.set('timer', null); }\n\n    var delay = TIMEOUT_MS * Math.pow(2, tentativa);\n    var newTimer = setTimeout(function () {\n        if (!context.get('waiting')) return;\n        var retries = (context.get('retries') || 0) + 1;\n        context.set('retries', retries);\n\n        if (retries < MAX_RETRIES) {\n            node.warn('Timeout ACK Nó ' + item.targetNode +\n                ' sensor ' + item.targetSensor +\n                ' — Tentativa ' + (retries + 1) + '/' + MAX_RETRIES);\n            node.send([item.mqttMsg, null]);\n            agendarTimeout(item, retries);\n        } else {\n            context.set('waiting', false);\n            context.set('timer', null);\n            context.set('retries', 0);\n            node.error('Falha definitiva — Nó ' + item.targetNode +\n                ' sensor ' + item.targetSensor +\n                ' após ' + MAX_RETRIES + ' tentativas');\n            node.status({\n                fill: 'red', shape: 'ring',\n                text: 'Falha nó ' + item.targetNode +\n                    ' | fila: ' + (context.get('queue') || []).length\n            });\n            // Tenta próximo da fila mesmo após falha\n            var queue = context.get('queue') || [];\n            if (queue.length > 0) {\n                var next = queue.shift();\n                context.set('queue', queue);\n                iniciarItem(next);\n            }\n            node.send([null, {\n                payload:\n                    'Erro: Timeout após ' + MAX_RETRIES + ' tentativas — Nó ' + item.targetNode\n            }]);\n        }\n    }, delay);\n    context.set('timer', newTimer);\n}\n\n// ─── ACK recebido do gateway ──────────────────────────────────────\nif (msg.topic === MQTT_PREFIX + '/out') {\n    if (!enableSync) return null;\n\n    var data = msg.payload;\n    if (typeof data === 'string') {\n        try { data = JSON.parse(data); }\n        catch (e) {\n            node.warn('Erro ao parsear JSON do ACK: ' + e.message);\n            return null;\n        }\n    }\n    if (!data || !context.get('waiting')) return null;\n\n    var targetNode = context.get('targetNode');\n    var targetSensor = context.get('targetSensor');\n\n    // Três formas de confirmação aceitas:\n    //   direction:\"ack\"         → ACK de transporte publicado pelo gateway (preferencial)\n    //   ack:1                   → bit ACK MySensors explícito\n    //   command:1 && type:2     → nó devolveu V_STATUS (fallback; type:2 evita falso\n    //                             positivo com leituras de sensor do mesmo nó)\n    // targetSensor==255: broadcast — aceitar qualquer sensorId do mesmo nó\n    var isConfirmation = (\n        data.nodeId == targetNode &&\n        (targetSensor == 255 || data.sensorId == targetSensor) &&\n        (data.direction === 'ack' || data.ack === 1 || (data.command === 1 && data.type === 2))\n    );\n    if (!isConfirmation) return null;\n\n    // ACK confirmado — limpar estado\n    var t = context.get('timer');\n    if (t) { clearTimeout(t); context.set('timer', null); }\n    context.set('waiting', false);\n    context.set('retries', 0);\n\n    var queue = context.get('queue') || [];\n    node.log('ACK confirmado — nó ' + targetNode +\n        ' sensor ' + targetSensor +\n        ' | fila restante: ' + queue.length);\n    node.status({\n        fill: 'green', shape: 'dot',\n        text: 'OK nó ' + targetNode + ' sensor ' + targetSensor +\n            ' | fila: ' + queue.length\n    });\n\n    // CORREÇÃO C: usa iniciarItem para configurar estado completo do próximo item\n    if (queue.length > 0) {\n        var next = queue.shift();\n        context.set('queue', queue);\n        iniciarItem(next);  // configura waiting, targetNode/Sensor e timer\n    }\n\n    return [null, { payload: 'Sucesso: Nó ' + targetNode + ' sensor ' + targetSensor + ' confirmou' }];\n}\n\n// ─── Novo comando ─────────────────────────────────────────────────\nvar requestData = msg.payload;\nif (typeof requestData === 'string') {\n    try { requestData = JSON.parse(requestData); }\n    catch (e) {\n        node.warn('Erro ao parsear JSON do comando: ' + e.message);\n        return [null, { payload: 'Erro: JSON malformado no comando: ' + msg.payload }];\n    }\n}\n\n// Rejeitar objetos sem estrutura mínima de comando (ex: mapa da rede via passthru)\nif (!requestData || requestData.nodeId === undefined || requestData.command === undefined) {\n    return null;\n}\nvar targetNode = (requestData && requestData.nodeId !== undefined) ? requestData.nodeId : 99;\nvar targetSensor = (requestData && requestData.sensorId !== undefined) ? requestData.sensorId : 255;\n\nvar cmdToSend     = requestData.command  !== undefined ? requestData.command  : 1;\nvar typeToSend    = requestData.type     !== undefined ? requestData.type     : 2;\nvar payloadToSend = requestData.payload  !== undefined ? String(requestData.payload) : '';\n// M360_NATIVE_MQTT = 1: Tópico plano estruturado com payload bruto\nvar mqttMsg = {\n    topic:   MQTT_PREFIX + '/in/' + targetNode + '/' + targetSensor + '/' + cmdToSend + '/0/' + typeToSend,\n    payload: payloadToSend\n};\n\n// ACK aguardado apenas para C_SET V_STATUS (command=1, type=2) — controle de relé/atuador.\n// REPRESENT, FORCE_UPDATE e outros comandos administrativos são enviados sem esperar ACK.\nvar isRelayCmd = (requestData.command === 1 && requestData.type === 2);\nif (!enableSync || targetNode === 255 || requestData.command === 3 || !isRelayCmd) {\n    node.status(!enableSync\n        ? { fill: 'red', shape: 'ring', text: 'Sincronismo: Inativo (Bypass)' }\n        : { fill: 'blue', shape: 'dot', text: 'Enviado: nó ' + targetNode });\n    return [mqttMsg, null];\n}\n\nvar item = { mqttMsg: mqttMsg, targetNode: targetNode, targetSensor: targetSensor };\n\nif (context.get('waiting')) {\n    var queue = context.get('queue') || [];\n    queue.push(item);\n    context.set('queue', queue);\n    node.warn('ACK pendente — enfileirado. Fila: ' + queue.length);\n    return [null, {\n        payload:\n            'Ocupado: ACK pendente para Nó ' + context.get('targetNode') +\n            '. Enfileirado (posição ' + queue.length + ')'\n    }];\n}\n\niniciarItem(item);\nreturn null;\n",
+        "outputs": 2,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "context.set('waiting', false);\ncontext.set('queue', []);\ncontext.set('retries', 0);\ncontext.set('timer', null);",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 320,
+        "wires": [
+            [
+                "55c692c06d8badbf"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "55c692c06d8badbf",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Pub MQTT ACK out (tópico dinâmico)",
+        "func": "// Modo nativo: tópico já construído pelo Sincronizador ({prefix}/in/{nodeId}/{sensorId}/{cmd}/0/{type})\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1050,
+        "y": 300,
+        "wires": [
+            [
+                "50c4097310c1b2d4",
+                "fd216e1614ec7f57"
+            ]
+        ]
+    },
+    {
+        "id": "50c4097310c1b2d4",
+        "type": "mqtt out",
+        "z": "50fbcdf0053fa19f",
+        "name": "",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "178d6e63b26ceeb2",
+        "x": 1330,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "3d049be682b54449",
+        "type": "mqtt in",
+        "z": "50fbcdf0053fa19f",
+        "name": "",
+        "topic": "m360/+/+/out/#",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "178d6e63b26ceeb2",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 200,
+        "y": 440,
+        "wires": [
+            [
+                "a257c9f4fe1ac2d7",
+                "366173c3e2f11418",
+                "93f941ae256d2364"
+            ]
+        ]
+    },
+    {
+        "id": "366173c3e2f11418",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Decodificador Nativo MySensors",
+        "func": "// Decodifica tópico nativo: {prefix}/out/{nodeId}/{sensorId}/{command}/{ack}/{type}\n// ou formato JSON M360: msg.payload = {nodeId, sensorId, command, ack, type, payload}\nvar MQTT_PREFIX = global.get('mqtt_topic_prefix') || 'm360/DF/0000';\nvar parts = msg.topic.split('/');\n\n// --- Formato nativo MySensors (9+ segmentos) ---\nif (parts.length >= 9) {\n    var nodeId   = parseInt(parts[4]);\n    var sensorId = parseInt(parts[5]);\n    var command  = parseInt(parts[6]);\n    var ack      = parseInt(parts[7]);\n    var type     = parseInt(parts[8]);\n    if ([nodeId, sensorId, command, ack, type].some(isNaN)) {\n        return null;\n    }\n    msg.payload = {\n        nodeId:    nodeId,\n        sensorId:  sensorId,\n        command:   command,\n        ack:       ack,\n        type:      type,\n        payload:   typeof msg.payload === 'string' ? msg.payload : String(msg.payload),\n        direction: ack === 1 ? 'ack' : 'sensor',\n        timestamp: Math.floor(Date.now() / 1000)\n    };\n    msg.topic = MQTT_PREFIX + '/out';\n    return msg;\n}\n\n// --- Formato JSON M360 gateway (tópico plano, payload JSON) ---\nvar m = msg.payload;\nif (typeof m === 'string') {\n    try { m = JSON.parse(m); } catch(e) { return null; }\n}\nif (!m || m.nodeId === undefined || m.command === undefined) {\n    return null;\n}\nmsg.payload = {\n    nodeId:    m.nodeId,\n    sensorId:  m.sensorId,\n    command:   m.command,\n    ack:       m.ack || 0,\n    type:      m.type,\n    payload:   String(m.payload !== undefined ? m.payload : ''),\n    direction: (m.direction === 'ack' || m.ack == 1) ? 'ack' : 'sensor',\n    timestamp: Math.floor(Date.now() / 1000)\n};\nmsg.topic = MQTT_PREFIX + '/out';\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 460,
+        "wires": [
+            [
+                "9bc7d791f76c952b",
+                "43b9169e1e680543",
+                "b8bdcce7c88584e1"
+            ]
+        ]
+    },
+    {
+        "id": "a257c9f4fe1ac2d7",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Translator Json",
+        "func": "var COMMANDS = {0:'PRESENTATION',1:'SET',2:'REQ',3:'INTERNAL',4:'STREAM'};\nvar PRESENTATION = {0:'S_DOOR',1:'S_MOTION',2:'S_SMOKE',3:'S_BINARY',4:'S_DIMMER',5:'S_COVER',6:'S_TEMP',7:'S_HUM',8:'S_BARO',9:'S_WIND',10:'S_RAIN',11:'S_UV',12:'S_WEIGHT',13:'S_POWER',14:'S_HEATER',15:'S_DISTANCE',16:'S_LIGHT_LEVEL',17:'S_ARDUINO_NODE',18:'S_ARDUINO_REPEATER_NODE',19:'S_LOCK',20:'S_IR',21:'S_WATER',22:'S_AIR_QUALITY',23:'S_CUSTOM',24:'S_DUST',25:'S_SCENE_CONTROLLER',26:'S_RGB_LIGHT',27:'S_RGBW_LIGHT',28:'S_COLOR_SENSOR',29:'S_HVAC',30:'S_MULTIMETER',31:'S_SPRINKLER',32:'S_WATER_LEAK',33:'S_SOUND',34:'S_VIBRATION',35:'S_MOISTURE',36:'S_INFO',37:'S_GAS',38:'S_GPS',39:'S_WATER_QUALITY'};\nvar VARIABLES = {0:['V_TEMP','Temperatura','°C'],1:['V_HUM','Umidade','%'],2:['V_STATUS','Estado',''],3:['V_PERCENTAGE','Percentual','%'],4:['V_PRESSURE','Pressão','hPa'],5:['V_FORECAST','Previsão',''],6:['V_RAIN','Chuva','mm'],7:['V_RAINRATE','Taxa de chuva','mm/h'],8:['V_WIND','Vento','m/s'],9:['V_GUST','Rajada','m/s'],10:['V_DIRECTION','Direção','°'],11:['V_UV','UV',''],12:['V_WEIGHT','Peso','kg'],13:['V_DISTANCE','Distância','cm'],14:['V_IMPEDANCE','Impedância','ohm'],15:['V_ARMED','Armado',''],16:['V_TRIPPED','Disparado',''],17:['V_WATT','Potência','W'],18:['V_KWH','Energia','kWh'],19:['V_SCENE_ON','Cena ON',''],20:['V_SCENE_OFF','Cena OFF',''],21:['V_HVAC_FLOW_STATE','HVAC Estado',''],22:['V_HVAC_SPEED','HVAC Velocidade',''],23:['V_LIGHT_LEVEL','Luminosidade','%'],24:['V_VAR1','VAR1',''],25:['V_VAR2','VAR2',''],26:['V_VAR3','VAR3',''],27:['V_VAR4','VAR4',''],28:['V_VAR5','VAR5',''],29:['V_UP','Subir',''],30:['V_DOWN','Descer',''],31:['V_STOP','Parar',''],32:['V_IR_SEND','IR Enviar',''],33:['V_IR_RECEIVE','IR Recebido',''],34:['V_FLOW','Vazão','L/min'],35:['V_VOLUME','Volume','L'],36:['V_LOCK_STATUS','Fechadura',''],37:['V_LEVEL','Nível',''],38:['V_VOLTAGE','Tensão','V'],39:['V_CURRENT','Corrente','A'],40:['V_RGB','RGB',''],41:['V_RGBW','RGBW',''],42:['V_ID','ID',''],43:['V_UNIT_PREFIX','Prefixo',''],44:['V_HVAC_SETPOINT_COOL','Setpoint Frio','°C'],45:['V_HVAC_SETPOINT_HEAT','Setpoint Quente','°C'],46:['V_HVAC_FLOW_MODE','Modo HVAC',''],47:['V_TEXT','Texto',''],48:['V_CUSTOM','Custom',''],49:['V_POSITION','Posição',''],50:['V_IR_RECORD','IR Gravado',''],51:['V_PH','pH',''],52:['V_ORP','ORP','mV'],53:['V_EC','Condutividade','mS/cm'],54:['V_VAR','Variável',''],55:['V_VA','Potência Aparente','VA'],56:['V_POWER_FACTOR','Fator de Potência','']};\nvar INTERNAL = {0:'I_BATTERY_LEVEL',1:'I_TIME',2:'I_VERSION',3:'I_ID_REQUEST',4:'I_ID_RESPONSE',5:'I_INCLUSION_MODE',6:'I_CONFIG',7:'I_FIND_PARENT',8:'I_FIND_PARENT_RESPONSE',9:'I_LOG_MESSAGE',10:'I_CHILDREN',11:'I_SKETCH_NAME',12:'I_SKETCH_VERSION',13:'I_REBOOT',14:'I_GATEWAY_READY',15:'I_SIGNING_PRESENTATION',16:'I_NONCE_REQUEST',17:'I_NONCE_RESPONSE',18:'I_HEARTBEAT_REQUEST',19:'I_PRESENTATION',20:'I_DISCOVER_REQUEST',21:'I_DISCOVER_RESPONSE',22:'I_HEARTBEAT_RESPONSE',23:'I_LOCKED',24:'I_PING',25:'I_PONG',26:'I_REGISTRATION_REQUEST',27:'I_REGISTRATION_RESPONSE',28:'I_DEBUG',29:'I_SIGNAL_REPORT_REQUEST',30:'I_SIGNAL_REPORT_REVERSE',31:'I_SIGNAL_REPORT_RESPONSE',32:'I_PRE_SLEEP_NOTIFICATION',33:'I_POST_SLEEP_NOTIFICATION'};\nvar MANEJO360 = {V_TEMP:{nome:'Temperatura',contexto:'Temperatura do Solo',faixaIdeal:'18 a 25 °C'},V_HUM:{nome:'Umidade',contexto:'Umidade Relativa do Ar',faixaIdeal:'60 a 80 %'},V_LEVEL:{nome:'Nível',contexto:'Nível do Reservatório',faixaIdeal:'Acima de 30%'},V_FLOW:{nome:'Vazão',contexto:'Vazão da Irrigação',faixaIdeal:'Conforme projeto hidráulico'},V_VOLUME:{nome:'Consumo',contexto:'Volume Acumulado',faixaIdeal:'-'},V_PH:{nome:'pH',contexto:'pH da Solução Nutritiva',faixaIdeal:'5.8 a 6.5'},V_EC:{nome:'Condutividade',contexto:'Condutividade Elétrica',faixaIdeal:'1.2 a 2.2 mS/cm'},V_VOLTAGE:{nome:'Bateria',contexto:'Tensão da Bateria',faixaIdeal:'> 3.3V'},V_CURRENT:{nome:'Corrente',contexto:'Corrente Consumida',faixaIdeal:'-'},V_STATUS:{nome:'Estado',contexto:'Atuador',faixaIdeal:'-'},V_PERCENTAGE:{nome:'Percentual',contexto:'Umidade do Solo',faixaIdeal:'60 a 80%'}};\nfunction avaliarManejo(tipo, valor) {\n    if (valor === null || valor === undefined || valor === '') return '';\n    valor = Number(valor);\n    if (isNaN(valor)) return '⚠ Valor de leitura inválido';\n    switch(tipo) {\n        case 'V_TEMP': if(valor<18) return '⚠ Temperatura abaixo da faixa ideal'; if(valor>25) return '⚠ Temperatura acima da faixa ideal'; return '✓ Temperatura adequada';\n        case 'V_PERCENTAGE': if(valor<60) return '⚠ Solo seco'; if(valor>90) return '⚠ Possível excesso de água'; return '✓ Umidade adequada';\n        case 'V_PH': if(valor<5.8) return '⚠ pH baixo'; if(valor>6.5) return '⚠ pH alto'; return '✓ pH adequado';\n        case 'V_EC': if(valor<1.2) return '⚠ Solução diluída'; if(valor>2.2) return '⚠ Solução concentrada'; return '✓ Condutividade adequada';\n        case 'V_LEVEL': if(valor<30) return '⚠ Reservatório baixo'; return '✓ Nível adequado';\n        case 'V_VOLTAGE': if(valor<3.3) return '⚠ Bateria fraca'; return '✓ Bateria normal';\n        default: return '';\n    }\n}\nvar m = msg.payload;\nvar comando = COMMANDS[m.command] || 'DESCONHECIDO';\nvar tipo = ''; var descricao = ''; var unidade = '';\nswitch(m.command) {\n    case 0: tipo = PRESENTATION[m.type] || 'DESCONHECIDO'; descricao = 'Apresentação de sensor'; break;\n    case 1: case 2: if(VARIABLES[m.type]){tipo=VARIABLES[m.type][0];descricao=VARIABLES[m.type][1];unidade=VARIABLES[m.type][2];} break;\n    case 3: tipo = INTERNAL[m.type] || 'DESCONHECIDO'; descricao = 'Mensagem interna'; break;\n    case 4: tipo = 'STREAM'; descricao = 'Transferência de dados'; break;\n}\n// Remap programatico: se o child foi apresentado como S_MOISTURE, V_LEVEL representa umidade (%).\nif (tipo === 'V_LEVEL') {\n    var _n; try { _n = global.get('mys_nodes', 'file') || {}; } catch(e) { _n = global.get('mys_nodes') || {}; }\n    var _c = _n[m.nodeId] && _n[m.nodeId].childs && _n[m.nodeId].childs[m.sensorId];\n    if (_c && _c.tipo === 'S_MOISTURE') { tipo = 'V_PERCENTAGE'; descricao = 'Percentual'; unidade = '%'; }\n}\nvar contexto=''; var faixaIdeal=''; var diagnostico='';\nif(MANEJO360[tipo]){contexto=MANEJO360[tipo].contexto;faixaIdeal=MANEJO360[tipo].faixaIdeal;diagnostico=avaliarManejo(tipo,m.payload);}\nvar valor = m.payload;\nif(valor===null||valor===undefined) valor='(vazio)';\nvar texto = 'Nó: '+m.nodeId+' : '+tipo+'\\nSensor: '+m.sensorId+'\\nContexto: '+(contexto||descricao)+'\\nComando: '+comando+'\\nValor: '+valor+' '+unidade+'\\nFaixa Ideal: '+(faixaIdeal||'-')+'\\nDiagnóstico: '+(diagnostico||'-')+'\\nACK: '+m.ack+'\\nTimestamp: '+m.timestamp;\nmsg.decoded={nodeId:m.nodeId,sensorId:m.sensorId,command:comando,type:tipo,description:descricao,unit:unidade,value:valor};\nmsg.payload=texto;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 540,
+        "y": 1200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b8bdcce7c88584e1",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Mapeia nós",
+        "func": "// Registro de nos dirigido 100% pela apresentacao do proprio no (MySensors).\n// Tipo e rotulo de cada child vem do payload de present(); nome/versao do no vem de I_SKETCH_NAME / I_SKETCH_VERSION.\n// Toda re-apresentacao (command 0 ou payload \"REPRESENT\") limpa dados antigos e dispara atualizacao imediata do Dashboard.\nvar TTL_MS = flow.get('nodes_ttl_ms') || 172800000;\nvar m = msg.payload;\nif (typeof m === 'string') { try { m = JSON.parse(m); } catch(e) { return null; } }\nif (!m || !m.nodeId) return null;\n\nvar PRESENTATION = {\n    0:'S_DOOR',1:'S_MOTION',2:'S_SMOKE',3:'S_BINARY',4:'S_DIMMER',5:'S_COVER',\n    6:'S_TEMP',7:'S_HUM',8:'S_BARO',9:'S_WIND',10:'S_RAIN',11:'S_UV',12:'S_WEIGHT',\n    13:'S_POWER',14:'S_HEATER',15:'S_DISTANCE',16:'S_LIGHT_LEVEL',17:'S_ARDUINO_NODE',\n    18:'S_ARDUINO_REPEATER_NODE',19:'S_LOCK',20:'S_IR',21:'S_WATER',22:'S_AIR_QUALITY',\n    23:'S_CUSTOM',24:'S_DUST',25:'S_SCENE_CONTROLLER',26:'S_RGB_LIGHT',27:'S_RGBW_LIGHT',\n    28:'S_COLOR_SENSOR',29:'S_HVAC',30:'S_MULTIMETER',31:'S_SPRINKLER',32:'S_WATER_LEAK',\n    33:'S_SOUND',34:'S_VIBRATION',35:'S_MOISTURE',36:'S_INFO',37:'S_GAS',38:'S_GPS',39:'S_WATER_QUALITY'\n};\n\nfunction deriveCategory(nodeObj) {\n    if (nodeObj.nodeId === 0) return 'Gateway Central';\n    var childs = nodeObj.childs || {};\n    var types = Object.values(childs).map(function(c) { return c.tipo; });\n    \n    if (types.includes('S_MOISTURE')) return 'Monitoramento de Solo (Talhoes)';\n    if (types.includes('S_TEMP') || types.includes('S_HUM') || types.includes('S_BARO') || types.includes('S_WIND') || types.includes('S_RAIN')) return 'Estacao Meteorologica / Clima';\n    if (types.includes('S_BINARY') || types.includes('S_SPRINKLER') || types.includes('S_HEATER') || types.includes('S_COVER')) return 'Controle de Atuacao (Irrigacao/Bombas)';\n    if (types.includes('S_WATER') || types.includes('S_WATER_LEAK') || types.includes('S_WATER_QUALITY')) return 'Reservatorio / Qualidade da Agua';\n    \n    return nodeObj.sketchName ? ('No: ' + nodeObj.sketchName) : 'Modulo IoT Geral';\n}\n\nvar nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\nvar now = Date.now();\n\n// Limpeza TTL de nos inativos\nObject.keys(nodes).forEach(function(id) {\n    if (now - nodes[id].lastSeen > TTL_MS) {\n        node.warn('No ' + id + ' removido do mapa por TTL');\n        delete nodes[id];\n    }\n});\n\n// Descoberta / registro inicial de novo no\nif (!nodes[m.nodeId]) {\n    nodes[m.nodeId] = {\n        nodeId: m.nodeId,\n        discovered: now,\n        lastSeen: now,\n        lastHeartbeat: null,\n        lastAck: null,\n        status: 'NEW',\n        messages: 0,\n        values: {},\n        childs: {},\n        sketchName: '',\n        sketchVersion: '',\n        presentName: '',\n        batteryLevel: null,\n        batteryVoltage: null,\n        categoria: 'Modulo IoT Geral'\n    };\n    node.warn('Novo no descoberto: ' + m.nodeId);\n}\n\nvar n = nodes[m.nodeId];\nif (!n.values) n.values = {};\nif (!n.childs) n.childs = {};\n\n// Cadencia observada entre ciclos de despertar\nvar prevSeen = n.lastSeen;\nif (prevSeen) {\n    var gap = now - prevSeen;\n    if (gap > 15000) {\n        n.cycleMs = n.cycleMs ? Math.round(0.7 * n.cycleMs + 0.3 * gap) : gap;\n    }\n}\nn.lastSeen = now;\nn.messages++;\n\nvar isRePresentation = false;\n\n// Trata solicitacao explicita de reapresentacao do no ou Gateway\nif (m.payload === 'REPRESENT' || (m.command === 1 && m.type === 48 && m.payload === 'REPRESENT')) {\n    n.childs = {}; // Limpa filhos antigos para reconstrucao dinamica sem sensores fantasmas\n    isRePresentation = true;\n    node.warn('Solicitacao de Reapresentacao recebida para o No ' + m.nodeId + '. Tabela de filhos resetada.');\n}\n\n// Apresentacao (command 0): captura tipo e rotulo enviados pelo no\nif (m.command === 0) {\n    isRePresentation = true;\n    if (m.sensorId === 255) {\n        // Apresentacao de No (Node Presentation) - reset de filhos para prevenir dados obsoletos\n        if (m.payload && typeof m.payload === 'string' && m.payload.trim() !== '') {\n            n.presentName = m.payload.trim();\n        }\n    } else {\n        // Apresentacao de Sensor/Atuador (Child Presentation)\n        var tipoStr = PRESENTATION[m.type] || 'S_CUSTOM';\n        var alias = (m.payload && typeof m.payload === 'string' && m.payload.trim() !== '') ? m.payload.trim() : null;\n        var existing = n.childs[m.sensorId] || {};\n        n.childs[m.sensorId] = {\n            childId: m.sensorId,\n            tipo: tipoStr,\n            de: alias || existing.de || ('Sensor ' + m.sensorId)\n        };\n        node.warn('No ' + m.nodeId + ': child apresentado (ID ' + m.sensorId + ' / ' + (alias || 'sem rotulo') + ' / ' + tipoStr + ')');\n    }\n}\n\n// Leitura (command 1): armazena o valor transmitido\nif (m.command === 1) {\n    n.values[m.sensorId] = m.payload;\n    if (m.sensorId === 255) {\n        n.batteryVoltage = parseFloat(m.payload);\n    } else if (!n.childs[m.sensorId]) {\n        n.childs[m.sensorId] = {childId: m.sensorId, tipo: 'S_CUSTOM', de: 'Sensor ' + m.sensorId};\n    }\n}\n\n// Mensagens Internas (command 3): nome/versao de sketch, bateria e heartbeat\nif (m.command === 3) {\n    if (m.type === 0) {\n        n.batteryLevel = parseInt(m.payload);\n    } else if (m.type === 11) {\n        n.sketchName = m.payload;\n        isRePresentation = true;\n        node.warn('No ' + m.nodeId + ': Re-apresentacao de Sketch -> ' + m.payload);\n    } else if (m.type === 12) {\n        n.sketchVersion = m.payload;\n        isRePresentation = true;\n    } else if (m.type === 22) {\n        n.lastHeartbeat = now;\n    }\n}\n\nif (m.ack == 1) { n.lastAck = now; }\n\n// Atualiza a categoria dinamicamente com base nas caracteristicas reais do no\nn.categoria = deriveCategory(n);\n\ntry { global.set('mys_nodes', nodes, 'file'); } catch (e) { global.set('mys_nodes', nodes); }\n\nif (isRePresentation) {\n    node.warn('Re-apresentacao processada para No ' + m.nodeId + ' (' + (n.sketchName || 'No ' + m.nodeId) + ') - Atualizando Dashboard!');\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 750,
+        "y": 380,
+        "wires": [
+            [
+                "18be8659b461a055"
+            ]
+        ]
+    },
+    {
+        "id": "43b9169e1e680543",
+        "type": "switch",
+        "z": "50fbcdf0053fa19f",
+        "name": "Separar ACK / Leituras",
+        "property": "payload.direction",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "ack",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "sensor",
+                "vt": "str"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 580,
+        "y": 600,
+        "wires": [
+            [],
+            [
+                "7d9852baa8bc70b5",
+                "8b150e9bc69a0dd8",
+                "25b580a4bc867704",
+                "a21fa4cd9ae34356",
+                "77839fb0db9945a4",
+                "78dc1903f4fa5b12"
+            ]
+        ]
+    },
+    {
+        "id": "dddcc54485ff5a89",
+        "type": "mqtt in",
+        "z": "50fbcdf0053fa19f",
+        "name": "",
+        "topic": "m360/+/+/gateway/status",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "178d6e63b26ceeb2",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 230,
+        "y": 520,
+        "wires": [
+            [
+                "df78e0382519577b",
+                "93f941ae256d2364"
+            ]
+        ]
+    },
+    {
+        "id": "df78e0382519577b",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Gateway Status + Watchdog",
+        "func": "// CORREÇÃO 9: Watchdog proativo - registra último contato do gateway\nvar now = Date.now();\nflow.set('gateway_last_seen', now);\nflow.set('gateway_online', true);\nnode.status({fill:'green', shape:'dot', text:'Online: ' + new Date(now).toLocaleTimeString()});\nmsg.payload = {status:'ONLINE', ts: now, raw: msg.payload};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 1300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3d74b32abca3eb61",
+        "type": "inject",
+        "z": "50fbcdf0053fa19f",
+        "name": "Watchdog Gateway (periódico)",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "60",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 5,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 1380,
+        "wires": [
+            [
+                "bdbef42229770d30"
+            ]
+        ]
+    },
+    {
+        "id": "bdbef42229770d30",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Verifica Gateway Offline",
+        "func": "// CORREÇÃO 9: Alerta proativo se gateway ficar offline\nvar GATEWAY_TIMEOUT_MS = 120000; // 2 minutos sem mensagem = alerta\nvar lastSeen = flow.get('gateway_last_seen');\nvar now = Date.now();\nif (!lastSeen) {\n    node.status({fill:'grey', shape:'ring', text:'Aguardando primeiro contato...'});\n    return null;\n}\nvar diff = now - lastSeen;\nif (diff > GATEWAY_TIMEOUT_MS) {\n    flow.set('gateway_online', false);\n    node.status({fill:'red', shape:'ring', text:'OFFLINE há ' + Math.round(diff/1000) + 's'});\n    msg.payload = {\n        alerta: 'GATEWAY OFFLINE',\n        ultimoContato: new Date(lastSeen).toLocaleString(),\n        semRespostaHa: Math.round(diff/1000) + ' segundos'\n    };\n    return msg;\n} else {\n    node.status({fill:'green', shape:'dot', text:'OK - último contato há ' + Math.round(diff/1000) + 's'});\n    return null;\n}",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 1380,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e59501e5fe13e644",
+        "type": "inject",
+        "z": "50fbcdf0053fa19f",
+        "name": "Limpeza TTL Nós (periódica)",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "300",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 10,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 270,
+        "y": 180,
+        "wires": [
+            [
+                "e71491bbad074f18"
+            ]
+        ]
+    },
+    {
+        "id": "e71491bbad074f18",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Limpeza TTL mys_nodes",
+        "func": "// Remove nos inativos por TTL e forca atualizacao reativa da UI e do Dropdown\nvar TTL_MS = flow.get('nodes_ttl_ms') || 172800000;\nvar nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\nvar now = Date.now();\nvar removidos = [];\nObject.keys(nodes).forEach(function(id) {\n    if (now - nodes[id].lastSeen > TTL_MS) {\n        removidos.push(id);\n        delete nodes[id];\n    }\n});\ntry { global.set('mys_nodes', nodes, 'file'); } catch (e) { global.set('mys_nodes', nodes); }\nif (removidos.length > 0) {\n    node.warn('TTL: Nos removidos por expiracao: ' + removidos.join(', '));\n    msg.payload = {removidos: removidos, restantes: Object.keys(nodes).length};\n    return msg;\n}\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 590,
+        "y": 180,
+        "wires": [
+            [
+                "18be8659b461a055"
+            ]
+        ]
+    },
+    {
+        "id": "85519c136e437107",
+        "type": "inject",
+        "z": "50fbcdf0053fa19f",
+        "name": "Gatilho Mapa de Rede",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "60",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 270,
+        "y": 100,
+        "wires": [
+            [
+                "18be8659b461a055"
+            ]
+        ]
+    },
+    {
+        "id": "18be8659b461a055",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Processador do Mapa m360_horta",
+        "func": "// Mapa construido apenas a partir dos atributos apresentados pelo no.\n// Sem relabel hardcoded por nodeId e sem dados de demonstracao.\nvar nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\nvar now = Date.now();\nvar prefix = global.get('mqtt_topic_prefix') || 'm360/DF/0000';\nvar UNIT = {S_TEMP:' \\u00b0C', S_HUM:' %', S_LIGHT_LEVEL:' %', S_WATER:' L/min', S_DISTANCE:' cm'};\nfunction fmtValor(tipo, v) {\n    if (v === undefined || v === null) return '-';\n    if (tipo === 'S_BINARY') return (v == '1' || String(v).toUpperCase() === 'LIGADO') ? 'LIGADO' : 'DESLIGADO';\n    return String(v) + (UNIT[tipo] || '');\n}\nvar redeMapa = {\n    gateway: {id:'0 (Gateway Central)', topico_status: prefix + '/gateway/status', status:'ONLINE'},\n    nos: []\n};\nfor (var id in nodes) {\n    var n = nodes[id];\n    var age = (now - n.lastSeen) / 1000;\n    var expInt = (n.cycleMs ? n.cycleMs : 60000) / 1000;\n    var offThr = Math.min(21600, Math.max(300, 3 * expInt));\n    var statusNode = 'ONLINE';\n    if (age > offThr) statusNode = 'OFFLINE';\n    else if (n.lastHeartbeat && (now - n.lastHeartbeat) / 1000 > 900) statusNode = 'SEM HEARTBEAT';\n    var descricaoNode = n.sketchName ? (n.sketchName + (n.sketchVersion ? ' (v' + n.sketchVersion + ')' : ''))\n                                     : (n.presentName || ('No ' + id));\n    var noInfo = {nodeId:id, categoria:(n.categoria || 'No IoT'), status:statusNode, lastSeenStr:Math.round(age)+'s atras',\n        descricao:descricaoNode, batteryLevel:n.batteryLevel, batteryVoltage:n.batteryVoltage, childs:[]};\n    var values = n.values || {};\n    var childs = n.childs || {};\n    var sensorIds = Object.keys(childs).sort(function(a,b) { return Number(a) - Number(b); });\n    var seenDe = {};\n    sensorIds.forEach(function(childId) {\n        var child = childs[childId];\n        var deStr = String(child.de).trim();\n        // Keep the latest childId for each 'de' (since it's sorted, later childIds overwrite older ones)\n        seenDe[deStr] = {childId:childId, tipo:child.tipo, de:child.de, valor:fmtValor(child.tipo, values[childId])};\n    });\n    // Convert object values back to array\n    Object.keys(seenDe).forEach(function(k) {\n        noInfo.childs.push(seenDe[k]);\n    });\n    redeMapa.nos.push(noInfo);\n}\nmsg.payload = redeMapa;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 920,
+        "y": 100,
+        "wires": [
+            [
+                "8af0974ce37425fa"
+            ]
+        ]
+    },
+    {
+        "id": "8af0974ce37425fa",
+        "type": "ui-template",
+        "z": "50fbcdf0053fa19f",
+        "group": "3359fb236d6d775d",
+        "page": "",
+        "ui": "",
+        "name": "Visualizador do Mapa de Rede",
+        "order": 15,
+        "width": 6,
+        "height": 0,
+        "format": "<div class=\"m360-container\">\n  <div class=\"m360-header\">\n    <h3>Mapa da Rede M360 Horta</h3>\n    <div class=\"header-actions\">\n      <button class=\"m360-btn\" title=\"Solicitar Reapresentação de Toda a Rede\" @click=\"send({payload: {nodeId: 255, sensorId: 0, command: 1, type: 48, payload: 'REPRESENT'}})\">\n        <svg class=\"btn-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67\"/></svg>\n        Reapresentar Rede\n      </button>\n     <div class=\"gway-status\">\n        <span class=\"status-pulse gway\"></span>\n        <span class=\"m360-badge gway\">Gateway Central: ONLINE</span>\n      </div>\n    </div>\n  </div>\n  <div class=\"m360-grid\">\n    <div v-for=\"no in (msg.payload && msg.payload.nos) || []\" :key=\"no.nodeId\" class=\"m360-card\" :class=\"no.status.toLowerCase().replace(' ', '-')\">\n      <div class=\"card-header-row\">\n        <div class=\"card-title\">\n          <div class=\"node-id-row\">\n            <strong>Nó físico ID: {{ no.nodeId }}</strong>\n            <button class=\"node-btn-sync\" title=\"Solicitar Reapresentação do Nó\" @click=\"send({payload: {nodeId: Number(no.nodeId), sensorId: 0, command: 1, type: 48, payload: 'REPRESENT'}})\">\n              <svg class=\"icon-sync\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67\"/></svg>\n            </button>\n            <span v-if=\"no.batteryLevel !== undefined && no.batteryLevel !== null\" class=\"card-battery\" :class=\"{'battery-low': no.batteryLevel < 25}\" :title=\"'Nível: ' + no.batteryLevel + '%' + (no.batteryVoltage ? ' | Tensão: ' + no.batteryVoltage + 'V' : '')\">\n              <svg class=\"icon-battery\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x='1' y='6' width='18' height='12' rx='2' ry='2'/><line x1='23' y1='11' x2='23' y2='13'/></svg>\n              {{ no.batteryLevel }}% <span v-if=\"no.batteryVoltage\" style=\"font-size: 9px; opacity: 0.8; margin-left: 2px;\">({{ no.batteryVoltage }}V)</span>\n            </span>\n          </div>\n          <p class=\"desc\">{{ no.descricao }}</p>\n        </div>\n        <div class=\"status-wrapper\">\n          <span class=\"status-pulse\"></span>\n          <span class=\"status-tag\">{{ no.status }}</span>\n        </div>\n      </div>\n      <p class=\"time\">Visto por último: {{ no.lastSeenStr }}</p>\n      <div class=\"child-box\">\n        <h5>Sensores e Atuadores Associados</h5>\n        <div v-for=\"child in no.childs\" :key=\"child.childId\" class=\"child-item\">\n          <div class=\"c-info-col\">\n            <span class=\"c-icon\">\n              <svg v-if=\"child.tipo === 'S_MOISTURE'\" class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z\"/></svg>\n              <svg v-else-if=\"child.tipo === 'S_TEMP'\" class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z\"/></svg>\n              <svg v-else-if=\"child.tipo === 'S_BINARY'\" class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"/><path d=\"M9 3v18\"/><path d=\"M14 9h3\"/><path d=\"M14 15h3\"/></svg>\n              <svg v-else class=\"icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"16\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"8\" x2=\"12.01\" y2=\"8\"/></svg>\n            </span>\n            <span class=\"c-name\"><strong>{{ child.de }}</strong> <span class=\"c-meta\" v-if=\"!child.de.startsWith('M360::M360ItemDef')\">({{ child.tipo }})</span></span>\n          </div>\n          <span class=\"c-val badge\" :class=\"{'val-on': child.valor === 'LIGADO' || child.valor === '1', 'val-off': child.valor === 'DESLIGADO' || child.valor === '0', 'val-reading': child.valor !== 'LIGADO' && child.valor !== 'DESLIGADO' && child.valor !== '-'}\">{{ child.valor }}</span>\n          <button v-if=\"child.tipo === 'S_BINARY'\" class=\"toggle-btn\" :class=\"{'btn-on': child.valor === 'LIGADO', 'btn-off': child.valor !== 'LIGADO'}\" @click=\"send({payload: {nodeId: Number(no.nodeId), sensorId: Number(child.childId), command: 1, type: 2, payload: child.valor === 'LIGADO' ? '0' : '1'}})\">{{ child.valor === 'LIGADO' ? 'Desligar' : 'Ligar' }}</button>\n        </div>\n      </div>\n    </div>\n  </div>\n</div>\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');\n.m360-container {\n  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;\n  padding: 18px;\n  color: #e2e8f0;\n  background-color: #0b0f19;\n  border-radius: 12px;\n  box-shadow: 0 10px 30px rgba(0,0,0,0.4);\n  height: auto !important;\n}\n.m360-header {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  border-bottom: 1px solid rgba(255, 255, 255, 0.1);\n  padding-bottom: 12px;\n  margin-bottom: 20px;\n}\n.m360-header h3 {\n  margin: 0;\n  font-size: 18px;\n  font-weight: 600;\n  letter-spacing: -0.5px;\n  background: linear-gradient(135deg, #38bdf8 0%, #0094CE 100%);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n}\n.header-actions {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n}\n.m360-btn {\n  display: flex;\n  align-items: center;\n  gap: 6px;\n  background: rgba(56, 189, 248, 0.1);\n  border: 1px solid rgba(56, 189, 248, 0.2);\n  color: #38bdf8;\n  padding: 5px 12px;\n  border-radius: 6px;\n  font-size: 11px;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.2s;\n}\n.m360-btn:hover {\n  background: rgba(56, 189, 248, 0.25);\n  border-color: rgba(56, 189, 248, 0.4);\n  transform: translateY(-1px);\n}\n.btn-icon {\n  width: 12px;\n  height: 12px;\n}\n.gway-status {\n  display: flex;\n  align-items: center;\n  background: rgba(16, 185, 129, 0.1);\n  border: 1px solid rgba(16, 185, 129, 0.2);\n  padding: 5px 12px;\n  border-radius: 20px;\n}\n.m360-badge {\n  font-size: 11px;\n  font-weight: 600;\n  color: #34d399;\n}\n.status-pulse {\n  width: 8px;\n  height: 8px;\n  border-radius: 50%;\n  margin-right: 8px;\n  display: inline-block;\n}\n.status-pulse.gway, .online .status-pulse {\n  background-color: #10b981;\n  box-shadow: 0 0 8px #10b981;\n  animation: pulse-green 2s infinite;\n}\n.offline .status-pulse {\n  background-color: #ef4444;\n  box-shadow: 0 0 8px #ef4444;\n  animation: pulse-red 2s infinite;\n}\n.sem-heartbeat .status-pulse {\n  background-color: #f59e0b;\n  box-shadow: 0 0 8px #f59e0b;\n  animation: pulse-orange 2s infinite;\n}\n@keyframes pulse-green {\n  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }\n  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }\n  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }\n}\n@keyframes pulse-red {\n  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }\n  70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }\n  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }\n}\n@keyframes pulse-orange {\n  0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }\n  70% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }\n  100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }\n}\n.m360-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));\n  gap: 16px;\n}\n.m360-card {\n  background: rgba(30, 41, 59, 0.45);\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.05);\n  border-left: 4px solid #64748b;\n  padding: 16px;\n  border-radius: 10px;\n  box-shadow: 0 4px 6px rgba(0,0,0,0.15);\n  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s, box-shadow 0.3s;\n}\n.m360-card:hover {\n  transform: translateY(-4px);\n  box-shadow: 0 12px 20px rgba(0,0,0,0.25);\n  border-color: rgba(255, 255, 255, 0.12);\n}\n.m360-card.online {\n  border-left-color: #10b981;\n}\n.m360-card.offline {\n  border-left-color: #ef4444;\n  background: rgba(239, 68, 68, 0.03);\n}\n.m360-card.sem-heartbeat {\n  border-left-color: #f59e0b;\n  background: rgba(245, 158, 11, 0.03);\n}\n.card-header-row {\n  display: flex;\n  justify-content: space-between;\n  align-items: flex-start;\n  margin-bottom: 12px;\n}\n.node-id-row {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n.node-btn-sync {\n  background: none;\n  border: none;\n  color: #64748b;\n  cursor: pointer;\n  padding: 2px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  border-radius: 4px;\n  transition: all 0.2s;\n}\n.node-btn-sync:hover {\n  color: #38bdf8;\n  background: rgba(255,255,255,0.05);\n}\n.icon-sync {\n  width: 12px;\n  height: 12px;\n}\n.card-title strong {\n  font-size: 15px;\n  color: #f8fafc;\n  font-weight: 600;\n}\n.status-wrapper {\n  display: flex;\n  align-items: center;\n  background: rgba(255,255,255,0.05);\n  padding: 4px 10px;\n  border-radius: 12px;\n  border: 1px solid rgba(255,255,255,0.05);\n}\n.status-tag {\n  font-size: 9px;\n  font-weight: 700;\n  text-transform: uppercase;\n  color: #cbd5e1;\n  letter-spacing: 0.5px;\n}\n.online .status-tag { color: #34d399; }\n.offline .status-tag { color: #f87171; }\n.sem-heartbeat .status-tag { color: #fbbf24; }\n.desc {\n  font-size: 12px;\n  color: #94a3b8;\n  margin: 4px 0 0 0;\n  line-height: 1.4;\n}\n.time {\n  font-size: 10px;\n  color: #64748b;\n  margin: 0 0 12px 0;\n}\n.child-box {\n  background: rgba(15, 23, 42, 0.5);\n  border: 1px solid rgba(255,255,255,0.03);\n  padding: 12px;\n  border-radius: 8px;\n}\n.child-box h5 {\n  margin: 0 0 10px 0;\n  font-size: 11px;\n  font-weight: 600;\n  text-transform: uppercase;\n  letter-spacing: 0.5px;\n  color: #38bdf8;\n}\n.child-item {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  padding: 8px 0;\n  border-bottom: 1px solid rgba(255,255,255,0.04);\n}\n.child-item:last-child {\n  border-bottom: none;\n}\n.c-info-col {\n  display: flex;\n  align-items: center;\n  flex-grow: 1;\n}\n.c-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  color: #38bdf8;\n  margin-right: 8px;\n  opacity: 0.85;\n}\n.icon {\n  width: 14px;\n  height: 14px;\n}\n.c-name {\n  font-size: 12px;\n  color: #e2e8f0;\n}\n.c-meta {\n  font-size: 10px;\n  color: #64748b;\n  margin-left: 2px;\n}\n.c-val.badge {\n  font-size: 11px;\n  font-weight: 600;\n  padding: 2px 8px;\n  border-radius: 4px;\n  background: rgba(255,255,255,0.04);\n  color: #94a3b8;\n  border: 1px solid rgba(255,255,255,0.05);\n}\n.c-val.badge.val-on {\n  color: #34d399;\n  background: rgba(16, 185, 129, 0.1);\n  border-color: rgba(16, 185, 129, 0.2);\n}\n.c-val.badge.val-off {\n  color: #f87171;\n  background: rgba(239, 68, 68, 0.1);\n  border-color: rgba(239, 68, 68, 0.2);\n}\n.c-val.badge.val-reading {\n  color: #38bdf8;\n  background: rgba(56, 189, 248, 0.1);\n  border-color: rgba(56, 189, 248, 0.2);\n}\n.toggle-btn {\n  margin-left: 8px;\n  flex-shrink: 0;\n  padding: 3px 10px;\n  border-radius: 4px;\n  font-size: 10px;\n  font-weight: 600;\n  cursor: pointer;\n  border: 1px solid;\n  transition: all 0.2s;\n}\n.toggle-btn.btn-on {\n  background: rgba(239, 68, 68, 0.1);\n  border-color: rgba(239, 68, 68, 0.3);\n  color: #f87171;\n}\n.toggle-btn.btn-on:hover {\n  background: rgba(239, 68, 68, 0.2);\n}\n.toggle-btn.btn-off {\n  background: rgba(16, 185, 129, 0.1);\n  border-color: rgba(16, 185, 129, 0.3);\n  color: #34d399;\n}\n.toggle-btn.btn-off:hover {\n  background: rgba(16, 185, 129, 0.2);\n}\n.card-battery {\n  display: inline-flex;\n  align-items: center;\n  gap: 4px;\n  font-size: 11px;\n  font-weight: 600;\n  color: #34d399;\n  background: rgba(52, 211, 153, 0.1);\n  padding: 2px 6px;\n  border-radius: 4px;\n  border: 1px solid rgba(52, 211, 153, 0.15);\n}\n.card-battery.battery-low {\n  color: #f87171;\n  background: rgba(248, 113, 113, 0.1);\n  border-color: rgba(248, 113, 113, 0.2);\n  animation: pulse-battery 1.5s infinite;\n}\n.icon-battery {\n  width: 12px;\n  height: 12px;\n  stroke-width: 2.5;\n}\n@keyframes pulse-battery {\n  0% { opacity: 1; }\n  50% { opacity: 0.5; }\n  100% { opacity: 1; }\n}\n</style>",
+        "storeOutMessages": false,
+        "passthru": false,
+        "templateScope": "local",
+        "className": "",
+        "x": 1250,
+        "y": 100,
+        "wires": [
+            [
+                "9bc7d791f76c952b"
+            ]
+        ]
+    },
+    {
+        "id": "7d9852baa8bc70b5",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Filtro Umidade Solo Canteiro A",
+        "func": "// Rotear umidade do solo Canteiro A (Nó 01) dinamicamente para gráficos\nvar m = msg.payload;\nif (!m || m.nodeId === undefined) return null;\n\nvar nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\nvar n = nodes[m.nodeId];\nvar child = n && n.childs && n.childs[m.sensorId];\n\nvar isNode01 = (Number(m.nodeId) === 1) || \n               (child && child.de && child.de.startsWith('A_')) || \n               (n && (n.sketchName === '01nodeSolo3dNano' || n.presentName === '01nodeSolo3dNano'));\n\nvar isSoilMoisture = (m.type === 3 || m.type === 35 || m.type === 37 || (child && (child.tipo === 'S_MOISTURE' || child.tipo === 'V_LEVEL')));\n\nif (isNode01 && isSoilMoisture) {\n    var label = (child && child.de) ? child.de : (n ? (n.sketchName + ' S' + m.sensorId) : ('Nó 01 S' + m.sensorId));\n    msg.topic = label;\n    msg.payload = parseFloat(m.payload);\n    msg.ts = Date.now();\n    return msg;\n}\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1030,
+        "y": 740,
+        "wires": [
+            [
+                "7ccfed409fa10873"
+            ]
+        ]
+    },
+    {
+        "id": "25b580a4bc867704",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Filtro Temp/Hum Ar",
+        "func": "// Rotear medições de Temperatura e Umidade do Ar do Nó 99 (NodeReles)\nvar m = msg.payload;\nif (!m || m.nodeId === undefined || Number(m.nodeId) !== 99) return null;\n\nvar nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\nvar n = nodes[m.nodeId];\nvar child = n && n.childs && n.childs[m.sensorId];\n\nvar isTemp = (Number(m.type) === 0 || Number(m.sensorId) === 11 || (child && (child.tipo === 'S_TEMP' || child.tipo === 'V_TEMP')));\nvar isHum = (Number(m.type) === 1 || Number(m.sensorId) === 12 || (child && (child.tipo === 'S_HUM' || child.tipo === 'V_HUM')));\n\nif (isTemp) {\n    var labelTemp = (child && child.de) ? child.de : (n ? (n.sketchName || 'Nó 99') : 'Nó 99');\n    msg.topic = 'Temperatura - ' + labelTemp;\n    msg.payload = parseFloat(m.payload);\n    msg.ts = Date.now();\n    return msg;\n} else if (isHum) {\n    var labelHum = (child && child.de) ? child.de : (n ? (n.sketchName || 'Nó 99') : 'Nó 99');\n    msg.topic = 'Umidade Ar - ' + labelHum;\n    msg.payload = parseFloat(m.payload);\n    msg.ts = Date.now();\n    return msg;\n}\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 990,
+        "y": 820,
+        "wires": [
+            [
+                "453c74513e4aa03d"
+            ]
+        ]
+    },
+    {
+        "id": "f09aef9e1352049f",
+        "type": "ui-chart",
+        "z": "50fbcdf0053fa19f",
+        "group": "a07f08860aaed900",
+        "name": "Umidade do Solo Canteiro A",
+        "label": "Umidade do Solo - Canteiro A (Nó 01)",
+        "order": 1,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisProperty": "ts",
+        "xAxisPropertyType": "msg",
+        "xAxisType": "time",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderUnit": "86400",
+        "width": "6",
+        "height": "5",
+        "x": 1680,
+        "y": 1060,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "101e32b4492e0f5f",
+        "type": "ui-chart",
+        "z": "50fbcdf0053fa19f",
+        "group": "a07f08860aaed900",
+        "name": "Temperatura e Umidade do Ar",
+        "label": "Clima - Temperatura e Umidade do Ar (Nó 99)",
+        "order": 5,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisProperty": "ts",
+        "xAxisPropertyType": "msg",
+        "xAxisType": "time",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderUnit": "86400",
+        "width": "6",
+        "height": "5",
+        "x": 1690,
+        "y": 1100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7ccfed409fa10873",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Salvar Histórico Solo",
+        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_solo_A') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nif (hist.length > 500) { hist = hist.slice(-500); }\nflow.set('hist_solo_A', hist);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1340,
+        "y": 740,
+        "wires": [
+            [
+                "f09aef9e1352049f"
+            ]
+        ]
+    },
+    {
+        "id": "453c74513e4aa03d",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Salvar Histórico Clima",
+        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_clima') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nif (hist.length > 500) { hist = hist.slice(-500); }\nflow.set('hist_clima', hist);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1340,
+        "y": 820,
+        "wires": [
+            [
+                "101e32b4492e0f5f"
+            ]
+        ]
+    },
+    {
+        "id": "a79436bd7a3eaea9",
+        "type": "inject",
+        "z": "50fbcdf0053fa19f",
+        "name": "Replay no Deploy",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 2,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 590,
+        "y": 1020,
+        "wires": [
+            [
+                "6b98d5b3b7e2c72b"
+            ]
+        ]
+    },
+    {
+        "id": "6b98d5b3b7e2c72b",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Replay Histórico Gráficos",
+        "func": "var seedSoloA = [{\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1012.0, \"ts\": 1785882398081}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 947.0, \"ts\": 1785882458134}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 944.0, \"ts\": 1785882518287}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 951.0, \"ts\": 1785882578335}, {\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1012.0, \"ts\": 1785882698404}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 943.0, \"ts\": 1785882758533}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 398.0, \"ts\": 1785882818640}, {\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1019.0, \"ts\": 1785882938704}, {\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1012.0, \"ts\": 1785882998750}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 944.0, \"ts\": 1785883058872}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 943.0, \"ts\": 1785883118942}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 955.0, \"ts\": 1785883179224}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 411.0, \"ts\": 1785883239121}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 408.0, \"ts\": 1785883299275}, {\"topic\": \"N\\u00f3 01 S6\", \"payload\": 691.0, \"ts\": 1785883359637}, {\"topic\": \"N\\u00f3 01 S6\", \"payload\": 695.0, \"ts\": 1785883419721}, {\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1015.0, \"ts\": 1785883539280}, {\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1014.0, \"ts\": 1785883599322}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 946.0, \"ts\": 1785883659441}, {\"topic\": \"N\\u00f3 01 S3\", \"payload\": 174.0, \"ts\": 1785883719560}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 398.0, \"ts\": 1785883779575}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 402.0, \"ts\": 1785883839875}, {\"topic\": \"N\\u00f3 01 S6\", \"payload\": 687.0, \"ts\": 1785883899930}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 944.0, \"ts\": 1785884019870}, {\"topic\": \"N\\u00f3 01 S3\", \"payload\": 168.0, \"ts\": 1785884079949}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 953.0, \"ts\": 1785884140034}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 951.0, \"ts\": 1785884200058}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 353.0, \"ts\": 1785884260126}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 413.0, \"ts\": 1785884320524}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 935.0, \"ts\": 1785884440187}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 944.0, \"ts\": 1785884500320}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 952.0, \"ts\": 1785884560368}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 402.0, \"ts\": 1785884620431}, {\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1011.0, \"ts\": 1785884740513}, {\"topic\": \"N\\u00f3 01 S3\", \"payload\": 150.0, \"ts\": 1785884800936}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 951.0, \"ts\": 1785884860828}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 416.0, \"ts\": 1785884921330}, {\"topic\": \"N\\u00f3 01 S6\", \"payload\": 670.0, \"ts\": 1785884981141}, {\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1013.0, \"ts\": 1785885100911}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 952.0, \"ts\": 1785885161140}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 407.0, \"ts\": 1785885221443}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 419.0, \"ts\": 1785885281439}, {\"topic\": \"N\\u00f3 01 S6\", \"payload\": 684.0, \"ts\": 1785885341878}, {\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1014.0, \"ts\": 1785885461334}, {\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1012.0, \"ts\": 1785885521383}, {\"topic\": \"N\\u00f3 01 S3\", \"payload\": 180.0, \"ts\": 1785885581488}, {\"topic\": \"N\\u00f3 01 S3\", \"payload\": 196.0, \"ts\": 1785885641721}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 428.0, \"ts\": 1785885701779}, {\"topic\": \"N\\u00f3 01 S6\", \"payload\": 676.0, \"ts\": 1785885761927}, {\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1013.0, \"ts\": 1785885881749}, {\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1021.0, \"ts\": 1785885941797}, {\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1011.0, \"ts\": 1785886001839}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 938.0, \"ts\": 1785886061959}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 940.0, \"ts\": 1785886122056}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 998.0, \"ts\": 1785886182122}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 956.0, \"ts\": 1785886242130}, {\"topic\": \"N\\u00f3 01 S6\", \"payload\": 674.0, \"ts\": 1785886302285}, {\"topic\": \"N\\u00f3 01 S6\", \"payload\": 747.0, \"ts\": 1785886362541}, {\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1018.0, \"ts\": 1785886482261}, {\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1004.0, \"ts\": 1785886542333}, {\"topic\": \"N\\u00f3 01 S3\", \"payload\": 185.0, \"ts\": 1785886602461}, {\"topic\": \"N\\u00f3 01 S3\", \"payload\": 164.0, \"ts\": 1785886662499}, {\"topic\": \"N\\u00f3 01 S3\", \"payload\": 182.0, \"ts\": 1785886722541}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 947.0, \"ts\": 1785886782590}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 409.0, \"ts\": 1785886842663}, {\"topic\": \"N\\u00f3 01 S6\", \"payload\": 725.0, \"ts\": 1785886902946}, {\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1013.0, \"ts\": 1785887022762}, {\"topic\": \"N\\u00f3 01 S3\", \"payload\": 166.0, \"ts\": 1785887082937}, {\"topic\": \"N\\u00f3 01 S3\", \"payload\": 144.0, \"ts\": 1785887143217}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 949.0, \"ts\": 1785887203129}, {\"topic\": \"N\\u00f3 01 S6\", \"payload\": 698.0, \"ts\": 1785887263142}, {\"topic\": \"N\\u00f3 01 S6\", \"payload\": 691.0, \"ts\": 1785887323239}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 937.0, \"ts\": 1785887443404}, {\"topic\": \"N\\u00f3 01 S3\", \"payload\": 158.0, \"ts\": 1785887503359}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 420.0, \"ts\": 1785887563487}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 415.0, \"ts\": 1785887623532}, {\"topic\": \"N\\u00f3 01 S6\", \"payload\": 688.0, \"ts\": 1785887683589}, {\"topic\": \"N\\u00f3 01 S6\", \"payload\": 692.0, \"ts\": 1785887743650}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 943.0, \"ts\": 1785887863652}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 941.0, \"ts\": 1785887923702}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 949.0, \"ts\": 1785887983833}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 409.0, \"ts\": 1785888043879}, {\"topic\": \"N\\u00f3 01 S6\", \"payload\": 701.0, \"ts\": 1785888103991}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 954.0, \"ts\": 1785888224110}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 944.0, \"ts\": 1785888284218}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 413.0, \"ts\": 1785888344284}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 415.0, \"ts\": 1785888404336}, {\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1011.0, \"ts\": 1785888524367}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 939.0, \"ts\": 1785888584436}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 957.0, \"ts\": 1785888644524}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 956.0, \"ts\": 1785888704569}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 950.0, \"ts\": 1785888764619}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 427.0, \"ts\": 1785888824683}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 417.0, \"ts\": 1785888884736}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 932.0, \"ts\": 1785889004829}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 942.0, \"ts\": 1785889064862}, {\"topic\": \"N\\u00f3 01 S3\", \"payload\": 171.0, \"ts\": 1785889124927}, {\"topic\": \"N\\u00f3 01 S3\", \"payload\": 186.0, \"ts\": 1785889184972}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 949.0, \"ts\": 1785889245041}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 424.0, \"ts\": 1785889305084}, {\"topic\": \"N\\u00f3 01 S6\", \"payload\": 697.0, \"ts\": 1785889365168}, {\"topic\": \"N\\u00f3 01 S6\", \"payload\": 731.0, \"ts\": 1785889425214}, {\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1012.0, \"ts\": 1785889545238}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 947.0, \"ts\": 1785889605324}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 974.0, \"ts\": 1785889665438}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 423.0, \"ts\": 1785889725515}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 438.0, \"ts\": 1785889785566}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 938.0, \"ts\": 1785889905571}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 943.0, \"ts\": 1785889965692}, {\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1015.0, \"ts\": 1785890085807}, {\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1012.0, \"ts\": 1785890145865}, {\"topic\": \"N\\u00f3 01 S1\", \"payload\": 1013.0, \"ts\": 1785890205908}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 946.0, \"ts\": 1785890265973}, {\"topic\": \"N\\u00f3 01 S2\", \"payload\": 939.0, \"ts\": 1785890326022}, {\"topic\": \"N\\u00f3 01 S3\", \"payload\": 164.0, \"ts\": 1785890386090}, {\"topic\": \"N\\u00f3 01 S3\", \"payload\": 187.0, \"ts\": 1785890446132}, {\"topic\": \"N\\u00f3 01 S4\", \"payload\": 943.0, \"ts\": 1785890506203}, {\"topic\": \"N\\u00f3 01 S5\", \"payload\": 412.0, \"ts\": 1785890566250}, {\"topic\": \"N\\u00f3 01 S3\", \"payload\": 186.0, \"ts\": 1785890686379}, {\"topic\": \"N\\u00f3 01 S6\", \"payload\": 695.0, \"ts\": 1785890746515}];\nvar seedSoloB = [{\"topic\": \"N\\u00f3 02 S5\", \"payload\": 1007.0, \"ts\": 1785882396948}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 1009.0, \"ts\": 1785882457038}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 1008.0, \"ts\": 1785882517118}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 103.0, \"ts\": 1785882636929}, {\"topic\": \"N\\u00f3 02 S6\", \"payload\": 880.0, \"ts\": 1785882637117}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 71.0, \"ts\": 1785882756938}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 91.0, \"ts\": 1785882816963}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 44.0, \"ts\": 1785882876990}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 997.0, \"ts\": 1785882937261}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1000.0, \"ts\": 1785882997164}, {\"topic\": \"N\\u00f3 02 S6\", \"payload\": 878.0, \"ts\": 1785883057258}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 36.0, \"ts\": 1785883177092}, {\"topic\": \"N\\u00f3 02 S3\", \"payload\": 1016.0, \"ts\": 1785883237232}, {\"topic\": \"N\\u00f3 02 S4\", \"payload\": 1023.0, \"ts\": 1785883297349}, {\"topic\": \"N\\u00f3 02 S3\", \"payload\": 1018.0, \"ts\": 1785883357344}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 983.0, \"ts\": 1785883417271}, {\"topic\": \"N\\u00f3 02 S6\", \"payload\": 891.0, \"ts\": 1785883477371}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 168.0, \"ts\": 1785883597257}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 66.0, \"ts\": 1785883657283}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 85.0, \"ts\": 1785883717308}, {\"topic\": \"N\\u00f3 02 S6\", \"payload\": 880.0, \"ts\": 1785883777476}, {\"topic\": \"N\\u00f3 02 S6\", \"payload\": 891.0, \"ts\": 1785883837678}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1002.0, \"ts\": 1785883957471}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1000.0, \"ts\": 1785884017530}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 1009.0, \"ts\": 1785884077564}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 1023.0, \"ts\": 1785884137561}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 1009.0, \"ts\": 1785884197569}, {\"topic\": \"N\\u00f3 02 S6\", \"payload\": 890.0, \"ts\": 1785884257617}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 123.0, \"ts\": 1785884377509}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1000.0, \"ts\": 1785884437794}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 980.0, \"ts\": 1785884497643}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1001.0, \"ts\": 1785884557745}, {\"topic\": \"N\\u00f3 02 S3\", \"payload\": 1017.0, \"ts\": 1785884617683}, {\"topic\": \"N\\u00f3 02 S3\", \"payload\": 1019.0, \"ts\": 1785884677816}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 1011.0, \"ts\": 1785884737823}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 26.0, \"ts\": 1785884857690}, {\"topic\": \"N\\u00f3 02 S3\", \"payload\": 1020.0, \"ts\": 1785884917841}, {\"topic\": \"N\\u00f3 02 S3\", \"payload\": 1017.0, \"ts\": 1785884977921}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1000.0, \"ts\": 1785885037894}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1001.0, \"ts\": 1785885097822}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1004.0, \"ts\": 1785885157881}, {\"topic\": \"N\\u00f3 02 S3\", \"payload\": 1018.0, \"ts\": 1785885217924}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 965.0, \"ts\": 1785885277843}, {\"topic\": \"N\\u00f3 02 S4\", \"payload\": 1021.0, \"ts\": 1785885337892}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 35.0, \"ts\": 1785885457760}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1001.0, \"ts\": 1785885517954}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1004.0, \"ts\": 1785885577945}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 84.0, \"ts\": 1785885637742}, {\"topic\": \"N\\u00f3 02 S3\", \"payload\": 1016.0, \"ts\": 1785885697847}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 1011.0, \"ts\": 1785885758177}, {\"topic\": \"N\\u00f3 02 S6\", \"payload\": 891.0, \"ts\": 1785885817938}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 995.0, \"ts\": 1785885937968}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 955.0, \"ts\": 1785885997974}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1005.0, \"ts\": 1785886118083}, {\"topic\": \"N\\u00f3 02 S3\", \"payload\": 1017.0, \"ts\": 1785886178082}, {\"topic\": \"N\\u00f3 02 S4\", \"payload\": 1023.0, \"ts\": 1785886238048}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 1010.0, \"ts\": 1785886298144}, {\"topic\": \"N\\u00f3 02 S4\", \"payload\": 1023.0, \"ts\": 1785886358053}, {\"topic\": \"N\\u00f3 02 S6\", \"payload\": 875.0, \"ts\": 1785886418017}, {\"topic\": \"N\\u00f3 02 S6\", \"payload\": 891.0, \"ts\": 1785886478266}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 85.0, \"ts\": 1785886597904}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 116.0, \"ts\": 1785886657884}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 93.0, \"ts\": 1785886717868}, {\"topic\": \"N\\u00f3 02 S6\", \"payload\": 893.0, \"ts\": 1785886777986}, {\"topic\": \"N\\u00f3 02 S6\", \"payload\": 890.0, \"ts\": 1785886838127}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 106.0, \"ts\": 1785886957863}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1023.0, \"ts\": 1785887018034}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 95.0, \"ts\": 1785887077866}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 1006.0, \"ts\": 1785887138068}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 1010.0, \"ts\": 1785887198045}, {\"topic\": \"N\\u00f3 02 S6\", \"payload\": 891.0, \"ts\": 1785887258091}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 62.0, \"ts\": 1785887377921}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 143.0, \"ts\": 1785887437906}, {\"topic\": \"N\\u00f3 02 S6\", \"payload\": 889.0, \"ts\": 1785887438071}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1004.0, \"ts\": 1785887557998}, {\"topic\": \"N\\u00f3 02 S3\", \"payload\": 1018.0, \"ts\": 1785887617959}, {\"topic\": \"N\\u00f3 02 S3\", \"payload\": 1021.0, \"ts\": 1785887677955}, {\"topic\": \"N\\u00f3 02 S6\", \"payload\": 889.0, \"ts\": 1785887737990}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 142.0, \"ts\": 1785887857943}, {\"topic\": \"N\\u00f3 02 S6\", \"payload\": 888.0, \"ts\": 1785887858056}, {\"topic\": \"N\\u00f3 02 S6\", \"payload\": 891.0, \"ts\": 1785887918042}, {\"topic\": \"N\\u00f3 02 S6\", \"payload\": 878.0, \"ts\": 1785887978007}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1002.0, \"ts\": 1785888097973}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 97.0, \"ts\": 1785888217930}, {\"topic\": \"N\\u00f3 02 S4\", \"payload\": 989.0, \"ts\": 1785888278018}, {\"topic\": \"N\\u00f3 02 S4\", \"payload\": 1023.0, \"ts\": 1785888337976}, {\"topic\": \"N\\u00f3 02 S6\", \"payload\": 889.0, \"ts\": 1785888398028}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 107.0, \"ts\": 1785888517935}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1001.0, \"ts\": 1785888578011}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 1010.0, \"ts\": 1785888638049}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 1011.0, \"ts\": 1785888698074}, {\"topic\": \"N\\u00f3 02 S6\", \"payload\": 904.0, \"ts\": 1785888758100}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 996.0, \"ts\": 1785888878116}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 984.0, \"ts\": 1785888938144}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 1010.0, \"ts\": 1785888998171}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 87.0, \"ts\": 1785889118131}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1002.0, \"ts\": 1785889178215}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1003.0, \"ts\": 1785889238243}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1002.0, \"ts\": 1785889298263}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 983.0, \"ts\": 1785889358304}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 1004.0, \"ts\": 1785889418331}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 1003.0, \"ts\": 1785889478368}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 1011.0, \"ts\": 1785889538339}, {\"topic\": \"N\\u00f3 02 S4\", \"payload\": 1023.0, \"ts\": 1785889598319}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1001.0, \"ts\": 1785889718305}, {\"topic\": \"N\\u00f3 02 S3\", \"payload\": 1018.0, \"ts\": 1785889778318}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1003.0, \"ts\": 1785889898353}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 997.0, \"ts\": 1785889958381}, {\"topic\": \"N\\u00f3 02 S2\", \"payload\": 1003.0, \"ts\": 1785890018359}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 95.0, \"ts\": 1785890078288}, {\"topic\": \"N\\u00f3 02 S3\", \"payload\": 1018.0, \"ts\": 1785890138332}, {\"topic\": \"N\\u00f3 02 S4\", \"payload\": 1022.0, \"ts\": 1785890198377}, {\"topic\": \"N\\u00f3 02 S3\", \"payload\": 1020.0, \"ts\": 1785890258344}, {\"topic\": \"N\\u00f3 02 S3\", \"payload\": 1018.0, \"ts\": 1785890318322}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 1015.0, \"ts\": 1785890378302}, {\"topic\": \"N\\u00f3 02 S5\", \"payload\": 1013.0, \"ts\": 1785890438335}, {\"topic\": \"N\\u00f3 02 S6\", \"payload\": 887.0, \"ts\": 1785890498333}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 89.0, \"ts\": 1785890618288}, {\"topic\": \"N\\u00f3 02 S1\", \"payload\": 69.0, \"ts\": 1785890678279}, {\"topic\": \"N\\u00f3 02 S3\", \"payload\": 1018.0, \"ts\": 1785890738354}];\nvar seedClima = [{\"topic\": \"Temperatura - N\\u00f3 99\", \"payload\": 18.0, \"ts\": 1785883119633}, {\"topic\": \"Temperatura - N\\u00f3 99\", \"payload\": 17.0, \"ts\": 1785884857620}, {\"topic\": \"Umidade Ar - N\\u00f3 99\", \"payload\": 19.0, \"ts\": 1785885097355}];\nvar seedBat   = [{\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785882435532}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785882643965}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785882852385}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785883060795}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785883269203}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785883477843}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785883685974}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785883894348}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785884102716}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785884311064}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785884524678}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785884733019}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785884941350}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785885149655}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785885357965}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785885566288}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785885774573}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785885982853}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785886191132}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785886399403}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785886671824}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785886880104}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785887088339}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785887296584}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785887504828}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785887713061}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785887921288}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785888129512}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785888337724}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785888545928}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785888759390}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785888967579}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785889175760}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785889383937}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785889592107}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785889800273}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785890008437}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785890216584}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785890424722}, {\"topic\": \"Bateria - SolarMini (N\\u00f3 04)\", \"payload\": 100.0, \"ts\": 1785890632856}];\n\nvar histSoloA = flow.get('hist_solo_A');\nif (!histSoloA || histSoloA.length === 0) { histSoloA = seedSoloA; flow.set('hist_solo_A', histSoloA); }\n\nvar histSoloB = flow.get('hist_solo_B');\nif (!histSoloB || histSoloB.length === 0) { histSoloB = seedSoloB; flow.set('hist_solo_B', histSoloB); }\n\nvar histClima = flow.get('hist_clima');\nif (!histClima || histClima.length === 0) { histClima = seedClima; flow.set('hist_clima', histClima); }\n\nvar histSolar = flow.get('hist_solar') || [];\n\nvar histBat = flow.get('hist_bateria');\nif (!histBat || histBat.length === 0) { histBat = seedBat; flow.set('hist_bateria', histBat); }\n\nvar histVazao = flow.get('hist_vazao') || [];\nvar histVol   = flow.get('hist_volume') || [];\n\nvar msgsSoloA = histSoloA.map(function(p) { return { topic: p.topic, payload: p.payload, ts: p.ts }; });\nvar msgsSoloB = histSoloB.map(function(p) { return { topic: p.topic, payload: p.payload, ts: p.ts }; });\nvar msgsClima = histClima.map(function(p) { return { topic: p.topic, payload: p.payload, ts: p.ts }; });\nvar msgsSolar = histSolar.map(function(p) { return { topic: p.topic, payload: p.payload, ts: p.ts }; });\nvar msgsBat   = histBat.map(function(p) { return { topic: p.topic, payload: p.payload, ts: p.ts }; });\nvar msgsVazao = histVazao.map(function(p) { return { topic: p.topic, payload: p.payload, ts: p.ts }; });\nvar msgsVol   = histVol.map(function(p) { return { topic: p.topic, payload: p.payload, ts: p.ts }; });\n\nnode.status({ fill: 'blue', shape: 'dot', text: 'replay: ' + msgsSoloA.length + ' soloA / ' + msgsSoloB.length + ' soloB / ' + msgsClima.length + ' clima / ' + msgsBat.length + ' bat' });\n\nreturn [ msgsSoloA.length ? msgsSoloA : null,\n         msgsClima.length ? msgsClima : null,\n         msgsSolar.length ? msgsSolar : null,\n         msgsBat.length ? msgsBat : null,\n         msgsVazao.length ? msgsVazao : null,\n         msgsVol.length ? msgsVol : null,\n         msgsSoloB.length ? msgsSoloB : null ];",
+        "outputs": 7,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 990,
+        "y": 1100,
+        "wires": [
+            [
+                "f09aef9e1352049f"
+            ],
+            [
+                "101e32b4492e0f5f"
+            ],
+            [
+                "eae3ab9694182a65"
+            ],
+            [
+                "3d814f95596b3c0d"
+            ],
+            [
+                "88998a0951cf5b53"
+            ],
+            [
+                "21fa0003e634bd24"
+            ],
+            [
+                "744913072e936a35"
+            ]
+        ]
+    },
+    {
+        "id": "a21fa4cd9ae34356",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Filtro Clima SolarMini",
+        "func": "// Rotear telemetria de clima e solo do Nó 04 (SolarMini) para gráficos\nvar m = msg.payload;\nif (!m || m.nodeId === undefined || Number(m.nodeId) !== 4) return null;\n\nvar sensorId = Number(m.sensorId);\nvar val = parseFloat(m.payload);\nif (isNaN(val)) return null;\n\nvar type = Number(m.type);\nvar nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\nvar n = nodes[m.nodeId];\nvar child = n && n.childs && n.childs[sensorId];\n\nvar isTempAr = (sensorId === 11);\nvar isHumAr = (sensorId === 12);\nvar isTempSolo = (sensorId === 1);\n\nif (isTempAr) {\n    msg.topic = 'Temperatura Ar';\n    msg.payload = val;\n    msg.ts = Date.now();\n    return msg;\n} else if (isHumAr) {\n    msg.topic = 'Umidade do Ar';\n    msg.payload = val;\n    msg.ts = Date.now();\n    return msg;\n} else if (isTempSolo) {\n    msg.topic = 'Temperatura Solo';\n    msg.payload = val;\n    msg.ts = Date.now();\n    return msg;\n}\n\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 980,
+        "y": 1200,
+        "wires": [
+            [
+                "3c12b46a505c24be"
+            ]
+        ]
+    },
+    {
+        "id": "3c12b46a505c24be",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Salvar Histórico Clima SolarMini",
+        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_solar') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nif (hist.length > 500) { hist = hist.slice(-500); }\nflow.set('hist_solar', hist);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1270,
+        "y": 1200,
+        "wires": [
+            [
+                "eae3ab9694182a65"
+            ]
+        ]
+    },
+    {
+        "id": "eae3ab9694182a65",
+        "type": "ui-chart",
+        "z": "50fbcdf0053fa19f",
+        "group": "a07f08860aaed900",
+        "name": "Clima SolarMini",
+        "label": "Clima - Temperatura e Umidade (Nó 04 SolarMini)",
+        "order": 6,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisProperty": "ts",
+        "xAxisPropertyType": "msg",
+        "xAxisType": "time",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderUnit": "86400",
+        "width": "6",
+        "height": "5",
+        "x": 1640,
+        "y": 1140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "77839fb0db9945a4",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Filtro Bateria SolarMini",
+        "func": "// Rotear nivel de bateria (I_BATTERY_LEVEL / V_VOLTAGE) de QUALQUER no que se apresentar\nvar m = msg.payload;\nif (!m || m.nodeId === undefined) return null;\n\nvar isNativeBattery = (Number(m.command) === 3 && Number(m.type) === 0); // I_BATTERY_LEVEL\nvar isVoltageChild = (Number(m.command) === 1 && (Number(m.sensorId) === 255 || Number(m.type) === 38)); // V_VOLTAGE\n\nif (isNativeBattery || isVoltageChild) {\n    var nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\n    var n = nodes[m.nodeId];\n    var nodeLabel = n ? (n.sketchName || n.presentName || ('No ' + m.nodeId)) : ('No ' + m.nodeId);\n    \n    msg.topic = 'Bateria - ' + nodeLabel;\n    msg.payload = parseFloat(m.payload);\n    msg.ts = Date.now();\n    return msg;\n}\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1000,
+        "y": 620,
+        "wires": [
+            [
+                "f49270df3a18c750"
+            ]
+        ]
+    },
+    {
+        "id": "f49270df3a18c750",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Salvar Histórico Bateria",
+        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_bateria') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nif (hist.length > 500) { hist = hist.slice(-500); }\nflow.set('hist_bateria', hist);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1350,
+        "y": 620,
+        "wires": [
+            [
+                "3d814f95596b3c0d"
+            ]
+        ]
+    },
+    {
+        "id": "3d814f95596b3c0d",
+        "type": "ui-chart",
+        "z": "50fbcdf0053fa19f",
+        "group": "a07f08860aaed900",
+        "name": "Bateria SolarMini",
+        "label": "Nível de Bateria - Nó 04 SolarMini",
+        "order": 7,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisProperty": "ts",
+        "xAxisPropertyType": "msg",
+        "xAxisType": "time",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderUnit": "86400",
+        "width": "6",
+        "height": "5",
+        "x": 1650,
+        "y": 1180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "78dc1903f4fa5b12",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Filtro Vazão e Volume",
+        "func": "// Rotear vazao (S_WATER / V_FLOW) e acumular volume de QUALQUER no com hidrometro/sensor de vazao\nvar m = msg.payload;\nif (!m || m.nodeId === undefined) return null;\n\nvar nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\nvar n = nodes[m.nodeId];\nvar child = n && n.childs && n.childs[m.sensorId];\n\nvar isFlowSensor = (m.type === 34 || (child && (child.tipo === 'S_WATER' || child.tipo === 'S_WATER_LEAK')));\n\nif (isFlowSensor) {\n    var flowRate = parseFloat(m.payload) || 0.0;\n    var now = Date.now();\n    var nodeKey = 'flow_vol_node_' + m.nodeId + '_' + m.sensorId;\n    var lastTsKey = 'flow_ts_node_' + m.nodeId + '_' + m.sensorId;\n    \n    var lastTs = flow.get(lastTsKey);\n    var volume = flow.get(nodeKey) || 0.0;\n    \n    if (flowRate > 0 && lastTs && (now - lastTs) < 30000) {\n        var dt = (now - lastTs) / 1000;\n        var dV = (flowRate / 60.0) * dt; // L/min -> Litros\n        volume += dV;\n        flow.set(nodeKey, volume);\n    }\n    flow.set(lastTsKey, flowRate > 0 ? now : null);\n    \n    var label = (child && child.de) ? child.de : (n ? (n.sketchName || ('No ' + m.nodeId)) : ('No ' + m.nodeId));\n    \n    var msgVazao = {\n        topic: 'Vazao - ' + label,\n        payload: flowRate,\n        ts: now\n    };\n    var msgVolume = {\n        topic: 'Volume - ' + label,\n        payload: parseFloat(volume.toFixed(2)),\n        ts: now\n    };\n    return [msgVazao, msgVolume];\n}\nreturn null;",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1000,
+        "y": 700,
+        "wires": [
+            [
+                "8f755cd1f6315ec4"
+            ],
+            [
+                "3013446d22f8efe8"
+            ]
+        ]
+    },
+    {
+        "id": "8f755cd1f6315ec4",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Salvar Histórico Vazão",
+        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_vazao') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nif (hist.length > 500) { hist = hist.slice(-500); }\nflow.set('hist_vazao', hist);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1340,
+        "y": 660,
+        "wires": [
+            [
+                "88998a0951cf5b53"
+            ]
+        ]
+    },
+    {
+        "id": "3013446d22f8efe8",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Salvar Histórico Volume",
+        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_volume') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nif (hist.length > 500) { hist = hist.slice(-500); }\nflow.set('hist_volume', hist);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1350,
+        "y": 700,
+        "wires": [
+            [
+                "21fa0003e634bd24"
+            ]
+        ]
+    },
+    {
+        "id": "88998a0951cf5b53",
+        "type": "ui-chart",
+        "z": "50fbcdf0053fa19f",
+        "group": "a07f08860aaed900",
+        "name": "Vazão dos Canteiros",
+        "label": "Vazão Instantânea dos Canteiros",
+        "order": 3,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisProperty": "ts",
+        "xAxisPropertyType": "msg",
+        "xAxisType": "time",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderUnit": "86400",
+        "width": "6",
+        "height": "5",
+        "x": 1660,
+        "y": 1220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "21fa0003e634bd24",
+        "type": "ui-chart",
+        "z": "50fbcdf0053fa19f",
+        "group": "a07f08860aaed900",
+        "name": "Consumo de Água (Litros)",
+        "label": "Volume de Irrigação Acumulado (Litros)",
+        "order": 4,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisProperty": "ts",
+        "xAxisPropertyType": "msg",
+        "xAxisType": "time",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderUnit": "86400",
+        "width": "6",
+        "height": "5",
+        "x": 1670,
+        "y": 1260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8b150e9bc69a0dd8",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Filtro Umidade Solo Canteiro B",
+        "func": "// Rotear umidade do solo Canteiro B (Nó 02) dinamicamente para gráficos\nvar m = msg.payload;\nif (!m || m.nodeId === undefined) return null;\n\nvar nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\nvar n = nodes[m.nodeId];\nvar child = n && n.childs && n.childs[m.sensorId];\n\nvar isNode02 = (Number(m.nodeId) === 2) || \n               (child && child.de && child.de.startsWith('B_')) || \n               (n && (n.sketchName === '02nodeSolo3dNano' || n.presentName === '02nodeSolo3dNano'));\n\nvar isSoilMoisture = (m.type === 3 || m.type === 35 || m.type === 37 || (child && (child.tipo === 'S_MOISTURE' || child.tipo === 'V_LEVEL')));\n\nif (isNode02 && isSoilMoisture) {\n    var label = (child && child.de) ? child.de : (n ? (n.sketchName + ' S' + m.sensorId) : ('Nó 02 S' + m.sensorId));\n    msg.topic = label;\n    msg.payload = parseFloat(m.payload);\n    msg.ts = Date.now();\n    return msg;\n}\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1030,
+        "y": 780,
+        "wires": [
+            [
+                "9ccb6a0740665eef"
+            ]
+        ]
+    },
+    {
+        "id": "9ccb6a0740665eef",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Salvar Histórico Solo B",
+        "func": "var CUTOFF = 86400000;\nvar hist = flow.get('hist_solo_B') || [];\nhist.push({ topic: msg.topic, payload: msg.payload, ts: msg.ts });\nvar now = Date.now();\nhist = hist.filter(function(p) { return (now - p.ts) < CUTOFF; });\nif (hist.length > 500) { hist = hist.slice(-500); }\nflow.set('hist_solo_B', hist);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1340,
+        "y": 780,
+        "wires": [
+            [
+                "744913072e936a35"
+            ]
+        ]
+    },
+    {
+        "id": "744913072e936a35",
+        "type": "ui-chart",
+        "z": "50fbcdf0053fa19f",
+        "group": "a07f08860aaed900",
+        "name": "Umidade do Solo Canteiro B",
+        "label": "Umidade do Solo - Canteiro B (Nó 02)",
+        "order": 2,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisProperty": "ts",
+        "xAxisPropertyType": "msg",
+        "xAxisType": "time",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderUnit": "86400",
+        "width": "6",
+        "height": "5",
+        "x": 1680,
+        "y": 1300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "71dc165970371142",
+        "type": "inject",
+        "z": "50fbcdf0053fa19f",
+        "name": "Replay Solo B no Deploy",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 2.5,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 1070,
+        "y": 1300,
+        "wires": [
+            [
+                "ed1d8ca4298ab93c"
+            ]
+        ]
+    },
+    {
+        "id": "ed1d8ca4298ab93c",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Replay Histórico Solo B",
+        "func": "var hist = flow.get('hist_solo_B') || [];\nvar msgs = hist.map(function(p) { return { topic: p.topic, payload: p.payload, ts: p.ts }; });\nnode.status({ fill: 'blue', shape: 'dot', text: 'replay B: ' + msgs.length + ' pontos' });\nreturn [ msgs.length ? msgs : null ];",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1330,
+        "y": 1300,
+        "wires": [
+            [
+                "744913072e936a35"
+            ]
+        ]
+    },
+    {
+        "id": "93f941ae256d2364",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Tag MQTT IN",
+        "func": "msg.mqtt_dir = 'IN';\nreturn msg;",
+        "outputs": 1,
+        "x": 1360,
+        "y": 420,
+        "wires": [
+            [
+                "bfefeccb117e5e57"
+            ]
+        ]
+    },
+    {
+        "id": "fd216e1614ec7f57",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Tag MQTT OUT",
+        "func": "msg.mqtt_dir = 'OUT';\nreturn msg;",
+        "outputs": 1,
+        "x": 1360,
+        "y": 360,
+        "wires": [
+            [
+                "bfefeccb117e5e57"
+            ]
+        ]
+    },
+    {
+        "id": "bfefeccb117e5e57",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Central Logger MQTT",
+        "func": "// Logger centralizado com amostragem/debounce de atualizacao para proteger o Dashboard\nvar logs = global.get('mqtt_logs') || [];\nvar dir = msg.mqtt_dir || 'IN';\nvar topic = msg.topic || 'N/A';\nvar payload = msg.payload;\n\nvar payloadStr = '';\nif (typeof payload === 'object') {\n    try { payloadStr = JSON.stringify(payload); } catch(e) { payloadStr = String(payload); }\n} else {\n    payloadStr = String(payload);\n}\n\nvar entry = {\n    timestamp: new Date().toISOString(),\n    dir: dir,\n    topic: topic,\n    payload: payloadStr\n};\n\nlogs.push(entry);\nif (logs.length > 2000) {\n    logs.shift();\n}\nglobal.set('mqtt_logs', logs);\n\n// Throttle UI table updates (maximo 1 atualizacao a cada 800ms para evitar travamentos)\nvar lastUiUpdate = flow.get('mqtt_log_last_ui') || 0;\nvar now = Date.now();\nif (now - lastUiUpdate < 800) {\n    return null; // Acumula no log sem re-renderizar a tabela na UI\n}\nflow.set('mqtt_log_last_ui', now);\n\nvar recent = logs.slice(-100).reverse();\nmsg.payload = recent.map(function(item) {\n    var d = new Date(item.timestamp);\n    var pad = function(n) { return n < 10 ? '0' + n : n; };\n    var timeStr = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());\n    var dateStr = pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + timeStr;\n    return {\n        DataHora: dateStr,\n        Direcao: item.dir,\n        Topico: item.topic,\n        Payload: item.payload\n    };\n});\nreturn msg;",
+        "outputs": 1,
+        "x": 1620,
+        "y": 400,
+        "wires": [
+            [
+                "e8372b2c7b35e787"
+            ]
+        ]
+    },
+    {
+        "id": "e8372b2c7b35e787",
+        "type": "ui-table",
+        "z": "50fbcdf0053fa19f",
+        "group": "group_mqtt_log",
+        "name": "Tabela de Log MQTT",
+        "label": "Histórico Recente de Mensagens MQTT (Entradas e Saídas)",
+        "order": 1,
+        "width": "12",
+        "height": "16",
+        "maxrows": 0,
+        "passthru": false,
+        "autocols": false,
+        "showSearch": true,
+        "deselect": true,
+        "selectionType": "none",
+        "columns": [
+            {
+                "key": "DataHora",
+                "label": "Data / Hora",
+                "width": "165px",
+                "align": "left"
+            },
+            {
+                "key": "Direcao",
+                "label": "Direção",
+                "width": "85px",
+                "align": "center"
+            },
+            {
+                "key": "Topico",
+                "label": "Tópico MQTT",
+                "width": "280px",
+                "align": "left"
+            },
+            {
+                "key": "Payload",
+                "label": "Payload",
+                "width": "auto",
+                "align": "left"
+            }
+        ],
+        "mobileBreakpoint": "sm",
+        "mobileBreakpointType": "defaults",
+        "action": "replace",
+        "className": "tabela-mqtt-log",
+        "x": 2120,
+        "y": 560,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f0cc365825a4a42c",
+        "type": "ui-button",
+        "z": "50fbcdf0053fa19f",
+        "group": "group_mqtt_log",
+        "name": "Exportar Log (CSV)",
+        "label": "Exportar Log (CSV)",
+        "order": 2,
+        "width": "3",
+        "height": "1",
+        "tooltip": "Baixar arquivo de log MQTT em formato CSV",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "download",
+        "payload": "export",
+        "payloadType": "str",
+        "topic": "export",
+        "x": 240,
+        "y": 1460,
+        "wires": [
+            [
+                "9226204feb0ad2be"
+            ]
+        ]
+    },
+    {
+        "id": "9226204feb0ad2be",
+        "type": "ui-template",
+        "z": "50fbcdf0053fa19f",
+        "group": "group_mqtt_log",
+        "name": "Download CSV Handler",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "format": "<script>\n(function(scope) {\n    scope.$watch('msg', function(msg) {\n        if (msg && msg.payload === 'export') {\n            window.open('/api/mqtt-log/export', '_blank');\n        }\n    });\n})(this);\n</script>",
+        "storeOutMessages": false,
+        "passthru": false,
+        "templateScope": "local",
+        "className": "",
+        "x": 510,
+        "y": 1460,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "bf51aef6e9ef0dc5",
+        "type": "ui-button",
+        "z": "50fbcdf0053fa19f",
+        "group": "group_mqtt_log",
+        "name": "Esvaziar Log",
+        "label": "Esvaziar Log",
+        "order": 4,
+        "width": "3",
+        "height": "1",
+        "tooltip": "Limpar todo o histórico de logs MQTT",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "trash",
+        "payload": "clear",
+        "payloadType": "str",
+        "topic": "clear",
+        "x": 1610,
+        "y": 560,
+        "wires": [
+            [
+                "90a5f48894e6c7b7"
+            ]
+        ]
+    },
+    {
+        "id": "90a5f48894e6c7b7",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Esvaziar Log MQTT",
+        "func": "global.set('mqtt_logs', []);\nmsg.payload = [];\nreturn msg;",
+        "outputs": 1,
+        "x": 1840,
+        "y": 560,
+        "wires": [
+            [
+                "e8372b2c7b35e787"
+            ]
+        ]
+    },
+    {
+        "id": "dd13b78e29678fcf",
+        "type": "http in",
+        "z": "50fbcdf0053fa19f",
+        "name": "GET /api/mqtt-log/export",
+        "url": "/api/mqtt-log/export",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 190,
+        "y": 1540,
+        "wires": [
+            [
+                "e129c49e84d1bb43"
+            ]
+        ]
+    },
+    {
+        "id": "e129c49e84d1bb43",
+        "type": "function",
+        "z": "50fbcdf0053fa19f",
+        "name": "Formata CSV de Log",
+        "func": "var logs = global.get('mqtt_logs') || [];\nvar lines = [];\nlines.push('\"Timestamp\",\"Direction\",\"Topic\",\"Payload\"');\n\nfor (var i = 0; i < logs.length; i++) {\n    var item = logs[i];\n    var ts = item.timestamp || '';\n    var dir = item.dir || '';\n    var topic = (item.topic || '').replace(/\"/g, '\"\"');\n    var payload = (item.payload || '').replace(/\"/g, '\"\"');\n    lines.push('\"' + ts + '\",\"' + dir + '\",\"' + topic + '\",\"' + payload + '\"');\n}\n\nvar csvStr = lines.join('\\n');\nmsg.headers = {\n    'Content-Type': 'text/csv; charset=utf-8',\n    'Content-Disposition': 'attachment; filename=\"mqtt_log_m360_' + Date.now() + '.csv\"'\n};\nmsg.payload = csvStr;\nreturn msg;",
+        "outputs": 1,
+        "x": 480,
+        "y": 1540,
+        "wires": [
+            [
+                "a8db6ece9525c5eb"
+            ]
+        ]
+    },
+    {
+        "id": "a8db6ece9525c5eb",
+        "type": "http response",
+        "z": "50fbcdf0053fa19f",
+        "name": "Resposta HTTP CSV",
+        "statusCode": "",
+        "headers": {},
+        "x": 720,
+        "y": 1540,
+        "wires": []
+    },
+    {
+        "id": "css_tabela_mqtt_log",
+        "type": "ui-template",
+        "z": "50fbcdf0053fa19f",
+        "group": "group_mqtt_log",
+        "name": "CSS Tabela Log MQTT",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "format": "<style>\n.tabela-mqtt-log {\n  height: 520px !important;\n  min-height: 450px !important;\n  display: flex !important;\n  flex-direction: column !important;\n}\n.tabela-mqtt-log .v-table__wrapper {\n  max-height: 440px !important;\n  overflow-y: auto !important;\n  overflow-x: auto !important;\n}\n.tabela-mqtt-log table {\n  width: 100% !important;\n  table-layout: fixed !important;\n}\n.tabela-mqtt-log th, \n.tabela-mqtt-log td {\n  padding: 10px 12px !important;\n  font-size: 13px !important;\n  line-height: 1.5 !important;\n  height: auto !important;\n  white-space: normal !important;\n  word-break: break-word !important;\n  vertical-align: middle !important;\n}\n.tabela-mqtt-log .v-data-table-header th {\n  font-weight: 700 !important;\n  background-color: rgba(255, 255, 255, 0.05) !important;\n}\n</style>",
+        "storeOutMessages": false,
+        "passthru": false,
+        "templateScope": "local",
+        "className": "",
+        "x": 1840,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "m360_global_catch",
+        "type": "catch",
+        "z": "6e38860673f8fc3a",
+        "name": "Global Error Catch",
+        "scope": null,
+        "uncaught": false,
+        "x": 200,
+        "y": 1000,
+        "wires": [
+            [
+                "m360_global_error_log"
+            ]
+        ]
+    },
+    {
+        "id": "m360_global_error_log",
+        "type": "debug",
+        "z": "6e38860673f8fc3a",
+        "name": "Log Erros Críticos",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 450,
+        "y": 1000,
+        "wires": []
+    }
+]
