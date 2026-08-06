@@ -2342,7 +2342,8 @@
         "y": 420,
         "wires": [
             [
-                "bfefeccb117e5e57"
+                "bfefeccb117e5e57",
+                "format_log_csv"
             ]
         ]
     },
@@ -2357,7 +2358,8 @@
         "y": 360,
         "wires": [
             [
-                "bfefeccb117e5e57"
+                "bfefeccb117e5e57",
+                "format_log_csv"
             ]
         ]
     },
@@ -2608,6 +2610,199 @@
         "statusType": "auto",
         "x": 450,
         "y": 1000,
+        "wires": []
+    },
+    {
+        "id": "ai_reporter_tab",
+        "type": "tab",
+        "label": "IA Repórter (Diário)",
+        "disabled": false,
+        "info": "Gera o diário diário da horta com base nos logs."
+    },
+    {
+        "id": "format_log_csv",
+        "type": "function",
+        "z": "6e38860673f8fc3a",
+        "name": "Formatar Linha Log",
+        "func": "var dir = msg.mqtt_dir || 'IN';\nvar t = msg.topic || '';\nvar p = msg.payload;\nif(typeof p === 'object') { try { p = JSON.stringify(p); }catch(e){} }\nmsg.payload = new Date().toISOString() + ' | ' + dir + ' | ' + t + ' | ' + p + '\\n';\nreturn msg;",
+        "outputs": 1,
+        "x": 800,
+        "y": 150,
+        "wires": [
+            [
+                "write_log_csv"
+            ]
+        ]
+    },
+    {
+        "id": "write_log_csv",
+        "type": "file",
+        "z": "6e38860673f8fc3a",
+        "name": "Gravar /data/mqtt_logs_24h.txt",
+        "filename": "/data/mqtt_logs_24h.txt",
+        "appendNewline": false,
+        "createDir": true,
+        "overwriteFile": "false",
+        "encoding": "setbyuser",
+        "x": 1050,
+        "y": 150,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "agent_trigger",
+        "type": "inject",
+        "z": "ai_reporter_tab",
+        "name": "Diário 08:00 AM",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "00 08 * * *",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "start",
+        "payloadType": "str",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "read_log_csv"
+            ]
+        ]
+    },
+    {
+        "id": "read_log_csv",
+        "type": "file in",
+        "z": "ai_reporter_tab",
+        "name": "Ler Logs 24h",
+        "filename": "/data/mqtt_logs_24h.txt",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "x": 350,
+        "y": 100,
+        "wires": [
+            [
+                "build_prompt",
+                "wipe_log_csv"
+            ]
+        ]
+    },
+    {
+        "id": "wipe_log_csv",
+        "type": "file",
+        "z": "ai_reporter_tab",
+        "name": "Limpar Arquivo",
+        "filename": "/data/mqtt_logs_24h.txt",
+        "appendNewline": false,
+        "createDir": false,
+        "overwriteFile": "true",
+        "encoding": "setbyuser",
+        "x": 350,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "build_prompt",
+        "type": "function",
+        "z": "ai_reporter_tab",
+        "name": "Montar Contexto e Prompt Gemini",
+        "func": "// Chaves de Configuração (Preencher pelo usuário no dashboard / vars)\nvar GEMINI_API_KEY = global.get('GEMINI_API_KEY') || 'COLE_AQUI';\nvar TELEGRAM_BOT_TOKEN = global.get('TELEGRAM_BOT_TOKEN') || 'COLE_AQUI';\nvar TELEGRAM_CHAT_ID = global.get('TELEGRAM_CHAT_ID') || 'COLE_AQUI';\n\nvar logs = msg.payload;\n\nvar system_prompt = \"Você é um agente autônomo analista de dados de uma Horta Inteligente (Projeto M360 Horta).\\n\\n\" +\n\"O usuário solicitou um DIÁRIO COMPLETO das últimas 24 horas. Seu foco:\\n\" +\n\"1. RESUMO OPERACIONAL: Resuma quantos comandos e ativações automáticas de atuadores (Bombas, Solenóides) ocorreram.\\n\" +\n\"2. SAÚDE DA HORTA: Analise criticamente os sensores (Umidade, vazão). Houve falta de água? Algum nó ficou muito tempo sem enviar leitura?\\n\" +\n\"3. CONCLUSÃO: Dê uma nota de saúde (Ex: 9/10) e diga se alguma ação manual é recomendada hoje.\\n\\n\" +\n\"Retorne EXCLUSIVAMENTE o texto formatado em MARKDOWN, curto, direto e objetivo para ser lido no Telegram.\\n\\n\" +\n\"Abaixo estão os logs crus em CSV (Data | Dir | Tópico | Payload):\\n\\n\";\n\n// Se o log for absurdamente grande, limita os caracteres (ex: 80.000 chars ~ 20.000 tokens)\nif (logs.length > 80000) {\n    logs = logs.substring(logs.length - 80000);\n}\n\nmsg.gemini_key = GEMINI_API_KEY;\nmsg.telegram_token = TELEGRAM_BOT_TOKEN;\nmsg.telegram_chat_id = TELEGRAM_CHAT_ID;\n\nmsg.payload = {\n    \"contents\": [{\n        \"parts\": [{\"text\": system_prompt + logs}]\n    }],\n    \"systemInstruction\": {\n        \"parts\": [{\"text\": \"Escreva sempre em PT-BR. Use emojis adequados.\"}]\n    }\n};\n\nmsg.headers = { \"Content-Type\": \"application/json\" };\nreturn msg;",
+        "outputs": 1,
+        "x": 600,
+        "y": 100,
+        "wires": [
+            [
+                "call_gemini"
+            ]
+        ]
+    },
+    {
+        "id": "call_gemini",
+        "type": "http request",
+        "z": "ai_reporter_tab",
+        "name": "Gemini API",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={{{gemini_key}}}",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 830,
+        "y": 100,
+        "wires": [
+            [
+                "parse_gemini"
+            ]
+        ]
+    },
+    {
+        "id": "parse_gemini",
+        "type": "function",
+        "z": "ai_reporter_tab",
+        "name": "Extrair Markdown & Enviar Telegram",
+        "func": "if (!msg.payload || !msg.payload.candidates || msg.payload.candidates.length === 0) {\n    node.error(\"Erro na API do Gemini\", msg);\n    return null;\n}\n\nvar text = msg.payload.candidates[0].content.parts[0].text;\n\nmsg.payload = {\n    \"chat_id\": msg.telegram_chat_id,\n    \"text\": text,\n    \"parse_mode\": \"Markdown\"\n};\n\nmsg.url = \"https://api.telegram.org/bot\" + msg.telegram_token + \"/sendMessage\";\nreturn msg;",
+        "outputs": 1,
+        "x": 1050,
+        "y": 100,
+        "wires": [
+            [
+                "call_telegram"
+            ]
+        ]
+    },
+    {
+        "id": "call_telegram",
+        "type": "http request",
+        "z": "ai_reporter_tab",
+        "name": "Telegram Bot API",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1310,
+        "y": 100,
+        "wires": [
+            [
+                "debug_agent_output"
+            ]
+        ]
+    },
+    {
+        "id": "debug_agent_output",
+        "type": "debug",
+        "z": "ai_reporter_tab",
+        "name": "Resultado Bot",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1510,
+        "y": 100,
         "wires": []
     }
 ]
