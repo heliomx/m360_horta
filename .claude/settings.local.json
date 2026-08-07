@@ -43,7 +43,16 @@
       "mcp__kicad__batch_list_symbol_pins",
       "mcp__kicad__search_footprints",
       "mcp__kicad__create_project",
-      "mcp__kicad__batch_add_components"
+      "mcp__kicad__batch_add_components",
+      "WebFetch(domain:github.com)",
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell(try { $r = Invoke-RestMethod \"https://api.github.com/repos/affaan-m/ECC\" -Headers @{ \"User-Agent\"=\"cc\" }; $r | Select-Object full_name,description,stargazers_count,forks_count,open_issues_count,size,language,license,created_at,pushed_at,archived | Format-List } catch { \"ERR: $\\($_.Exception.Message\\)\" })",
+      "PowerShell(Get-Content *)",
+      "PowerShell($h=@{ \"User-Agent\"=\"cc\" }; try { $t = Invoke-RestMethod \"https://api.github.com/repos/affaan-m/ECC/git/trees/main?recursive=0\" -Headers $h; $t.tree | Select-Object path,type | Format-Table -AutoSize } catch { \"ERR: $\\($_.Exception.Message\\)\" })",
+      "Bash(echo \"=== skills top-level names ===\")",
+      "Bash(grep -oE '^\\\\.agents/skills/[a-z0-9-]+ +tree' C:/Users/jmarc/.claude/projects/C--Users-jmarc-Documents-PlatformIO-Projects-m360-horta/11616f15-c0a1-4501-90bf-51a91587c35f/tool-results/bm4i6z4bi.txt)",
+      "Bash(awk '{print $1}')",
+      "PowerShell($dst=\"C:\\\\Users\\\\jmarc\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-jmarc-Documents-PlatformIO-Projects-m360-horta\\\\11616f15-c0a1-4501-90bf-51a91587c35f\\\\scratchpad\\\\verification-loop-SKILL.md\"; Invoke-WebRequest -Uri \"https://raw.githubusercontent.com/affaan-m/ECC/main/skills/verification-loop/SKILL.md\" -OutFile $dst -UseBasicParsing; \"bytes: \" + \\(Get-Item $dst\\).Length)"
     ]
   }
 }
