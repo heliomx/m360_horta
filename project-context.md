@@ -11,7 +11,7 @@ contratos de integração e armadilhas já encontradas — para não rederivá-l
 Nós físicos (AVR)          Gateway (ESP8266)          Nuvem / UI
 ──────────────────         ──────────────────         ───────────────
 M360Node + MySensors  ──►  M360Gateway + MQTT  ──►   Node-RED + Dashboard
-(lib/M360-DRY/)            (src/DRY/gateway/)         (src/nodered/)
+(lib/M360-DRY/)            (src/DRY/horta/gateway/)   (src/nodered/)
 ```
 
 Plataforma: PlatformIO · Arduino/AVR + ESP8266 · MySensors RF24 · MQTT · Node-RED

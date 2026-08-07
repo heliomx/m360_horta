@@ -3,13 +3,13 @@
 ## Projeto
 Sistema IoT de monitoramento agrícola M360 Horta.  
 **Plataforma:** PlatformIO · Arduino/AVR · MySensors RF24 · ESP8266  
-**Arquitetura:** Gateway MQTT (`src/DRY/gateway/`) + Nós sensores/atuadores (`src/DRY/nos/`)
+**Arquitetura:** Gateway MQTT (`src/DRY/horta/gateway/`) + Nós sensores/atuadores (`src/DRY/horta/nos/`)
 
 ---
 
 ## Skill Obrigatória — MySensors Node Coding & Gateway
 
-Ao trabalhar em qualquer arquivo dentro de `src/DRY/` (nós **ou** gateway), aplicar **obrigatoriamente** os padrões definidos em:
+Ao trabalhar em qualquer arquivo dentro de `src/DRY/horta/` (nós **ou** gateway), aplicar **obrigatoriamente** os padrões definidos em:
 
 - **Referência consolidada (SSoT):** `.agent/skills/bmad-mysensors-node-coding/SKILL.md`
 
@@ -34,7 +34,7 @@ Ao trabalhar em qualquer arquivo dentro de `src/DRY/` (nós **ou** gateway), apl
 
 **Antes de criar qualquer novo nó**, ler o template em `SKILLmySensors.md` seção 3.
 
-### Regras críticas do Gateway (`src/DRY/gateway/`)
+### Regras críticas do Gateway (`src/DRY/horta/gateway/`)
 
 | Padrão proibido | Regra |
 |---|---|
@@ -50,12 +50,14 @@ Ao trabalhar em qualquer arquivo dentro de `src/DRY/` (nós **ou** gateway), apl
 ## Estrutura Relevante
 
 ```
-src/DRY/
+src/DRY/horta/
+├── platformio.ini        Configuração PlatformIO (gateway + nós)
 ├── gateway/              ESP8266 + MQTT bridge
 │   ├── newGatewayMqtt.cpp
 │   └── ngm/              wifi_utils, mqtt_utils, webserver, leds, config_utils
 └── nos/
     ├── shared/           Motor DRY — node_engine, config, powerProfile
+    ├── 99nodeReles/      Nó de relés (99)
     ├── nodeDHT11/        Sensor temperatura/umidade (DHT11 mock)
     ├── nodePump/         Atuador bomba
     ├── nodeUmidadeTemperatura/  Multi-sensor (DHT11 + DS18B20 + solo)
@@ -73,5 +75,5 @@ src/DRY/
 - **EEPROM gateway:** região 0–511 = MySensors, região 512+ = `DeviceConfig` com CRC
 - **Perfil de energia:** definir `POWER_PROFILE_LOW_POWER` **ou** `POWER_PROFILE_ALWAYS_ON` — nunca os dois
 - **Precisão float:** 1 casa decimal (`set(val, 1)`)
-- **Solo:** escala 0 (seco) → 100 (água)
+- **Solo:** leitura bruta do ADC (0 a 1023)
 - **JSON gateway:** `DynamicJsonDocument(512)` para mensagens, `(384)` para heartbeat, `(256)` para eventos

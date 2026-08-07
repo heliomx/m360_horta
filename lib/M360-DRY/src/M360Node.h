@@ -96,7 +96,7 @@ namespace M360
 		// ----- Lifecycle (chamados pelos hooks MySensors) -----
 
 		// Chame dentro de presentation() — apresenta sensores e inicializa messages[]
-		void begin(const char* name, const char* version);
+		void begin(const char* name, const char* version, const char* srcFile = __FILE__);
 
 		// Chame dentro de loop() — lê sensores, envia dados, gerencia sleep
 		void process();

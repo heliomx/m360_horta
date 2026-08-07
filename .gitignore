@@ -18,3 +18,7 @@ Thumbs.db
 
 .bmad-loop/runs/
 .bmad-loop/cache/
+
+# Local History extension
+.history/
+

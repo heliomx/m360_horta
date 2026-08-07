@@ -55,4 +55,14 @@ namespace M360 {
 	static const char* const EVT_NODE_LOST	 = "node_lost";
 	static const char* const EVT_NODE_RECONN   = "node_reconnected";
 
+	// Impressão estática de informações do firmware (Arquivo Fonte, Data e Hora)
+	#define M360_PRINT_BUILD_INFO() do { \
+		Serial.print(F("Arquivo: ")); \
+		Serial.println(F(__FILE__)); \
+		Serial.print(F("Compilado em: ")); \
+		Serial.print(F(__DATE__)); \
+		Serial.print(F(" ")); \
+		Serial.println(F(__TIME__)); \
+	} while(0)
+
 } // namespace M360

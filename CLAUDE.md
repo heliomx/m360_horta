@@ -5,30 +5,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Projeto
 Sistema IoT de monitoramento agrícola M360 Horta.  
 **Plataforma:** PlatformIO · Arduino/AVR · MySensors RF24 · ESP8266  
-**Arquitetura:** Gateway MQTT (`src/DRY/gateway/`) + Nós sensores/atuadores (`src/DRY/nos/`)
+**Arquitetura:** Gateway MQTT (`src/DRY/horta/gateway/`) + Nós sensores/atuadores (`src/DRY/horta/nos/`)
 
 ---
 
 ## Comandos PlatformIO
 
+Como o `platformio.ini` está localizado em `src/DRY/horta/platformio.ini`:
+
 ```bash
 # Build de um ambiente específico
-pio run -e <env>
+pio run -d src/DRY/horta -e <env>
 
 # Flash (build + upload)
-pio run -e <env> -t upload
+pio run -d src/DRY/horta -e <env> -t upload
 
 # Monitor serial
-pio device monitor -e <env>
+pio device monitor -d src/DRY/horta -e <env>
 
 # Build + upload + monitor em sequência
-pio run -e <env> -t upload && pio device monitor -e <env>
+pio run -d src/DRY/horta -e <env> -t upload && pio device monitor -d src/DRY/horta -e <env>
 
-# Análise estática da lib M360-DRY (deve ser executado antes de todo commit na lib)
-pio check -e check_m360_dry
+# Análise estática da lib M360-DRY
+pio check -d src/DRY/horta -e check_m360_dry
 
 # Build de todos os envs padrão
-pio run
+pio run -d src/DRY/horta
 ```
 
 ### Ambientes disponíveis
@@ -58,11 +60,11 @@ O arquivo `include/M360Credentials.h` define AP SSID/senha, WiFi STA, MQTT serve
 
 ## Skill Obrigatória — MySensors Node Coding & Gateway
 
-Ao trabalhar em qualquer arquivo dentro de `src/DRY/` (nós **ou** gateway), aplicar **obrigatoriamente** os padrões definidos em:
+Ao trabalhar em qualquer arquivo dentro de `src/DRY/horta/` (nós **ou** gateway), aplicar **obrigatoriamente** os padrões definidos em:
 
 - **Referência consolidada (SSoT):** `.agent/skills/bmad-mysensors-node-coding/SKILL.md`
 
-### Resumo das regras críticas para nós legados (`src/DRY/nos/shared/`)
+### Resumo das regras críticas para nós legados (`src/DRY/horta/nos/shared/`)
 
 **Nunca escrever manualmente** o que já existe como macro no `node_engine.h`:
 
@@ -81,7 +83,7 @@ Ao trabalhar em qualquer arquivo dentro de `src/DRY/` (nós **ou** gateway), apl
 | `MyMessage messages[N]` fixo | `messages[NODE_ITEMS_COUNT + 2]` |
 | Código após `sleep()` | mover `request()`/`wait()` para **antes** |
 
-### Regras críticas do Gateway (`src/DRY/gateway/`)
+### Regras críticas do Gateway (`src/DRY/horta/gateway/`)
 
 | Padrão proibido | Regra |
 |---|---|

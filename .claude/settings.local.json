@@ -37,7 +37,13 @@
       "PowerShell(& \"C:\\\\Users\\\\jmarc\\\\.platformio\\\\penv\\\\Scripts\\\\platformio.exe\" run -e d1_mini_libdry 2>&1)",
       "Bash(find / -iname \"MyMessage.h\" 2>/dev/null | head -20; find / -ipath \"*MySensors*/core*\" -iname \"*.cpp\" 2>/dev/null | head -20)",
       "Bash(node -e \"const d=require\\('./src/nodered/mapa da rede/nodered m360.json'\\); console.log\\('JSON OK — nós:', d.length\\);\")",
-      "Bash(python -c \"import json; d=json.load\\(open\\('src/nodered/mapa da rede/nodered m360.json', encoding='utf-8'\\)\\); print\\('JSON OK — nos:', len\\(d\\)\\)\")"
+      "Bash(python -c \"import json; d=json.load\\(open\\('src/nodered/mapa da rede/nodered m360.json', encoding='utf-8'\\)\\); print\\('JSON OK — nos:', len\\(d\\)\\)\")",
+      "mcp__kicad__get_backend_state",
+      "mcp__kicad__search_symbols",
+      "mcp__kicad__batch_list_symbol_pins",
+      "mcp__kicad__search_footprints",
+      "mcp__kicad__create_project",
+      "mcp__kicad__batch_add_components"
     ]
   }
 }

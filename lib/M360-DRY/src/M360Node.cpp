@@ -66,7 +66,14 @@ namespace M360
 
 	// ===== LIFECYCLE =====
 
-	void M360Node::begin(const char* name, const char* version) {
+	void M360Node::begin(const char* name, const char* version, const char* srcFile) {
+		Serial.print(F("Arquivo: "));
+		Serial.println(srcFile ? srcFile : __FILE__);
+		Serial.print(F("Compilado em: "));
+		Serial.print(F(__DATE__));
+		Serial.print(F(" "));
+		Serial.println(F(__TIME__));
+
 		// Adiciona sufixo do perfil ao nome do sketch para fácil identificação no gateway
 		char nameBuf[50];
 		const char* suffix = "";

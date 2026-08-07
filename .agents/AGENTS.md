@@ -21,4 +21,15 @@ Todo firmware (gateway e nós da rede) deve possuir os arquivos de documentaçã
 
 ## O Usuário deverá descidir, a depender do relatório de impacto dessas nos demais arquivos, se as mesmas deverão aplicadas ou não .
 
+## Formatação de Respostas e Fórmulas Matemáticas
+
+* **PROIBIÇÃO DE SINTAXE LATEX:** É estritamente proibido utilizar marcação LaTeX (como `$ ... $`, `$$ ... $$`, `\text{...}`, `\frac{...}`, etc.) nas respostas ao usuário.
+* **PADRÃO DE FORMATAÇÃO CLARA:** Todas as equações, fórmulas matemáticas ou expressões técnicas devem ser formatadas exclusivamente em texto legível, utilizando marcadores em negrito/itálico, pseudo-código ou blocos de código Markdown (`code block`).
+  * **Exemplo proibido (NÃO USAR):** `Vazão em L/min: $Q (\text{L/min}) = \frac{\text{Pulsos} \times 60}{\text{Intervalo (s)} \times 450}$`
+  * **Exemplo correto (USAR):** `Vazão (L/min) = (Pulsos * 60) / (Intervalo_segundos * 450)` ou em bloco de código:
+    ```text
+    Vazao_L_min = (Pulsos * 60) / (Intervalo_segundos * 450)
+    ```
+
+
 

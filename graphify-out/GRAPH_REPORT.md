@@ -1,39 +1,39 @@
-# Graph Report - m360_horta  (2026-07-28)
+# Graph Report - m360_horta  (2026-08-07)
 
 ## Corpus Check
-- 1186 files · ~1,135,972 words
+- 1184 files · ~1,683,915 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 13223 nodes · 14298 edges · 1160 communities (1068 shown, 92 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 270 edges (avg confidence: 0.64)
+- 13256 nodes · 14285 edges · 1165 communities (1077 shown, 88 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 255 edges (avg confidence: 0.62)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ec8e676b`
+- Built from commit: `58ce3603`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - Diagrama de Blocos — sensores.cpp (teste umidade)
-- README — Nó 80 Aqua
-- libDryGatewayMqtt.cpp
-- Documentação Gateway MySensors MQTT (Modular)
-- M360.h
-- MUX CD74HC4067 (16 Canais)
+- Central de Atuação da Estufa — NodeReles (Nó 99)
+- setupWebServer
 - nodeZTS_UmidadeHall.cpp
-- mysensors.pdf
+- horta/gateway/libDryGatewayMqtt.cpp
 - nos/99nodeReles/99nodeReles.cpp
+- kit-helio/gateway/libDryGatewayMqtt.cpp
+- nós/99nodeReles/99nodeReles.cpp
+- kit-helio/gateway/Deprecated_newGatewayMqtt.cpp
 - .agent/skills/bmad-module-builder/scripts/tests/test-validate-module.py
 - Ecossistema M360 Horta — Arquitetura DRY
-- Nó 13 (ZTS_UmidadeHall) Diagrama de Blocos
-- node_engine.cpp
+- sensor.md — Referência ZTS-3002 (traduzido do PDF)
+- ledFlicker
 - Product Requirements Document (PRD) — M360 Horta Inteligente
-- 01nodeSolo3dMini.cpp
+- node_engine.cpp
+- Documentação: Gateway MySensors MQTT (Modular)
+- Documentação: Gateway MySensors MQTT (Modular)
 - 04noodeSolarMini.cpp
-- 05nodeSolo3dNanoMux.cpp
-- 01nodeSolo3dNano.cpp
-- 02nodeSolo3dNano.cpp
+- setLedState
 - teste.cpp
 - Canteiros de Tijolo (7,0m x 1,20m)
 - review_node_selenoide_vazao.md
@@ -42,27 +42,27 @@
 - prd.md
 - Documento de Especificação e Detalhamento Técnico da Rede de Nós IoT da Estufa.md
 - Nó de Sensoriamento Tridimensional de Umidade do Solo (1).md
-- ESP8266 (NodeMCU/Wemos) - Processador Principal 3.3V
-- Arduino Nano (ATmega328P 5V/16MHz)
+- 05nodeSolo3dNanoMux.cpp
+- On Activation
 - final-sprint-status.md
 - integration_test_plan.md
-- Diagrama de Blocos — Nó 05 Solo3dNanoMux
+- 01nodeSolo3dNano.cpp
 - spec-estabilizar-contratos-configuracao-m360.md
 - adapter_rfm95w_nrf24socket/README.md
 - teste2.cpp
 - 2-2-gestao-de-energia-e-bateria.md
 - epics.md
-- No 01 Solo3dMini - Diagrama de Blocos
-- Diagrama de Blocos - No 01 Solo3dNano
-- Lista de Materiais (BOM) — Gateway MQTT
+- 02nodeSolo3dNano.cpp
+- PCB — Gateway MQTT M360 (rev A)
+- 1. Mapeamento de Pinos (Pinout)
 - sensores.cpp
 - deferred-work.md
 - DIFF PARA REVISÃO:
 - DIFF PARA REVISÃO:
-- Diagrama de Blocos - No 02 Solo3dNano
-- Câmara de Monitoramento Lateral em PVC – pH/EC/TEMP
-- Módulo Sensor de EC (Condutividade)
-- Quadro Elétrico Horta (Painel Físico do Nó 99)
+- Tabela de Pinagem (Pinout)
+- Esquema Elétrico — Nó 4 (Clima Solar Mini)
+- Esquema Elétrico — Nó 13 (ZTS_UmidadeHall)
+- Ecossistema de Nós M360 Horta
 - .agents/skills/bmad-module-builder/scripts/tests/test-validate-module.py
 - .claude/skills/bmad-module-builder/scripts/tests/test-validate-module.py
 - {{target_name}} - Deep Dive Documentation
@@ -79,7 +79,7 @@
 - Problem Solving Session: {{problem_title}}
 - Problem Solving Session: {{problem_title}}
 - M360Node
-- LibDRY Framework — M360 Horta 🌿
+- 🏗️ Arquitetura Interna — LibDRY
 - EPIC QUALITY REVIEW PROCESS:
 - .agent/skills/bmad-eval-runner/scripts/run_triggers.py
 - EPIC QUALITY REVIEW PROCESS:
@@ -90,8 +90,11 @@
 - .agents/skills/bmad-brainstorming/scripts/brain.py
 - .claude/skills/bmad-brainstorming/scripts/brain.py
 - .agent/skills/bmad-architecture/scripts/tests/test_lint_spine.py
+- .agent/skills/bmad-brainstorming/scripts/tests/test_brain.py
 - .agents/skills/bmad-architecture/scripts/tests/test_lint_spine.py
+- .agents/skills/bmad-brainstorming/scripts/tests/test_brain.py
 - .claude/skills/bmad-architecture/scripts/tests/test_lint_spine.py
+- .claude/skills/bmad-brainstorming/scripts/tests/test_brain.py
 - Story Output
 - Story Output
 - Story Output
@@ -573,9 +576,9 @@
 - Scan Orchestration
 - Working-State Patterns
 - .claude/skills/bmad-workflow-builder/scripts/render_report.py
-- Nó 99 (NodeReles — Central de Atuação)
-- Node Engine (node_engine.h/cpp)
-- Nó 01 - Monitoramento 3D de Solo (Versão Pro Mini)
+- Tabela de Pinagem (Pinout)
+- Esquema Elétrico — Nó 1 (Solo3dNano)
+- Esquema Elétrico — Nó 2 (Solo3dNano)
 - Agent Type Guidance
 - Edit Guidance
 - Analyze: Quality Analysis for a BMad Agent
@@ -624,8 +627,8 @@
 - Creating a Party
 - Validate
 - EXECUTION
-- README — Nó 99 NodeReles (Central de Atuação)
-- Nó 13 (ZTS_UmidadeHall)
+- Tabela de Pinagem (Pinout)
+- Lista de Materiais (BOM) — Gateway MQTT (M360-DRY)
 - Outcome-Driven Prompt Quality
 - {displayName}
 - Outcome-Driven Prompt Quality
@@ -696,7 +699,7 @@
 - customize.toml Guide
 - Outcome-Driven Prompt Quality
 - Script Opportunities Reference
-- Esquema Elétrico — Nó 05 Solo3dNanoMux
+- Lista de Materiais (BOM) — Nó 99 (NodeReles)
 - Pulse
 - Agent Quality Principles
 - Mission Writing Guidance
@@ -766,10 +769,9 @@
 - Scan: Customization (customize.toml surface economics)
 - Script Creation Standards
 - .claude/skills/bmad-workflow-builder/scripts/tests/test_render_report.py
-- M360Node (motor de ciclo de vida do nó)
+- Lista de Materiais (BOM) — Gateway MQTT (M360-DRY)
 - 🚀 Contexto do Desenvolvedor
-- Nó 04 (SolarMini / Clima)
-- Nó 02 (Solo3dNano)
+- Lista de Materiais (BOM) — Nó 4 (Monitoramento Solar de Clima)
 - Capabilities
 - Persona
 - Scan Lens: Enhancement (add or subtract)
@@ -833,7 +835,7 @@
 - Producing Workflow Patterns
 - Scan Lens: Enhancement (add or subtract)
 - .claude/skills/bmad-workflow-builder/scripts/quick_validate.py
-- Technical Architecture (Solution Design) — M360 Horta
+- NodeStatus
 - Referência MQTT para Desenvolvedor Backend
 - Overview
 - Step 5: Wrap-Up
@@ -900,7 +902,7 @@
 - Scan: Determinism (intelligence-placement boundary)
 - Scan Lens: Leanness
 - .claude/skills/bmad-workflow-builder/scripts/init_skill.py
-- Arduino Pro Mini (ATmega328P 3.3V/8MHz)
+- Lista de Materiais (BOM) — Nó 1 (Solo3dNano)
 - Bond
 - Index
 - .agent/skills/bmad-agent-builder/scripts/count_tokens.py
@@ -952,7 +954,7 @@
 - {skill-name}
 - Complex Workflow Patterns
 - Overview
-- Epic 2: Atores Físicos - Controle Hídrico e Fluxo (Atuadores)
+- Lista de Materiais (BOM) — Nó 2 (Solo3dNano)
 - emit
 - Explain Concept
 - Mermaid Generate
@@ -989,7 +991,7 @@
 - BMad Module Builder
 - Sync Sprint Status
 - Headless JSON Response
-- Lista de Materiais (BOM) — Nó 80 (Caixa D'água, pH, EC e Vazão)
+- Lista de Materiais (BOM) — Nó 5 (Solo3dNanoMux)
 - DEPRECATED — forwards to bmad-architecture (create intent)
 - DEPRECATED — forwards to bmad-prd (create intent)
 - Research Report: {{research_type}}
@@ -1074,6 +1076,8 @@
 - .claude/skills/bmad-ux/assets/color-themes.md
 - .claude/skills/bmad-ux/assets/design-directions.md
 - .claude/skills/bmad-workflow-builder/references/lens-contract.md
+- Diagrama de Blocos — Nó 05 (Monitoramento 3D de Solo Unificado)
+- Lista de Materiais (BOM) — Nó 13 (ZTS_UmidadeHall)
 - 01nodeSolo3d.cpp
 
 ## God Nodes (most connected - your core abstractions)
@@ -1082,110 +1086,104 @@
 3. `run_validate()` - 23 edges
 4. `run_validate()` - 23 edges
 5. `run_validate()` - 23 edges
-6. `Document Project Workflow - Validation Checklist` - 21 edges
+6. `ledFlicker()` - 23 edges
 7. `Document Project Workflow - Validation Checklist` - 21 edges
 8. `Document Project Workflow - Validation Checklist` - 21 edges
-9. `MQTTManager` - 20 edges
-10. `ScannerTest` - 16 edges
+9. `Document Project Workflow - Validation Checklist` - 21 edges
+10. `MQTTManager` - 20 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `Documentação Gateway MySensors MQTT (Modular)` --semantically_similar_to--> `M360Gateway (orquestrador do gateway)`  [INFERRED] [semantically similar]
-  src/DRY/gateway/README.md → docs/architecture.md
-- `sendMQTT()` --calls--> `getTypeDescription`  [INFERRED]
-  src/DRY/gateway/Deprecated_newGatewayMqtt.cpp → lib/M360-DRY/src/M360Translator.h
 - `setup()` --calls--> `setupWebServer()`  [INFERRED]
-  src/DRY/gateway/Deprecated_newGatewayMqtt.cpp → lib/M360-DRY/src/M360Webserver.cpp
-- `Canteiro B (9 sensores, Nó 05)` --semantically_similar_to--> `Nó 02 (Solo3dNano)`  [INFERRED] [semantically similar]
-  src/DRY/nos/05nodeSolo3dNanoMux/esquema_eletrico.md → src/DRY/nos/02nodeSolo3dNano/BOM.md
-- `before()` --calls--> `initLEDs()`  [INFERRED]
-  src/DRY/gateway/Deprecated_newGatewayMqtt.cpp → lib/M360-DRY/src/M360Leds.cpp
+  src/DRY/horta/gateway/Deprecated_newGatewayMqtt.cpp → lib/M360-DRY/src/M360Webserver.cpp
+- `setup()` --calls--> `setupWebServer()`  [INFERRED]
+  src/DRY/kit-helio/gateway/Deprecated_newGatewayMqtt.cpp → lib/M360-DRY/src/M360Webserver.cpp
+- `updateLEDStatus()` --calls--> `setLedState()`  [INFERRED]
+  src/DRY/horta/gateway/libDryGatewayMqtt.cpp → lib/M360-DRY/src/M360Leds.cpp
+- `updateLEDStatus()` --calls--> `setLedState()`  [INFERRED]
+  src/DRY/kit-helio/gateway/Deprecated_newGatewayMqtt.cpp → lib/M360-DRY/src/M360Leds.cpp
+- `updateLEDStatus()` --calls--> `setLedState()`  [INFERRED]
+  src/DRY/kit-helio/gateway/libDryGatewayMqtt.cpp → lib/M360-DRY/src/M360Leds.cpp
 
 ## Import Cycles
 - None detected.
 
-## Hyperedges (group relationships)
-- **Módulos ngm/ do Gateway MQTT (config_utils, wifi_utils, mqtt_utils, webserver, leds)** — src_dry_gateway_readme_ngm_config_utils, src_dry_gateway_readme_ngm_wifi_utils, src_dry_gateway_readme_ngm_mqtt_utils, src_dry_gateway_readme_ngm_webserver, src_dry_gateway_readme_ngm_leds [EXTRACTED 0.95]
-- **Padrão de Chaveamento de Pull-up para Mitigação de Eletrólise (Nós 02, 04, 05, 80, teste)** — src_dry_nos_02nodesolo3dnano_mitigacao_eletrolise, src_dry_nos_04noodesolarmini_vcc_chaveado_dht11, src_dry_nos_05nodesolo3dnanomux_pullup_unico_compartilhado, src_dry_nos_80nodeaqua_pin_power_sensors_d7, src_test_sensores_de_umidade_mitigacao_eletrolise_duty_cycle [INFERRED 0.85]
-- **Controle de Relés Multiplexados via CD74HC4067 no Nó 99** — src_dry_nos_99nodereles_cd74hc4067, src_dry_nos_99nodereles_mux_channel_offset, src_dry_nos_99nodereles_concorrencia_restrita, src_dry_nos_99nodereles_writenodeitem, src_dry_nos_99nodereles_reles_9x [EXTRACTED 1.00]
-- **Cadeia de Documentação ZTS-3002 via Modbus RS485 (Nó 13)** — src_dry_nos_13nodezts_umidadehall_zts3002, src_dry_nos_13nodezts_umidadehall_max485, src_test_max_zts3002_datasheet, src_test_max_modbus_rtu_protocol, src_test_max_zts3002_datasheet_pdf [EXTRACTED 1.00]
-
-## Communities (1160 total, 92 thin omitted)
+## Communities (1165 total, 88 thin omitted)
 
 ### Community 0 - "Diagrama de Blocos — sensores.cpp (teste umidade)"
-Cohesion: 0.20
-Nodes (12): Esquema Elétrico — Nó 02 Solo3dNano, Mitigação de Eletrólise (chaveamento de pull-up), PIN_POWER_SENSORS (D3) — Nó 02, VCC Chaveado do DHT11 (D3, economia de energia), Atraso de Estabilização 5ms + Leitura de Descarte (MUX), Fórmula Nível: (100-distância)*100/90, calcularPorcentagemUmidade() (map linear ADC->%), Diagrama de Blocos — sensores.cpp (teste umidade) (+4 more)
+Cohesion: 0.40
+Nodes (6): calcularPorcentagemUmidade() (map linear ADC->%), Diagrama de Blocos — sensores.cpp (teste umidade), Topologia Divisor de Tensão (10kΩ + sonda resistiva), Esquema Elétrico — Leitura Calibrada de Sensores de Umidade (teste), Mitigação de Eletrólise via Duty Cycle 7.4% (D3 chaveado), sensores.cpp (firmware de teste, 4 canais)
 
-### Community 1 - "README — Nó 80 Aqua"
-Cohesion: 0.24
-Nodes (11): Nó 80 (pH, EC, DS18B20, ultrassônico, vazão, ALWAYS_ON), Esquema Elétrico — Nó 80 Aqua, Fórmula pH: -5.7*Tensão+21.34, Fórmula Vazão: Q(L/s) = Freq(Hz)/450, Contagem de Vazão via Interrupções (INT0/INT1/PCINT0/PCINT10), Nó 80 (Aqua — Caixa D'água, pH, EC, Vazão), README — Nó 80 Aqua, 80nodeAqua.cpp (+3 more)
-
-### Community 2 - "libDryGatewayMqtt.cpp"
+### Community 1 - "Central de Atuação da Estufa — NodeReles (Nó 99)"
 Cohesion: 0.06
-Nodes (52): byte, ESP8266WebServer, LedState, initLEDs(), ledBegin(), ledFlicker(), setLedState(), updateLEDs() (+44 more)
+Nodes (31): 1.1 Proteção Elétrica, 1.2 Fontes de Alimentação, 1.3 Barramentos de Distribuição, 1.4 Unidade de Controle, 1.5 Módulos de Relé, 1.6 Tomadas de Serviço 220V, 1.7 Prensa-Cabos, 1. Descrição do Painel Físico (+23 more)
 
-### Community 3 - "Documentação Gateway MySensors MQTT (Modular)"
-Cohesion: 0.24
-Nodes (10): Estágio before() (Pré-inicialização), Documentação Gateway MySensors MQTT (Modular), Factory Reset via pino A0, Heartbeat Diário/Periódico (60s), ngm/config_utils (EEPROM, CRC, DeviceConfig), ngm/leds (controle visual de status), ngm/mqtt_utils (broker, tradução JSON, métricas), ngm/webserver (portal de configuração) (+2 more)
+### Community 2 - "setupWebServer"
+Cohesion: 0.44
+Nodes (8): ESP8266WebServer, M360DeviceConfig, String, generateIndexHTML(), handleRoot(), handleSave(), htmlEscape(), setupWebServer()
 
-### Community 4 - "M360.h"
-Cohesion: 0.11
-Nodes (17): PCINT0_vect, PCINT1_vect, before(), MyMessage, loop(), performAquaSampling(), powerDown(), powerUp() (+9 more)
-
-### Community 5 - "MUX CD74HC4067 (16 Canais)"
-Cohesion: 0.09
-Nodes (25): Alimentacao (Quadro Eletrico) 220V/12V/5V/3.3V, Arduino Nano (ATmega328P 5V/16MHz), Bomba Circulacao NFT (220V AC / 1/2 CV), Bomba Oxi Aquaponia (220V AC), Diagrama de Blocos - No99nodeReles, Driver/Rele D2 (Nativo), Driver/Rele D8 (Nativo), Driver/Rele MUX Ch0 (+17 more)
-
-### Community 6 - "nodeZTS_UmidadeHall.cpp"
+### Community 3 - "nodeZTS_UmidadeHall.cpp"
 Cohesion: 0.13
 Nodes (18): before(), MyMessage, powerDown(), powerUp(), readItem(), receive(), writeItem(), initDrivers() (+10 more)
 
-### Community 7 - "mysensors.pdf"
-Cohesion: 0.18
-Nodes (5): before(), MyMessage, receive(), selectMuxChannel(), writeRelay()
+### Community 4 - "horta/gateway/libDryGatewayMqtt.cpp"
+Cohesion: 0.15
+Nodes (17): checkNodeTimeouts(), byte, JsonDocument, MyMessage, String, gatewayTransportSend(), getNodeCategoryLabel(), mqttCallback() (+9 more)
 
-### Community 8 - "nos/99nodeReles/99nodeReles.cpp"
+### Community 5 - "nos/99nodeReles/99nodeReles.cpp"
 Cohesion: 0.13
 Nodes (15): before(), MyMessage, loop(), readItem(), receive(), writeItem(), calculateFlow(), getFlowForCanteiro() (+7 more)
+
+### Community 6 - "kit-helio/gateway/libDryGatewayMqtt.cpp"
+Cohesion: 0.15
+Nodes (17): checkNodeTimeouts(), byte, JsonDocument, MyMessage, String, gatewayTransportSend(), getNodeCategoryLabel(), mqttCallback() (+9 more)
+
+### Community 7 - "nós/99nodeReles/99nodeReles.cpp"
+Cohesion: 0.31
+Nodes (5): before(), MyMessage, receive(), selectMuxChannel(), writeRelay()
+
+### Community 8 - "kit-helio/gateway/Deprecated_newGatewayMqtt.cpp"
+Cohesion: 0.14
+Nodes (18): checkNodeTimeouts(), JsonDocument, MyMessage, gatewayTransportSend(), loop(), NodeStatus, active, lastSeen (+10 more)
 
 ### Community 9 - ".agent/skills/bmad-module-builder/scripts/tests/test-validate-module.py"
 Cohesion: 0.09
 Nodes (49): create_module(), create_standalone_module(), Path, CSV entry for nonexistent skill should be flagged., Duplicate menu codes should be flagged., Before/after references to nonexistent capabilities should be flagged., module.yaml with missing required fields should be flagged., CSV with header but no rows should be flagged. (+41 more)
 
 ### Community 10 - "Ecossistema M360 Horta — Arquitetura DRY"
-Cohesion: 0.18
-Nodes (11): Estágio loop() (Execução Contínua), nodeRegistry (até 10 nós rastreados), Checklist Anti-Padrões (Verificar antes de Commit), Ecossistema M360 Horta — Arquitetura DRY, Sinalização por LEDs (Verde/Amarelo/Vermelho), Nó 04: Clima (Nano - LP), Nó 13: Umidade Hall (Nano - LP), Nó 80: Aqua (Nano - ON) (+3 more)
+Cohesion: 0.20
+Nodes (10): Checklist Anti-Padrões (Verificar antes de Commit), Ecossistema M360 Horta — Arquitetura DRY, Sinalização por LEDs (Verde/Amarelo/Vermelho), Nó 01: Solo 3D (Pro Mini - LP), Nó 04: Clima (Nano - LP), Nó 13: Umidade Hall (Nano - LP), Nó 80: Aqua (Nano - ON), Nó 99: Central de Atuadores (Reles) da Estufa (Nano - ON) (+2 more)
 
-### Community 11 - "Nó 13 (ZTS_UmidadeHall) Diagrama de Blocos"
-Cohesion: 0.24
-Nodes (14): Nó 13 (ZTS_UmidadeHall) Diagrama de Blocos, Fonte 12V DC (Alimentação de Campo), Módulo Conversor MAX485 (TTL-RS485), Módulo Relé (Chaveia 12V, D5, Active LOW), Transceptor RF nRF24L01+ (CE=D9, CSN=D10), Arduino Pro Mini ATmega328P (3.3V/8MHz) - Modo PASSIVE, Regulador LDO 3.3V, Sensores & Válvula (ZTS-3002 Modbus, Hall A0, LDR A1, Solenoide 12V) (+6 more)
+### Community 11 - "sensor.md — Referência ZTS-3002 (traduzido do PDF)"
+Cohesion: 0.40
+Nodes (5): Protocolo Modbus-RTU (baud 4800, sem paridade), Tabela de Registros Modbus (umidade, temperatura, EC, pH, NPK), sensor.md — Referência ZTS-3002 (traduzido do PDF), ZTS-3002-TR Product Manual (5-pin soil multi-parameter sensor), R224073R224074-ZTS-3002-TR-N01 (PDF datasheet original)
 
-### Community 12 - "node_engine.cpp"
+### Community 12 - "ledFlicker"
+Cohesion: 0.20
+Nodes (14): ledFlicker(), checkNodeTimeouts(), JsonDocument, MyMessage, gatewayTransportSend(), loop(), presentation(), processMQTTCommand() (+6 more)
+
+### Community 13 - "Product Requirements Document (PRD) — M360 Horta Inteligente"
+Cohesion: 0.07
+Nodes (32): Ciclo de Vida do Sono (Deep Sleep) powerUp/powerDown, Comando remoto FORCE_UPDATE, Technical Architecture (Solution Design) — M360 Horta, M360Gateway (orquestrador do gateway), M360Node (motor de ciclo de vida do nó), M360Translator (contrato JSON/MySensors bidirecional), Alimentação Pulsada VCC_SENSORS (proteção contra degradação galvânica), Epic 1: Core Infrastructure - O Motor Compartilhado (DRY Node Engine) (+24 more)
+
+### Community 14 - "node_engine.cpp"
 Cohesion: 0.15
 Nodes (10): nodeEngine_loadInterval(), nodeEngine_powerDown(), nodeEngine_powerUp(), nodeEngine_readBattery(), nodeEngine_readBatteryPercent(), nodeEngine_saveInterval(), nodeEngine_voltageToPercent(), readADCInternal() (+2 more)
 
-### Community 13 - "Product Requirements Document (PRD) — M360 Horta Inteligente"
-Cohesion: 0.20
-Nodes (12): Epic 3: Sensores Field - Telemetria de Solo e Ambiente, Story 3.1: Sensoreamento Aéreo (nodeDHT11), Story 3.2: Sensoreamento Avançado de Substrato (nodeZTS_UmidadeHall), Story 3.3: Percepção Climática Solar (main_lumi_10), FORCE_UPDATE_N_READS (10 iterações, prevenção de dados estagnados), Product Requirements Document (PRD) — M360 Horta Inteligente, main_lumi_10 (Controle de luz), MIN_AWAKE_TIME_MS (janela de 3000ms acordado) (+4 more)
+### Community 15 - "Documentação: Gateway MySensors MQTT (Modular)"
+Cohesion: 0.12
+Nodes (16): 1. Arquitetura Modular (`ngm/`), 2. Premissas de Hardware e Layout Elétrico, 3. Fluxo de Operação e Inicialização, 4. Lógica de Comunicação e Tradução, 5. Diagnóstico e Sinalização Visual (Painel), 6. Verificações Críticas de Hardware Real, A. Alimentação e Regulação de Tensão (`+3V3_RF`), A. Estágio `before()` (Pré-inicialização) (+8 more)
 
-### Community 14 - "01nodeSolo3dMini.cpp"
-Cohesion: 0.17
-Nodes (10): before(), MyMessage, powerDown(), powerUp(), receive(), initSensors(), powerDownSensors(), powerUpSensors() (+2 more)
+### Community 16 - "Documentação: Gateway MySensors MQTT (Modular)"
+Cohesion: 0.12
+Nodes (16): 1. Arquitetura Modular (`ngm/`), 2. Premissas de Hardware e Layout Elétrico, 3. Fluxo de Operação e Inicialização, 4. Lógica de Comunicação e Tradução, 5. Diagnóstico e Sinalização Visual (Painel), 6. Verificações Críticas de Hardware Real, A. Alimentação e Regulação de Tensão (`+3V3_RF`), A. Estágio `before()` (Pré-inicialização) (+8 more)
 
-### Community 15 - "04noodeSolarMini.cpp"
+### Community 17 - "04noodeSolarMini.cpp"
 Cohesion: 0.15
 Nodes (8): before(), MyMessage, powerDown(), powerUp(), receive(), initSensors(), powerDownSensors(), powerUpSensors()
 
-### Community 16 - "05nodeSolo3dNanoMux.cpp"
-Cohesion: 0.21
-Nodes (10): before(), MyMessage, initSensors(), powerDown(), powerDownSensors(), powerUp(), powerUpSensors(), readNodeItem() (+2 more)
-
-### Community 17 - "01nodeSolo3dNano.cpp"
+### Community 18 - "setLedState"
 Cohesion: 0.22
-Nodes (9): before(), MyMessage, initSensors(), powerDown(), powerDownSensors(), powerUp(), powerUpSensors(), readNodeItem() (+1 more)
-
-### Community 18 - "02nodeSolo3dNano.cpp"
-Cohesion: 0.22
-Nodes (9): before(), MyMessage, initSensors(), powerDown(), powerDownSensors(), powerUp(), powerUpSensors(), readNodeItem() (+1 more)
+Nodes (12): LedState, initLEDs(), ledBegin(), setLedState(), updateLEDs(), before(), updateLEDStatus(), before() (+4 more)
 
 ### Community 19 - "teste.cpp"
 Cohesion: 0.32
@@ -1219,13 +1217,13 @@ Nodes (10): 1\. Visão Geral da Arquitetura, 2\. Detalhamento Técnico por Nó, 
 Cohesion: 0.18
 Nodes (10): 1\. Visão Geral, 2\. Objetivo Agronômico, 3\. Topologia de Campo, 4.1. Motivos para Remover o LM393, 4.2. Circuito de Cada Sensor, 4.3. Materiais e Robustez Mecânica, 4.4. Mitigação de Eletrólise, 4\. Arquitetura de Hardware (+2 more)
 
-### Community 27 - "ESP8266 (NodeMCU/Wemos) - Processador Principal 3.3V"
-Cohesion: 0.31
-Nodes (11): Diagrama de Blocos - Gateway MQTT (M360-DRY), Botao de Manutencao (A0=GND, Modo AP/Web Config), Controle EEPROM (Rastreamento de Nos), ESP8266 (NodeMCU/Wemos) - Processador Principal 3.3V, LEDs de Status M360 (Vermelho/Amarelo/Verde), Motor MySensors (Conversao de Mensagens), Nos Sensores/Atuadores MySensors (Rede RF remota), Modulo NRF24L01+ Transceptor RF 2.4GHz (+3 more)
+### Community 27 - "05nodeSolo3dNanoMux.cpp"
+Cohesion: 0.21
+Nodes (10): before(), MyMessage, initSensors(), powerDown(), powerDownSensors(), powerUp(), powerUpSensors(), readNodeItem() (+2 more)
 
-### Community 28 - "Arduino Nano (ATmega328P 5V/16MHz)"
-Cohesion: 0.25
-Nodes (11): Alimentação Principal (12V DC / USB 5V), Arduino Nano (ATmega328P 5V/16MHz), DS18B20 Sensor de Temperatura da Água, Sensor EC (Condutividade Elétrica), HC-SR04 Sensor Ultrassônico (Nível da Caixa), nRF24L01+ Módulo de Rádio 2.4GHz, pH-4502C Condicionador de pH, YF-S201 Sensor de Vazão 1 (+3 more)
+### Community 28 - "On Activation"
+Cohesion: 0.15
+Nodes (12): Conventions, On Activation, Overview, Red — Senior Node-RED Developer, Step 1: Resolve the Agent Block, Step 2: Execute Prepend Steps, Step 3: Adopt Persona, Step 4: Load Persistent Facts (+4 more)
 
 ### Community 29 - "final-sprint-status.md"
 Cohesion: 0.20
@@ -1235,9 +1233,9 @@ Nodes (9): 1. Camada de Abstração de Hardware (`sensorDrivers.h/cpp`), 2. Gest
 Cohesion: 0.20
 Nodes (9): 1. Descoberta e Registro (Provisioning), 2. Telemetria de Sensores (Uplink), 3. Controle de Atuadores (Downlink), 4. Configuração Remota (Payloads Customizados), 🏗️ Ambiente de Teste, 🧪 Casos de Teste (Integration Tests), 🔍 Inconsistências Identificadas (Atenção!), 📋 Lista de Verificação de Campo (Field Check) (+1 more)
 
-### Community 31 - "Diagrama de Blocos — Nó 05 Solo3dNanoMux"
-Cohesion: 0.62
-Nodes (7): Arduino Nano ATmega328P (5V/16MHz, modo ALWAYS_ON), Barra Pull-Up (VCC Chaveado via D3), Fonte 5V DC (Alimentação Regulada), MUX Analógico CD74HC4067 (16 canais, S0-S3/SIG), Sensores de Umidade de Solo (18 canais resistivos, 16 via MUX + 2 diretos, Canteiros A e B), Transceptor RF nRF24L01+ + Soquete Adaptador LDO (3.3V), Diagrama de Blocos — Nó 05 Solo3dNanoMux
+### Community 31 - "01nodeSolo3dNano.cpp"
+Cohesion: 0.22
+Nodes (9): before(), MyMessage, initSensors(), powerDown(), powerDownSensors(), powerUp(), powerUpSensors(), readNodeItem() (+1 more)
 
 ### Community 32 - "spec-estabilizar-contratos-configuracao-m360.md"
 Cohesion: 0.22
@@ -1259,17 +1257,33 @@ Nodes (6): Completion Notes, Dev Agent Record, Implementation Plan, Status: comp
 Cohesion: 0.33
 Nodes (5): Epic 1: [Core Infrastructure] O Motor Compartilhado (DRY Node Engine), Epic 2: [Atores Físicos] Controle Hídrico e Fluxo (Atuadores), Epic 3: [Sensores Field] Telemetria de Solo e Ambiente, Epic 4: [Controle Nuvem] Comandos Administrativos e Resiliência, Epics & Story Backlog — M360 Horta
 
-### Community 37 - "No 01 Solo3dMini - Diagrama de Blocos"
-Cohesion: 0.67
-Nodes (6): No 01 Solo3dMini - Diagrama de Blocos, Arduino Pro Mini ATmega328P (5V/16MHz, ALWAYS_ON), Fonte 5V DC (Estufa Central), Mux Analogico CD74HC4067 (16 Canais), Sensores Solo - 18 Canais Resistivos (Canteiro A), Transceptor RF nRF24L01+ (2.4GHz, SPI)
+### Community 37 - "02nodeSolo3dNano.cpp"
+Cohesion: 0.22
+Nodes (9): before(), MyMessage, initSensors(), powerDown(), powerDownSensors(), powerUp(), powerUpSensors(), readNodeItem() (+1 more)
 
-### Community 38 - "Diagrama de Blocos - No 01 Solo3dNano"
-Cohesion: 0.70
-Nodes (5): Diagrama de Blocos - No 01 Solo3dNano, Arduino Nano (ATmega328P 5V/16MHz, ALWAYS_ON), Fonte 5V DC (Alimentacao Fixa), Sensores Solo - 6 Resistivos Diretos (Canteiro A), Transceptor RF nRF24L01+ (CE=D9, CSN=D10, SPI=D11-D13)
+### Community 38 - "PCB — Gateway MQTT M360 (rev A)"
+Cohesion: 0.17
+Nodes (11): 1. R4 (10 k de A0 para 3V3) não é opcional, 2. LDO dedicado (U3) para o rádio, 3. R5 (10 k de CSN para GND), Componentes, Layout, Montagem e uso, PCB — Gateway MQTT M360 (rev A), Pendências antes de fabricar (+3 more)
 
-### Community 39 - "Lista de Materiais (BOM) — Gateway MQTT"
-Cohesion: 0.83
-Nodes (4): Lista de Materiais (BOM) — Gateway MQTT, NodeMCU ESP8266 / Wemos D1 Mini, Módulo nRF24L01+ (Gateway), Esquema Elétrico — Gateway MQTT
+### Community 39 - "1. Mapeamento de Pinos (Pinout)"
+Cohesion: 0.18
+Nodes (10): 1. Mapeamento de Pinos (Pinout), 2. Conexões dos Sensores Resistivos (Divisor de Tensão), 3. Tabela de Mapeamento Físico e Lógico dos Eletrodos, 4. Recomendações e Cuidados de Instalação, Conexões de Controle e Sinal (Arduino Nano -> MUX CD74HC4067), Conexões SPI (Arduino Nano -> Rádio RF24L01+), Controle de Alimentação de Sensores (Arduino Nano), Esquema de Ligações dos Sensores (+2 more)
+
+### Community 45 - "Tabela de Pinagem (Pinout)"
+Cohesion: 0.18
+Nodes (10): Diagrama de Conexões (Mermaid), Esquema de Ligação nos Bornes do Relé (Operação Segura com sinal LOW), Esquema Elétrico — NodeReles (Nó 99), Ligação Padrão (Módulo Relé "Active LOW"), Multiplexador CD74HC4067, NRF24L01 (Comunicação SPI), Relés e Atuadores Multiplexados (Concorrência Restrita), Relés e Atuadores Nativos (Operação Concorrente) (+2 more)
+
+### Community 46 - "Esquema Elétrico — Nó 4 (Clima Solar Mini)"
+Cohesion: 0.20
+Nodes (9): 1. Inicialização e Estabilização, 2. Barramento de Dados DHT11 (D4) e OneWire DS18B20 (D5), 3. Circuito de Medição da Bateria (Divisor de Tensão), Esquema Elétrico — Nó 4 (Clima Solar Mini), Mapeamento de Pinos (Pinout), Notas de Montagem e Funcionamento, Resumo do Hardware, Rádio nRF24L01+ (+1 more)
+
+### Community 47 - "Esquema Elétrico — Nó 13 (ZTS_UmidadeHall)"
+Cohesion: 0.22
+Nodes (8): 1. Núcleo (Arduino Pro Mini), 2.1 Melhores Práticas RS485 (Físico), 2. Comunicação RS485 (Módulo MAX485), 3. Rádio MySensors (nRF24L01+), 4. Sensores e Atuadores Locais, 5. Conexão do Sensor ZTS-3002 (Modbus via Relé), 6. Fluxograma de Alimentação, Esquema Elétrico — Nó 13 (ZTS_UmidadeHall)
+
+### Community 48 - "Ecossistema de Nós M360 Horta"
+Cohesion: 0.22
+Nodes (8): 1. O Mecanismo de Escuta, 2. Custo de Energia por "Check", 3. Latência vs. Autonomia (Exemplo Bateria 2000mAh), 🔋 Análise Técnica de Bateria (Modo PASSIVE), 🛠️ Como Criar um Novo Nó, Ecossistema de Nós M360 Horta, 📁 Estrutura de Pastas de cada Nó, ⚡ Perfis de Energia (M360PowerProfile)
 
 ### Community 50 - ".agents/skills/bmad-module-builder/scripts/tests/test-validate-module.py"
 Cohesion: 0.09
@@ -1335,7 +1349,7 @@ Nodes (39): Action Steps, Adjustment Triggers, 📊 ANALYSIS, Constraint Identif
 Cohesion: 0.09
 Nodes (37): M360ItemDef, M360PowerProfile, MyMessage, M360ItemDef, M360PowerProfile, MyMessage, M360Node, _battCycle (+29 more)
 
-### Community 66 - "LibDRY Framework — M360 Horta 🌿"
+### Community 66 - "🏗️ Arquitetura Interna — LibDRY"
 Cohesion: 0.05
 Nodes (35): 1. Structs e Enums Core, 2. Classe `M360::M360Node`, 3. Gestão de Energia (`M360Power`), Comandos `V_CUSTOM` processados por `handleMessage()`, Constantes de Configuração (`M360Config.h`), Construtor, Faixas Normativas de Child ID (Funcionalidades), Faixas Normativas de Node ID (Camadas de Campo) (+27 more)
 
@@ -1379,13 +1393,25 @@ Nodes (30): _card(), categories(), category_style(), filter_cats(), find(), fmt_
 Cohesion: 0.09
 Nodes (12): cats(), test_duplicate_ad_id_caught(), test_fenced_stack_heading_not_live(), test_fenced_stack_rows_not_parsed(), test_mermaid_braces_not_flagged(), test_no_frontmatter_body_still_scanned(), test_no_stack_section_ok(), test_placeholder_markers_caught() (+4 more)
 
+### Community 77 - ".agent/skills/bmad-brainstorming/scripts/tests/test_brain.py"
+Cohesion: 0.07
+Nodes (3): extra(), lib(), fixture
+
 ### Community 78 - ".agents/skills/bmad-architecture/scripts/tests/test_lint_spine.py"
 Cohesion: 0.09
 Nodes (12): cats(), test_duplicate_ad_id_caught(), test_fenced_stack_heading_not_live(), test_fenced_stack_rows_not_parsed(), test_mermaid_braces_not_flagged(), test_no_frontmatter_body_still_scanned(), test_no_stack_section_ok(), test_placeholder_markers_caught() (+4 more)
 
+### Community 79 - ".agents/skills/bmad-brainstorming/scripts/tests/test_brain.py"
+Cohesion: 0.07
+Nodes (3): extra(), lib(), fixture
+
 ### Community 80 - ".claude/skills/bmad-architecture/scripts/tests/test_lint_spine.py"
 Cohesion: 0.09
 Nodes (12): cats(), test_duplicate_ad_id_caught(), test_fenced_stack_heading_not_live(), test_fenced_stack_rows_not_parsed(), test_mermaid_braces_not_flagged(), test_no_frontmatter_body_still_scanned(), test_no_stack_section_ok(), test_placeholder_markers_caught() (+4 more)
+
+### Community 81 - ".claude/skills/bmad-brainstorming/scripts/tests/test_brain.py"
+Cohesion: 0.07
+Nodes (3): extra(), lib(), fixture
 
 ### Community 82 - "Story Output"
 Cohesion: 0.07
@@ -1401,11 +1427,11 @@ Nodes (28): Adaptation Suggestions, Additional Versions Needed, Audience Conside
 
 ### Community 85 - "M360Gateway"
 Cohesion: 0.10
-Nodes (26): function, M360DeviceConfig, MQTT_CALLBACK_SIGNATURE, PubSubClient, function, M360DeviceConfig, M360Gateway, begin (+18 more)
+Nodes (27): function, M360DeviceConfig, MQTT_CALLBACK_SIGNATURE, PubSubClient, function, M360DeviceConfig, PubSubClient, M360Gateway (+19 more)
 
 ### Community 86 - "MQTTManager"
-Cohesion: 0.11
-Nodes (27): PubSubClient, M360DeviceConfig, MQTT_CALLBACK_SIGNATURE, PubSubClient, String, MQTTManager, begin, buildTopicIn (+19 more)
+Cohesion: 0.12
+Nodes (26): M360DeviceConfig, MQTT_CALLBACK_SIGNATURE, PubSubClient, String, MQTTManager, begin, buildTopicIn, buildTopicOut (+18 more)
 
 ### Community 87 - "DOCUMENT DISCOVERY PROCESS:"
 Cohesion: 0.07
@@ -2197,7 +2223,7 @@ Nodes (15): After Spec is Output, BMad Spec, Companions, Conventions, Frontmatte
 
 ### Community 284 - ".agent/skills/bmad-workflow-builder/scripts/prepass-prompt-metrics.py"
 Cohesion: 0.23
-Nodes (14): count_tokens(), main(), Return (token_count, method).      Tries tiktoken's cl100k_base encoding first, read_input(), count_fenced(), count_tables(), count_tokens(), grep() (+6 more)
+Nodes (14): count_tokens(), main(), Return (token_count, method). Tries tiktoken's cl100k_base encoding first. If…, read_input(), count_fenced(), count_tables(), count_tokens(), grep() (+6 more)
 
 ### Community 285 - "Creed"
 Cohesion: 0.12
@@ -2217,7 +2243,7 @@ Nodes (15): After Spec is Output, BMad Spec, Companions, Conventions, Frontmatte
 
 ### Community 289 - ".agents/skills/bmad-workflow-builder/scripts/prepass-prompt-metrics.py"
 Cohesion: 0.23
-Nodes (14): count_tokens(), main(), Return (token_count, method).      Tries tiktoken's cl100k_base encoding first, read_input(), count_fenced(), count_tables(), count_tokens(), grep() (+6 more)
+Nodes (14): count_tokens(), main(), Return (token_count, method). Tries tiktoken's cl100k_base encoding first. If…, read_input(), count_fenced(), count_tables(), count_tokens(), grep() (+6 more)
 
 ### Community 290 - "Creed"
 Cohesion: 0.12
@@ -2237,7 +2263,7 @@ Nodes (15): After Spec is Output, BMad Spec, Companions, Conventions, Frontmatte
 
 ### Community 294 - ".claude/skills/bmad-workflow-builder/scripts/prepass-prompt-metrics.py"
 Cohesion: 0.23
-Nodes (14): count_tokens(), main(), Return (token_count, method).      Tries tiktoken's cl100k_base encoding first, read_input(), count_fenced(), count_tables(), count_tokens(), grep() (+6 more)
+Nodes (14): count_tokens(), main(), Return (token_count, method). Tries tiktoken's cl100k_base encoding first. If…, read_input(), count_fenced(), count_tables(), count_tokens(), grep() (+6 more)
 
 ### Community 295 - "NodeTemplate.cpp"
 Cohesion: 0.15
@@ -2261,7 +2287,7 @@ Nodes (14): check_frontmatter(), check_root_md_files(), get_line_number(), is_in
 
 ### Community 300 - ".agent/skills/bmad-bmb-setup/scripts/merge-help-csv.py"
 Cohesion: 0.20
-Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only. (+6 more)
+Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only.… (+6 more)
 
 ### Community 301 - "On Activation"
 Cohesion: 0.13
@@ -2297,19 +2323,19 @@ Nodes (14): 1. Begin Scope Confirmation, 2. Scope Confirmation, 3. Handle Contin
 
 ### Community 309 - ".agent/skills/bmad-eval-runner/scripts/aggregate_benchmark.py"
 Cohesion: 0.22
-Nodes (14): collect_numeric_metrics(), delta_configs(), load_records(), main(), Path, Load run records from a JSON file, a {'runs': [...]} file, or a dir of     timi, Verify mean/stddev/min/max/delta on a known fixture., Sample standard deviation using n-1 (Bessel's correction).      Returns 0.0 fo (+6 more)
+Nodes (14): collect_numeric_metrics(), delta_configs(), load_records(), main(), Path, Load run records from a JSON file, a {'runs': [...]} file, or a dir of…, Verify mean/stddev/min/max/delta on a known fixture., Sample standard deviation using n-1 (Bessel's correction). Returns 0.0 for… (+6 more)
 
 ### Community 310 - ".agent/skills/bmad-loop-setup/scripts/merge-help-csv.py"
 Cohesion: 0.20
-Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only. (+6 more)
+Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only.… (+6 more)
 
 ### Community 311 - ".agent/skills/bmad-module-builder/assets/setup-skill-template/scripts/merge-help-csv.py"
 Cohesion: 0.20
-Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only. (+6 more)
+Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only.… (+6 more)
 
 ### Community 312 - ".agent/skills/bmad-module-builder/assets/standalone-module-template/merge-help-csv.py"
 Cohesion: 0.20
-Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only. (+6 more)
+Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only.… (+6 more)
 
 ### Community 313 - "validate"
 Cohesion: 0.23
@@ -2345,7 +2371,7 @@ Nodes (14): check_frontmatter(), check_root_md_files(), get_line_number(), is_in
 
 ### Community 321 - ".agents/skills/bmad-bmb-setup/scripts/merge-help-csv.py"
 Cohesion: 0.20
-Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only. (+6 more)
+Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only.… (+6 more)
 
 ### Community 322 - "On Activation"
 Cohesion: 0.13
@@ -2381,19 +2407,19 @@ Nodes (14): 1. Begin Scope Confirmation, 2. Scope Confirmation, 3. Handle Contin
 
 ### Community 330 - ".agents/skills/bmad-eval-runner/scripts/aggregate_benchmark.py"
 Cohesion: 0.22
-Nodes (14): collect_numeric_metrics(), delta_configs(), load_records(), main(), Path, Load run records from a JSON file, a {'runs': [...]} file, or a dir of     timi, Verify mean/stddev/min/max/delta on a known fixture., Sample standard deviation using n-1 (Bessel's correction).      Returns 0.0 fo (+6 more)
+Nodes (14): collect_numeric_metrics(), delta_configs(), load_records(), main(), Path, Load run records from a JSON file, a {'runs': [...]} file, or a dir of…, Verify mean/stddev/min/max/delta on a known fixture., Sample standard deviation using n-1 (Bessel's correction). Returns 0.0 for… (+6 more)
 
 ### Community 331 - ".agents/skills/bmad-loop-setup/scripts/merge-help-csv.py"
 Cohesion: 0.20
-Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only. (+6 more)
+Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only.… (+6 more)
 
 ### Community 332 - ".agents/skills/bmad-module-builder/assets/setup-skill-template/scripts/merge-help-csv.py"
 Cohesion: 0.20
-Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only. (+6 more)
+Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only.… (+6 more)
 
 ### Community 333 - ".agents/skills/bmad-module-builder/assets/standalone-module-template/merge-help-csv.py"
 Cohesion: 0.20
-Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only. (+6 more)
+Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only.… (+6 more)
 
 ### Community 334 - "validate"
 Cohesion: 0.23
@@ -2433,7 +2459,7 @@ Nodes (14): check_frontmatter(), check_root_md_files(), get_line_number(), is_in
 
 ### Community 343 - ".claude/skills/bmad-bmb-setup/scripts/merge-help-csv.py"
 Cohesion: 0.20
-Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only. (+6 more)
+Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only.… (+6 more)
 
 ### Community 344 - "On Activation"
 Cohesion: 0.13
@@ -2469,19 +2495,19 @@ Nodes (14): 1. Begin Scope Confirmation, 2. Scope Confirmation, 3. Handle Contin
 
 ### Community 352 - ".claude/skills/bmad-eval-runner/scripts/aggregate_benchmark.py"
 Cohesion: 0.22
-Nodes (14): collect_numeric_metrics(), delta_configs(), load_records(), main(), Path, Load run records from a JSON file, a {'runs': [...]} file, or a dir of     timi, Verify mean/stddev/min/max/delta on a known fixture., Sample standard deviation using n-1 (Bessel's correction).      Returns 0.0 fo (+6 more)
+Nodes (14): collect_numeric_metrics(), delta_configs(), load_records(), main(), Path, Load run records from a JSON file, a {'runs': [...]} file, or a dir of…, Verify mean/stddev/min/max/delta on a known fixture., Sample standard deviation using n-1 (Bessel's correction). Returns 0.0 for… (+6 more)
 
 ### Community 353 - ".claude/skills/bmad-loop-setup/scripts/merge-help-csv.py"
 Cohesion: 0.20
-Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only. (+6 more)
+Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only.… (+6 more)
 
 ### Community 354 - ".claude/skills/bmad-module-builder/assets/setup-skill-template/scripts/merge-help-csv.py"
 Cohesion: 0.20
-Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only. (+6 more)
+Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only.… (+6 more)
 
 ### Community 355 - ".claude/skills/bmad-module-builder/assets/standalone-module-template/merge-help-csv.py"
 Cohesion: 0.20
-Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only. (+6 more)
+Nodes (14): cleanup_legacy_csvs(), extract_module_codes(), filter_rows(), main(), parse_args(), Remove all rows matching the given module code., Write header + rows to CSV file, creating parent dirs as needed., Delete legacy per-module module-help.csv files for this module and core only.… (+6 more)
 
 ### Community 356 - "validate"
 Cohesion: 0.23
@@ -2513,7 +2539,7 @@ Nodes (13): Build Process, Capture into the memlog throughout, Decide customizat
 
 ### Community 363 - ".agent/skills/bmad-bmb-setup/scripts/cleanup-legacy.py"
 Cohesion: 0.25
-Nodes (13): cleanup_directories(), count_files(), find_skill_dirs(), main(), parse_args(), Path, Count all files recursively in a directory., Remove specified directories under bmad_dir.      Returns:         (removed, (+5 more)
+Nodes (13): cleanup_directories(), count_files(), find_skill_dirs(), main(), parse_args(), Path, Count all files recursively in a directory., Remove specified directories under bmad_dir. Returns: (removed, not_found,… (+5 more)
 
 ### Community 364 - "On Activation"
 Cohesion: 0.14
@@ -2537,7 +2563,7 @@ Nodes (13): Conventions, Domain Research Workflow, On Activation, PREREQUISITE, 
 
 ### Community 369 - ".agent/skills/bmad-loop-setup/scripts/cleanup-legacy.py"
 Cohesion: 0.25
-Nodes (13): cleanup_directories(), count_files(), find_skill_dirs(), main(), parse_args(), Path, Count all files recursively in a directory., Remove specified directories under bmad_dir.      Returns:         (removed, (+5 more)
+Nodes (13): cleanup_directories(), count_files(), find_skill_dirs(), main(), parse_args(), Path, Count all files recursively in a directory., Remove specified directories under bmad_dir. Returns: (removed, not_found,… (+5 more)
 
 ### Community 370 - "On Activation"
 Cohesion: 0.14
@@ -2545,7 +2571,7 @@ Nodes (13): Conventions, Market Research Workflow, On Activation, PREREQUISITE, 
 
 ### Community 371 - ".agent/skills/bmad-module-builder/assets/setup-skill-template/scripts/cleanup-legacy.py"
 Cohesion: 0.25
-Nodes (13): cleanup_directories(), count_files(), find_skill_dirs(), main(), parse_args(), Path, Count all files recursively in a directory., Remove specified directories under bmad_dir.      Returns:         (removed, (+5 more)
+Nodes (13): cleanup_directories(), count_files(), find_skill_dirs(), main(), parse_args(), Path, Count all files recursively in a directory., Remove specified directories under bmad_dir. Returns: (removed, not_found,… (+5 more)
 
 ### Community 372 - "Process"
 Cohesion: 0.14
@@ -2581,7 +2607,7 @@ Nodes (13): Customization (customize.toml), Description format, Failure Modes Wi
 
 ### Community 380 - ".agent/skills/bmad-workflow-builder/scripts/tests/test_count_tokens.py"
 Cohesion: 0.25
-Nodes (13): _load_module(), The CLI over a file and over stdin produce the same count for same text., No file and no --stdin is a usage error (exit 2 from argparse)., Force the import of tiktoken to fail and confirm the fallback fires., tiktoken and chars//4 should be in the same order of magnitude.      Skipped w, _run_all(), test_cli_file_and_stdin_agree(), test_cli_file_output_schema() (+5 more)
+Nodes (13): _load_module(), The CLI over a file and over stdin produce the same count for same text., No file and no --stdin is a usage error (exit 2 from argparse)., Force the import of tiktoken to fail and confirm the fallback fires., tiktoken and chars//4 should be in the same order of magnitude. Skipped when…, _run_all(), test_cli_file_and_stdin_agree(), test_cli_file_output_schema() (+5 more)
 
 ### Community 381 - "{displayName}"
 Cohesion: 0.14
@@ -2593,7 +2619,7 @@ Nodes (13): Build Process, Capture into the memlog throughout, Decide customizat
 
 ### Community 383 - ".agents/skills/bmad-bmb-setup/scripts/cleanup-legacy.py"
 Cohesion: 0.25
-Nodes (13): cleanup_directories(), count_files(), find_skill_dirs(), main(), parse_args(), Path, Count all files recursively in a directory., Remove specified directories under bmad_dir.      Returns:         (removed, (+5 more)
+Nodes (13): cleanup_directories(), count_files(), find_skill_dirs(), main(), parse_args(), Path, Count all files recursively in a directory., Remove specified directories under bmad_dir. Returns: (removed, not_found,… (+5 more)
 
 ### Community 384 - "On Activation"
 Cohesion: 0.14
@@ -2617,7 +2643,7 @@ Nodes (13): Conventions, Domain Research Workflow, On Activation, PREREQUISITE, 
 
 ### Community 389 - ".agents/skills/bmad-loop-setup/scripts/cleanup-legacy.py"
 Cohesion: 0.25
-Nodes (13): cleanup_directories(), count_files(), find_skill_dirs(), main(), parse_args(), Path, Count all files recursively in a directory., Remove specified directories under bmad_dir.      Returns:         (removed, (+5 more)
+Nodes (13): cleanup_directories(), count_files(), find_skill_dirs(), main(), parse_args(), Path, Count all files recursively in a directory., Remove specified directories under bmad_dir. Returns: (removed, not_found,… (+5 more)
 
 ### Community 390 - "On Activation"
 Cohesion: 0.14
@@ -2625,7 +2651,7 @@ Nodes (13): Conventions, Market Research Workflow, On Activation, PREREQUISITE, 
 
 ### Community 391 - ".agents/skills/bmad-module-builder/assets/setup-skill-template/scripts/cleanup-legacy.py"
 Cohesion: 0.25
-Nodes (13): cleanup_directories(), count_files(), find_skill_dirs(), main(), parse_args(), Path, Count all files recursively in a directory., Remove specified directories under bmad_dir.      Returns:         (removed, (+5 more)
+Nodes (13): cleanup_directories(), count_files(), find_skill_dirs(), main(), parse_args(), Path, Count all files recursively in a directory., Remove specified directories under bmad_dir. Returns: (removed, not_found,… (+5 more)
 
 ### Community 392 - "Process"
 Cohesion: 0.14
@@ -2661,7 +2687,7 @@ Nodes (13): Customization (customize.toml), Description format, Failure Modes Wi
 
 ### Community 400 - ".agents/skills/bmad-workflow-builder/scripts/tests/test_count_tokens.py"
 Cohesion: 0.25
-Nodes (13): _load_module(), The CLI over a file and over stdin produce the same count for same text., No file and no --stdin is a usage error (exit 2 from argparse)., Force the import of tiktoken to fail and confirm the fallback fires., tiktoken and chars//4 should be in the same order of magnitude.      Skipped w, _run_all(), test_cli_file_and_stdin_agree(), test_cli_file_output_schema() (+5 more)
+Nodes (13): _load_module(), The CLI over a file and over stdin produce the same count for same text., No file and no --stdin is a usage error (exit 2 from argparse)., Force the import of tiktoken to fail and confirm the fallback fires., tiktoken and chars//4 should be in the same order of magnitude. Skipped when…, _run_all(), test_cli_file_and_stdin_agree(), test_cli_file_output_schema() (+5 more)
 
 ### Community 401 - "{displayName}"
 Cohesion: 0.14
@@ -2673,7 +2699,7 @@ Nodes (13): Build Process, Capture into the memlog throughout, Decide customizat
 
 ### Community 403 - ".claude/skills/bmad-bmb-setup/scripts/cleanup-legacy.py"
 Cohesion: 0.25
-Nodes (13): cleanup_directories(), count_files(), find_skill_dirs(), main(), parse_args(), Path, Count all files recursively in a directory., Remove specified directories under bmad_dir.      Returns:         (removed, (+5 more)
+Nodes (13): cleanup_directories(), count_files(), find_skill_dirs(), main(), parse_args(), Path, Count all files recursively in a directory., Remove specified directories under bmad_dir. Returns: (removed, not_found,… (+5 more)
 
 ### Community 404 - "On Activation"
 Cohesion: 0.14
@@ -2697,7 +2723,7 @@ Nodes (13): Conventions, Domain Research Workflow, On Activation, PREREQUISITE, 
 
 ### Community 409 - ".claude/skills/bmad-loop-setup/scripts/cleanup-legacy.py"
 Cohesion: 0.25
-Nodes (13): cleanup_directories(), count_files(), find_skill_dirs(), main(), parse_args(), Path, Count all files recursively in a directory., Remove specified directories under bmad_dir.      Returns:         (removed, (+5 more)
+Nodes (13): cleanup_directories(), count_files(), find_skill_dirs(), main(), parse_args(), Path, Count all files recursively in a directory., Remove specified directories under bmad_dir. Returns: (removed, not_found,… (+5 more)
 
 ### Community 410 - "On Activation"
 Cohesion: 0.14
@@ -2705,7 +2731,7 @@ Nodes (13): Conventions, Market Research Workflow, On Activation, PREREQUISITE, 
 
 ### Community 411 - ".claude/skills/bmad-module-builder/assets/setup-skill-template/scripts/cleanup-legacy.py"
 Cohesion: 0.25
-Nodes (13): cleanup_directories(), count_files(), find_skill_dirs(), main(), parse_args(), Path, Count all files recursively in a directory., Remove specified directories under bmad_dir.      Returns:         (removed, (+5 more)
+Nodes (13): cleanup_directories(), count_files(), find_skill_dirs(), main(), parse_args(), Path, Count all files recursively in a directory., Remove specified directories under bmad_dir. Returns: (removed, not_found,… (+5 more)
 
 ### Community 412 - "Process"
 Cohesion: 0.14
@@ -2741,7 +2767,7 @@ Nodes (13): Customization (customize.toml), Description format, Failure Modes Wi
 
 ### Community 420 - ".claude/skills/bmad-workflow-builder/scripts/tests/test_count_tokens.py"
 Cohesion: 0.25
-Nodes (13): _load_module(), The CLI over a file and over stdin produce the same count for same text., No file and no --stdin is a usage error (exit 2 from argparse)., Force the import of tiktoken to fail and confirm the fallback fires., tiktoken and chars//4 should be in the same order of magnitude.      Skipped w, _run_all(), test_cli_file_and_stdin_agree(), test_cli_file_output_schema() (+5 more)
+Nodes (13): _load_module(), The CLI over a file and over stdin produce the same count for same text., No file and no --stdin is a usage error (exit 2 from argparse)., Force the import of tiktoken to fail and confirm the fallback fires., tiktoken and chars//4 should be in the same order of magnitude. Skipped when…, _run_all(), test_cli_file_and_stdin_agree(), test_cli_file_output_schema() (+5 more)
 
 ### Community 421 - "Advanced Elicitation"
 Cohesion: 0.15
@@ -2805,7 +2831,7 @@ Nodes (12): Acceptance Criteria, Agent Model Used, Completion Notes List, Debug 
 
 ### Community 436 - ".agent/skills/bmad-customize/scripts/list_customizable_skills.py"
 Cohesion: 0.27
-Nodes (12): default_skills_root(), load_customize(), main(), parse_args(), Namespace, Path, Derive the skills root from this script's location.      Layout assumption: {ski, Extract the `description:` value from a SKILL.md YAML frontmatter block.      Re (+4 more)
+Nodes (12): default_skills_root(), load_customize(), main(), parse_args(), Namespace, Path, Derive the skills root from this script's location. Layout assumption:…, Extract the `description:` value from a SKILL.md YAML frontmatter block.… (+4 more)
 
 ### Community 437 - "properties"
 Cohesion: 0.15
@@ -2885,7 +2911,7 @@ Nodes (12): Acceptance Criteria, Agent Model Used, Completion Notes List, Debug 
 
 ### Community 456 - ".agents/skills/bmad-customize/scripts/list_customizable_skills.py"
 Cohesion: 0.27
-Nodes (12): default_skills_root(), load_customize(), main(), parse_args(), Namespace, Path, Derive the skills root from this script's location.      Layout assumption: {ski, Extract the `description:` value from a SKILL.md YAML frontmatter block.      Re (+4 more)
+Nodes (12): default_skills_root(), load_customize(), main(), parse_args(), Namespace, Path, Derive the skills root from this script's location. Layout assumption:…, Extract the `description:` value from a SKILL.md YAML frontmatter block.… (+4 more)
 
 ### Community 457 - "properties"
 Cohesion: 0.15
@@ -2965,7 +2991,7 @@ Nodes (12): Acceptance Criteria, Agent Model Used, Completion Notes List, Debug 
 
 ### Community 476 - ".claude/skills/bmad-customize/scripts/list_customizable_skills.py"
 Cohesion: 0.27
-Nodes (12): default_skills_root(), load_customize(), main(), parse_args(), Namespace, Path, Derive the skills root from this script's location.      Layout assumption: {ski, Extract the `description:` value from a SKILL.md YAML frontmatter block.      Re (+4 more)
+Nodes (12): default_skills_root(), load_customize(), main(), parse_args(), Namespace, Path, Derive the skills root from this script's location. Layout assumption:…, Extract the `description:` value from a SKILL.md YAML frontmatter block.… (+4 more)
 
 ### Community 477 - "properties"
 Cohesion: 0.15
@@ -3311,17 +3337,17 @@ Nodes (10): Both, and when, Entry types and the CLI, memlog: the decision trail,
 Cohesion: 0.35
 Nodes (10): atomic_write(), fail(), _finding_lines(), inject(), main(), Path, Return a list of shape errors; empty list means valid., render_md() (+2 more)
 
-### Community 563 - "Nó 99 (NodeReles — Central de Atuação)"
-Cohesion: 0.18
-Nodes (11): Nó 99 (9 relés + DHT11, ALWAYS_ON), BOM — Nó 99 NodeReles, Bomba Circulação NFT (220V AC), Bomba de Oxigenação (220V AC), Sensor DHT11 — Nó 99 (quadro elétrico), Esquema Elétrico — Nó 99 NodeReles, Nó 99 (NodeReles — Central de Atuação), Bombas Peristálticas Dosadoras (Nutrientes/pH) (+3 more)
+### Community 563 - "Tabela de Pinagem (Pinout)"
+Cohesion: 0.29
+Nodes (6): Botão de Manutenção e Pino A0, Diagrama de Conexões (Mermaid), Esquema Elétrico — Gateway MQTT (M360-DRY), LEDs de Status (Painel Frontal), NRF24L01+ (Comunicação SPI), Tabela de Pinagem (Pinout)
 
-### Community 564 - "Node Engine (node_engine.h/cpp)"
-Cohesion: 0.18
-Nodes (11): Estrutura de Tópico MQTT m360/UF/CAR/dir/nodeId/sensorId/command/ack/type, README — Ecossistema de Nós M360 Horta, LibDRY (biblioteca core), Slash Command /m360-node-factory, NodeTemplate (lib/M360-DRY/examples/NodeTemplate), config.h (Constantes globais compartilhadas), Filosofia DRY (Don't Repeat Yourself) aplicada ao Node Engine, Node Engine (node_engine.h/cpp) (+3 more)
+### Community 564 - "Esquema Elétrico — Nó 1 (Solo3dNano)"
+Cohesion: 0.29
+Nodes (6): 1. Ligação dos Resistores de Pull-up, Esquema Elétrico — Nó 1 (Solo3dNano), Mapeamento de Pinos (Pinout), Notas de Montagem e Funcionamento, Rádio nRF24L01+, Sensores de Solo e Controle de Pull-ups
 
-### Community 565 - "Nó 01 - Monitoramento 3D de Solo (Versão Pro Mini)"
-Cohesion: 0.20
-Nodes (11): BOM Nó 01 (Solo3dMini), Tabela de Mapeamento Físico dos Eletrodos (Canteiros A e B, 18 canais), Esquema Elétrico — Nó 01 Pro Mini, Ciclo de Acordado ~600ms (varredura+transmissão+escuta), Nó 01 - Monitoramento 3D de Solo (Versão Pro Mini), powerDown() modificado para enviar bateria em todo ciclo, Pull-up Único Centralizado no pino SIG (Opção B), BOM Nó 01 (Solo3dNano) (+3 more)
+### Community 565 - "Esquema Elétrico — Nó 2 (Solo3dNano)"
+Cohesion: 0.29
+Nodes (6): 1. Ligação dos Resistores de Pull-up, Esquema Elétrico — Nó 2 (Solo3dNano), Mapeamento de Pinos (Pinout), Notas de Montagem e Funcionamento, Rádio nRF24L01+, Sensores de Solo e Controle de Pull-ups
 
 ### Community 566 - "Agent Type Guidance"
 Cohesion: 0.20
@@ -3515,13 +3541,13 @@ Nodes (9): Close, Inputs, Markdown twin format, Orient, Rubric-walker pipeline, 
 Cohesion: 0.20
 Nodes (9): Edge Case Hunter Review, EXECUTION, HALT CONDITIONS, OUTPUT FORMAT, Step 1: Receive Content, Step 2: Exhaustive Path Analysis, Step 3: Validate Completeness, Step 4: Deletion Check (+1 more)
 
-### Community 615 - "README — Nó 99 NodeReles (Central de Atuação)"
-Cohesion: 0.22
-Nodes (10): Pinos Virtuais MUX (Nó 99) — abstração para o backend, Alimentação Chaveada do ZTS-3002 via Relé (D5), PIN_POWER_SENSORS (D7) — Nó 80, Regra de Concorrência Restrita (1 canal MUX ativo por vez), Fail-safe Active-LOW (relés NA, desligado em falha), Codificação Virtual de Pinos MUX (MUX_CHANNEL_OFFSET=100), readItem() desvio DHT11 (readDHTTemp/readDHTHum), README — Nó 99 NodeReles (Central de Atuação) (+2 more)
+### Community 615 - "Tabela de Pinagem (Pinout)"
+Cohesion: 0.29
+Nodes (6): Botão de Manutenção e Pino A0, Diagrama de Conexões (Mermaid), Esquema Elétrico — Gateway MQTT (M360-DRY), LEDs de Status (Painel Frontal), NRF24L01+ (Comunicação SPI), Tabela de Pinagem (Pinout)
 
-### Community 616 - "Nó 13 (ZTS_UmidadeHall)"
-Cohesion: 0.20
-Nodes (10): BOM — Nó 13 ZTS_UmidadeHall, Esquema Elétrico — Nó 13 ZTS_UmidadeHall, Sensor LDR (Luminosidade), Nó 13 (ZTS_UmidadeHall), Realocação RO/DI para D2/D3 (libera D9/D10 para rádio), Módulo Relé + Válvula Solenoide 12V, Boas Práticas Físicas RS485 (Daisy-Chain, Terminação 120Ω, STP), Sensor de Umidade Hall (local) (+2 more)
+### Community 616 - "Lista de Materiais (BOM) — Gateway MQTT (M360-DRY)"
+Cohesion: 0.33
+Nodes (5): 1. Componentes Principais e Módulos, 2. Componentes de Interface e Sinalização Painel, 3. Componentes Passivos, Filtragem e Acessórios, 4. Notas de Omissão de Componentes, Lista de Materiais (BOM) — Gateway MQTT (M360-DRY)
 
 ### Community 617 - "Outcome-Driven Prompt Quality"
 Cohesion: 0.22
@@ -3803,9 +3829,9 @@ Nodes (8): Cheaper signals, Outcome-Driven Prompt Quality, The deeper floor, The
 Cohesion: 0.22
 Nodes (8): Authoring the script, Opportunity categories, Script Opportunities Reference, The determinism test, The line that decides it, The pre-pass JSON pattern, The signal-verb scan, The transcript-detected repeated-work signal
 
-### Community 687 - "Esquema Elétrico — Nó 05 Solo3dNanoMux"
-Cohesion: 0.22
-Nodes (9): Adaptador de Soquete com AMS1117-3.3, BOM — Nó 05 Solo3dNanoMux, Canteiro A (9 sensores, Nó 05), Canteiro B (9 sensores, Nó 05), Multiplexador CD74HC4067 — Nó 05, Esquema Elétrico — Nó 05 Solo3dNanoMux, Nó 05 (Solo3dNanoMux, 18 sensores), Pull-up Único Compartilhado (canais MUX) (+1 more)
+### Community 687 - "Lista de Materiais (BOM) — Nó 99 (NodeReles)"
+Cohesion: 0.33
+Nodes (5): 1. Componentes Principais, 2. Componentes de Alimentação e Regulação, 3. Atuadores (Cargas Acopladas), 4. Componentes Passivos e Conectores, Lista de Materiais (BOM) — Nó 99 (NodeReles)
 
 ### Community 688 - "Pulse"
 Cohesion: 0.25
@@ -3833,7 +3859,7 @@ Nodes (7): Beyond the Template, Conditionals, Customize.toml Emission, Frontmatt
 
 ### Community 694 - ".agent/skills/bmad-agent-builder/scripts/process-template.py"
 Cohesion: 0.36
-Nodes (7): main(), parse_var(), process_conditionals(), process_variables(), Process {if-X}...{/if-X} conditional blocks, innermost first.      Returns (pr, Replace {varName} placeholders with provided values.      Only replaces variab, Parse a key=value string. Raises argparse error on bad format.
+Nodes (7): main(), parse_var(), process_conditionals(), process_variables(), Process {if-X}...{/if-X} conditional blocks, innermost first. Returns…, Replace {varName} placeholders with provided values. Only replaces variables…, Parse a key=value string. Raises argparse error on bad format.
 
 ### Community 695 - "INSTRUCTIONS"
 Cohesion: 0.25
@@ -3897,7 +3923,7 @@ Nodes (5): run_render(), test_md_output(), test_refuses_bad_json(), test_refuses
 
 ### Community 710 - "M360 Horta — Contexto Permanente para Codex"
 Cohesion: 0.25
-Nodes (7): Convenções de Código, Estrutura Relevante, M360 Horta — Contexto Permanente para Codex, Projeto, Regras críticas do Gateway (`src/DRY/gateway/`), Resumo das regras críticas, Skill Obrigatória — MySensors Node Coding & Gateway
+Nodes (7): Convenções de Código, Estrutura Relevante, M360 Horta — Contexto Permanente para Codex, Projeto, Regras críticas do Gateway (`src/DRY/horta/gateway/`), Resumo das regras críticas, Skill Obrigatória — MySensors Node Coding & Gateway
 
 ### Community 711 - "Pulse"
 Cohesion: 0.25
@@ -3925,7 +3951,7 @@ Nodes (7): Beyond the Template, Conditionals, Customize.toml Emission, Frontmatt
 
 ### Community 717 - ".agents/skills/bmad-agent-builder/scripts/process-template.py"
 Cohesion: 0.36
-Nodes (7): main(), parse_var(), process_conditionals(), process_variables(), Process {if-X}...{/if-X} conditional blocks, innermost first.      Returns (pr, Replace {varName} placeholders with provided values.      Only replaces variab, Parse a key=value string. Raises argparse error on bad format.
+Nodes (7): main(), parse_var(), process_conditionals(), process_variables(), Process {if-X}...{/if-X} conditional blocks, innermost first. Returns…, Replace {varName} placeholders with provided values. Only replaces variables…, Parse a key=value string. Raises argparse error on bad format.
 
 ### Community 718 - "INSTRUCTIONS"
 Cohesion: 0.25
@@ -4017,7 +4043,7 @@ Nodes (7): Beyond the Template, Conditionals, Customize.toml Emission, Frontmatt
 
 ### Community 740 - ".claude/skills/bmad-agent-builder/scripts/process-template.py"
 Cohesion: 0.36
-Nodes (7): main(), parse_var(), process_conditionals(), process_variables(), Process {if-X}...{/if-X} conditional blocks, innermost first.      Returns (pr, Replace {varName} placeholders with provided values.      Only replaces variab, Parse a key=value string. Raises argparse error on bad format.
+Nodes (7): main(), parse_var(), process_conditionals(), process_variables(), Process {if-X}...{/if-X} conditional blocks, innermost first. Returns…, Replace {varName} placeholders with provided values. Only replaces variables…, Parse a key=value string. Raises argparse error on bad format.
 
 ### Community 741 - "INSTRUCTIONS"
 Cohesion: 0.25
@@ -4083,21 +4109,17 @@ Nodes (7): Favor the Standard Library, Graceful Degradation, Invocation in SKILL
 Cohesion: 0.39
 Nodes (5): run_render(), test_md_output(), test_refuses_bad_json(), test_refuses_placeholder_subject(), test_valid_island_injection()
 
-### Community 757 - "M360Node (motor de ciclo de vida do nó)"
-Cohesion: 0.25
-Nodes (8): Ciclo de Vida do Sono (Deep Sleep) powerUp/powerDown, M360Node (motor de ciclo de vida do nó), Alimentação Pulsada VCC_SENSORS (proteção contra degradação galvânica), Epic 1: Core Infrastructure - O Motor Compartilhado (DRY Node Engine), Story 1.1: Motor Core M360-DRY (M360Node), Story 1.2: Gerenciamento de Alimentação Variável, Story 1.3: Padrão de Gateway e MQTT (ngm/), Paradigma DRY (Don't Repeat Yourself) para hardware/nodes
+### Community 757 - "Lista de Materiais (BOM) — Gateway MQTT (M360-DRY)"
+Cohesion: 0.33
+Nodes (5): 1. Componentes Principais e Módulos, 2. Componentes de Interface e Sinalização Painel, 3. Componentes Passivos, Filtragem e Acessórios, 4. Notas de Omissão de Componentes, Lista de Materiais (BOM) — Gateway MQTT (M360-DRY)
 
 ### Community 758 - "🚀 Contexto do Desenvolvedor"
 Cohesion: 0.25
 Nodes (7): 🏗️ Arquitetura Obrigatória (SoC), 🚀 Contexto do Desenvolvedor, ⚡ Gestão de Energia e Callbacks, 🏷️ Identificação e Apresentação, M360-DRY Node Development Prompt, 📜 Padrões de Código (Clean Code), 📚 Referência de Template
 
-### Community 759 - "Nó 04 (SolarMini / Clima)"
-Cohesion: 0.25
-Nodes (8): Nó 04 (Clima temp/umidade ar, LOW_POWER), Circuito Bateria 18650 + Painel Solar + LDO, BOM — Nó 04 SolarMini, Divisor de Tensão para Leitura de Bateria (A0), Esquema Elétrico — Nó 04 SolarMini, Nó 04 (SolarMini / Clima), Arduino Pro Mini 3.3V/8MHz — Nó 04, Gestão de Bateria (Child ID 255, V_VOLTAGE)
-
-### Community 760 - "Nó 02 (Solo3dNano)"
-Cohesion: 0.25
-Nodes (8): Arduino Nano (5V/16MHz) — Nó 02, BOM — Nó 02 Solo3dNano, Fonte 5V DC (Alimentacao Fixa), Nó 02 (Solo3dNano), nRF24L01+ — Nó 02, Sensores Solo - 6 Resistivos Diretos (Canteiro B), Transceptor nRF24L01+ (CE=D9, CSN=D10, SPI=D11-D13), Perfil LOW_POWER [LP]
+### Community 760 - "Lista de Materiais (BOM) — Nó 4 (Monitoramento Solar de Clima)"
+Cohesion: 0.40
+Nodes (4): 1. Componentes Principais, 2. Circuito de Alimentação e Energia, 3. Componentes Eletrônicos Passivos e Conectores, Lista de Materiais (BOM) — Nó 4 (Monitoramento Solar de Clima)
 
 ### Community 761 - "Capabilities"
 Cohesion: 0.29
@@ -4181,7 +4203,7 @@ Nodes (6): How to think, Return, Scan Lens: Enhancement (add or subtract), Sever
 
 ### Community 781 - ".agent/skills/bmad-workflow-builder/scripts/quick_validate.py"
 Cohesion: 0.43
-Nodes (6): main(), Path, Return (ok, frontmatter dict, error). ok is False when there is no parseable blo, resolve_skill_md(), split_frontmatter(), validate()
+Nodes (6): main(), Path, Return (ok, frontmatter dict, error). ok is False when there is no parseable…, resolve_skill_md(), split_frontmatter(), validate()
 
 ### Community 782 - "Capabilities"
 Cohesion: 0.29
@@ -4265,7 +4287,7 @@ Nodes (6): How to think, Return, Scan Lens: Enhancement (add or subtract), Sever
 
 ### Community 802 - ".agents/skills/bmad-workflow-builder/scripts/quick_validate.py"
 Cohesion: 0.43
-Nodes (6): main(), Path, Return (ok, frontmatter dict, error). ok is False when there is no parseable blo, resolve_skill_md(), split_frontmatter(), validate()
+Nodes (6): main(), Path, Return (ok, frontmatter dict, error). ok is False when there is no parseable…, resolve_skill_md(), split_frontmatter(), validate()
 
 ### Community 803 - "Capabilities"
 Cohesion: 0.29
@@ -4349,15 +4371,15 @@ Nodes (6): How to think, Return, Scan Lens: Enhancement (add or subtract), Sever
 
 ### Community 823 - ".claude/skills/bmad-workflow-builder/scripts/quick_validate.py"
 Cohesion: 0.43
-Nodes (6): main(), Path, Return (ok, frontmatter dict, error). ok is False when there is no parseable blo, resolve_skill_md(), split_frontmatter(), validate()
+Nodes (6): main(), Path, Return (ok, frontmatter dict, error). ok is False when there is no parseable…, resolve_skill_md(), split_frontmatter(), validate()
 
-### Community 824 - "Technical Architecture (Solution Design) — M360 Horta"
-Cohesion: 0.29
-Nodes (7): Comando remoto FORCE_UPDATE, Technical Architecture (Solution Design) — M360 Horta, M360Gateway (orquestrador do gateway), M360Translator (contrato JSON/MySensors bidirecional), Epic 4: Integração Nuvem - Mapeamento Digital e Controle App, Story 4.1: Serialização e Transporte MQTT Resiliente, Story 4.2: Roteamento Reverso (App → Horta)
+### Community 824 - "NodeStatus"
+Cohesion: 0.50
+Nodes (4): NodeStatus, active, lastSeen, nodeId
 
 ### Community 825 - "Referência MQTT para Desenvolvedor Backend"
-Cohesion: 0.38
-Nodes (7): Referência MQTT para Desenvolvedor Backend, Modo MySensors Nativo (M360_NATIVE_MQTT=1), Nó 01 (18x umidade de solo, LOW_POWER), Nó 13 (ZTS-3002 Modbus + Hall + LDR + relé, LOW_POWER), Comando REPRESENT (V_CUSTOM, forçar reapresentação), sensorId 255 — broadcast vs. bateria (ambiguidade contextual), V_LEVEL (37) usado para umidade de solo nos nós 01/13
+Cohesion: 0.20
+Nodes (12): Referência MQTT para Desenvolvedor Backend, Pinos Virtuais MUX (Nó 99) — abstração para o backend, Modo MySensors Nativo (M360_NATIVE_MQTT=1), Nó 01 (18x umidade de solo, LOW_POWER), Nó 04 (Clima temp/umidade ar, LOW_POWER), Nó 13 (ZTS-3002 Modbus + Hall + LDR + relé, LOW_POWER), Nó 80 (pH, EC, DS18B20, ultrassônico, vazão, ALWAYS_ON), Nó 99 (9 relés + DHT11, ALWAYS_ON) (+4 more)
 
 ### Community 826 - "Overview"
 Cohesion: 0.33
@@ -4448,8 +4470,8 @@ Cohesion: 0.53
 Nodes (5): fill_template(), main(), normalize_name(), Lowercase, collapse non-alphanumerics to single hyphens, trim, cap at max_len., scaffold()
 
 ### Community 848 - "Regras do Projeto"
-Cohesion: 0.33
-Nodes (5): Comunicação e Transparência e decisão do Usuário., O Usuário deverá descidir, a depender do relatório de impacto dessas nos demais arquivos, se as mesmas deverão aplicadas ou não ., Regras do Projeto, Sincronização e Integridade de Documentação, Sincronização entre Software e Hardware
+Cohesion: 0.29
+Nodes (6): Comunicação e Transparência e decisão do Usuário., Formatação de Respostas e Fórmulas Matemáticas, O Usuário deverá descidir, a depender do relatório de impacto dessas nos demais arquivos, se as mesmas deverão aplicadas ou não ., Regras do Projeto, Sincronização e Integridade de Documentação, Sincronização entre Software e Hardware
 
 ### Community 849 - "Overview"
 Cohesion: 0.33
@@ -4619,9 +4641,9 @@ Nodes (5): Scan Lens: Leanness, Test 1: the core test, Test 2: defend against it
 Cohesion: 0.53
 Nodes (5): fill_template(), main(), normalize_name(), Lowercase, collapse non-alphanumerics to single hyphens, trim, cap at max_len., scaffold()
 
-### Community 891 - "Arduino Pro Mini (ATmega328P 3.3V/8MHz)"
-Cohesion: 0.67
-Nodes (6): Arduino Pro Mini (ATmega328P 3.3V/8MHz), Bateria / Painel Solar (Li-ion 3.7V-4.2V + LDO 3.3V), Sensor DHT11 — Nó 04, Diagrama de Blocos - No 4 (Monitoramento Solar de Clima), Divisor de Tensao 2x (100k/100k, leitura de bateria), nRF24L01+ (Radio, 3.3V sempre on)
+### Community 891 - "Lista de Materiais (BOM) — Nó 1 (Solo3dNano)"
+Cohesion: 0.50
+Nodes (3): 1. Componentes Principais, 2. Componentes Passivos e Conectores, Lista de Materiais (BOM) — Nó 1 (Solo3dNano)
 
 ### Community 892 - "Bond"
 Cohesion: 0.40
@@ -4633,7 +4655,7 @@ Nodes (4): Index, My Files, Session Logs, Standard Files
 
 ### Community 894 - ".agent/skills/bmad-agent-builder/scripts/count_tokens.py"
 Cohesion: 0.60
-Nodes (4): count_tokens(), main(), Return (token_count, method).      Tries tiktoken's cl100k_base encoding first, read_input()
+Nodes (4): count_tokens(), main(), Return (token_count, method). Tries tiktoken's cl100k_base encoding first. If…, read_input()
 
 ### Community 895 - "Generate Review Trail"
 Cohesion: 0.40
@@ -4701,7 +4723,7 @@ Nodes (4): Index, My Files, Session Logs, Standard Files
 
 ### Community 912 - ".agents/skills/bmad-agent-builder/scripts/count_tokens.py"
 Cohesion: 0.60
-Nodes (4): count_tokens(), main(), Return (token_count, method).      Tries tiktoken's cl100k_base encoding first, read_input()
+Nodes (4): count_tokens(), main(), Return (token_count, method). Tries tiktoken's cl100k_base encoding first. If…, read_input()
 
 ### Community 913 - "Generate Review Trail"
 Cohesion: 0.40
@@ -4769,7 +4791,7 @@ Nodes (4): Index, My Files, Session Logs, Standard Files
 
 ### Community 930 - ".claude/skills/bmad-agent-builder/scripts/count_tokens.py"
 Cohesion: 0.60
-Nodes (4): count_tokens(), main(), Return (token_count, method).      Tries tiktoken's cl100k_base encoding first, read_input()
+Nodes (4): count_tokens(), main(), Return (token_count, method). Tries tiktoken's cl100k_base encoding first. If…, read_input()
 
 ### Community 931 - "Generate Review Trail"
 Cohesion: 0.40
@@ -4827,9 +4849,9 @@ Nodes (4): Carved Files and the Memlog, Complex Workflow Patterns, Module Metada
 Cohesion: 0.40
 Nodes (4): Intents, On Activation, Overview, Resolution rules
 
-### Community 946 - "Epic 2: Atores Físicos - Controle Hídrico e Fluxo (Atuadores)"
-Cohesion: 0.40
-Nodes (5): Epic 2: Atores Físicos - Controle Hídrico e Fluxo (Atuadores), Story 2.1: Acionamento de Bomba Principal (nodePump), Story 2.2: Gerenciamento de Válvulas e Litragem (nodeSelenoieVazao), nodePump (Atuador - Bomba principal), nodeSelenoieVazao (Vazão de setores)
+### Community 946 - "Lista de Materiais (BOM) — Nó 2 (Solo3dNano)"
+Cohesion: 0.50
+Nodes (3): 1. Componentes Principais, 2. Componentes Passivos e Conectores, Lista de Materiais (BOM) — Nó 2 (Solo3dNano)
 
 ### Community 947 - "emit"
 Cohesion: 0.83
@@ -4975,33 +4997,41 @@ Nodes (3): Instructions, Preconditions, Sync Sprint Status
 Cohesion: 0.50
 Nodes (3): Blocked, Headless JSON Response, Success
 
-### Community 983 - "Lista de Materiais (BOM) — Nó 80 (Caixa D'água, pH, EC e Vazão)"
+### Community 983 - "Lista de Materiais (BOM) — Nó 5 (Solo3dNanoMux)"
 Cohesion: 0.50
-Nodes (3): 1. Componentes Principais, 2. Componentes Passivos e Conectores, Lista de Materiais (BOM) — Nó 80 (Caixa D'água, pH, EC e Vazão)
+Nodes (3): 1. Componentes Principais, 2. Componentes Passivos e Conectores, Lista de Materiais (BOM) — Nó 5 (Solo3dNanoMux)
+
+### Community 1159 - "Diagrama de Blocos — Nó 05 (Monitoramento 3D de Solo Unificado)"
+Cohesion: 0.50
+Nodes (3): Arquitetura de Blocos (Mermaid), Descrição dos Blocos, Diagrama de Blocos — Nó 05 (Monitoramento 3D de Solo Unificado)
+
+### Community 1160 - "Lista de Materiais (BOM) — Nó 13 (ZTS_UmidadeHall)"
+Cohesion: 0.50
+Nodes (3): 1. Componentes Principais, 2. Componentes de Alimentação e Acessórios, Lista de Materiais (BOM) — Nó 13 (ZTS_UmidadeHall)
 
 ### Community 1161 - "01nodeSolo3d.cpp"
 Cohesion: 0.36
 Nodes (7): initSensors(), loop(), powerDownSensors(), powerUpSensors(), readSensor(), selectMuxChannel(), setup()
 
 ## Knowledge Gaps
-- **7207 isolated node(s):** `$schema`, `title`, `description`, `type`, `workflow_version` (+7202 more)
+- **7297 isolated node(s):** `$schema`, `title`, `description`, `type`, `workflow_version` (+7292 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **92 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **88 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
+- **Why does `properties` connect `properties` to `type`, `properties`, `scan_level`, `enum`, `items`, `required`, `completed`?**
+  _High betweenness centrality (0.000) - this node is a cross-community bridge._
+- **Why does `M360Gateway` connect `M360Gateway` to `WiFiManager`, `MQTTManager`, `M360Config.h`, `NodeRegistry`?**
+  _High betweenness centrality (0.000) - this node is a cross-community bridge._
 - **What connects `$schema`, `title`, `description` to the rest of the system?**
-  _7207 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `libDryGatewayMqtt.cpp` be split into smaller, more focused modules?**
-  _Cohesion score 0.05827505827505827 - nodes in this community are weakly interconnected._
-- **Should `M360.h` be split into smaller, more focused modules?**
-  _Cohesion score 0.11333333333333333 - nodes in this community are weakly interconnected._
-- **Should `MUX CD74HC4067 (16 Canais)` be split into smaller, more focused modules?**
-  _Cohesion score 0.09333333333333334 - nodes in this community are weakly interconnected._
+  _7297 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Central de Atuação da Estufa — NodeReles (Nó 99)` be split into smaller, more focused modules?**
+  _Cohesion score 0.0625 - nodes in this community are weakly interconnected._
 - **Should `nodeZTS_UmidadeHall.cpp` be split into smaller, more focused modules?**
   _Cohesion score 0.12681159420289856 - nodes in this community are weakly interconnected._
+- **Should `horta/gateway/libDryGatewayMqtt.cpp` be split into smaller, more focused modules?**
+  _Cohesion score 0.14624505928853754 - nodes in this community are weakly interconnected._
 - **Should `nos/99nodeReles/99nodeReles.cpp` be split into smaller, more focused modules?**
   _Cohesion score 0.13043478260869565 - nodes in this community are weakly interconnected._
-- **Should `.agent/skills/bmad-module-builder/scripts/tests/test-validate-module.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.08816326530612245 - nodes in this community are weakly interconnected._

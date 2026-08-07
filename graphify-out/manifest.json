@@ -1,124 +1,4 @@
 {
-  "src/DRY/gateway/Deprecated_newGatewayMqtt.cpp": {
-    "mtime": 1781701195.257,
-    "ast_hash": "bdb5d02c4ddfc9b5682879c33e5934fb",
-    "semantic_hash": "bdb5d02c4ddfc9b5682879c33e5934fb"
-  },
-  "src/DRY/gateway/libDryGatewayMqtt.cpp": {
-    "mtime": 1785262442.3097043,
-    "ast_hash": "4c2dd8365aea18a74f12143084d3e51e",
-    "semantic_hash": ""
-  },
-  "src/DRY/nos/01nodeSolo3dMini/01nodeSolo3dMini.cpp": {
-    "mtime": 1783012165.9297507,
-    "ast_hash": "617e4503fd7cb18798f4c70a271d2b9b",
-    "semantic_hash": "617e4503fd7cb18798f4c70a271d2b9b"
-  },
-  "src/DRY/nos/01nodeSolo3dMini/sensorDrivers.cpp": {
-    "mtime": 1783466151.3777668,
-    "ast_hash": "019818bf41b8314fef966c5caddad478",
-    "semantic_hash": "019818bf41b8314fef966c5caddad478"
-  },
-  "src/DRY/nos/01nodeSolo3dMini/sensorDrivers.h": {
-    "mtime": 1781721215.468,
-    "ast_hash": "af9ce184a2a9e9267522eb63660d0c50",
-    "semantic_hash": "af9ce184a2a9e9267522eb63660d0c50"
-  },
-  "src/DRY/nos/01nodeSolo3dNano/01nodeSolo3dNano.cpp": {
-    "mtime": 1785262669.0917928,
-    "ast_hash": "a18b3d2a359f7d591ab3f7ecf7ba256c",
-    "semantic_hash": ""
-  },
-  "src/DRY/nos/02nodeSolo3dNano/02nodeSolo3dNano.cpp": {
-    "mtime": 1785270704.0009737,
-    "ast_hash": "f322fec85dab2c24207b761b2a28cbb5",
-    "semantic_hash": ""
-  },
-  "src/DRY/nos/04noodeSolarMini/sensorDrivers.cpp": {
-    "mtime": 1785257148.840034,
-    "ast_hash": "d1cf785160d972fdb257aaae198365de",
-    "semantic_hash": ""
-  },
-  "src/DRY/nos/04noodeSolarMini/sensorDrivers.h": {
-    "mtime": 1785262915.4963422,
-    "ast_hash": "c68f1f85b555c3cf0dc15c7a100ed293",
-    "semantic_hash": ""
-  },
-  "src/DRY/nos/05nodeSolo3dNanoMux/05nodeSolo3dNanoMux.cpp": {
-    "mtime": 1783685582.2895267,
-    "ast_hash": "8890cd755e2bcc8ae6aa0777c119c5aa",
-    "semantic_hash": "8890cd755e2bcc8ae6aa0777c119c5aa"
-  },
-  "src/DRY/nos/13nodeZTS_UmidadeHall/nodeZTS_UmidadeHall.cpp": {
-    "mtime": 1783012186.381996,
-    "ast_hash": "02fbcf17507200fdea1d96964858f9a6",
-    "semantic_hash": "02fbcf17507200fdea1d96964858f9a6"
-  },
-  "src/DRY/nos/13nodeZTS_UmidadeHall/sensorDrivers.cpp": {
-    "mtime": 1782474770.9815526,
-    "ast_hash": "c27e72d2b04e2e146f5fe3813597f749",
-    "semantic_hash": "c27e72d2b04e2e146f5fe3813597f749"
-  },
-  "src/DRY/nos/13nodeZTS_UmidadeHall/sensorDrivers.h": {
-    "mtime": 1782474770.9815526,
-    "ast_hash": "3c497d9156e30ee473aefc692c194afb",
-    "semantic_hash": "3c497d9156e30ee473aefc692c194afb"
-  },
-  "src/DRY/nos/80nodeAqua/80nodeAqua.cpp": {
-    "mtime": 1783012193.373171,
-    "ast_hash": "84b8f5a3cd1bab24bdddb887484fafa0",
-    "semantic_hash": "84b8f5a3cd1bab24bdddb887484fafa0"
-  },
-  "src/DRY/nos/80nodeAqua/sensorDrivers.cpp": {
-    "mtime": 1782484228.3344154,
-    "ast_hash": "5b7994a6ace2ca279a50711c93a048fc",
-    "semantic_hash": "5b7994a6ace2ca279a50711c93a048fc"
-  },
-  "src/DRY/nos/80nodeAqua/sensorDrivers.h": {
-    "mtime": 1782049999.4420128,
-    "ast_hash": "18d4d779deecbc8142d3ae8d6dd05e4a",
-    "semantic_hash": "18d4d779deecbc8142d3ae8d6dd05e4a"
-  },
-  "src/DRY/nos/99nodeReles/99nodeReles.cpp": {
-    "mtime": 1785269439.4771976,
-    "ast_hash": "aeab9eaf156d5ad099d409816a00e09b",
-    "semantic_hash": ""
-  },
-  "src/DRY/nos/99nodeReles/sensorDrivers.cpp": {
-    "mtime": 1785269427.3981228,
-    "ast_hash": "4184577c7a51847013c5ed87c5cb13e8",
-    "semantic_hash": ""
-  },
-  "src/DRY/nos/99nodeReles/sensorDrivers.h": {
-    "mtime": 1785269420.5732267,
-    "ast_hash": "1605edd5f0a52f0e5560945e64685af3",
-    "semantic_hash": ""
-  },
-  "src/DRY/nos/shared/config.h": {
-    "mtime": 1782474770.9815526,
-    "ast_hash": "0c0b9e7dc0917cbafe22eff3e8629457",
-    "semantic_hash": "0c0b9e7dc0917cbafe22eff3e8629457"
-  },
-  "src/DRY/nos/shared/node_engine.cpp": {
-    "mtime": 1775223521.167,
-    "ast_hash": "6bb55baa704d7e8d65c78de83c77a6c7",
-    "semantic_hash": "6bb55baa704d7e8d65c78de83c77a6c7"
-  },
-  "src/DRY/nos/shared/node_engine.h": {
-    "mtime": 1782479967.0248103,
-    "ast_hash": "659d11d5b030872e637308d893dcc5c4",
-    "semantic_hash": "659d11d5b030872e637308d893dcc5c4"
-  },
-  "src/DRY/nos/shared/powerProfile.cpp": {
-    "mtime": 1760195908.952,
-    "ast_hash": "21811cc1a2aa95801122cb1aa3a964dd",
-    "semantic_hash": "21811cc1a2aa95801122cb1aa3a964dd"
-  },
-  "src/DRY/nos/shared/powerProfile.h": {
-    "mtime": 1775222436.301,
-    "ast_hash": "888024ae973a3c572efc65c3b191c0d7",
-    "semantic_hash": "888024ae973a3c572efc65c3b191c0d7"
-  },
   "src/noDRY/gateway/gatewayNoDry/gatewayNoDry.cpp": {
     "mtime": 1782843252.9181821,
     "ast_hash": "7009d25b054c1dec94c3ea55087c140b",
@@ -133,11 +13,6 @@
     "mtime": 1783376817.551831,
     "ast_hash": "313ff0f904eb1cc4f5da56ec9469ea31",
     "semantic_hash": "313ff0f904eb1cc4f5da56ec9469ea31"
-  },
-  "src/nodered/mapa da rede/nodered m360.json": {
-    "mtime": 1785269879.7241218,
-    "ast_hash": "6212fac8e86269d980b66c359501de66",
-    "semantic_hash": ""
   },
   "src/test/MAX/teste.cpp": {
     "mtime": 1760911227.368,
@@ -194,131 +69,6 @@
     "ast_hash": "c4de50bd43c7d3cb030ec3ace795c4db",
     "semantic_hash": "c4de50bd43c7d3cb030ec3ace795c4db"
   },
-  "src/DRY/gateway/BOM.md": {
-    "mtime": 1784645044.9247544,
-    "ast_hash": "b805081df9a2a9db5a90f64542b95574",
-    "semantic_hash": "b805081df9a2a9db5a90f64542b95574"
-  },
-  "src/DRY/gateway/README.md": {
-    "mtime": 1775063896.614,
-    "ast_hash": "6071607bf21d55b0179687fd4fad5958",
-    "semantic_hash": "6071607bf21d55b0179687fd4fad5958"
-  },
-  "src/DRY/gateway/esquema_eletrico.md": {
-    "mtime": 1781616588.482,
-    "ast_hash": "433955811a3838147ff08432d294a614",
-    "semantic_hash": "433955811a3838147ff08432d294a614"
-  },
-  "src/DRY/nos/01nodeSolo3dMini/BOM.md": {
-    "mtime": 1784645053.5770025,
-    "ast_hash": "7d3059509b0183c5cabadc0ccd7087b3",
-    "semantic_hash": "7d3059509b0183c5cabadc0ccd7087b3"
-  },
-  "src/DRY/nos/01nodeSolo3dMini/README.md": {
-    "mtime": 1781791854.467,
-    "ast_hash": "5266d409f7479876f3107b359d35e9b3",
-    "semantic_hash": "5266d409f7479876f3107b359d35e9b3"
-  },
-  "src/DRY/nos/01nodeSolo3dMini/esquema_eletrico.md": {
-    "mtime": 1782474770.9815526,
-    "ast_hash": "f3f51a750f181c6814b9c2d745bf4cbe",
-    "semantic_hash": "f3f51a750f181c6814b9c2d745bf4cbe"
-  },
-  "src/DRY/nos/01nodeSolo3dNano/BOM.md": {
-    "mtime": 1784645145.796649,
-    "ast_hash": "fd31a20c59d643b3335756269f5c9719",
-    "semantic_hash": "fd31a20c59d643b3335756269f5c9719"
-  },
-  "src/DRY/nos/01nodeSolo3dNano/esquema_eletrico.md": {
-    "mtime": 1784645154.669884,
-    "ast_hash": "7e60424894274fcc13d152f6588c8808",
-    "semantic_hash": "7e60424894274fcc13d152f6588c8808"
-  },
-  "src/DRY/nos/02nodeSolo3dNano/BOM.md": {
-    "mtime": 1784645179.4665153,
-    "ast_hash": "2307e0ea81ef2d69a7f45165653b3bb2",
-    "semantic_hash": "2307e0ea81ef2d69a7f45165653b3bb2"
-  },
-  "src/DRY/nos/02nodeSolo3dNano/esquema_eletrico.md": {
-    "mtime": 1784645187.9495876,
-    "ast_hash": "615f5467d3ad41c2e8d387bd2c9012e9",
-    "semantic_hash": "615f5467d3ad41c2e8d387bd2c9012e9"
-  },
-  "src/DRY/nos/04noodeSolarMini/BOM.md": {
-    "mtime": 1785257179.4194868,
-    "ast_hash": "8febac7ef872f190d532ea4ad597c2a0",
-    "semantic_hash": ""
-  },
-  "src/DRY/nos/04noodeSolarMini/esquema_eletrico.md": {
-    "mtime": 1785257186.5266192,
-    "ast_hash": "cf518a2e5f43aa0323157444e8b57bcf",
-    "semantic_hash": ""
-  },
-  "src/DRY/nos/05nodeSolo3dNanoMux/BOM.md": {
-    "mtime": 1784645219.5738776,
-    "ast_hash": "290c8a8e8e100594fabb60eca32e007b",
-    "semantic_hash": "290c8a8e8e100594fabb60eca32e007b"
-  },
-  "src/DRY/nos/05nodeSolo3dNanoMux/diagrama_blocos.md": {
-    "mtime": 1783685765.5496216,
-    "ast_hash": "f17df4a4962ff9e2ae13f1b0b73321d9",
-    "semantic_hash": "f17df4a4962ff9e2ae13f1b0b73321d9"
-  },
-  "src/DRY/nos/05nodeSolo3dNanoMux/esquema_eletrico.md": {
-    "mtime": 1783685774.2177804,
-    "ast_hash": "1b4dca9d21c199ac9d62e3df29569996",
-    "semantic_hash": "1b4dca9d21c199ac9d62e3df29569996"
-  },
-  "src/DRY/nos/13nodeZTS_UmidadeHall/BOM.md": {
-    "mtime": 1784645337.5894308,
-    "ast_hash": "0841c8445eba560c6d97c6969009f43a",
-    "semantic_hash": "0841c8445eba560c6d97c6969009f43a"
-  },
-  "src/DRY/nos/13nodeZTS_UmidadeHall/esquema_eletrico.md": {
-    "mtime": 1784645383.4101484,
-    "ast_hash": "cb2dccf78fa2202c8a5acf2420500774",
-    "semantic_hash": "cb2dccf78fa2202c8a5acf2420500774"
-  },
-  "src/DRY/nos/80nodeAqua/BOM.md": {
-    "mtime": 1784645426.758968,
-    "ast_hash": "a4243a6088237768c4ee71df1abdbc02",
-    "semantic_hash": "a4243a6088237768c4ee71df1abdbc02"
-  },
-  "src/DRY/nos/80nodeAqua/README.md": {
-    "mtime": 1782050082.8661332,
-    "ast_hash": "1ff6e0e55e6d91b9ce1af093728d942f",
-    "semantic_hash": "1ff6e0e55e6d91b9ce1af093728d942f"
-  },
-  "src/DRY/nos/80nodeAqua/esquema_eletrico.md": {
-    "mtime": 1782049120.545051,
-    "ast_hash": "593d2379e290557df69ad84f7de16934",
-    "semantic_hash": "593d2379e290557df69ad84f7de16934"
-  },
-  "src/DRY/nos/99nodeReles/BOM.md": {
-    "mtime": 1784645446.2845316,
-    "ast_hash": "9f1a4a7e26f3211e46ad314392eee937",
-    "semantic_hash": "9f1a4a7e26f3211e46ad314392eee937"
-  },
-  "src/DRY/nos/99nodeReles/README.md": {
-    "mtime": 1783376826.05514,
-    "ast_hash": "c03115ef52c70254ae92bc0b0022ff28",
-    "semantic_hash": "c03115ef52c70254ae92bc0b0022ff28"
-  },
-  "src/DRY/nos/99nodeReles/esquema_eletrico.md": {
-    "mtime": 1784240106.4333084,
-    "ast_hash": "176489a6ab65c4493649df26040448a4",
-    "semantic_hash": "176489a6ab65c4493649df26040448a4"
-  },
-  "src/DRY/nos/README.md": {
-    "mtime": 1775337550.775,
-    "ast_hash": "c03f73170f0e26eb17b906ebf6f207f8",
-    "semantic_hash": "c03f73170f0e26eb17b906ebf6f207f8"
-  },
-  "src/DRY/nos/shared/README.md": {
-    "mtime": 1775135559.651,
-    "ast_hash": "32b7b0f010e39e75f72979524d8f1e39",
-    "semantic_hash": "32b7b0f010e39e75f72979524d8f1e39"
-  },
   "src/banckend.md": {
     "mtime": 1782914288.504913,
     "ast_hash": "b19e5363f4c168ad92b40354b9dc1b66",
@@ -348,61 +98,6 @@
     "mtime": 1760827994.743,
     "ast_hash": "1d2005d4db21e425741d4ce749d80d9b",
     "semantic_hash": "1d2005d4db21e425741d4ce749d80d9b"
-  },
-  "src/DRY/gateway/diagrama_blocos.svg": {
-    "mtime": 1781616383.027,
-    "ast_hash": "60adaee44546d9140933f6ac6de7c714",
-    "semantic_hash": "60adaee44546d9140933f6ac6de7c714"
-  },
-  "src/DRY/nos/01nodeSolo3dMini/diagrama_blocos.svg": {
-    "mtime": 1784645072.6629777,
-    "ast_hash": "b9662f9379675e1c2081f807dc693890",
-    "semantic_hash": "b9662f9379675e1c2081f807dc693890"
-  },
-  "src/DRY/nos/01nodeSolo3dNano/diagrama_blocos.svg": {
-    "mtime": 1784645163.8748279,
-    "ast_hash": "87ba778225d99f7ed214e1f1834f01a7",
-    "semantic_hash": "87ba778225d99f7ed214e1f1834f01a7"
-  },
-  "src/DRY/nos/02nodeSolo3dNano/diagrama_blocos.svg": {
-    "mtime": 1784645197.0240734,
-    "ast_hash": "9348214edd8225356c64fb729ba2f98b",
-    "semantic_hash": "9348214edd8225356c64fb729ba2f98b"
-  },
-  "src/DRY/nos/04noodeSolarMini/diagrama_blocos.svg": {
-    "mtime": 1785257197.2077093,
-    "ast_hash": "935f71ec390aa0611fb0b56de76106d0",
-    "semantic_hash": ""
-  },
-  "src/DRY/nos/05nodeSolo3dNanoMux/diagrama_blocos.svg": {
-    "mtime": 1784645229.5091,
-    "ast_hash": "2f39f5e43c411dd6079be51850d131a8",
-    "semantic_hash": "2f39f5e43c411dd6079be51850d131a8"
-  },
-  "src/DRY/nos/13nodeZTS_UmidadeHall/diagrama_blocos.svg": {
-    "mtime": 1784645404.876352,
-    "ast_hash": "452f1059e102bda5a0895c69d8ba21e8",
-    "semantic_hash": "452f1059e102bda5a0895c69d8ba21e8"
-  },
-  "src/DRY/nos/80nodeAqua/Camara para sondas .png": {
-    "mtime": 1781972125.5233715,
-    "ast_hash": "6cbd01dc74f8d1eba0220054af2d6ea3",
-    "semantic_hash": "6cbd01dc74f8d1eba0220054af2d6ea3"
-  },
-  "src/DRY/nos/80nodeAqua/diagrama_blocos.svg": {
-    "mtime": 1781978578.5549476,
-    "ast_hash": "f8b6915629d9779c21dc36b6ce180192",
-    "semantic_hash": "f8b6915629d9779c21dc36b6ce180192"
-  },
-  "src/DRY/nos/99nodeReles/diagrama_blocos.svg": {
-    "mtime": 1781613387.452,
-    "ast_hash": "1ac796f0ff2fd04b891208e59583c10d",
-    "semantic_hash": "1ac796f0ff2fd04b891208e59583c10d"
-  },
-  "src/DRY/nos/99nodeReles/quadro eletrico horta.jpeg": {
-    "mtime": 1782050876.9335358,
-    "ast_hash": "559db28985810f3ebe91703df2c37981",
-    "semantic_hash": "559db28985810f3ebe91703df2c37981"
   },
   "_bmad-output/implementation-artifacts/deferred-work.md": {
     "mtime": 1781710880.242,
@@ -1050,8 +745,8 @@
     "semantic_hash": ""
   },
   ".claude/settings.local.json": {
-    "mtime": 1784221344.163124,
-    "ast_hash": "f3176b753937e77367fc116feb1d57cc",
+    "mtime": 1785937785.5567615,
+    "ast_hash": "b69ccfeda684710ca8f4824b09ae7a8e",
     "semantic_hash": ""
   },
   ".claude/skills/bmad-agent-builder/assets/init-sanctum-template.py": {
@@ -1345,18 +1040,18 @@
     "semantic_hash": ""
   },
   ".vscode/c_cpp_properties.json": {
-    "mtime": 1785265127.5093396,
-    "ast_hash": "f8dadb156ad073c960e7c54da146b6bc",
+    "mtime": 1786046347.5804484,
+    "ast_hash": "027a009b0430e2a2161f5dee5d390a8e",
     "semantic_hash": ""
   },
   ".vscode/extensions.json": {
-    "mtime": 1785265127.5093396,
+    "mtime": 1786046347.5804484,
     "ast_hash": "41e5d8dec3ff179fe5aecb46632391ca",
     "semantic_hash": ""
   },
   ".vscode/launch.json": {
-    "mtime": 1785265127.5093396,
-    "ast_hash": "b1bd0f29dc0eba2120c78f8ef69b9eb7",
+    "mtime": 1786046347.584645,
+    "ast_hash": "b1279923fb71e9973f43daf1707ba1c7",
     "semantic_hash": ""
   },
   ".vscode/settings.json": {
@@ -1425,8 +1120,8 @@
     "semantic_hash": ""
   },
   "lib/M360-DRY/src/M360Constants.h": {
-    "mtime": 1785262262.0936527,
-    "ast_hash": "816af8adacaefc75d19c3816abd5d48f",
+    "mtime": 1785785464.095854,
+    "ast_hash": "dc609dbdc39a6cb2d03c6e56d6bcdc43",
     "semantic_hash": ""
   },
   "lib/M360-DRY/src/M360Gateway.cpp": {
@@ -1460,13 +1155,13 @@
     "semantic_hash": ""
   },
   "lib/M360-DRY/src/M360Node.cpp": {
-    "mtime": 1783375715.8020885,
-    "ast_hash": "b0559229b148c48ef57de15c05b77671",
+    "mtime": 1785785481.147694,
+    "ast_hash": "6172a0041cd9689ff992c12aa0bbcfe8",
     "semantic_hash": ""
   },
   "lib/M360-DRY/src/M360Node.h": {
-    "mtime": 1783375715.8020885,
-    "ast_hash": "c35585b1caf96a846a7f86e1add25217",
+    "mtime": 1785785472.9862657,
+    "ast_hash": "439957daab11c8a8898440e6bdbc9c1d",
     "semantic_hash": ""
   },
   "lib/M360-DRY/src/M360Power.cpp": {
@@ -2925,8 +2620,8 @@
     "semantic_hash": ""
   },
   ".agents/AGENTS.md": {
-    "mtime": 1784643344.4698424,
-    "ast_hash": "5e9a93dd20e59b28390cbf37eb7578b2",
+    "mtime": 1785937061.5941422,
+    "ast_hash": "e564e939ee8b0161d6fb95aabbb6bf28",
     "semantic_hash": ""
   },
   ".agents/rules/graphify.md": {
@@ -6110,13 +5805,13 @@
     "semantic_hash": ""
   },
   "AGENTS.md": {
-    "mtime": 1782474770.9652417,
-    "ast_hash": "27b3ef47a4b2d5c633809e596a99d6c8",
+    "mtime": 1786095689.6275306,
+    "ast_hash": "6e85bd570d01a05aaebea1fec7ab5712",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1783012249.1469877,
-    "ast_hash": "6c1a7612e5cc57cca61e579048fa4948",
+    "mtime": 1786095702.769326,
+    "ast_hash": "d13a6c1671088d2dcdd00490ce523b6c",
     "semantic_hash": ""
   },
   "_bmad/bmb/config.yaml": {
@@ -6170,13 +5865,368 @@
     "semantic_hash": ""
   },
   "project-context.md": {
-    "mtime": 1782838675.4826655,
-    "ast_hash": "77b3f07a6b1ace230054ed875ee6484d",
+    "mtime": 1786095714.5303497,
+    "ast_hash": "8d052c66f1eeb1911012d9a00ef99f69",
     "semantic_hash": ""
   },
-  "src/DRY/nos/04noodeSolarMini/04noodeSolarMini.cpp": {
+  "hardware/kicad/gateway/m360_gateway_drc_violations.json": {
+    "mtime": 1785941728.2582924,
+    "ast_hash": "8afc0c1fe3836e6cb3e1a72162f886b3",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/gateway/Deprecated_newGatewayMqtt.cpp": {
+    "mtime": 1785785502.6253567,
+    "ast_hash": "be966d0714f4d5bff5cd57453ffefdfd",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/gateway/libDryGatewayMqtt.cpp": {
+    "mtime": 1785785495.6950605,
+    "ast_hash": "44f1aa9c0d7f9b1124b2e6c912d563b2",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nodered/flows.json": {
+    "mtime": 1786034509.1546109,
+    "ast_hash": "4bd81992dc74653d549b8a987d1d11e7",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/01nodeSolo3dNano/01nodeSolo3dNano.cpp": {
+    "mtime": 1785262669.0917928,
+    "ast_hash": "a18b3d2a359f7d591ab3f7ecf7ba256c",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/02nodeSolo3dNano/02nodeSolo3dNano.cpp": {
+    "mtime": 1785270704.0009737,
+    "ast_hash": "f322fec85dab2c24207b761b2a28cbb5",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/04noodeSolarMini/04noodeSolarMini.cpp": {
     "mtime": 1785262922.8680174,
     "ast_hash": "b73c2916400a1cb03b7237248880391a",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/04noodeSolarMini/sensorDrivers.cpp": {
+    "mtime": 1785257148.840034,
+    "ast_hash": "d1cf785160d972fdb257aaae198365de",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/04noodeSolarMini/sensorDrivers.h": {
+    "mtime": 1785262915.4963422,
+    "ast_hash": "c68f1f85b555c3cf0dc15c7a100ed293",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/05nodeSolo3dNanoMux/05nodeSolo3dNanoMux.cpp": {
+    "mtime": 1783685582.2895267,
+    "ast_hash": "8890cd755e2bcc8ae6aa0777c119c5aa",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/13nodeZTS_UmidadeHall/nodeZTS_UmidadeHall.cpp": {
+    "mtime": 1783012186.381996,
+    "ast_hash": "02fbcf17507200fdea1d96964858f9a6",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/13nodeZTS_UmidadeHall/sensorDrivers.cpp": {
+    "mtime": 1782474770.9815526,
+    "ast_hash": "c27e72d2b04e2e146f5fe3813597f749",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/13nodeZTS_UmidadeHall/sensorDrivers.h": {
+    "mtime": 1782474770.9815526,
+    "ast_hash": "3c497d9156e30ee473aefc692c194afb",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/99nodeReles/99nodeReles.cpp": {
+    "mtime": 1786095251.7163498,
+    "ast_hash": "bbb0e6497c990a0a4b51bd9d62db7fc8",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/99nodeReles/sensorDrivers.cpp": {
+    "mtime": 1785936645.992735,
+    "ast_hash": "cbfe060d1fd218a8377d7ec9e8f96d32",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/99nodeReles/sensorDrivers.h": {
+    "mtime": 1786095251.7546873,
+    "ast_hash": "6c9277e2f83730a1c0b2d4acde119eb8",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/shared/config.h": {
+    "mtime": 1782474770.9815526,
+    "ast_hash": "0c0b9e7dc0917cbafe22eff3e8629457",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/shared/node_engine.cpp": {
+    "mtime": 1775223521.167,
+    "ast_hash": "6bb55baa704d7e8d65c78de83c77a6c7",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/shared/node_engine.h": {
+    "mtime": 1785785489.1570916,
+    "ast_hash": "cb43bc7a83af156d3e5c8a7f40e851c7",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/shared/powerProfile.cpp": {
+    "mtime": 1760195908.952,
+    "ast_hash": "21811cc1a2aa95801122cb1aa3a964dd",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/shared/powerProfile.h": {
+    "mtime": 1775222436.301,
+    "ast_hash": "888024ae973a3c572efc65c3b191c0d7",
+    "semantic_hash": ""
+  },
+  "src/DRY/kit-helio/gateway/Deprecated_newGatewayMqtt.cpp": {
+    "mtime": 1785785502.6253567,
+    "ast_hash": "be966d0714f4d5bff5cd57453ffefdfd",
+    "semantic_hash": ""
+  },
+  "src/DRY/kit-helio/gateway/libDryGatewayMqtt.cpp": {
+    "mtime": 1785785495.6950605,
+    "ast_hash": "44f1aa9c0d7f9b1124b2e6c912d563b2",
+    "semantic_hash": ""
+  },
+  ".agents/skills/bmad-agent-node-red-dev/SKILL.md": {
+    "mtime": 1786026320.666159,
+    "ast_hash": "95bf2bdb2f52abe49946473de3f8a544",
+    "semantic_hash": ""
+  },
+  ".claude/claude.md": {
+    "mtime": 1785887468.0030084,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  ".claude/memory.md": {
+    "mtime": 1785887639.9481769,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "hardware/kicad/gateway/README.md": {
+    "mtime": 1785941828.066586,
+    "ast_hash": "408358aaea8e8cbd9a4555a6334b6d18",
+    "semantic_hash": ""
+  },
+  "hardware/kicad/n\u00f3s/nano/.history/README.txt": {
+    "mtime": 1785944169.1453786,
+    "ast_hash": "00aafcbbe4e884d6739a909841dd12d0",
+    "semantic_hash": ""
+  },
+  "hardware/kicad/n\u00f3s/promini/.history/README.txt": {
+    "mtime": 1785944221.7496665,
+    "ast_hash": "00aafcbbe4e884d6739a909841dd12d0",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/gateway/BOM.md": {
+    "mtime": 1785942456.0181372,
+    "ast_hash": "6b276b525a86c025242eb1590745b30c",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/gateway/README.md": {
+    "mtime": 1785942448.5890987,
+    "ast_hash": "e012136dd625de6aa9872d91456ee1c7",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/gateway/esquema_eletrico.md": {
+    "mtime": 1785942464.2000093,
+    "ast_hash": "c33849e262962e6e2d7d99ce68f53ba9",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nodered/dump.html": {
+    "mtime": 1785946732.037687,
+    "ast_hash": "bda00b77b873ce1aa8e4448541b176eb",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nodered/dump.txt": {
+    "mtime": 1785946658.8383179,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/01nodeSolo3dNano/BOM.md": {
+    "mtime": 1784645145.796649,
+    "ast_hash": "fd31a20c59d643b3335756269f5c9719",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/01nodeSolo3dNano/esquema_eletrico.md": {
+    "mtime": 1784645154.669884,
+    "ast_hash": "7e60424894274fcc13d152f6588c8808",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/02nodeSolo3dNano/BOM.md": {
+    "mtime": 1784645179.4665153,
+    "ast_hash": "2307e0ea81ef2d69a7f45165653b3bb2",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/02nodeSolo3dNano/esquema_eletrico.md": {
+    "mtime": 1784645187.9495876,
+    "ast_hash": "615f5467d3ad41c2e8d387bd2c9012e9",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/04noodeSolarMini/BOM.md": {
+    "mtime": 1785257179.4194868,
+    "ast_hash": "8febac7ef872f190d532ea4ad597c2a0",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/04noodeSolarMini/esquema_eletrico.md": {
+    "mtime": 1785257186.5266192,
+    "ast_hash": "cf518a2e5f43aa0323157444e8b57bcf",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/05nodeSolo3dNanoMux/BOM.md": {
+    "mtime": 1784645219.5738776,
+    "ast_hash": "290c8a8e8e100594fabb60eca32e007b",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/05nodeSolo3dNanoMux/diagrama_blocos.md": {
+    "mtime": 1783685765.5496216,
+    "ast_hash": "f17df4a4962ff9e2ae13f1b0b73321d9",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/05nodeSolo3dNanoMux/esquema_eletrico.md": {
+    "mtime": 1783685774.2177804,
+    "ast_hash": "1b4dca9d21c199ac9d62e3df29569996",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/13nodeZTS_UmidadeHall/BOM.md": {
+    "mtime": 1784645337.5894308,
+    "ast_hash": "0841c8445eba560c6d97c6969009f43a",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/13nodeZTS_UmidadeHall/esquema_eletrico.md": {
+    "mtime": 1784645383.4101484,
+    "ast_hash": "cb2dccf78fa2202c8a5acf2420500774",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/99nodeReles/BOM.md": {
+    "mtime": 1784645446.2845316,
+    "ast_hash": "9f1a4a7e26f3211e46ad314392eee937",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/99nodeReles/README.md": {
+    "mtime": 1786048066.5320945,
+    "ast_hash": "6d3e188a058e66e8455a250982f46d10",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/99nodeReles/esquema_eletrico.md": {
+    "mtime": 1784240106.4333084,
+    "ast_hash": "176489a6ab65c4493649df26040448a4",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/README.md": {
+    "mtime": 1775337550.775,
+    "ast_hash": "c03f73170f0e26eb17b906ebf6f207f8",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/shared/README.md": {
+    "mtime": 1775135559.651,
+    "ast_hash": "32b7b0f010e39e75f72979524d8f1e39",
+    "semantic_hash": ""
+  },
+  "src/DRY/kit-helio/gateway/BOM.md": {
+    "mtime": 1785942456.0181372,
+    "ast_hash": "6b276b525a86c025242eb1590745b30c",
+    "semantic_hash": ""
+  },
+  "src/DRY/kit-helio/gateway/README.md": {
+    "mtime": 1785942448.5890987,
+    "ast_hash": "e012136dd625de6aa9872d91456ee1c7",
+    "semantic_hash": ""
+  },
+  "src/DRY/kit-helio/gateway/esquema_eletrico.md": {
+    "mtime": 1785942464.2000093,
+    "ast_hash": "c33849e262962e6e2d7d99ce68f53ba9",
+    "semantic_hash": ""
+  },
+  "hardware/kicad/gateway/m360_gateway_esquematico.pdf": {
+    "mtime": 1785941764.7222698,
+    "ast_hash": "2fc1fccbe4c8a5a04c38fce76ab49a84",
+    "semantic_hash": ""
+  },
+  "hardware/kicad/gateway/m360_gateway_test.svg/m360_gateway.svg": {
+    "mtime": 1785943839.1274965,
+    "ast_hash": "5d603aa23014bc15e368e1cf2f41179f",
+    "semantic_hash": ""
+  },
+  "hardware/kicad/n\u00f3s/nano/esquematico_nano_shield.svg": {
+    "mtime": 1785944338.0468092,
+    "ast_hash": "bdb898cfd623f4bff5fecc7a5b765646",
+    "semantic_hash": ""
+  },
+  "hardware/kicad/n\u00f3s/nano/nano_shield_m360.kicad_sch.svg/nano_shield_m360.svg": {
+    "mtime": 1785944323.1347806,
+    "ast_hash": "a3e4aa8d56df9adb1b46e1ea46ceb6a0",
+    "semantic_hash": ""
+  },
+  "hardware/kicad/n\u00f3s/nano/nano_shield_m360.svg/nano_shield_m360.svg": {
+    "mtime": 1785944338.0468092,
+    "ast_hash": "bdb898cfd623f4bff5fecc7a5b765646",
+    "semantic_hash": ""
+  },
+  "hardware/kicad/n\u00f3s/nano/nano_shield_m360_sch.svg/nano_shield_m360.svg": {
+    "mtime": 1785944242.0890145,
+    "ast_hash": "4c534f07d402790f2886c89050bbeb37",
+    "semantic_hash": ""
+  },
+  "hardware/kicad/n\u00f3s/nano/test_bsect.kicad_sch.svg/test_bsect.svg": {
+    "mtime": 1785944004.104776,
+    "ast_hash": "9dcfa9807f1e10d6fe86bf257c19ba2b",
+    "semantic_hash": ""
+  },
+  "hardware/kicad/n\u00f3s/nano/test_clean.kicad_sch.svg/test_clean.svg": {
+    "mtime": 1785944116.609827,
+    "ast_hash": "a7c1aa9b4474e783a7801558b2a1cf7f",
+    "semantic_hash": ""
+  },
+  "hardware/kicad/n\u00f3s/nano/test_lib_sym.kicad_sch.svg/test_lib_sym.svg": {
+    "mtime": 1785944136.113129,
+    "ast_hash": "3b6d21447e50256637eca12e72ed57d4",
+    "semantic_hash": ""
+  },
+  "hardware/kicad/n\u00f3s/nano/test_vcc_only.kicad_sch.svg/test_vcc_only.svg": {
+    "mtime": 1785944225.5146759,
+    "ast_hash": "0bd9ed770da524f3ed4c938e62aaa539",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/gateway/diagrama_blocos.svg": {
+    "mtime": 1785942484.9323056,
+    "ast_hash": "525cc31e5507d4d5a3bba032155d397e",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/01nodeSolo3dNano/diagrama_blocos.svg": {
+    "mtime": 1784645163.8748279,
+    "ast_hash": "87ba778225d99f7ed214e1f1834f01a7",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/02nodeSolo3dNano/diagrama_blocos.svg": {
+    "mtime": 1784645197.0240734,
+    "ast_hash": "9348214edd8225356c64fb729ba2f98b",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/04noodeSolarMini/diagrama_blocos.svg": {
+    "mtime": 1785257197.2077093,
+    "ast_hash": "935f71ec390aa0611fb0b56de76106d0",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/05nodeSolo3dNanoMux/diagrama_blocos.svg": {
+    "mtime": 1784645229.5091,
+    "ast_hash": "2f39f5e43c411dd6079be51850d131a8",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/13nodeZTS_UmidadeHall/diagrama_blocos.svg": {
+    "mtime": 1784645404.876352,
+    "ast_hash": "452f1059e102bda5a0895c69d8ba21e8",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/99nodeReles/diagrama_blocos.svg": {
+    "mtime": 1781613387.452,
+    "ast_hash": "1ac796f0ff2fd04b891208e59583c10d",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nos/99nodeReles/quadro eletrico horta.jpeg": {
+    "mtime": 1782050876.9335358,
+    "ast_hash": "559db28985810f3ebe91703df2c37981",
+    "semantic_hash": ""
+  },
+  "src/DRY/kit-helio/gateway/diagrama_blocos.svg": {
+    "mtime": 1785942484.9323056,
+    "ast_hash": "525cc31e5507d4d5a3bba032155d397e",
     "semantic_hash": ""
   }
 }

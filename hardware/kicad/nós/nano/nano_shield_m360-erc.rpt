@@ -1,0 +1,190 @@
+ERC report (2026-08-05T12:37:31, Encoding UTF8)
+Report includes: Errors, Warnings
+
+***** Sheet /
+[pin_not_connected]: Pin not connected
+    ; error
+    @(-12.70 mm, -15.24 mm): Symbol U1 Pin 2 [D0/RX, Bidirectional, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(-12.70 mm, -10.16 mm): Symbol U1 Pin 5 [D2, Bidirectional, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(-12.70 mm, 10.16 mm): Symbol U1 Pin 13 [D10, Bidirectional, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(-12.70 mm, 12.70 mm): Symbol U1 Pin 14 [D11, Bidirectional, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(-12.70 mm, 17.78 mm): Symbol U1 Pin 16 [D13, Bidirectional, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(-2.54 mm, -25.40 mm): Symbol U1 Pin 30 [VIN, Power input, Line]
+[power_pin_not_driven]: Input Power pin not driven by any Output Power pins
+    ; error
+    @(-2.54 mm, -25.40 mm): Symbol U1 Pin 30 [VIN, Power input, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(0.00 mm, -25.40 mm): Symbol U3 Pin 24 [VCC, Power input, Line]
+[power_pin_not_driven]: Input Power pin not driven by any Output Power pins
+    ; error
+    @(0.00 mm, -25.40 mm): Symbol U3 Pin 24 [VCC, Power input, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(0.00 mm, -15.24 mm): Symbol U2 Pin 2 [VCC, Power input, Line]
+[power_pin_not_driven]: Input Power pin not driven by any Output Power pins
+    ; error
+    @(0.00 mm, -15.24 mm): Symbol U2 Pin 2 [VCC, Power input, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(0.00 mm, -7.62 mm): Symbol U4 Pin 1 [VDD, Power input, Line]
+[power_pin_not_driven]: Input Power pin not driven by any Output Power pins
+    ; error
+    @(0.00 mm, -7.62 mm): Symbol U4 Pin 1 [VDD, Power input, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(0.00 mm, 7.62 mm): Symbol U4 Pin 4 [GND, Power input, Line]
+[power_pin_not_driven]: Input Power pin not driven by any Output Power pins
+    ; error
+    @(0.00 mm, 7.62 mm): Symbol U4 Pin 4 [GND, Power input, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(0.00 mm, 15.24 mm): Symbol U2 Pin 1 [GND, Power input, Line]
+[power_pin_not_driven]: Input Power pin not driven by any Output Power pins
+    ; error
+    @(0.00 mm, 15.24 mm): Symbol U2 Pin 1 [GND, Power input, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(0.00 mm, 25.40 mm): Symbol U1 Pin 4 [GND, Power input, Line]
+[power_pin_not_driven]: Input Power pin not driven by any Output Power pins
+    ; error
+    @(0.00 mm, 25.40 mm): Symbol U1 Pin 4 [GND, Power input, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(0.00 mm, 27.94 mm): Symbol U3 Pin 12 [GND, Power input, Line]
+[power_pin_not_driven]: Input Power pin not driven by any Output Power pins
+    ; error
+    @(0.00 mm, 27.94 mm): Symbol U3 Pin 12 [GND, Power input, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(2.54 mm, -25.40 mm): Symbol U1 Pin 17 [3V3, Power output, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(2.54 mm, 25.40 mm): Symbol U1 Pin 29 [GND, Power input, Line]
+[power_pin_not_driven]: Input Power pin not driven by any Output Power pins
+    ; error
+    @(2.54 mm, 25.40 mm): Symbol U1 Pin 29 [GND, Power input, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(5.08 mm, -25.40 mm): Symbol U1 Pin 27 [+5V, Power output, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(7.62 mm, 0.00 mm): Symbol U4 Pin 2 [DATA, Bidirectional, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(12.70 mm, -17.78 mm): Symbol U3 Pin 9 [I0, Passive, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(12.70 mm, -10.16 mm): Symbol U3 Pin 6 [I3, Passive, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(12.70 mm, -7.62 mm): Symbol U3 Pin 5 [I4, Passive, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(12.70 mm, -2.54 mm): Symbol U3 Pin 3 [I6, Passive, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(12.70 mm, 20.32 mm): Symbol U3 Pin 16 [I15, Passive, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(30.00 mm, 155.00 mm): Symbol #PWR07 Pin 1 [Power output, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(30.00 mm, 168.00 mm): Symbol #PWR08 Pin 1 [Power output, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(110.00 mm, 60.00 mm): Symbol #PWR01 Pin 1 [VCC, Power input, Line]
+[power_pin_not_driven]: Input Power pin not driven by any Output Power pins
+    ; error
+    @(110.00 mm, 60.00 mm): Symbol #PWR01 Pin 1 [VCC, Power input, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(110.00 mm, 145.00 mm): Symbol #PWR02 Pin 1 [GND, Power input, Line]
+[power_pin_not_driven]: Input Power pin not driven by any Output Power pins
+    ; error
+    @(110.00 mm, 145.00 mm): Symbol #PWR02 Pin 1 [GND, Power input, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(210.00 mm, 27.00 mm): Symbol #PWR09 Pin 1 [Power output, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(210.00 mm, 30.00 mm): Symbol #PWR03 Pin 1 [+3.3V, Power input, Line]
+[power_pin_not_driven]: Input Power pin not driven by any Output Power pins
+    ; error
+    @(210.00 mm, 30.00 mm): Symbol #PWR03 Pin 1 [+3.3V, Power input, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(210.00 mm, 70.00 mm): Symbol #PWR04 Pin 1 [GND, Power input, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(210.00 mm, 105.00 mm): Symbol #PWR05 Pin 1 [VCC, Power input, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(210.00 mm, 150.00 mm): Symbol #PWR06 Pin 1 [GND, Power input, Line]
+[no_connect_connected]: O pino com o tipo "sem conexão" está conectado
+    ; warning
+    @(-5.08 mm, 0.00 mm): Symbol U4 Hidden pin 3 [NC, Unconnected, Line]
+    @(-5.08 mm, 0.00 mm): Symbol J8 Pin 2 [Pin_2, Passive, Line]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(30.00 mm, 155.00 mm): Symbol #PWR07 Pin 1 [Power output, Line]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(30.00 mm, 168.00 mm): Symbol #PWR08 Pin 1 [Power output, Line]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(110.00 mm, 60.00 mm): Symbol #PWR01 Pin 1 [VCC, Power input, Line]
+[lib_symbol_mismatch]: O símbolo 'VCC' não bate com a cópia existente na biblioteca 'power'
+    ; warning
+    @(110.00 mm, 60.00 mm): Symbol #PWR01 [VCC]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(110.00 mm, 145.00 mm): Symbol #PWR02 Pin 1 [GND, Power input, Line]
+[lib_symbol_mismatch]: O símbolo 'GND' não bate com a cópia existente na biblioteca 'power'
+    ; warning
+    @(110.00 mm, 145.00 mm): Symbol #PWR02 [GND]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(210.00 mm, 27.00 mm): Symbol #PWR09 Pin 1 [Power output, Line]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(210.00 mm, 30.00 mm): Symbol #PWR03 Pin 1 [+3.3V, Power input, Line]
+[lib_symbol_mismatch]: O símbolo '+3.3V' não bate com a cópia existente na biblioteca 'power'
+    ; warning
+    @(210.00 mm, 30.00 mm): Symbol #PWR03 [+3.3V]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(210.00 mm, 70.00 mm): Symbol #PWR04 Pin 1 [GND, Power input, Line]
+[lib_symbol_mismatch]: O símbolo 'GND' não bate com a cópia existente na biblioteca 'power'
+    ; warning
+    @(210.00 mm, 70.00 mm): Symbol #PWR04 [GND]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(210.00 mm, 105.00 mm): Symbol #PWR05 Pin 1 [VCC, Power input, Line]
+[lib_symbol_mismatch]: O símbolo 'VCC' não bate com a cópia existente na biblioteca 'power'
+    ; warning
+    @(210.00 mm, 105.00 mm): Symbol #PWR05 [VCC]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(210.00 mm, 150.00 mm): Symbol #PWR06 Pin 1 [GND, Power input, Line]
+[lib_symbol_mismatch]: O símbolo 'GND' não bate com a cópia existente na biblioteca 'power'
+    ; warning
+    @(210.00 mm, 150.00 mm): Symbol #PWR06 [GND]
+
+ ** ERC messages: 59  Errors 43  Warnings 16
+
+ ** Ignored checks:
+    - Global label only appears once in the schematic
+    - Four connection points are joined together
+    - SPICE model issue
+    - Assigned footprint doesn't match footprint filters
