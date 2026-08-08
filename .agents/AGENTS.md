@@ -31,5 +31,7 @@ Todo firmware (gateway e nós da rede) deve possuir os arquivos de documentaçã
     Vazao_L_min = (Pulsos * 60) / (Intervalo_segundos * 450)
     ```
 
+## Fonte da Verdade e Documentação Externa (Manejo360)
 
-
+* **REPOSITÓRIO COMO FONTE ÚNICA DA VERDADE (SSoT):** O repositório `c:\Users\jmarc\Documents\PlatformIO\Projects\m360_horta` é a Fonte Única da Verdade para todas as especificações de firmware, pinagem de hardware, tópicos MQTT, motor de nós (`node_engine.h`), abstrações DRY e automações.
+* **SINCRONIZAÇÃO DA DOCUMENTAÇÃO EXTERNA:** A pasta de documentação técnica em `d:\Meu Drive\GDrive Meus Documentos\Projetos (1)\ViridIoTech\Projetos\Manejo360\Documentação` é parte integrante e oficial das especificações do ecossistema Manejo360. Toda e qualquer alteração no código-fonte, arquitetura de software, pinagem ou circuito físico mantido no repositório DEVE ser obrigatoriamente refletida e sincronizada nos arquivos correspondentes dessa pasta externa (ex: `00. Documento Técnico Manejo360.md`, `01. API do Backend e Estrutura de Tópicos MQTT - v1.0.md`, `05. Especificação de Hardware IoT.md`, `Arquitetura IOT.md`, etc.), garantindo 100% de integridade e ausência de divergências.

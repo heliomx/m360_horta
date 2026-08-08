@@ -52,7 +52,8 @@
       "Bash(echo \"=== skills top-level names ===\")",
       "Bash(grep -oE '^\\\\.agents/skills/[a-z0-9-]+ +tree' C:/Users/jmarc/.claude/projects/C--Users-jmarc-Documents-PlatformIO-Projects-m360-horta/11616f15-c0a1-4501-90bf-51a91587c35f/tool-results/bm4i6z4bi.txt)",
       "Bash(awk '{print $1}')",
-      "PowerShell($dst=\"C:\\\\Users\\\\jmarc\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-jmarc-Documents-PlatformIO-Projects-m360-horta\\\\11616f15-c0a1-4501-90bf-51a91587c35f\\\\scratchpad\\\\verification-loop-SKILL.md\"; Invoke-WebRequest -Uri \"https://raw.githubusercontent.com/affaan-m/ECC/main/skills/verification-loop/SKILL.md\" -OutFile $dst -UseBasicParsing; \"bytes: \" + \\(Get-Item $dst\\).Length)"
+      "PowerShell($dst=\"C:\\\\Users\\\\jmarc\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-jmarc-Documents-PlatformIO-Projects-m360-horta\\\\11616f15-c0a1-4501-90bf-51a91587c35f\\\\scratchpad\\\\verification-loop-SKILL.md\"; Invoke-WebRequest -Uri \"https://raw.githubusercontent.com/affaan-m/ECC/main/skills/verification-loop/SKILL.md\" -OutFile $dst -UseBasicParsing; \"bytes: \" + \\(Get-Item $dst\\).Length)",
+      "PowerShell($proj=\"C:\\\\Users\\\\jmarc\\\\Documents\\\\PlatformIO\\\\Projects\\\\m360_horta\"; $dir=\"$proj\\\\.claude\\\\skills\\\\verification-loop\"; if \\(Test-Path \"$dir\\\\SKILL.md\"\\) { \"JA EXISTE - abortado\" } else { New-Item -ItemType Directory -Force $dir | Out-Null; Copy-Item \"C:\\\\Users\\\\jmarc\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-jmarc-Documents-PlatformIO-Projects-m360-horta\\\\11616f15-c0a1-4501-90bf-51a91587c35f\\\\scratchpad\\\\verification-loop-SKILL.md\" \"$dir\\\\SKILL.md\"; \"OK -> $dir\\\\SKILL.md \\($\\(\\(Get-Item \"$dir\\\\SKILL.md\"\\).Length\\) bytes\\)\" })"
     ]
   }
 }
