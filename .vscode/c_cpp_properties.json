@@ -8,12 +8,12 @@
         {
             "name": "PlatformIO",
             "includePath": [
-                "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/src",
+                "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta",
                 "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/lib/M360-DRY/src",
                 "C:/Users/jmarc/.platformio/packages/framework-arduinoespressif8266/libraries/ESP8266WebServer/src",
-                "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/.pio/libdeps/d1_mini_gateway/PubSubClient/src",
-                "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/.pio/libdeps/d1_mini_gateway/ArduinoJson/src",
-                "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/.pio/libdeps/d1_mini_gateway/MySensors",
+                "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/.pio/libdeps/d1_mini_kit_helio_gateway/PubSubClient/src",
+                "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/.pio/libdeps/d1_mini_kit_helio_gateway/ArduinoJson/src",
+                "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/.pio/libdeps/d1_mini_kit_helio_gateway/MySensors",
                 "C:/Users/jmarc/.platformio/packages/framework-arduinoespressif8266/libraries/ESP8266SdFat/src",
                 "C:/Users/jmarc/.platformio/packages/framework-arduinoespressif8266/libraries/ESP8266WiFi/src",
                 "C:/Users/jmarc/.platformio/packages/framework-arduinoespressif8266/libraries/EEPROM",
@@ -53,12 +53,12 @@
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
-                    "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/src",
+                    "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta",
                     "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/lib/M360-DRY/src",
                     "C:/Users/jmarc/.platformio/packages/framework-arduinoespressif8266/libraries/ESP8266WebServer/src",
-                    "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/.pio/libdeps/d1_mini_gateway/PubSubClient/src",
-                    "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/.pio/libdeps/d1_mini_gateway/ArduinoJson/src",
-                    "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/.pio/libdeps/d1_mini_gateway/MySensors",
+                    "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/.pio/libdeps/d1_mini_kit_helio_gateway/PubSubClient/src",
+                    "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/.pio/libdeps/d1_mini_kit_helio_gateway/ArduinoJson/src",
+                    "C:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/.pio/libdeps/d1_mini_kit_helio_gateway/MySensors",
                     "C:/Users/jmarc/.platformio/packages/framework-arduinoespressif8266/libraries/ESP8266SdFat/src",
                     "C:/Users/jmarc/.platformio/packages/framework-arduinoespressif8266/libraries/ESP8266WiFi/src",
                     "C:/Users/jmarc/.platformio/packages/framework-arduinoespressif8266/libraries/EEPROM",

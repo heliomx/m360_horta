@@ -327,15 +327,13 @@ Verificar se já existe pasta `src/DRY/nos/<nomeNó>/`:
 
 ```
 src/DRY/nos/<nomeNó>/
-├── withLibDRY/
-│   └── <nomeNó>.cpp        ← sketch declarativo (NUNCA hardwareaquí)
+├── <nomeNó>.cpp        ← sketch declarativo (NUNCA hardwareaquí)
 ├── sensorDrivers.h          ← interface pública do driver
 ├── sensorDrivers.cpp        ← implementação física dos sensores
 ├── esquema_eletrico.md      ← documentação de pinagem
 └── diagrama_blocos.svg      ← diagrama visual do hardware
 ```
 
-> O subdiretório **sempre** se chama `withLibDRY` (DRY maiúsculo).
 
 ---
 
@@ -413,7 +411,7 @@ void writeNodeItem(uint8_t nodeIndex, bool state) {
 
 ---
 
-# Passo 5 — Geração do Sketch Principal (`withLibDRY/<nomeNó>.cpp`)
+# Passo 5 — Geração do Sketch Principal (`<nomeNó>.cpp`)
 
 Basear estritamente no template `lib/M360-DRY/examples/NodeTemplate/NodeTemplate.cpp`.
 
@@ -505,7 +503,7 @@ board = nanoatmega328
 framework = arduino
 
 build_src_filter =
-    +<DRY/nos/<nomeNó>/withLibDRY/*.cpp>
+    +<DRY/nos/<nomeNó>/*.cpp>
     +<DRY/nos/<nomeNó>/sensorDrivers.cpp>
 
 monitor_speed = ${common.monitor_speed}
@@ -573,24 +571,23 @@ Verificar cada item antes de entregar o código:
 | 10 | `EEPROM.put()` direto no nó | Usar `M360::saveInterval()` |
 | 11 | `CHILD_ID_*` como índice de array (`lastValues[CHILD_ID_X]`) | Usar `nodeIndex` ou constante `IDX_*` |
 | 12 | `MY_RF24_CS_PIN` em vez de `MY_RF24_CSN_PIN` | Verificar flag no `.ini` |
-| 13 | `build_src_filter` com casing inconsistente | `withLibDRY` (DRY maiúsculo) |
-| 14 | childId 254 ou 255 em `NODE_ITEMS[]` | Reservados para intervalo e bateria |
-| 15 | Ordem errada de includes (`M360.h` antes de `MySensors.h`) | Causa banner truncado + hang; ordem correta: `Arduino.h` → `MySensors.h` → `M360.h` → `sensorDrivers.h` |
-| 16 | `MY_REPEATER_FEATURE` ativa em nó LOW_POWER ou PASSIVE | Nós de baixo consumo não podem atuar como repetidores |
-| 17 | Node ID fora da faixa da camada de aplicação | Verificar conformidade com R12 (1-50 Clima, 51-150 Solo, 151-200 Atuação, 201-254 Água) |
-| 18 | Child ID fora da faixa funcional | Verificar conformidade com R13 (0 Bateria, 1-10 Solo, 11-20 Clima, 21-30 Fluxo, 31-40 Atuadores) |
+| 13 | childId 254 ou 255 em `NODE_ITEMS[]` | Reservados para intervalo e bateria |
+| 14 | Ordem errada de includes (`M360.h` antes de `MySensors.h`) | Causa banner truncado + hang; ordem correta: `Arduino.h` → `MySensors.h` → `M360.h` → `sensorDrivers.h` |
+| 15 | `MY_REPEATER_FEATURE` ativa em nó LOW_POWER ou PASSIVE | Nós de baixo consumo não podem atuar como repetidores |
+| 16 | Node ID fora da faixa da camada de aplicação | Verificar conformidade com R12 (1-50 Clima, 51-150 Solo, 151-200 Atuação, 201-254 Água) |
+| 17 | Child ID fora da faixa funcional | Verificar conformidade com R13 (0 Bateria, 1-10 Solo, 11-20 Clima, 21-30 Fluxo, 31-40 Atuadores) |
 
 
 ---
 
 # Entregáveis Obrigatórios
 
-Ao finalizar apresentar lista de arquivos criados/modificados e walkthrough:
+Ao finalizar apresentar lista de arquivos criados/modificados,  walkthrough e a [Ligação do radio](https://www.mysensors.org/build/connect_radio):
 
 ## Arquivos
 
 ```
-src/DRY/nos/<nomeNó>/withLibDRY/<nomeNó>.cpp
+src/DRY/nos/<nomeNó>/<nomeNó>.cpp
 src/DRY/nos/<nomeNó>/sensorDrivers.h
 src/DRY/nos/<nomeNó>/sensorDrivers.cpp
 src/DRY/nos/<nomeNó>/esquema_eletrico.md
