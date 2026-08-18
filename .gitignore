@@ -15,6 +15,11 @@ node_modules/
 # OS generated files
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# IDE / Extensions
+.history/
 
 .bmad-loop/runs/
 .bmad-loop/cache/
+
