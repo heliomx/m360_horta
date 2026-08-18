@@ -38,13 +38,13 @@ graph TD
     
     %% Conexões SPI (Trilhas Curtas ~25mm)
     Wemos -->|D7 MOSI, D6 MISO, D5 SCK| NRF
-    Wemos -->|D4 CE, D8 CSN| NRF
+    Wemos -->|D2 CE, D8 CSN| NRF
     
     %% Conexões Entradas e Saídas
     R4 -->|Pull-up| Wemos
     BtnSW1 -->|A0 - Puxa GND| Wemos
     
-    Wemos -->|D2| LedVermelho
+    Wemos -->|D4| LedVermelho
     Wemos -->|D1| LedVerde
     Wemos -->|D0| LedAmarelo
     
@@ -74,11 +74,11 @@ graph TD
 | :--- | :--- | :--- |
 | **VCC** | **+3V3_RF** | Alimentação fornecida pelo LDO dedicado AMS1117-3.3V |
 | **GND** | GND | Referência de Terra |
-| **CE** | D4 (GPIO2) | Chip Enable (Gerenciado via firmware, sem pull-up externo) |
-| **CSN** | D8 (GPIO15) | Chip Select Not |
+| **CE** | D2 (GPIO4) | Chip Enable (Gerenciado via firmware: `-D MY_RF24_CE_PIN=4`) |
+| **CSN** | D8 (GPIO15) | Chip Select Not (Gerenciado via firmware: `-D MY_RF24_CSN_PIN=15`) |
 | **SCK** | D5 (GPIO14) | Serial Clock (Trilha ~25 mm com U1 girado 180°) |
-| **MOSI** | D7 (GPIO13) | Master Out Slave In (Trilha ~25 mm com U1 girado 180°) |
-| **MISO** | D6 (GPIO12) | Master In Slave Out (Trilha ~25 mm com U1 girado 180°) |
+| **MOSI** | D7 (GPIO13) | Master Out Slave In / COPI |
+| **MISO** | D6 (GPIO12) | Master In Slave Out / CIPO |
 
 ---
 

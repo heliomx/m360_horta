@@ -1,5 +1,11 @@
 #include "sensorDrivers.h"
 
+// wait() pertence ao core do MySensors — processa o rádio enquanto aguarda,
+// coisa que delay() não faz. <MySensors.h> só pode ser incluído no .cpp
+// principal do nó (define main(), ISRs e estado global); aqui declara-se apenas
+// o protótipo, mesmo padrão de lib/M360-DRY/src/M360Gateway.cpp.
+void wait(const uint32_t waitingMS);
+
 // Exemplo de variáveis globais locais do driver
 static bool relayState = false;
 

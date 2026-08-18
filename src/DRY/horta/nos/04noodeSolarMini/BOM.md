@@ -30,9 +30,9 @@ Este documento lista todos os componentes de hardware necessários para a montag
 
 | Item | Componente | Descrição | Qtd | Valor / Especificação |
 | :---: | :--- | :--- | :---: | :--- |
-| 9 | **Resistor (Pull-Up DHT)** | Resistor de pull-up para o barramento de dados (D4) do DHT11 | 1 | Resistor $10\text{ k}\Omega$ (1/4W, 5%) |
-| 10 | **Resistor (Pull-Up OneWire)** | Resistor de pull-up para o barramento de dados (D5) do DS18B20 | 1 | Resistor $4.7\text{ k}\Omega$ (1/4W, 5%) |
-| 11 | **Resistores (Divisor)** | Divisor de tensão resistivo (2x) para leitura de bateria no pino `A0` | 2 | Resistor $100\text{ k}\Omega$ (1/4W, 1% de precisão recomendado) |
-| 12 | **Capacitor (Filtro)** | Capacitor de desacoplamento de alimentação próximo ao rádio nRF24L01+ | 1 | Capacitor Eletrolítico $10\,\mu\text{F}$ a $47\,\mu\text{F}$ (16V+) |
-| 13 | **Capacitor (Estabilizador)** | Capacitor em paralelo com resistor do divisor para estabilizar o ADC | 1 | Capacitor Cerâmico $100\text{ nF}$ (opcional) |
+| 9 | **Resistor (Pull-Up DHT)** | Resistor de pull-up para o barramento de dados (D4) do DHT11 | 1 | Resistor 10 kΩ (1/4W, 5%) |
+| 10 | **Resistor (Pull-Up OneWire)** | Resistor de pull-up para o barramento de dados (D5) do DS18B20 | 1 | Resistor 4.7 kΩ (1/4W, 5%) |
+| 11 | **Resistores (Divisor)** | Divisor de tensão resistivo (2x) para leitura de bateria no pino `A0` | 2 | Resistor 100 kΩ (1/4W, 1% de precisão recomendado) |
+| 12 | **Capacitor (Filtro)** | Capacitor de desacoplamento de alimentação próximo ao rádio nRF24L01+ | 1 | Capacitor Eletrolítico 10 µF a 47 µF (16V+) |
+| 13 | **Capacitor (Estabilizador)** | Capacitor em paralelo com resistor do divisor para estabilizar o ADC | 1 | Capacitor Cerâmico 100 nF (recomendado) |
 | 14 | **Conectores** | Barra de pinos e cabos jumper para conexões internas | - | Pinos modulares passo 2.54mm |

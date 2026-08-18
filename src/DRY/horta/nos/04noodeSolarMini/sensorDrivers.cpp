@@ -52,15 +52,15 @@ void powerDownSensors()
 float readNodeItem(uint8_t nodeIndex)
 {
 	switch (nodeIndex) {
-		case CHILD_ID_TEMP: {
+		case 0: { // Index 0: CHILD_ID_TEMP (11) - Temperatura do Ar
 			float t = dht.readTemperature();
 			return isnan(t) ? NAN : t;
 		}
-		case CHILD_ID_HUM: {
+		case 1: { // Index 1: CHILD_ID_HUM (12) - Umidade do Ar
 			float h = dht.readHumidity();
 			return isnan(h) ? NAN : h;
 		}
-		case CHILD_ID_SOIL_TEMP: {
+		case 2: { // Index 2: CHILD_ID_SOIL_TEMP (1) - Temperatura do Solo
 			float tempC = sensors.getTempCByIndex(0);
 			if (tempC == DEVICE_DISCONNECTED_C || tempC < -20.0f || tempC > 85.0f) {
 				return NAN;

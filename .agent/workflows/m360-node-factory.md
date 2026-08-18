@@ -101,17 +101,9 @@ Para nós com MUX CD74HC4067 (encoding virtual `pin = 100 + canal`), `setupPins(
 | 254 | Intervalo (`V_VAR1`) |
 | 255 | Bateria (`V_VOLTAGE`) |
 
-## R12 — Padronização de Faixas de Node ID (1–254)
+## R12 — Atribuição de Node ID (1–254)
 
-Para garantir a autodescoberta e compatibilidade com o Proxy MCP v2.0 do Manejo360, os IDs de nós devem respeitar estritamente a alocação por camada de campo:
-
-| Faixa de Node ID | Camada / Aplicação | Exemplos |
-|---|---|---|
-| 0 | Gateway / Broker Hub | Gateway Central / MQTT Proxy |
-| 1 – 50 | Estações Meteorológicas / Clima | Pluviômetro, Pyranômetro, Temp/Umidade Ar |
-| 51 – 150 | Nós de Monitoramento de Solo (Talhões) | Sondas de Umidade RS485/NPK, Impedância |
-| 151 – 200 | Nós de Atuação / Controle de Irrigação | Quadros de bombas, Solenoides, Válvulas |
-| 201 – 254 | Nós Especiais / Reservatórios | Nível de caixa d'água, pH, Condutividade Elétrica |
+Os IDs de nós são de **livre escolha do usuário** (faixa 1 a 254), sem restrição ou reserva por tipo de sensor/atuador. O ID 0 é reservado exclusivamente para o Gateway Central.
 
 ## R13 — Padronização de Faixas de Child ID (0–40+)
 

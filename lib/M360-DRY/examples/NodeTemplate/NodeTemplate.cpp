@@ -16,8 +16,13 @@
  * REGRAS CRÍTICAS:
  *   - MY_* macros definidas EXCLUSIVAMENTE no platformio.ini
  *   - Serial.begin() e initSensors() SEMPRE em before(), nunca em setup()
- *   - messages[] SEMPRE com tamanho NODE_ITEMS_COUNT + 2
+ *   - messages[] SEMPRE com tamanho NODE_ITEMS_COUNT + 3
+ *     (intervalo 254 + bateria 255 + debug remoto 253)
  *   - Todas as variáveis globais são static
+ *
+ * Este template é compilado pelo env `check_node_template` (platformio.ini),
+ * incluído em default_envs — nunca é gravado em hardware, existe para que
+ * qualquer regressão aqui quebre a build antes de se propagar para nós novos.
  */
 
 #include <Arduino.h>
@@ -44,8 +49,10 @@ static const uint8_t NODE_ITEMS_COUNT = sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0
 
 
 // ===== BUFFERS ESTÁTICOS (gerenciados pelo M360Node — nunca acessar diretamente) =====
-// messages: +2 obrigatório para os canais reservados intervalo (254) e bateria (255)
-static MyMessage messages[NODE_ITEMS_COUNT + 2];
+// messages: +3 obrigatório para os canais reservados intervalo (254),
+// bateria (255) e debug remoto (253). Dimensionar com +2 faz M360Node::begin()
+// escrever fora do array e sendDebug() transmitir RAM adjacente.
+static MyMessage messages[NODE_ITEMS_COUNT + 3];
 static float     lastValues[NODE_ITEMS_COUNT];
 static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
 

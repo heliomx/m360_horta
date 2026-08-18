@@ -56,12 +56,9 @@ if (abs(val - lastValues[i]) > 0.5 || nNoUpdates[i] >= 10) {
 
 ### 2.4 Padronização de IDs, Tópicos MQTT e Auto-Discovery (Proxy MCP v2.0)
 
-#### Faixas Normativas de Node ID (1–254)
-- **0:** Gateway / Broker Hub (Gateway Central / MQTT Proxy)
-- **1 – 50:** Estações Meteorológicas / Sensores de Clima
-- **51 – 150:** Nós de Monitoramento de Solo (Talhões)
-- **151 – 200:** Nós de Atuação / Controle de Irrigação
-- **201 – 254:** Nós Especiais / Reservatórios / Qualidade de Água
+#### Atribuição de Node ID (1–254)
+- **0:** Reservado exclusivamente para a Gateway / Broker Hub.
+- **1 – 254:** **Livre escolha do usuário**. Qualquer número de Nó pode ser atribuído a qualquer tipo de sensor ou atuador conforme a necessidade do projeto.
 
 #### Faixas Normativas de Child ID (0–40+)
 - **0:** Status do Próprio Nó / Bateria (`S_MULTIMETER` / `V_VOLTAGE`, `V_LEVEL`)

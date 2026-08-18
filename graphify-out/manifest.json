@@ -745,8 +745,8 @@
     "semantic_hash": ""
   },
   ".claude/settings.local.json": {
-    "mtime": 1785937785.5567615,
-    "ast_hash": "b69ccfeda684710ca8f4824b09ae7a8e",
+    "mtime": 1786197695.8376555,
+    "ast_hash": "6a913f6fd7f132b9479456fd312a42e8",
     "semantic_hash": ""
   },
   ".claude/skills/bmad-agent-builder/assets/init-sanctum-template.py": {
@@ -1040,18 +1040,18 @@
     "semantic_hash": ""
   },
   ".vscode/c_cpp_properties.json": {
-    "mtime": 1786046347.5804484,
-    "ast_hash": "027a009b0430e2a2161f5dee5d390a8e",
+    "mtime": 1786743689.1210477,
+    "ast_hash": "ea4de55839fff103517fe44f3b81b667",
     "semantic_hash": ""
   },
   ".vscode/extensions.json": {
-    "mtime": 1786046347.5804484,
+    "mtime": 1786743689.1210477,
     "ast_hash": "41e5d8dec3ff179fe5aecb46632391ca",
     "semantic_hash": ""
   },
   ".vscode/launch.json": {
-    "mtime": 1786046347.584645,
-    "ast_hash": "b1279923fb71e9973f43daf1707ba1c7",
+    "mtime": 1786743689.1210477,
+    "ast_hash": "2ff8258eb1ac03e8f9c79646fc7d24ac",
     "semantic_hash": ""
   },
   ".vscode/settings.json": {
@@ -1155,8 +1155,8 @@
     "semantic_hash": ""
   },
   "lib/M360-DRY/src/M360Node.cpp": {
-    "mtime": 1785785481.147694,
-    "ast_hash": "6172a0041cd9689ff992c12aa0bbcfe8",
+    "mtime": 1786569130.9475014,
+    "ast_hash": "b1536d0815fc8819e4149525bd7ec99a",
     "semantic_hash": ""
   },
   "lib/M360-DRY/src/M360Node.h": {
@@ -2150,8 +2150,8 @@
     "semantic_hash": ""
   },
   ".agent/skills/bmad-mysensors-node-coding/SKILL.md": {
-    "mtime": 1785261055.387429,
-    "ast_hash": "6c1dadffad22c1e22f0ea79e8721cde8",
+    "mtime": 1786718278.651649,
+    "ast_hash": "bb51eeadee1b4cce32f2f003c36a0bfd",
     "semantic_hash": ""
   },
   ".agent/skills/bmad-party-mode/SKILL.md": {
@@ -2615,13 +2615,13 @@
     "semantic_hash": ""
   },
   ".agent/workflows/m360-node-factory.md": {
-    "mtime": 1785261046.3343263,
-    "ast_hash": "bb86137bea963b30228c6f7dea9bbcbf",
+    "mtime": 1786718284.388933,
+    "ast_hash": "26cd90f3568044fc6b45c101ad897cb9",
     "semantic_hash": ""
   },
   ".agents/AGENTS.md": {
-    "mtime": 1785937061.5941422,
-    "ast_hash": "e564e939ee8b0161d6fb95aabbb6bf28",
+    "mtime": 1786199909.536194,
+    "ast_hash": "8a8a8ab35478fd8cf8447fc7dea6e478",
     "semantic_hash": ""
   },
   ".agents/rules/graphify.md": {
@@ -5850,8 +5850,8 @@
     "semantic_hash": ""
   },
   "lib/M360-DRY/PROMPT_DEV_NODE.md": {
-    "mtime": 1785262316.758218,
-    "ast_hash": "ed6e96d7874494d3ab6cf120a8eed112",
+    "mtime": 1786718294.5286725,
+    "ast_hash": "391c4cc52c1a44d7a2f10a912b7b77ad",
     "semantic_hash": ""
   },
   "lib/M360-DRY/README.md": {
@@ -5880,13 +5880,13 @@
     "semantic_hash": ""
   },
   "src/DRY/horta/gateway/libDryGatewayMqtt.cpp": {
-    "mtime": 1785785495.6950605,
+    "mtime": 1786741588.4615185,
     "ast_hash": "44f1aa9c0d7f9b1124b2e6c912d563b2",
     "semantic_hash": ""
   },
   "src/DRY/horta/nodered/flows.json": {
-    "mtime": 1786034509.1546109,
-    "ast_hash": "4bd81992dc74653d549b8a987d1d11e7",
+    "mtime": 1786720048.0033536,
+    "ast_hash": "1ed536f6efe868a40934113446e4d9be",
     "semantic_hash": ""
   },
   "src/DRY/horta/nos/01nodeSolo3dNano/01nodeSolo3dNano.cpp": {
@@ -5895,18 +5895,18 @@
     "semantic_hash": ""
   },
   "src/DRY/horta/nos/02nodeSolo3dNano/02nodeSolo3dNano.cpp": {
-    "mtime": 1785270704.0009737,
-    "ast_hash": "f322fec85dab2c24207b761b2a28cbb5",
+    "mtime": 1786741588.4622626,
+    "ast_hash": "334007fd18e14ab5819736905b651b6d",
     "semantic_hash": ""
   },
   "src/DRY/horta/nos/04noodeSolarMini/04noodeSolarMini.cpp": {
-    "mtime": 1785262922.8680174,
-    "ast_hash": "b73c2916400a1cb03b7237248880391a",
+    "mtime": 1786741588.4627776,
+    "ast_hash": "e11edfa60e03180cc47eebe896e0876a",
     "semantic_hash": ""
   },
   "src/DRY/horta/nos/04noodeSolarMini/sensorDrivers.cpp": {
-    "mtime": 1785257148.840034,
-    "ast_hash": "d1cf785160d972fdb257aaae198365de",
+    "mtime": 1786547874.550634,
+    "ast_hash": "bb0cc6c6eebcfcbf108fd5c93f5bfec8",
     "semantic_hash": ""
   },
   "src/DRY/horta/nos/04noodeSolarMini/sensorDrivers.h": {
@@ -5935,18 +5935,18 @@
     "semantic_hash": ""
   },
   "src/DRY/horta/nos/99nodeReles/99nodeReles.cpp": {
-    "mtime": 1786095251.7163498,
-    "ast_hash": "bbb0e6497c990a0a4b51bd9d62db7fc8",
+    "mtime": 1786743767.890874,
+    "ast_hash": "4e49a71b1a3465071551c3a79c6c41e4",
     "semantic_hash": ""
   },
   "src/DRY/horta/nos/99nodeReles/sensorDrivers.cpp": {
-    "mtime": 1785936645.992735,
-    "ast_hash": "cbfe060d1fd218a8377d7ec9e8f96d32",
+    "mtime": 1786545325.862686,
+    "ast_hash": "df8d3e3624c257172f9202168655b463",
     "semantic_hash": ""
   },
   "src/DRY/horta/nos/99nodeReles/sensorDrivers.h": {
-    "mtime": 1786095251.7546873,
-    "ast_hash": "6c9277e2f83730a1c0b2d4acde119eb8",
+    "mtime": 1786743762.819244,
+    "ast_hash": "cf3748ad399f502cb752eebb7de518bb",
     "semantic_hash": ""
   },
   "src/DRY/horta/nos/shared/config.h": {
@@ -5974,11 +5974,6 @@
     "ast_hash": "888024ae973a3c572efc65c3b191c0d7",
     "semantic_hash": ""
   },
-  "src/DRY/kit-helio/gateway/Deprecated_newGatewayMqtt.cpp": {
-    "mtime": 1785785502.6253567,
-    "ast_hash": "be966d0714f4d5bff5cd57453ffefdfd",
-    "semantic_hash": ""
-  },
   "src/DRY/kit-helio/gateway/libDryGatewayMqtt.cpp": {
     "mtime": 1785785495.6950605,
     "ast_hash": "44f1aa9c0d7f9b1124b2e6c912d563b2",
@@ -6004,16 +5999,6 @@
     "ast_hash": "408358aaea8e8cbd9a4555a6334b6d18",
     "semantic_hash": ""
   },
-  "hardware/kicad/n\u00f3s/nano/.history/README.txt": {
-    "mtime": 1785944169.1453786,
-    "ast_hash": "00aafcbbe4e884d6739a909841dd12d0",
-    "semantic_hash": ""
-  },
-  "hardware/kicad/n\u00f3s/promini/.history/README.txt": {
-    "mtime": 1785944221.7496665,
-    "ast_hash": "00aafcbbe4e884d6739a909841dd12d0",
-    "semantic_hash": ""
-  },
   "src/DRY/horta/gateway/BOM.md": {
     "mtime": 1785942456.0181372,
     "ast_hash": "6b276b525a86c025242eb1590745b30c",
@@ -6025,8 +6010,8 @@
     "semantic_hash": ""
   },
   "src/DRY/horta/gateway/esquema_eletrico.md": {
-    "mtime": 1785942464.2000093,
-    "ast_hash": "c33849e262962e6e2d7d99ce68f53ba9",
+    "mtime": 1786724479.3871422,
+    "ast_hash": "2a30cbe51438dcf38ee423e87cb6f5d3",
     "semantic_hash": ""
   },
   "src/DRY/horta/nodered/dump.html": {
@@ -6060,8 +6045,8 @@
     "semantic_hash": ""
   },
   "src/DRY/horta/nos/04noodeSolarMini/BOM.md": {
-    "mtime": 1785257179.4194868,
-    "ast_hash": "8febac7ef872f190d532ea4ad597c2a0",
+    "mtime": 1786547896.6514647,
+    "ast_hash": "8c5e71c7eeca43d105a6698c807cf7f1",
     "semantic_hash": ""
   },
   "src/DRY/horta/nos/04noodeSolarMini/esquema_eletrico.md": {
@@ -6095,18 +6080,18 @@
     "semantic_hash": ""
   },
   "src/DRY/horta/nos/99nodeReles/BOM.md": {
-    "mtime": 1784645446.2845316,
-    "ast_hash": "9f1a4a7e26f3211e46ad314392eee937",
+    "mtime": 1786545383.191891,
+    "ast_hash": "c1b56573ac4ce8a15395c6518071f7bd",
     "semantic_hash": ""
   },
   "src/DRY/horta/nos/99nodeReles/README.md": {
-    "mtime": 1786048066.5320945,
-    "ast_hash": "6d3e188a058e66e8455a250982f46d10",
+    "mtime": 1786545353.9224505,
+    "ast_hash": "f60991f955caffae8099833a28b70dac",
     "semantic_hash": ""
   },
   "src/DRY/horta/nos/99nodeReles/esquema_eletrico.md": {
-    "mtime": 1784240106.4333084,
-    "ast_hash": "176489a6ab65c4493649df26040448a4",
+    "mtime": 1786545373.7299497,
+    "ast_hash": "b5a7495756ffb9f4a54dfe1d44be9874",
     "semantic_hash": ""
   },
   "src/DRY/horta/nos/README.md": {
@@ -6215,8 +6200,8 @@
     "semantic_hash": ""
   },
   "src/DRY/horta/nos/99nodeReles/diagrama_blocos.svg": {
-    "mtime": 1781613387.452,
-    "ast_hash": "1ac796f0ff2fd04b891208e59583c10d",
+    "mtime": 1786545393.5482914,
+    "ast_hash": "0ef7e50187d54e1ae74c6b5672300875",
     "semantic_hash": ""
   },
   "src/DRY/horta/nos/99nodeReles/quadro eletrico horta.jpeg": {
@@ -6227,6 +6212,96 @@
   "src/DRY/kit-helio/gateway/diagrama_blocos.svg": {
     "mtime": 1785942484.9323056,
     "ast_hash": "525cc31e5507d4d5a3bba032155d397e",
+    "semantic_hash": ""
+  },
+  "src/DRY/horta/nodered/irriga.json": {
+    "mtime": 1786720041.254509,
+    "ast_hash": "7e49e2b9f19eef2af3d1795a1ac6518d",
+    "semantic_hash": ""
+  },
+  "src/DRY/kit-helio/nos/miniDHT/miniDHT.cpp": {
+    "mtime": 1786102438.4972506,
+    "ast_hash": "b435106c9f81a6c7e3380d0d04ad829a",
+    "semantic_hash": ""
+  },
+  "src/DRY/kit-helio/nos/miniDHT/sensorDrivers.cpp": {
+    "mtime": 1786102376.6585357,
+    "ast_hash": "8e5e4932daf45430dc3805ea74b54540",
+    "semantic_hash": ""
+  },
+  "src/DRY/kit-helio/nos/miniDHT/sensorDrivers.h": {
+    "mtime": 1786102372.624595,
+    "ast_hash": "49b80659dd2ad3cf7610daba4a58d20f",
+    "semantic_hash": ""
+  },
+  ".claude/skills/verification-loop/SKILL.md": {
+    "mtime": 1786098768.889281,
+    "ast_hash": "fe5933a73161dfa81d18cab282315718",
+    "semantic_hash": ""
+  },
+  "docs/csv/analise_mqtt_log_m360_1786542346141.md": {
+    "mtime": 1786545040.7343006,
+    "ast_hash": "2b8f34df528737fe1844678b75edba3a",
+    "semantic_hash": ""
+  },
+  "docs/relatorio/01_relatorio_entrega_13-02-2026.md": {
+    "mtime": 1786199474.1682265,
+    "ast_hash": "252555a39520720d7652fc54057f6710",
+    "semantic_hash": ""
+  },
+  "docs/relatorio/02_relatorio_entrega_04-05-2026.md": {
+    "mtime": 1786199481.196502,
+    "ast_hash": "feb3898b7a0829032f9a3e603b89f0b4",
+    "semantic_hash": ""
+  },
+  "docs/relatorio/03_relatorio_entrega_07-08-2026.md": {
+    "mtime": 1786200131.2843711,
+    "ast_hash": "91242c9acbd49c5c3846e8e60eae2794",
+    "semantic_hash": ""
+  },
+  "docs/relatorio/dados_commits_brutos.md": {
+    "mtime": 1786199502.0150561,
+    "ast_hash": "8e896bad0b1c7f2c507172b4c2b71161",
+    "semantic_hash": ""
+  },
+  "docs/relatorio/entregaveis_especificacao_manejo360.md": {
+    "mtime": 1786199431.4963813,
+    "ast_hash": "dae3f0f7a035ee251c50b265230df22c",
+    "semantic_hash": ""
+  },
+  "docs/relatorio/index.md": {
+    "mtime": 1786201370.1233852,
+    "ast_hash": "2e0a407230df0f8bace7c214814b25ac",
+    "semantic_hash": ""
+  },
+  "docs/relatorio/matriz_atividades.md": {
+    "mtime": 1786199508.5335343,
+    "ast_hash": "1244e10f7c212152a5d3f55cd5b06d0f",
+    "semantic_hash": ""
+  },
+  "src/DRY/kit-helio/nos/miniDHT/BOM.md": {
+    "mtime": 1786102393.8868835,
+    "ast_hash": "65149ecea52da22587f16234f77774d2",
+    "semantic_hash": ""
+  },
+  "src/DRY/kit-helio/nos/miniDHT/esquema_eletrico.md": {
+    "mtime": 1786102384.4134054,
+    "ast_hash": "6d38435634c5e6771858622baaa72f19",
+    "semantic_hash": ""
+  },
+  "src/DRY/kit-helio/nos/miniDHT/diagrama_blocos.svg": {
+    "mtime": 1786102389.3180146,
+    "ast_hash": "409ef97c14954501fb7131e69e2982e4",
+    "semantic_hash": ""
+  },
+  "src/test/clearEEPROM.cpp": {
+    "mtime": 1786735057.486844,
+    "ast_hash": "9c6e3df0531dff4cbab3932378e7c370",
+    "semantic_hash": ""
+  },
+  "src/test/testaNRF.cpp": {
+    "mtime": 1786733659.8432531,
+    "ast_hash": "5caab1fcff4c04c05bf2a12695d6caeb",
     "semantic_hash": ""
   }
 }

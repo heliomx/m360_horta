@@ -1,16 +1,16 @@
-# Graph Report - m360_horta  (2026-08-07)
+# Graph Report - m360_horta  (2026-08-14)
 
 ## Corpus Check
-- 1184 files · ~1,683,915 words
+- 1200 files · ~1,697,817 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 13256 nodes · 14285 edges · 1165 communities (1077 shown, 88 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 255 edges (avg confidence: 0.62)
+- 13398 nodes · 14440 edges · 1177 communities (1088 shown, 89 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 244 edges (avg confidence: 0.61)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `58ce3603`
+- Built from commit: `8b0582f9`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -22,18 +22,18 @@
 - horta/gateway/libDryGatewayMqtt.cpp
 - nos/99nodeReles/99nodeReles.cpp
 - kit-helio/gateway/libDryGatewayMqtt.cpp
-- nós/99nodeReles/99nodeReles.cpp
-- kit-helio/gateway/Deprecated_newGatewayMqtt.cpp
+- mysensors.pdf
+- Relatório de Análise Telemétrica MQTT e Regras de Irrigação (M360 Horta)
 - .agent/skills/bmad-module-builder/scripts/tests/test-validate-module.py
 - Ecossistema M360 Horta — Arquitetura DRY
 - sensor.md — Referência ZTS-3002 (traduzido do PDF)
-- ledFlicker
+- Deprecated_newGatewayMqtt.cpp
 - Product Requirements Document (PRD) — M360 Horta Inteligente
 - node_engine.cpp
 - Documentação: Gateway MySensors MQTT (Modular)
 - Documentação: Gateway MySensors MQTT (Modular)
 - 04noodeSolarMini.cpp
-- setLedState
+- M360Leds.cpp
 - teste.cpp
 - Canteiros de Tijolo (7,0m x 1,20m)
 - review_node_selenoide_vazao.md
@@ -627,6 +627,7 @@
 - Creating a Party
 - Validate
 - EXECUTION
+- M360Config.h
 - Tabela de Pinagem (Pinout)
 - Lista de Materiais (BOM) — Gateway MQTT (M360-DRY)
 - Outcome-Driven Prompt Quality
@@ -771,6 +772,7 @@
 - .claude/skills/bmad-workflow-builder/scripts/tests/test_render_report.py
 - Lista de Materiais (BOM) — Gateway MQTT (M360-DRY)
 - 🚀 Contexto do Desenvolvedor
+- Capítulo 2 — Relatório Técnico de Entrega (04/05/2026)
 - Lista de Materiais (BOM) — Nó 4 (Monitoramento Solar de Clima)
 - Capabilities
 - Persona
@@ -835,7 +837,7 @@
 - Producing Workflow Patterns
 - Scan Lens: Enhancement (add or subtract)
 - .claude/skills/bmad-workflow-builder/scripts/quick_validate.py
-- NodeStatus
+- Verification Phases
 - Referência MQTT para Desenvolvedor Backend
 - Overview
 - Step 5: Wrap-Up
@@ -1079,6 +1081,17 @@
 - Diagrama de Blocos — Nó 05 (Monitoramento 3D de Solo Unificado)
 - Lista de Materiais (BOM) — Nó 13 (ZTS_UmidadeHall)
 - 01nodeSolo3d.cpp
+- Capítulo 3 — Relatório Técnico de Entrega (07/08/2026)
+- miniDHT.cpp
+- Capítulo 1 — Relatório Técnico de Entrega (13/02/2026)
+- Relatório Consolidado de Desenvolvimento e Engenharia — Sistema Manejo360
+- 2. Detalhamento dos Commits por Marco Temporal
+- 2. Resumo da Arquitetura M360 Integrada aos Entregáveis
+- 3. Matriz de Atividades de Desenvolvimento por Marco de NF
+- Esquema Elétrico — miniDHT (Nó 11)
+- Lista de Materiais (BOM) — miniDHT (Nó 11)
+- testaNRF.cpp
+- NodeStatus
 
 ## God Nodes (most connected - your core abstractions)
 1. `M360Gateway` - 28 edges
@@ -1086,28 +1099,28 @@
 3. `run_validate()` - 23 edges
 4. `run_validate()` - 23 edges
 5. `run_validate()` - 23 edges
-6. `ledFlicker()` - 23 edges
+6. `Document Project Workflow - Validation Checklist` - 21 edges
 7. `Document Project Workflow - Validation Checklist` - 21 edges
 8. `Document Project Workflow - Validation Checklist` - 21 edges
-9. `Document Project Workflow - Validation Checklist` - 21 edges
-10. `MQTTManager` - 20 edges
+9. `MQTTManager` - 20 edges
+10. `ledFlicker()` - 18 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `setup()` --calls--> `setupWebServer()`  [INFERRED]
-  src/DRY/horta/gateway/Deprecated_newGatewayMqtt.cpp → lib/M360-DRY/src/M360Webserver.cpp
-- `setup()` --calls--> `setupWebServer()`  [INFERRED]
-  src/DRY/kit-helio/gateway/Deprecated_newGatewayMqtt.cpp → lib/M360-DRY/src/M360Webserver.cpp
+- `before()` --calls--> `initLEDs()`  [INFERRED]
+  src/DRY/kit-helio/gateway/libDryGatewayMqtt.cpp → lib/M360-DRY/src/M360Leds.cpp
+- `before()` --calls--> `ledBegin()`  [INFERRED]
+  src/DRY/kit-helio/gateway/libDryGatewayMqtt.cpp → lib/M360-DRY/src/M360Leds.cpp
 - `updateLEDStatus()` --calls--> `setLedState()`  [INFERRED]
-  src/DRY/horta/gateway/libDryGatewayMqtt.cpp → lib/M360-DRY/src/M360Leds.cpp
-- `updateLEDStatus()` --calls--> `setLedState()`  [INFERRED]
-  src/DRY/kit-helio/gateway/Deprecated_newGatewayMqtt.cpp → lib/M360-DRY/src/M360Leds.cpp
+  src/DRY/horta/gateway/Deprecated_newGatewayMqtt.cpp → lib/M360-DRY/src/M360Leds.cpp
 - `updateLEDStatus()` --calls--> `setLedState()`  [INFERRED]
   src/DRY/kit-helio/gateway/libDryGatewayMqtt.cpp → lib/M360-DRY/src/M360Leds.cpp
+- `loop()` --calls--> `updateLEDs()`  [INFERRED]
+  src/DRY/horta/gateway/Deprecated_newGatewayMqtt.cpp → lib/M360-DRY/src/M360Leds.cpp
 
 ## Import Cycles
 - None detected.
 
-## Communities (1165 total, 88 thin omitted)
+## Communities (1177 total, 89 thin omitted)
 
 ### Community 0 - "Diagrama de Blocos — sensores.cpp (teste umidade)"
 Cohesion: 0.40
@@ -1118,32 +1131,32 @@ Cohesion: 0.06
 Nodes (31): 1.1 Proteção Elétrica, 1.2 Fontes de Alimentação, 1.3 Barramentos de Distribuição, 1.4 Unidade de Controle, 1.5 Módulos de Relé, 1.6 Tomadas de Serviço 220V, 1.7 Prensa-Cabos, 1. Descrição do Painel Físico (+23 more)
 
 ### Community 2 - "setupWebServer"
-Cohesion: 0.44
-Nodes (8): ESP8266WebServer, M360DeviceConfig, String, generateIndexHTML(), handleRoot(), handleSave(), htmlEscape(), setupWebServer()
+Cohesion: 0.38
+Nodes (9): ESP8266WebServer, M360DeviceConfig, String, generateIndexHTML(), handleRoot(), handleSave(), htmlEscape(), setupWebServer() (+1 more)
 
 ### Community 3 - "nodeZTS_UmidadeHall.cpp"
 Cohesion: 0.13
 Nodes (18): before(), MyMessage, powerDown(), powerUp(), readItem(), receive(), writeItem(), initDrivers() (+10 more)
 
 ### Community 4 - "horta/gateway/libDryGatewayMqtt.cpp"
-Cohesion: 0.15
-Nodes (17): checkNodeTimeouts(), byte, JsonDocument, MyMessage, String, gatewayTransportSend(), getNodeCategoryLabel(), mqttCallback() (+9 more)
+Cohesion: 0.13
+Nodes (18): PubSubClient, updateLEDs(), checkNodeTimeouts(), byte, JsonDocument, MyMessage, String, gatewayTransportSend() (+10 more)
 
 ### Community 5 - "nos/99nodeReles/99nodeReles.cpp"
 Cohesion: 0.13
 Nodes (15): before(), MyMessage, loop(), readItem(), receive(), writeItem(), calculateFlow(), getFlowForCanteiro() (+7 more)
 
 ### Community 6 - "kit-helio/gateway/libDryGatewayMqtt.cpp"
-Cohesion: 0.15
-Nodes (17): checkNodeTimeouts(), byte, JsonDocument, MyMessage, String, gatewayTransportSend(), getNodeCategoryLabel(), mqttCallback() (+9 more)
+Cohesion: 0.14
+Nodes (20): ledFlicker(), before(), checkNodeTimeouts(), byte, JsonDocument, MyMessage, String, gatewayTransportSend() (+12 more)
 
-### Community 7 - "nós/99nodeReles/99nodeReles.cpp"
-Cohesion: 0.31
+### Community 7 - "mysensors.pdf"
+Cohesion: 0.18
 Nodes (5): before(), MyMessage, receive(), selectMuxChannel(), writeRelay()
 
-### Community 8 - "kit-helio/gateway/Deprecated_newGatewayMqtt.cpp"
-Cohesion: 0.14
-Nodes (18): checkNodeTimeouts(), JsonDocument, MyMessage, gatewayTransportSend(), loop(), NodeStatus, active, lastSeen (+10 more)
+### Community 8 - "Relatório de Análise Telemétrica MQTT e Regras de Irrigação (M360 Horta)"
+Cohesion: 0.09
+Nodes (21): 1. Resumo Executivo e Contexto da Telemetria, 2. Diagnóstico dos Sensores de Umidade do Solo (Nós 1 e 2), 3. Análise Microclimática (Temperatura e Umidade do Ar — Nó 99), 4. Análise da Central de Atuação de Relés (Nó 99), 5.1 CANTEIRO M (Manejo360 — Irrigação Inteligente Automática Baseada em Solo + Clima), 5.2 CANTEIRO A (Controle Tradicional — Regra Única Simulando o Manejo do Agricultor), 5. Especificação Funcional das Regras de Irrigação (Experimento MVP), 6. Recomendações e Próximos Passos (+13 more)
 
 ### Community 9 - ".agent/skills/bmad-module-builder/scripts/tests/test-validate-module.py"
 Cohesion: 0.09
@@ -1157,9 +1170,9 @@ Nodes (10): Checklist Anti-Padrões (Verificar antes de Commit), Ecossistema M36
 Cohesion: 0.40
 Nodes (5): Protocolo Modbus-RTU (baud 4800, sem paridade), Tabela de Registros Modbus (umidade, temperatura, EC, pH, NPK), sensor.md — Referência ZTS-3002 (traduzido do PDF), ZTS-3002-TR Product Manual (5-pin soil multi-parameter sensor), R224073R224074-ZTS-3002-TR-N01 (PDF datasheet original)
 
-### Community 12 - "ledFlicker"
+### Community 12 - "Deprecated_newGatewayMqtt.cpp"
 Cohesion: 0.20
-Nodes (14): ledFlicker(), checkNodeTimeouts(), JsonDocument, MyMessage, gatewayTransportSend(), loop(), presentation(), processMQTTCommand() (+6 more)
+Nodes (13): checkNodeTimeouts(), JsonDocument, MyMessage, gatewayTransportSend(), loop(), presentation(), processMQTTCommand(), publishHeartbeat() (+5 more)
 
 ### Community 13 - "Product Requirements Document (PRD) — M360 Horta Inteligente"
 Cohesion: 0.07
@@ -1181,9 +1194,9 @@ Nodes (16): 1. Arquitetura Modular (`ngm/`), 2. Premissas de Hardware e Layout E
 Cohesion: 0.15
 Nodes (8): before(), MyMessage, powerDown(), powerUp(), receive(), initSensors(), powerDownSensors(), powerUpSensors()
 
-### Community 18 - "setLedState"
-Cohesion: 0.22
-Nodes (12): LedState, initLEDs(), ledBegin(), setLedState(), updateLEDs(), before(), updateLEDStatus(), before() (+4 more)
+### Community 18 - "M360Leds.cpp"
+Cohesion: 0.29
+Nodes (8): LedState, initLEDs(), ledBegin(), setLedState(), before(), before(), isA0Low(), updateLEDStatus()
 
 ### Community 19 - "teste.cpp"
 Cohesion: 0.32
@@ -1346,8 +1359,8 @@ Cohesion: 0.05
 Nodes (39): Action Steps, Adjustment Triggers, 📊 ANALYSIS, Constraint Identification, Contributing Factors, Creative Alternatives, 🔍 DIAGNOSIS AND ROOT CAUSE ANALYSIS, Evaluation Criteria (+31 more)
 
 ### Community 65 - "M360Node"
-Cohesion: 0.09
-Nodes (37): M360ItemDef, M360PowerProfile, MyMessage, M360ItemDef, M360PowerProfile, MyMessage, M360Node, _battCycle (+29 more)
+Cohesion: 0.10
+Nodes (36): M360ItemDef, M360PowerProfile, MyMessage, M360ItemDef, M360PowerProfile, M360Node, _battCycle, begin (+28 more)
 
 ### Community 66 - "🏗️ Arquitetura Interna — LibDRY"
 Cohesion: 0.05
@@ -1427,10 +1440,10 @@ Nodes (28): Adaptation Suggestions, Additional Versions Needed, Audience Conside
 
 ### Community 85 - "M360Gateway"
 Cohesion: 0.10
-Nodes (27): function, M360DeviceConfig, MQTT_CALLBACK_SIGNATURE, PubSubClient, function, M360DeviceConfig, PubSubClient, M360Gateway (+19 more)
+Nodes (26): function, M360DeviceConfig, MQTT_CALLBACK_SIGNATURE, PubSubClient, function, M360DeviceConfig, M360Gateway, begin (+18 more)
 
 ### Community 86 - "MQTTManager"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (26): M360DeviceConfig, MQTT_CALLBACK_SIGNATURE, PubSubClient, String, MQTTManager, begin, buildTopicIn, buildTopicOut (+18 more)
 
 ### Community 87 - "DOCUMENT DISCOVERY PROCESS:"
@@ -4117,6 +4130,10 @@ Nodes (5): 1. Componentes Principais e Módulos, 2. Componentes de Interface e S
 Cohesion: 0.25
 Nodes (7): 🏗️ Arquitetura Obrigatória (SoC), 🚀 Contexto do Desenvolvedor, ⚡ Gestão de Energia e Callbacks, 🏷️ Identificação e Apresentação, M360-DRY Node Development Prompt, 📜 Padrões de Código (Clean Code), 📚 Referência de Template
 
+### Community 759 - "Capítulo 2 — Relatório Técnico de Entrega (04/05/2026)"
+Cohesion: 0.14
+Nodes (13): 1.1 Atividades de Infraestrutura Agrícola Realizadas, 1. Contexto e Atividades de Campo (Estrutura da Estufa MVP), 2. Documentação Técnica Entregue neste Marco, 3.1 Desenvolvimento da Biblioteca M360LibDRY, 3.2 Protocolo de Tradução JSON / MySensors (`M360Translator`), 3.3 Projeto de Hardware Eletrônico (KiCad), 3.4 Refatoração de Compatibilidade MySensors 2.3.2, 3. Atividades de Engenharia de Software e Hardware (+5 more)
+
 ### Community 760 - "Lista de Materiais (BOM) — Nó 4 (Monitoramento Solar de Clima)"
 Cohesion: 0.40
 Nodes (4): 1. Componentes Principais, 2. Circuito de Alimentação e Energia, 3. Componentes Eletrônicos Passivos e Conectores, Lista de Materiais (BOM) — Nó 4 (Monitoramento Solar de Clima)
@@ -4373,9 +4390,9 @@ Nodes (6): How to think, Return, Scan Lens: Enhancement (add or subtract), Sever
 Cohesion: 0.43
 Nodes (6): main(), Path, Return (ok, frontmatter dict, error). ok is False when there is no parseable…, resolve_skill_md(), split_frontmatter(), validate()
 
-### Community 824 - "NodeStatus"
-Cohesion: 0.50
-Nodes (4): NodeStatus, active, lastSeen, nodeId
+### Community 824 - "Verification Phases"
+Cohesion: 0.15
+Nodes (12): Continuous Mode, Integration with Hooks, Output Format, Phase 1: Build Verification, Phase 2: Type Check, Phase 3: Lint Check, Phase 4: Test Suite, Phase 5: Security Scan (+4 more)
 
 ### Community 825 - "Referência MQTT para Desenvolvedor Backend"
 Cohesion: 0.20
@@ -4470,8 +4487,8 @@ Cohesion: 0.53
 Nodes (5): fill_template(), main(), normalize_name(), Lowercase, collapse non-alphanumerics to single hyphens, trim, cap at max_len., scaffold()
 
 ### Community 848 - "Regras do Projeto"
-Cohesion: 0.29
-Nodes (6): Comunicação e Transparência e decisão do Usuário., Formatação de Respostas e Fórmulas Matemáticas, O Usuário deverá descidir, a depender do relatório de impacto dessas nos demais arquivos, se as mesmas deverão aplicadas ou não ., Regras do Projeto, Sincronização e Integridade de Documentação, Sincronização entre Software e Hardware
+Cohesion: 0.25
+Nodes (7): Comunicação e Transparência e decisão do Usuário., Fonte da Verdade e Documentação Externa (Manejo360), Formatação de Respostas e Fórmulas Matemáticas, O Usuário deverá descidir, a depender do relatório de impacto dessas nos demais arquivos, se as mesmas deverão aplicadas ou não ., Regras do Projeto, Sincronização e Integridade de Documentação, Sincronização entre Software e Hardware
 
 ### Community 849 - "Overview"
 Cohesion: 0.33
@@ -5013,25 +5030,69 @@ Nodes (3): 1. Componentes Principais, 2. Componentes de Alimentação e Acessór
 Cohesion: 0.36
 Nodes (7): initSensors(), loop(), powerDownSensors(), powerUpSensors(), readSensor(), selectMuxChannel(), setup()
 
+### Community 1165 - "Capítulo 3 — Relatório Técnico de Entrega (07/08/2026)"
+Cohesion: 0.15
+Nodes (12): 1.1 Implantação do Gateway e dos 4 Nós de Campo, 1. Instalação e Comissionamento em Campo (Mês de Julho/2026), 2. Documentação Técnica Entregue neste Marco, 3. Inventário Integrado dos 12 Sensores Instalados, 4.1 Padronização do Motor DRY (`node_engine.h`), 4.2 Agente Repórter e Estabilidade do Node-RED, 4.3 Agregação Monorepo no PlatformIO, 4. Avanços de Software e Automação (Node-RED & Motor DRY) (+4 more)
+
+### Community 1166 - "miniDHT.cpp"
+Cohesion: 0.19
+Nodes (7): before(), MyMessage, receive(), initSensors(), readDHTHum(), readDHTTemp(), readNodeItem()
+
+### Community 1167 - "Capítulo 1 — Relatório Técnico de Entrega (13/02/2026)"
+Cohesion: 0.17
+Nodes (11): 1. Contexto e Objetivos, 2. Documentação Técnica Entregue neste Marco, 3.1 Concepção da Estrutura Monorepo e Abstração DRY, 3.2 Abstração do Gateway MQTT (ESP8266), 3.3 Padronização de Firmware dos Nós Sensores, 3. Atividades de Engenharia Realizadas, 4. Métricas Quantitativas de Código (Marco 1), 5. Entregáveis de Hardware e Especificações Técnicas (+3 more)
+
+### Community 1168 - "Relatório Consolidado de Desenvolvimento e Engenharia — Sistema Manejo360"
+Cohesion: 0.22
+Nodes (8): 1. Visão Geral do Sistema, 2. Estrutura do Relatório e Capítulos, 3. Catálogo Integrado de Documentos Técnicos Incorporados, 4. Resumo Quantitativo do Projeto, 5. Arquivos Complementares e Matrizes de Suporte, Arquitetura do Sistema, Métricas Totais de Desenvolvimento, Relatório Consolidado de Desenvolvimento e Engenharia — Sistema Manejo360
+
+### Community 1169 - "2. Detalhamento dos Commits por Marco Temporal"
+Cohesion: 0.25
+Nodes (7): 1. Resumo Quantitativo Geral, 2.1 Marco 1 — Entrega NF 13/02/2026 (Concepção & Arquitetura Base), 2.2 Marco 2 — Entrega NF 04/05/2026 (Infraestrutura, LibDRY & Estufa MVP), 2.3 Marco 3 — Entrega NF 07/08/2026 (Instalação em Campo, 4 Nós, Gateway & Node-RED), 2. Detalhamento dos Commits por Marco Temporal, Catálogo Minerado de Commits e Métricas Quantitativas — Sistema Manejo360, Tabela Comparativa por Marco de Entrega / NF
+
+### Community 1170 - "2. Resumo da Arquitetura M360 Integrada aos Entregáveis"
+Cohesion: 0.25
+Nodes (7): 1. Inventário dos Entregáveis Técnicos Incorporados, 2.1 Backend e Tópicos MQTT (`ENT-DOC-01`), 2.2 Motor de Inferências e DSL (`ENT-DOC-03`), 2.3 Integração com Agentes via MCP (`ENT-DOC-04`), 2. Resumo da Arquitetura M360 Integrada aos Entregáveis, 3. Matriz de Vinculação dos Entregáveis com os Capítulos de NF, Entregáveis de Especificação e Arquitetura Técnica — Sistema M360 (Manejo360)
+
+### Community 1171 - "3. Matriz de Atividades de Desenvolvimento por Marco de NF"
+Cohesion: 0.25
+Nodes (7): 1. Mapeamento de Campo e Estrutura Física, 2. Rastreabilidade dos Entregáveis Documentais Incorporados, 3.1 Marco 1 — 13/02/2026 (Concepção & Arquitetura Base), 3.2 Marco 2 — 04/05/2026 (Infraestrutura, LibDRY & Estufa MVP), 3.3 Marco 3 — 07/08/2026 (Instalação Campo, 4 Nós, Gateway & Node-RED), 3. Matriz de Atividades de Desenvolvimento por Marco de NF, Matriz de Rastreabilidade: Commits vs. Atividades de Engenharia, Entregáveis Documentais e Campo
+
+### Community 1172 - "Esquema Elétrico — miniDHT (Nó 11)"
+Cohesion: 0.40
+Nodes (4): Diagrama de Conexões (Mermaid), Esquema Elétrico — miniDHT (Nó 11), Tabela de Child IDs (MySensors), Tabela de Pinagem
+
+### Community 1173 - "Lista de Materiais (BOM) — miniDHT (Nó 11)"
+Cohesion: 0.50
+Nodes (3): Componentes Eletrônicos e Módulos, Conexões e Suporte, Lista de Materiais (BOM) — miniDHT (Nó 11)
+
+### Community 1174 - "testaNRF.cpp"
+Cohesion: 0.16
+Nodes (31): ceHigh(), ceLow(), csnHigh(), csnLow(), getStatus(), loop(), PinDiagnosticResults, cePinOk (+23 more)
+
+### Community 1175 - "NodeStatus"
+Cohesion: 0.50
+Nodes (4): NodeStatus, active, lastSeen, nodeId
+
 ## Knowledge Gaps
-- **7297 isolated node(s):** `$schema`, `title`, `description`, `type`, `workflow_version` (+7292 more)
+- **7377 isolated node(s):** `$schema`, `title`, `description`, `type`, `workflow_version` (+7372 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **88 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **89 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `properties` connect `properties` to `type`, `properties`, `scan_level`, `enum`, `items`, `required`, `completed`?**
   _High betweenness centrality (0.000) - this node is a cross-community bridge._
-- **Why does `M360Gateway` connect `M360Gateway` to `WiFiManager`, `MQTTManager`, `M360Config.h`, `NodeRegistry`?**
+- **Why does `properties` connect `properties` to `enum`, `type`, `properties`, `items`?**
   _High betweenness centrality (0.000) - this node is a cross-community bridge._
 - **What connects `$schema`, `title`, `description` to the rest of the system?**
-  _7297 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _7377 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Central de Atuação da Estufa — NodeReles (Nó 99)` be split into smaller, more focused modules?**
   _Cohesion score 0.0625 - nodes in this community are weakly interconnected._
 - **Should `nodeZTS_UmidadeHall.cpp` be split into smaller, more focused modules?**
   _Cohesion score 0.12681159420289856 - nodes in this community are weakly interconnected._
 - **Should `horta/gateway/libDryGatewayMqtt.cpp` be split into smaller, more focused modules?**
-  _Cohesion score 0.14624505928853754 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.13405797101449277 - nodes in this community are weakly interconnected._
 - **Should `nos/99nodeReles/99nodeReles.cpp` be split into smaller, more focused modules?**
   _Cohesion score 0.13043478260869565 - nodes in this community are weakly interconnected._

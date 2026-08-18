@@ -33,7 +33,7 @@ Este documento descreve todos os componentes necessários para a montagem físic
 | :---: | :--- | :--- | :---: | :--- |
 | 10 | **Bomba NFT** | Bomba centrífuga de circulação de água para calhas NFT | 1 | Bomba de água submersa 220V AC |
 | 11 | **Bomba de Oxi** | Compressor/bomba de ar para oxigenação do reservatório | 1 | Bomba de aeração 220V AC |
-| 12 | **Válvulas Solenoides** | Válvulas para abertura automática da irrigação dos canteiros A, B e C | 3 | Válvula Solenoide 12V DC / ~0.5A |
+| 12 | **Válvulas Solenoides** | Válvulas para abertura automática da irrigação dos canteiros A, M e C | 3 | Válvula Solenoide 12V DC / ~0.5A |
 | 13 | **Peristálticas** | Mini bombas dosadoras de suplementação (Nutrientes e pH) | 4 | Motores peristálticos 12V DC / ~0.5A |
 
 ---

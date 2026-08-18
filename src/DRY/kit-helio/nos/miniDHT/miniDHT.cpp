@@ -21,8 +21,9 @@ static const M360::M360ItemDef NODE_ITEMS[] = {
 static const uint8_t NODE_ITEMS_COUNT = sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
 
 // ===== BUFFERS ESTÁTICOS =====
-// messages: +2 para os canais reservados de intervalo (254) e bateria (255)
-static MyMessage messages[NODE_ITEMS_COUNT + 2];
+// messages: +3 OBRIGATÓRIO — canais reservados de intervalo (254), bateria (255)
+// e debug remoto (253). Com +2, M360Node::begin() escreve fora do array.
+static MyMessage messages[NODE_ITEMS_COUNT + 3];
 static float     lastValues[NODE_ITEMS_COUNT];
 static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
 

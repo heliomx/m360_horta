@@ -43,6 +43,7 @@
 // ===== CHILD IDs — Canais via MUX CD74HC4067 (Atuadores: Faixa 31–40 conforme R13) =====
 #define CHILD_ID_SOL_A      31  // Canal 0 — Solenóide Gotejamento Canteiro A
 #define CHILD_ID_SOL_B      32  // Canal 1 — Solenóide Gotejamento Canteiro B
+#define CHILD_ID_SOL_M      32  // Canal 1 — Solenóide Gotejamento Canteiro M (Alias)
 #define CHILD_ID_SOL_C      33  // Canal 2 — Solenóide Gotejamento Canteiro C
 #define CHILD_ID_PERIST_A   34  // Canal 3 — Peristáltica Suplemento A
 #define CHILD_ID_PERIST_B   35  // Canal 4 — Peristáltica Suplemento B

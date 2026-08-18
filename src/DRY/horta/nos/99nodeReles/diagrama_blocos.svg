@@ -116,10 +116,10 @@
   <text x="215" y="366" text-anchor="middle" font-size="9.5" fill="#444">Sinal 5V</text>
   <text x="215" y="378" text-anchor="middle" font-size="9.5" fill="#444">MUX Ch 0</text>
 
-  <!-- CANAL 1: SOLENOIDE B -->
+  <!-- CANAL 1: SOLENOIDE M -->
   <rect x="10" y="420" width="110" height="65" rx="6" fill="#fde8e8" stroke="#aa0000" stroke-width="2"/>
   <text x="65" y="443" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">SOLENOIDE</text>
-  <text x="65" y="459" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">CANTEIRO B</text>
+  <text x="65" y="459" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#800000">CANTEIRO M</text>
   <text x="65" y="475" text-anchor="middle" font-size="9.5" fill="#555">12V DC</text>
 
   <rect x="150" y="420" width="130" height="65" rx="6" fill="#fff3cd" stroke="#c77a00" stroke-width="2"/>

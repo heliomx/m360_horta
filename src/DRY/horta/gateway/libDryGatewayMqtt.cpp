@@ -400,8 +400,23 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 // Usar Translator::toJSON como base e corrigir nodeId antes de publicar.
 static void publishTransportAck(const MyMessage& outMsg, uint8_t targetNodeId) {
 #ifdef M360_NATIVE_MQTT
-	// Modo nativo: ACK de transporte é implícito no RF24 — broker não espera publicação separada
-	(void)outMsg; (void)targetNodeId;
+	// Modo nativo: publica o ACK no tópico estruturado com o campo ack=1.
+	// buildNativeTopic() NÃO serve aqui — usa getSender(), que vale 0 no contexto
+	// de envio. O tópico é montado com targetNodeId explícito.
+	if (!mqttClient.connected()) return;
+	String topic = M360::buildTopicOut(config);
+	topic += '/'; topic += targetNodeId;
+	topic += '/'; topic += outMsg.getSensor();
+	topic += '/'; topic += (uint8_t)outMsg.getCommand();
+	topic += "/1/";  // ack = 1
+	topic += outMsg.getType();
+	String payload = M360::Translator::toNativePayload(outMsg);
+	if (mqttClient.publish(topic.c_str(), payload.c_str())) {
+		Serial.printf("📤 ACK de transporte publicado — nó %d sensor %d\n",
+		              targetNodeId, outMsg.getSensor());
+	} else {
+		Serial.println("❌ Falha ao publicar ACK de transporte");
+	}
 #else
 	if (!mqttClient.connected()) return;
 	String base = M360::Translator::toJSON(outMsg, true);

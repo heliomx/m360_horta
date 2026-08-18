@@ -58,7 +58,7 @@ static const M360::M360ItemDef NODE_ITEMS[] = {
     {CHILD_ID_SOL_B, M360::M360_ACTUATOR, S_BINARY, V_STATUS,
      MUX_CHANNEL_OFFSET + 1, 0, 1, "Sol.CanteiroB", false, 0},
     {CHILD_ID_SOL_C, M360::M360_ACTUATOR, S_BINARY, V_STATUS,
-     MUX_CHANNEL_OFFSET + 2, 0, 1, "Sol.CanteiroN", false, 0},
+     MUX_CHANNEL_OFFSET + 2, 0, 1, "Sol.CanteiroC", false, 0},
     {CHILD_ID_PERIST_A, M360::M360_ACTUATOR, S_BINARY, V_STATUS,
      MUX_CHANNEL_OFFSET + 3, 0, 1, "Perist.SuplA", false, 0},
     {CHILD_ID_PERIST_B, M360::M360_ACTUATOR, S_BINARY, V_STATUS,
@@ -88,7 +88,10 @@ static const uint8_t NODE_ITEMS_COUNT =
 static const uint8_t IDX_FLOW_A = 11;
 
 // ===== BUFFERS =====
-static MyMessage messages[NODE_ITEMS_COUNT + 2]; // +2 reservado para intervalo (254) e bateria (0/255)
+// +3 OBRIGATÓRIO: M360Node::begin() escreve _messages[_count], [_count+1] e
+// [_count+2] — intervalo (254), bateria (255) e debug remoto (253).
+// Dimensionar com +2 causa escrita fora do array (corrupção de RAM adjacente).
+static MyMessage messages[NODE_ITEMS_COUNT + 3];
 static float lastValues[NODE_ITEMS_COUNT];
 static uint8_t nNoUpdates[NODE_ITEMS_COUNT];
 

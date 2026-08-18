@@ -1476,7 +1476,7 @@
         "type": "function",
         "z": "50fbcdf0053fa19f",
         "name": "Decodificador Nativo MySensors",
-        "func": "// Decodifica tópico nativo: {prefix}/out/{nodeId}/{sensorId}/{command}/{ack}/{type}\n// ou formato JSON M360: msg.payload = {nodeId, sensorId, command, ack, type, payload}\nvar MQTT_PREFIX = global.get('mqtt_topic_prefix') || 'm360/DF/0000';\nvar parts = msg.topic.split('/');\n\n// --- Formato nativo MySensors (9+ segmentos) ---\nif (parts.length >= 9) {\n    var nodeId   = parseInt(parts[4]);\n    var sensorId = parseInt(parts[5]);\n    var command  = parseInt(parts[6]);\n    var ack      = parseInt(parts[7]);\n    var type     = parseInt(parts[8]);\n    if ([nodeId, sensorId, command, ack, type].some(isNaN)) {\n        return null;\n    }\n    msg.payload = {\n        nodeId:    nodeId,\n        sensorId:  sensorId,\n        command:   command,\n        ack:       ack,\n        type:      type,\n        payload:   typeof msg.payload === 'string' ? msg.payload : String(msg.payload),\n        direction: ack === 1 ? 'ack' : 'sensor',\n        timestamp: Math.floor(Date.now() / 1000)\n    };\n    msg.topic = MQTT_PREFIX + '/out';\n    return msg;\n}\n\n// --- Formato JSON M360 gateway (tópico plano, payload JSON) ---\nvar m = msg.payload;\nif (typeof m === 'string') {\n    try { m = JSON.parse(m); } catch(e) { return null; }\n}\nif (!m || m.nodeId === undefined || m.command === undefined) {\n    return null;\n}\nmsg.payload = {\n    nodeId:    m.nodeId,\n    sensorId:  m.sensorId,\n    command:   m.command,\n    ack:       m.ack || 0,\n    type:      m.type,\n    payload:   String(m.payload !== undefined ? m.payload : ''),\n    direction: (m.direction === 'ack' || m.ack == 1) ? 'ack' : 'sensor',\n    timestamp: Math.floor(Date.now() / 1000)\n};\nmsg.topic = MQTT_PREFIX + '/out';\nreturn msg;",
+        "func": "// Decodifica tópico nativo: {prefix}/out/{nodeId}/{sensorId}/{command}/{ack}/{type}\n// ou formato JSON M360: msg.payload = {nodeId, sensorId, command, ack, type, payload}\nvar MQTT_PREFIX = global.get('mqtt_topic_prefix') || 'm360/DF/0000';\nvar parts = msg.topic.split('/');\n\n// --- Auto-alinhamento do prefixo ---\n// O gateway publica usando o UF/CAR gravado na SUA EEPROM, que pode divergir do\n// default 'm360/DF/0000'. Como a assinatura de entrada usa curinga (m360/+/+/out/#),\n// um prefixo divergente passa despercebido: a telemetria sobe, mas os comandos IN\n// vão para um namespace que o gateway não assina. Aprende o prefixo real aqui.\nif (parts.length >= 4 && parts[0] === 'm360' && parts[3] === 'out') {\n    var realPrefix = parts[0] + '/' + parts[1] + '/' + parts[2];\n    if (realPrefix !== MQTT_PREFIX) {\n        node.warn('Prefixo MQTT realinhado: ' + MQTT_PREFIX + ' -> ' + realPrefix);\n        global.set('mqtt_topic_prefix', realPrefix);\n        MQTT_PREFIX = realPrefix;\n    }\n}\n\n// --- Formato nativo MySensors (9+ segmentos) ---\nif (parts.length >= 9) {\n    var nodeId   = parseInt(parts[4]);\n    var sensorId = parseInt(parts[5]);\n    var command  = parseInt(parts[6]);\n    var ack      = parseInt(parts[7]);\n    var type     = parseInt(parts[8]);\n    if ([nodeId, sensorId, command, ack, type].some(isNaN)) {\n        return null;\n    }\n    msg.payload = {\n        nodeId:    nodeId,\n        sensorId:  sensorId,\n        command:   command,\n        ack:       ack,\n        type:      type,\n        payload:   typeof msg.payload === 'string' ? msg.payload : String(msg.payload),\n        direction: ack === 1 ? 'ack' : 'sensor',\n        timestamp: Math.floor(Date.now() / 1000)\n    };\n    msg.topic = MQTT_PREFIX + '/out';\n    return msg;\n}\n\n// --- Formato JSON M360 gateway (tópico plano, payload JSON) ---\nvar m = msg.payload;\nif (typeof m === 'string') {\n    try { m = JSON.parse(m); } catch(e) { return null; }\n}\nif (!m || m.nodeId === undefined || m.command === undefined) {\n    return null;\n}\nmsg.payload = {\n    nodeId:    m.nodeId,\n    sensorId:  m.sensorId,\n    command:   m.command,\n    ack:       m.ack || 0,\n    type:      m.type,\n    payload:   String(m.payload !== undefined ? m.payload : ''),\n    direction: (m.direction === 'ack' || m.ack == 1) ? 'ack' : 'sensor',\n    timestamp: Math.floor(Date.now() / 1000)\n};\nmsg.topic = MQTT_PREFIX + '/out';\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2223,7 +2223,7 @@
         "type": "function",
         "z": "50fbcdf0053fa19f",
         "name": "Filtro Umidade Solo Canteiro B",
-        "func": "// Rotear umidade do solo Canteiro B (Nó 02) dinamicamente para gráficos\nvar m = msg.payload;\nif (!m || m.nodeId === undefined) return null;\n\nvar nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\nvar n = nodes[m.nodeId];\nvar child = n && n.childs && n.childs[m.sensorId];\n\nvar isNode02 = (Number(m.nodeId) === 2) || \n               (child && child.de && child.de.startsWith('B_')) || \n               (n && (n.sketchName === '02nodeSolo3dNano' || n.presentName === '02nodeSolo3dNano'));\n\nvar isSoilMoisture = (m.type === 3 || m.type === 35 || m.type === 37 || (child && (child.tipo === 'S_MOISTURE' || child.tipo === 'V_LEVEL')));\n\nif (isNode02 && isSoilMoisture) {\n    var label = (child && child.de) ? child.de : (n ? (n.sketchName + ' S' + m.sensorId) : ('Nó 02 S' + m.sensorId));\n    msg.topic = label;\n    msg.payload = parseFloat(m.payload);\n    msg.ts = Date.now();\n    return msg;\n}\nreturn null;",
+        "func": "// Rotear umidade do solo Canteiro B (Nó 02) dinamicamente para gráficos\nvar m = msg.payload;\nif (!m || m.nodeId === undefined) return null;\n\nvar nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch (e) { nodes = global.get('mys_nodes') || {}; }\nvar n = nodes[m.nodeId];\nvar child = n && n.childs && n.childs[m.sensorId];\n\nvar isNode02 = (Number(m.nodeId) === 2) || \n               (child && child.de && (child.de.startsWith('M_') || child.de.startsWith('B_'))) || \n               (n && (n.sketchName === '02nodeSolo3dNano' || n.presentName === '02nodeSolo3dNano'));\n\nvar isSoilMoisture = (m.type === 3 || m.type === 35 || m.type === 37 || (child && (child.tipo === 'S_MOISTURE' || child.tipo === 'V_LEVEL')));\n\nif (isNode02 && isSoilMoisture) {\n    var label = (child && child.de) ? child.de : (n ? (n.sketchName + ' S' + m.sensorId) : ('Nó 02 S' + m.sensorId));\n    msg.topic = label;\n    msg.payload = parseFloat(m.payload);\n    msg.ts = Date.now();\n    return msg;\n}\nreturn null;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2264,7 +2264,7 @@
         "z": "50fbcdf0053fa19f",
         "group": "a07f08860aaed900",
         "name": "Umidade do Solo Canteiro B",
-        "label": "Umidade do Solo - Canteiro B (Nó 02)",
+        "label": "Umidade do Solo - Canteiro B (Manejo360 - Nó 02)",
         "order": 2,
         "chartType": "line",
         "category": "topic",
@@ -2735,6 +2735,243 @@
         "statusType": "auto",
         "x": 1510,
         "y": 100,
+        "wires": []
+    },
+    {
+        "id": "tab_irrigacao_m360",
+        "type": "tab",
+        "label": "Irrigação",
+        "disabled": false,
+        "info": "Motor de Regras de Irrigação Automática M360 Horta com Notificações via Telegram:\n- Canteiro B (Manejo360): Irrigação Inteligente com Sensores de Solo + DHT11 Clima\n- Canteiro A (Controle Tradicional): Agendamento Fixo 2x/dia (07h e 17h x 5min) para 6x1m / 35 alfaces\n- Notificações Telegram: Disparo automático de mensagens no início e fim de cada rega"
+    },
+    {
+        "id": "cron_canteiro_a_7h",
+        "type": "inject",
+        "z": "tab_irrigacao_m360",
+        "name": "Cron Canteiro A - 07:00h (Manhã)",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "00 07 * * *",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"canteiro\":\"A\",\"duracao_segundos\":300,\"motivo\":\"Manejo Tradicional Manhã\"}",
+        "payloadType": "json",
+        "x": 180,
+        "y": 100,
+        "wires": [
+            [
+                "fn_controlador_canteiro_a"
+            ]
+        ]
+    },
+    {
+        "id": "cron_canteiro_a_17h",
+        "type": "inject",
+        "z": "tab_irrigacao_m360",
+        "name": "Cron Canteiro A - 17:00h (Tarde)",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "00 17 * * *",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"canteiro\":\"A\",\"duracao_segundos\":300,\"motivo\":\"Manejo Tradicional Tarde\"}",
+        "payloadType": "json",
+        "x": 180,
+        "y": 160,
+        "wires": [
+            [
+                "fn_controlador_canteiro_a"
+            ]
+        ]
+    },
+    {
+        "id": "fn_controlador_canteiro_a",
+        "type": "function",
+        "z": "tab_irrigacao_m360",
+        "name": "Controlador Canteiro A (Timer Fixo 5 min)",
+        "func": "// Regra A.1: Irrigação Fixa do Canteiro A (Controle Tradicional - 6x1m, 35 alfaces)\n// Sem considerar leitura de sensores.\nvar duracao = (msg.payload && msg.payload.duracao_segundos) ? msg.payload.duracao_segundos : 300;\n\n// Gateway em M360_NATIVE_MQTT: metadados vão no TÓPICO e o valor cru no PAYLOAD.\n// Publicar um objeto JSON como payload faz o nó executar atoi('{...') = 0 e o\n// relé NUNCA liga. O payload tem que ser a string '1' / '0'.\nvar prefix = global.get('mqtt_topic_prefix') || 'm360/DF/0000';\nvar topico = prefix + '/in/99/31/1/0/2';  // nó 99 | child 31 | C_SET | ack 0 | V_STATUS\n\nvar msgOn  = { topic: topico, payload: '1' };\nvar msgOff = { topic: topico, payload: '0' };\n\n// 3. Notificações Telegram\nvar msgTelegramStart = {\n    telegram_event: {\n        canteiro: \"A\",\n        status: \"INICIADA\",\n        duracao: duracao,\n        modo: \"Timer Fixo (Manejo Tradicional)\",\n        detalhes: \"Parcela 6x1m | 35 pés de alface\"\n    }\n};\n\nvar msgTelegramEnd = {\n    telegram_event: {\n        canteiro: \"A\",\n        status: \"FINALIZADA\",\n        duracao: duracao,\n        modo: \"Timer Fixo (Manejo Tradicional)\"\n    }\n};\n\nnode.status({fill: \"green\", shape: \"dot\", text: \"Irrigando A por \" + duracao + \"s (Timer Fixo)\"});\n\n// Agenda o desligamento e o aviso de fim de rega\nsetTimeout(function() {\n    node.send([msgOff, msgTelegramEnd]);\n    node.status({fill: \"grey\", shape: \"ring\", text: \"Canteiro A Standby\"});\n}, duracao * 1000);\n\n// Retorna o comando MQTT ON e a notificação Telegram de INÍCIO\nreturn [msgOn, msgTelegramStart];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 540,
+        "y": 130,
+        "wires": [
+            [
+                "pub_mqtt_solenoides_a"
+            ],
+            [
+                "fn_formatador_telegram"
+            ]
+        ]
+    },
+    {
+        "id": "pub_mqtt_solenoides_a",
+        "type": "mqtt out",
+        "z": "tab_irrigacao_m360",
+        "name": "Publicar Comando Solenóide A",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "178d6e63b26ceeb2",
+        "x": 870,
+        "y": 130,
+        "wires": []
+    },
+    {
+        "id": "mqtt_in_telemetria_b",
+        "type": "mqtt in",
+        "z": "tab_irrigacao_m360",
+        "name": "Escutar Telemetria MQTT",
+        "topic": "m360/+/+/out/#",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "178d6e63b26ceeb2",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 170,
+        "y": 300,
+        "wires": [
+            [
+                "fn_coletor_telemetria_b"
+            ]
+        ]
+    },
+    {
+        "id": "fn_coletor_telemetria_b",
+        "type": "function",
+        "z": "tab_irrigacao_m360",
+        "name": "Coletor Telemetria Canteiro B & Clima",
+        "func": "// Coleta leituras do Nó 2 (Solo B) e Nó 99 (Clima DHT11)\nvar topic = msg.topic || \"\";\nvar payload = msg.payload;\n\nvar soloB = flow.get(\"solo_b_readings\") || {};\nvar clima = flow.get(\"clima_dht11\") || { temp: 20.0, hum: 20.0 };\n\nvar parts = topic.split(\"/\");\nif (parts.length >= 9 && parts[3] === \"out\") {\n    var nodeId = parseInt(parts[4]);\n    var childId = parseInt(parts[5]);\n    var subType = parseInt(parts[8]);\n    var val = parseFloat(payload);\n\n    if (isNaN(val)) return null;\n\n    if (nodeId === 2 && (subType === 37 || subType === 35)) {\n        soloB[childId] = { val: val, ts: Date.now() };\n        flow.set(\"solo_b_readings\", soloB);\n    }\n\n    if (nodeId === 99) {\n        if (childId === 11 && subType === 0) clima.temp = val;\n        if (childId === 12 && subType === 1) clima.hum = val;\n        flow.set(\"clima_dht11\", clima);\n    }\n}\nreturn null;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "cron_avaliador_canteiro_b",
+        "type": "inject",
+        "z": "tab_irrigacao_m360",
+        "name": "Avaliar Irrigação Canteiro B (a cada 5 min)",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "300",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 5,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 210,
+        "y": 400,
+        "wires": [
+            [
+                "fn_motor_regras_canteiro_b"
+            ]
+        ]
+    },
+    {
+        "id": "fn_motor_regras_canteiro_b",
+        "type": "function",
+        "z": "tab_irrigacao_m360",
+        "name": "Motor de Regras Canteiro B (Manejo360)",
+        "func": "// Regras B.1 a B.5 do Manejo360 para o Canteiro B\nvar soloB = flow.get(\"solo_b_readings\") || {};\nvar clima = flow.get(\"clima_dht11\") || { temp: 20.0, hum: 20.0 };\nvar now = Date.now();\n\n// Regra M.4: Verificar Soak Time (Trava de Absorção de 15 a 20 min)\nvar lastIrrig = flow.get(\"last_irrig_b_time\") || 0;\nvar soakTimeMin = (clima.temp < 18.0) ? 20 : 15;\nvar soakTimeMs = soakTimeMin * 60 * 1000;\n\nif ((now - lastIrrig) < soakTimeMs) {\n    var restMin = Math.ceil((soakTimeMs - (now - lastIrrig)) / 60000);\n    node.status({fill: \"yellow\", shape: \"ring\", text: \"Soak Time ativo (\" + restMin + \" min restantes)\"});\n    return null;\n}\n\n// Regra M.1: Sanitização e Filtro de Outliers\nvar validVals = [];\nfor (var childId in soloB) {\n    var v = soloB[childId].val;\n    if ((now - soloB[childId].ts) < 1800000) {\n        if (v >= 0 && v <= 1023) {\n            validVals.push(v);\n        }\n    }\n}\n\nif (validVals.length === 0) {\n    node.status({fill: \"red\", shape: \"dot\", text: \"Sem leituras válidas no Solo B\"});\n    return null;\n}\n\n// Mediana\nvalidVals.sort(function(a, b){ return a - b; });\nvar mid = Math.floor(validVals.length / 2);\nvar mediana = (validVals.length % 2 !== 0) ? validVals[mid] : (validVals[mid - 1] + validVals[mid]) / 2.0;\n\n// Regra M.2: Modulação Climatológica\nvar fatorClima = 1.0;\nif (clima.temp > 25.0 && clima.hum < 18.0) {\n    fatorClima = 1.33;\n}\n\n// Regra M.3: Limiares de Solo\nvar duracaoBase = 0;\nif (mediana < 350) {\n    node.status({fill: \"green\", shape: \"dot\", text: \"Solo Úmido (Mediana: \" + mediana.toFixed(1) + \" ADC) - OFF\"});\n    return null;\n} else if (mediana <= 500) {\n    duracaoBase = 15;\n} else {\n    duracaoBase = 45;\n}\n\nvar duracaoFinal = Math.round(duracaoBase * fatorClima);\nflow.set(\"last_irrig_b_time\", now);\n\n// Gateway em M360_NATIVE_MQTT: metadados vão no TÓPICO e o valor cru no PAYLOAD.\n// Publicar um objeto JSON como payload faz o nó executar atoi('{...') = 0 e o\n// relé NUNCA liga. O payload tem que ser a string '1' / '0'.\nvar prefix = global.get('mqtt_topic_prefix') || 'm360/DF/0000';\nvar topico = prefix + '/in/99/32/1/0/2';  // nó 99 | child 32 | C_SET | ack 0 | V_STATUS\n\nvar msgOn  = { topic: topico, payload: '1' };\nvar msgOff = { topic: topico, payload: '0' };\n\n// Notificações Telegram\nvar msgTelegramStart = {\n    telegram_event: {\n        canteiro: \"B\",\n        status: \"INICIADA\",\n        duracao: duracaoFinal,\n        modo: \"Inteligente (Manejo360 Solo + Clima)\",\n        detalhes: \"Mediana Solo: \" + mediana.toFixed(1) + \" ADC | Temp Ar: \" + clima.temp + \"°C | Umidade Ar: \" + clima.hum + \"%\"\n    }\n};\n\nvar msgTelegramEnd = {\n    telegram_event: {\n        canteiro: \"B\",\n        status: \"FINALIZADA\",\n        duracao: duracaoFinal,\n        modo: \"Inteligente (Manejo360 Solo + Clima)\"\n    }\n};\n\nnode.status({fill: \"blue\", shape: \"dot\", text: \"Irrigando B por \" + duracaoFinal + \"s (Mediana: \" + mediana.toFixed(1) + \" ADC)\"});\n\nsetTimeout(function() {\n    node.send([msgOff, msgTelegramEnd]);\n    node.status({fill: \"grey\", shape: \"ring\", text: \"Canteiro B Standby\"});\n}, duracaoFinal * 1000);\n\nreturn [msgOn, msgTelegramStart];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 540,
+        "y": 400,
+        "wires": [
+            [
+                "pub_mqtt_solenoides_b"
+            ],
+            [
+                "fn_formatador_telegram"
+            ]
+        ]
+    },
+    {
+        "id": "pub_mqtt_solenoides_b",
+        "type": "mqtt out",
+        "z": "tab_irrigacao_m360",
+        "name": "Publicar Comando Solenóide B",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "178d6e63b26ceeb2",
+        "x": 870,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "fn_formatador_telegram",
+        "type": "function",
+        "z": "tab_irrigacao_m360",
+        "name": "Formatador Mensagem Telegram",
+        "func": "// Formatar e enviar notificação de início/fim de irrigação no Telegram\nvar botToken = global.get(\"TELEGRAM_BOT_TOKEN\") || env.get(\"TELEGRAM_BOT_TOKEN\") || \"\";\nvar chatId = global.get(\"TELEGRAM_CHAT_ID\") || env.get(\"TELEGRAM_CHAT_ID\") || \"\";\n\nvar event = msg.telegram_event || {};\nif (!event.status) return null;\n\nvar emoji = (event.status === \"INICIADA\") ? \"💧\" : \"✅\";\nvar canteiroNome = (event.canteiro === \"B\" || event.canteiro === \"M\") ? \"Canteiro B (Manejo360)\" : \"Canteiro A (Controle Tradicional)\";\n\nvar texto = emoji + \" *IRRIGAÇÃO \" + event.status + \"*\\n\\n\" +\n    \"📍 *Local:* \" + canteiroNome + \"\\n\" +\n    \"⏱️ *Duração:* \" + event.duracao + \" segundos\\n\" +\n    \"⚙️ *Modo:* \" + event.modo + \"\\n\";\n\nif (event.detalhes) {\n    texto += \"📊 *Detalhes:* \" + event.detalhes + \"\\n\";\n}\n\nvar agora = new Date().toLocaleTimeString(\"pt-BR\", {hour: \"2-digit\", minute: \"2-digit\", second: \"2-digit\"});\ntexto += \"🕒 *Horário:* \" + agora + \" (Horário de Brasília)\";\n\nmsg.payload = {\n    \"chat_id\": (chatId && chatId !== \"COLE_AQUI\") ? chatId : \"@M360HortaBot\",\n    \"text\": texto,\n    \"parse_mode\": \"Markdown\"\n};\n\n// Se token configurado dinamicamente\nif (botToken && botToken !== \"COLE_AQUI\") {\n    msg.url = \"https://api.telegram.org/bot\" + botToken + \"/sendMessage\";\n} else {\n    // fallback padrão via variáveis globais\n    msg.url = \"https://api.telegram.org/bot/sendMessage\";\n}\n\nnode.status({fill: \"green\", shape: \"dot\", text: \"Telegram \" + event.canteiro + \" \" + event.status});\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 870,
+        "y": 260,
+        "wires": [
+            [
+                "http_telegram_irrigacao"
+            ]
+        ]
+    },
+    {
+        "id": "http_telegram_irrigacao",
+        "type": "http request",
+        "z": "tab_irrigacao_m360",
+        "name": "Disparar Telegram API",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1130,
+        "y": 260,
         "wires": []
     }
 ]

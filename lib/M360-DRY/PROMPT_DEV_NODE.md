@@ -15,7 +15,7 @@ Divida o código estritamente em duas camadas:
 1.  **Camada de Nó (Sketch Principal - `.cpp`)**: 
     -   Local: `src/DRY/nos/NOME_DO_NO/withLibDRY/`.
     -   Responsabilidade: **Declarativa**. Define Child IDs, Labels, Configurações de Rádio e Perfil de Energia (`M360_LOW_POWER`, `M360_ALWAYS_ON` ou `M360_PASSIVE`).
-    -   **Faixas Normativas de Node ID (R12):** 1–50 (Clima), 51–150 (Solo), 151–200 (Atuação/Irrigação), 201–254 (Reservatórios/Água).
+    -   **Node ID (R12):** Livre escolha do usuário (1–254).
     -   **Faixas Normativas de Child ID (R13):** 0 (Status/Bateria), 1–10 (Solo), 11–20 (Clima), 21–30 (Fluxo), 31–40 (Atuadores/Relés).
     -   Biblioteca: Utilize sempre `#include <M360.h>`.
     -   Buffers: Aloque os buffers `messages[]`, `lastValues[]` e `nNoUpdates[]` conforme o template.

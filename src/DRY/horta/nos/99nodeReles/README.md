@@ -86,7 +86,7 @@ graph TD
     BombaOxi[Bomba Oxigenação<br/>220V AC]
     
     SolA[Solenóide Canteiro A<br/>12V DC]
-    SolB[Solenóide Canteiro B<br/>12V DC]
+    SolM[Solenóide Canteiro M<br/>12V DC]
     SolC[Solenóide Canteiro C<br/>12V DC]
     PeriSuplA[Bomba Peristáltica Supl. A<br/>12V 0.5A]
     PeriSuplB[Bomba Peristáltica Supl. B<br/>12V 0.5A]
@@ -217,7 +217,7 @@ Os relés listados abaixo são controlados pelas saídas lógicas do MUX. Apenas
 | Canal MUX | Ligação Física | Carga (Atuador) | Especificação Alimentação |
 | :--- | :--- | :--- | :--- |
 | **Canal 0** | MUX C0 | Solenóide Canteiro A | 12V DC |
-| **Canal 1** | MUX C1 | Solenóide Canteiro B | 12V DC |
+| **Canal 1** | MUX C1 | Solenóide Canteiro M | 12V DC |
 | **Canal 2** | MUX C2 | Solenóide Canteiro C | 12V DC |
 | **Canal 3** | MUX C3 | Bomba Peristáltica Suplemento A | 12V DC / 0.5A |
 | **Canal 4** | MUX C4 | Bomba Peristáltica Suplemento B | 12V DC / 0.5A |

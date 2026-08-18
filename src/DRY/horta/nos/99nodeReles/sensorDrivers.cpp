@@ -163,7 +163,7 @@ void updateFlows()
 
 float getFlowForCanteiro(uint8_t canteiroId)
 {
-	// Mede a vazão no sensor único D2 se qualquer solenóide de canteiro (0=SolA, 1=SolB, 2=SolC) estiver ativo no MUX
+	// Mede a vazão no sensor único D2 se qualquer solenóide de canteiro (0=SolA, 1=SolM, 2=SolC) estiver ativo no MUX
 	if (s_activeMuxChannel >= 0 && s_activeMuxChannel <= 2) {
 		return s_currentFlow;
 	}

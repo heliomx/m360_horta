@@ -33,7 +33,10 @@ static const M360::M360ItemDef nodeItems[] = {
 
 static const uint8_t numItems = sizeof(nodeItems) / sizeof(M360::M360ItemDef);
 
-static MyMessage messages[numItems + 2]; // +2 reservado para intervalo (254) e bateria (0/255)
+// +3 OBRIGATÓRIO: M360Node escreve [numItems], [numItems+1] e [numItems+2] —
+// intervalo (254), bateria (255) e debug remoto (253). Dimensionar com +2 causa
+// escrita fora do array em begin() e vazamento de RAM adjacente em sendDebug().
+static MyMessage messages[numItems + 3];
 static float lastValues[numItems];
 static uint8_t nNoUpdates[numItems];
 
