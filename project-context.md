@@ -11,7 +11,7 @@ contratos de integração e armadilhas já encontradas — para não rederivá-l
 Nós físicos (AVR)          Gateway (ESP8266)          Nuvem / UI
 ──────────────────         ──────────────────         ───────────────
 M360Node + MySensors  ──►  M360Gateway + MQTT  ──►   Node-RED + Dashboard
-(lib/M360-DRY/)            (src/DRY/gateway/)         (src/nodered/)
+(lib/M360-DRY/)            (src/DRY/horta/gateway/)   (src/nodered/)
 ```
 
 Plataforma: PlatformIO · Arduino/AVR + ESP8266 · MySensors RF24 · MQTT · Node-RED
@@ -228,3 +228,14 @@ Periféricos que conflitem com D9/D10 devem ser movidos.
 | Remapeamento `V_LEVEL→V_PERCENTAGE` por `nodeId` no Node-RED | Consultar `mys_nodes` em tempo real | Evita race condition: SET pode chegar antes da PRESENTATION ser processada |
 | Alias de sensor preservado de `m.payload` na apresentação | `getNomeAmigavel()` genérico | Firmware já define nomes canônicos ("A_1m_10cm", "Umidade ZTS") |
 | Fallback do mapa com nomes reais do firmware para Nó 01 | Genéricos "Canal N" | Nomes estão no código-fonte e são estáveis |
+| Isolamento de build PlatformIO via `workspace_dir` | Sincronizar pasta `.pio` no Google Drive | Evita lock de arquivos, permission denied e poluição da nuvem |
+
+---
+
+## Sincronização Multi-Desktop e Infraestrutura de Build
+
+- **Guia Completo de Sincronização:** [diretrizes_sincronizacao_desktops.md](file:///g:/Meu%20Drive/Meus%20Documentos/Projetos/ViridIoTech/Projetos/Manejo360/m360horta/docs/diretrizes_sincronizacao_desktops.md)
+- **Repositório Central:** Mantido no Google Drive (`G:\Meu Drive\...\m360horta`) com modo **Disponível off-line**.
+- **Acesso na IDE:** Sempre via link simbólico local (`C:\Users\<usuario>\Documents\PlatformIO\m360horta`).
+- **Isolamento de Compilação:** Diretiva `workspace_dir = ${sysenv.TEMP}/pio_workspaces/${sysenv.USERNAME}/${project.name}` no `platformio.ini` raiz, garantindo zero overhead de rede e sem concorrência de I/O em arquivos binários.
+
