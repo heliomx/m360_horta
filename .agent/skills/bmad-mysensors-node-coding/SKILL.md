@@ -18,22 +18,43 @@ O diretório `shared/` existe apenas para manutenção dos nós legados.
 ### Estrutura de Diretórios
 ```
 src/DRY/
-├── nos/
-│   ├── shared/              ← Legado: node_engine, config, powerProfile
-│   └── nomeDoNo/            ← Camada 2: sensorDrivers.h/cpp + noDesejado.cpp
-└── gateway/                 ← ESP8266 + ngm/ (módulos de infraestrutura)
+├── horta/                    ← Sub-projeto Horta (platformio.ini próprio)
+│   ├── nos/
+│   │   ├── shared/           ← Legado: node_engine, config, powerProfile
+│   │   └── nomeDoNo/         ← sensorDrivers.h/cpp + nomeDoNo.cpp
+│   ├── gateway/              ← ESP8266 (infraestrutura vive em lib/M360-DRY)
+│   └── nodered/flows.json
+└── kit-helio/                ← Sub-projeto Kit Hélio (platformio.ini próprio)
+    ├── nos/
+    └── gateway/
 ```
+> O `platformio.ini` da raiz agrega os sub-projetos via `extra_configs` e
+> define `src_dir = .`, logo todo `build_src_filter` parte de `src/DRY/...`.
 
 ---
 
 ## 2. Padrões de Implementação (Nós)
 
-### 2.1 Buffers dos nós M360-DRY
+### 2.1 Buffers dos nós
+
+O tamanho de `messages[]` **difere entre os dois motores**. Errar aqui provoca
+escrita fora dos limites do array, sem erro de compilação.
+
+**Nós da lib M360-DRY (`M360::M360Node`) — SEMPRE `+3`:**
 ```cpp
-uint16_t updateInterval = DEFAULT_INTERVAL;
-float    lastValues[NODE_ITEMS_COUNT]; 
-uint8_t  nNoUpdates[NODE_ITEMS_COUNT]; 
-MyMessage messages[NODE_ITEMS_COUNT + 2]; // intervalo + bateria
+static float     lastValues[NODE_ITEMS_COUNT];
+static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
+static MyMessage messages[NODE_ITEMS_COUNT + 3]; // intervalo (254) + bateria (255) + debug (253)
+```
+> `M360Node::begin()` escreve incondicionalmente em `_messages[_count]`,
+> `[_count+1]` **e `[_count+2]`**. Com `+2` a terceira escrita estoura o array.
+
+**Nós legados (`node_engine.h`) — `+2`:**
+```cpp
+uint16_t  updateInterval = DEFAULT_INTERVAL;
+float     lastValues[NODE_ITEMS_COUNT];
+uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
+MyMessage messages[NODE_ITEMS_COUNT + 2]; // intervalo + bateria (sem canal de debug)
 ```
 
 ### 2.2 Ciclo de Vida (Setup)
@@ -75,7 +96,7 @@ O código implementa padrões específicos para comunicação avançada. Todas a
 
 ---
 
-## 4. Gateway — Padrões do `newGatewayMqtt.cpp`
+## 4. Gateway — Padrões do `libDryGatewayMqtt.cpp`
 
 - **Node Tracking:** O gateway rastreia nós ativos via `updateNodeStatus()`.
 - **JSON Envelope:** Mensagens do rádio para MQTT seguem o formato:
@@ -87,13 +108,32 @@ O código implementa padrões específicos para comunicação avançada. Todas a
 
 ---
 
+## 4.1 Inventário — Sincronização Obrigatória
+
+Qualquer alteração de código em `src/DRY/horta/` **deve** ser refletida em
+`src/DRY/horta/inventario.md` na **mesma** entrega. O inventário é a referência
+única de nós e child IDs, e o contrato com o `flows.json` do Node-RED.
+
+Gatilhos: incluir/remover/renumerar `childId`; alterar `label`, `S_*`, `V_*`,
+`pin`, `reportIntervalMin`, `wakeOnRadio` ou `flags`; incluir/remover nó;
+trocar perfil de energia; mudar escala, unidade ou tipo do payload; alterar
+pinagem.
+
+> Renumerar um `childId` sem atualizar o `flows.json` faz o nó **ignorar o
+> comando silenciosamente** — `handleMessage()` casa `childId` exato e não
+> responde a IDs desconhecidos. Não há erro de compilação nem de log; o sintoma
+> é timeout no Sincronizador ACK.
+
+---
+
 ## 5. Checklist Anti-Padrões (Verificar antes de Commit)
 
 - [ ] ❌ **Definir MY_NODE_ID após MySensors.h** → Deve vir ANTES.
 - [ ] ❌ **EEPROM.put() direto no nó** → Use `nodeEngine_saveInterval()`.
 - [ ] ❌ **Hardcoding de strings de comando** → Use `CMD_FORCE_UPDATE` de `config.h`.
 - [ ] ❌ **Dois perfis de energia** → Escolha apenas `POWER_PROFILE_LOW_POWER` ou `ALWAYS_ON`.
-- [ ] ❌ **Mensagens sem dimensionamento correto** → Use `messages[NODE_ITEMS_COUNT + X]`.
+- [ ] ❌ **Mensagens sem dimensionamento correto** → `+3` na lib M360-DRY, `+2` no motor legado (ver §2.1).
+- [ ] ❌ **`src/DRY/horta/` alterado sem atualizar `inventario.md`** → Ver §4.1.
 
 ---
 ---

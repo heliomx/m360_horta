@@ -11,7 +11,7 @@ contratos de integração e armadilhas já encontradas — para não rederivá-l
 Nós físicos (AVR)          Gateway (ESP8266)          Nuvem / UI
 ──────────────────         ──────────────────         ───────────────
 M360Node + MySensors  ──►  M360Gateway + MQTT  ──►   Node-RED + Dashboard
-(lib/M360-DRY/)            (src/DRY/horta/gateway/)   (src/nodered/)
+(lib/M360-DRY/)            (src/DRY/horta/gateway/)   (src/DRY/horta/nodered/flows.json)
 ```
 
 Plataforma: PlatformIO · Arduino/AVR + ESP8266 · MySensors RF24 · MQTT · Node-RED
@@ -20,26 +20,48 @@ Plataforma: PlatformIO · Arduino/AVR + ESP8266 · MySensors RF24 · MQTT · Nod
 
 ## Contrato da Fronteira Gateway → MQTT
 
+> ⚠️ **Os dois gateways compilam com `-D M360_NATIVE_MQTT=1`.**
+> Isso troca o envelope JSON pelo **formato nativo MySensors**: os identificadores
+> viajam no tópico e o payload é o valor bruto. O esquema JSON adiante só vale
+> se a flag for removida do `platformio.ini`.
+
+### Formato nativo (modo em produção)
+
+```
+{prefixo}/out/{nodeId}/{sensorId}/{command}/{ack}/{type}    payload bruto, ex: "23.4"
+{prefixo}/in/{nodeId}/{sensorId}/{command}/{ack}/{type}     payload bruto, ex: "1"
+```
+Exemplo — ligar a Solenóide A do nó 99:
+`m360/DF/0000/in/99/31/1/0/2` com payload `1`
+(`command 1` = C_SET, `type 2` = V_STATUS).
+
+Montado por `Translator::buildNativeTopic()` e lido pelo nó "Decodificador
+Nativo MySensors" no Node-RED, que reconstitui o objeto `{nodeId, sensorId,
+command, ack, type, payload, direction}` a partir de `parts[4..8]`.
+
 ### Tópicos publicados pelo gateway
 
 | Tópico | Quando | Conteúdo |
 |---|---|---|
-| `m360/{UF}/{CAR}/out` | Leitura de sensor, ACK de transporte, heartbeat | JSON (ver esquema abaixo) |
+| `m360/{UF}/{CAR}/out/{n}/{s}/{c}/{a}/{t}` | Leitura de sensor, ACK de transporte | Valor bruto |
+| `m360/{UF}/{CAR}/out` | Heartbeat do gateway | JSON |
 | `m360/{UF}/{CAR}/out/events` | Descoberta de nó, timeout, reconexão | JSON de evento |
-| `m360/{UF}/{CAR}/gateway/status` | Heartbeat periódico do gateway | JSON de métricas |
+| `m360/{UF}/{CAR}/gateway/status` | Métricas periódicas do gateway | JSON de métricas |
 
 ### Tópico consumido pelo gateway
 
-| Tópico | Publicado por | Ação |
+| Tópico assinado | Publicado por | Ação |
 |---|---|---|
-| `m360/{UF}/{CAR}/in` | Node-RED / externo | `processMQTTCommand()` → `send()` ao nó |
+| `m360/{UF}/{CAR}/in/#` | Node-RED / externo | `processMQTTCommandNative()` → `send()` ao nó |
+
+> A assinatura leva `/#` **apenas** em modo nativo — ver `MQTTManager::buildTopicIn()`.
 
 ### Esquema JSON — mensagem de sensor (`direction:"sensor"`)
 
 ```json
 {
   "nodeId":    99,
-  "sensorId":  16,
+  "sensorId":  38,
   "command":   1,
   "ack":       0,
   "type":      2,
@@ -49,6 +71,7 @@ Plataforma: PlatformIO · Arduino/AVR + ESP8266 · MySensors RF24 · MQTT · Nod
   "direction": "sensor"
 }
 ```
+> `sensorId 38` = `CHILD_ID_NFT_PUMP` na faixa normativa de atuação (31-40).
 
 ### Esquema JSON — ACK de transporte (`direction:"ack"`)
 
@@ -134,7 +157,7 @@ base e sobrescreve `nodeId` com `targetNodeId` antes de publicar.
 var isConfirmation = (
     data.nodeId == targetNode &&
     (targetSensor == 255 || data.sensorId == targetSensor) &&
-    (data.direction === 'ack' || data.ack === 1 || data.command === 1)
+    (data.direction === 'ack' || data.ack === 1 || (data.command === 1 && data.type === 2))
 );
 ```
 
@@ -142,54 +165,70 @@ var isConfirmation = (
 - Três formas de confirmação aceitas em ordem de confiabilidade:
   1. `direction:"ack"` — ACK de transporte publicado pelo gateway (preferencial)
   2. `ack:1` — bit ACK MySensors explícito
-  3. `command:1` — C_SET de retorno do nó (fallback defensivo)
+  3. `command:1 && type:2` — o nó devolveu V_STATUS (fallback). O `type:2` é
+     **obrigatório**: sem ele, qualquer leitura de sensor do mesmo nó (que também
+     chega como `command:1`) seria contada como confirmação.
+
+> O gateway só pede ACK de transporte para `V_STATUS`
+> (`withAck = (outMsg.getType() == V_STATUS)`), e o Sincronizador só aguarda ACK
+> para `command:1 && type:2`. As duas pontas concordam: comandos administrativos
+> (REPRESENT, FORCE_UPDATE) são fire-and-forget.
 
 ### Cabeamento obrigatório no fluxo Node-RED
 
 ```
-[MQTT in m360/.../out]
-    → [JSON parser]
+[MQTT in m360/+/+/out/#]
+    → [Decodificador Nativo MySensors]
         → [Sincronizador ACK / Timeout]   ← ACK path (msg.topic == prefix+'/out')
-        → [Separar ACK / Leituras]        ← roteamento para debug/mapa
+        → [Mapeia nós] / [Filtros ...]    ← roteamento para dashboard/mapa
 ```
 
-O JSON parser precisa estar **entre** o MQTT in e o Sincronizador para garantir
-que `msg.payload` seja objeto (não string) quando chegar ao Sincronizador.
+O **Decodificador Nativo MySensors** precisa estar **entre** o MQTT in e o
+Sincronizador: é ele que transforma o tópico nativo em objeto e reescreve
+`msg.topic` para `{prefixo}/out`, que é como o Sincronizador distingue ACK de
+comando novo. Ele também aceita o envelope JSON, caso `M360_NATIVE_MQTT` seja
+removido.
 
 ---
 
 ## Mapeamento de Variáveis MySensors — Decisões de Design
 
-### V_LEVEL usado como umidade de solo (Nós 01 e 13)
+### V_LEVEL usado como umidade de solo (Nós 01, 02 e 05)
 
-Nós 01 e 13 enviam umidade de solo com `type=V_LEVEL (37)`, não `V_PERCENTAGE (3)`.
-Isso é uma limitação histórica do firmware — a escala é 0 (seco) → 100 (água), que
-semanticamente é uma percentagem.
+Os nós de solo enviam umidade com `type=V_LEVEL (37)`, não `V_PERCENTAGE (3)` —
+limitação histórica do firmware.
 
-**Solução no Node-RED:** remapeamento por `nodeId` no `Translator Json`:
+**Escala:** os nós publicam **ADC bruto (0–1023)**, não percentual. Valor alto =
+solo seco (sensor resistivo). O `Motor de Regras Canteiro B` no Node-RED opera
+diretamente nessa escala (limiares 350 e 500), portanto **não** existe conversão
+para 0–100 em lugar nenhum da cadeia.
 
-```javascript
-var LEVEL_COMO_UMIDADE = {1: true, 13: true};
-if (tipo === 'V_LEVEL' && LEVEL_COMO_UMIDADE[m.nodeId]) {
-    tipo = 'V_PERCENTAGE'; descricao = 'Percentual'; unidade = '%';
-}
-```
+**No Node-RED:** não há remapeamento `V_LEVEL→V_PERCENTAGE`. Os filtros de solo
+aceitam `type` 3, 35 ou 37 diretamente, e identificam o nó por `nodeId` ou pelo
+prefixo do rótulo (`A_`, `B_`) vindo da apresentação.
 
-**Solução ideal de longo prazo:** alterar os NODE_ITEMS dos nós 01 e 13 para usar
-`V_PERCENTAGE` diretamente, eliminando o remapeamento no Node-RED.
+**Solução ideal de longo prazo:** converter no firmware para `V_PERCENTAGE` com
+escala 0–100 — exige atualizar simultaneamente os limiares do motor de regras.
 
 ---
 
 ## Nós Físicos — Referência Rápida
 
-| Nó | Hardware | Perfil | Sensores / Atuadores |
-|---|---|---|---|
-| 0 (Gateway) | ESP8266 D1 Mini | — | WiFi + MQTT + MySensors GW |
-| 01 | Pro Mini 3.3V/8MHz | LOW_POWER | 18× S_MOISTURE V_LEVEL (canteiros A/B) |
-| 04 | Pro Mini 3.3V/8MHz | LOW_POWER | Clima (futuro) |
-| 13 | Nano 5V | PASSIVE | ZTS-3002 (umidade/temp/CE/pH/N/P/K), Hall, LDR, relé |
-| 80 | Nano 5V | ALWAYS_ON | pH, EC, DS18B20, ultrassônico, 4× vazão YF-S201 |
-| 99 | Nano 5V | ALWAYS_ON | 9 relés (MUX CD74HC4067 + nativos) + DHT11 |
+| Nó | Env | Hardware | Perfil | Children | Sensores / Atuadores |
+|---|---|---|---|---|---|
+| 0 | `d1_mini_gateway` | ESP8266 D1 Mini | — | — | WiFi + MQTT + MySensors GW |
+| 01 | `nano_01nodeSolo3d` / `ProMini_01nodeSolo3d` | Nano 5V / Pro Mini 16MHz | LOW_POWER | 1–6 | 6× S_MOISTURE V_LEVEL (canteiro A) |
+| 02 | `nano_02nodeSolo3d` | Nano 5V | LOW_POWER | 1–6 | 6× S_MOISTURE V_LEVEL (canteiro B) |
+| 04 | `ProMini_04noodeSolarMini` | Pro Mini 16MHz | LOW_POWER | 1, 11, 12 | DHT11 (temp/umid ar) + DS18B20 (temp solo) |
+| 99 | `nano_99reles` / `nano_99reles_rep` | Nano 5V | ALWAYS_ON | 11, 12, 21, 31–39 | 9 relés (7 via MUX + 2 nativos) + DHT11 + vazão YF-S201 |
+| 11 | `pro16MHz_miniDHT` | Pro Mini 16MHz | ALWAYS_ON | — | Kit Hélio: DHT11 |
+
+> **Faixas normativas de child ID** (`M360Constants.h`): Solo 1–10 · Clima 11–20 ·
+> Hidrometria 21–30 · Atuação 31–40 · 253 debug · 254 intervalo · 255 bateria.
+> Os child IDs do nó 99 são **contrato com o Node-RED** — alterá-los quebra os
+> botões do dashboard e o motor de regras de irrigação.
+> Os nós **5** (Solo MUX), **13** (ZTS) e **80** (Aqua) foram removidos do projeto.
+> Fontes dos nós 13 e 80 recuperáveis em `0ccf66a`; o nó 5, no histórico do git.
 
 ---
 
@@ -218,6 +257,37 @@ Atuadores via MUX usam `pin = MUX_CHANNEL_OFFSET + canal` (100–115).
 Nano não aceita `#define MY_RF24_CE_PIN` para mover CE/CSN. Usar sempre D9/D10.
 Periféricos que conflitem com D9/D10 devem ser movidos.
 
+### 7. `messages[]` precisa de `+3` nos nós da lib M360-DRY
+`M360Node::begin()` escreve **incondicionalmente** em `_messages[_count]`,
+`[_count+1]` e `[_count+2]` — intervalo (254), bateria (255) e debug (253).
+Declarar `messages[NODE_ITEMS_COUNT + 2]` provoca escrita fora dos limites do
+array, sem erro de compilação. O motor **legado** (`node_engine.h`) escreve
+apenas até `[COUNT+1]`, e nele `+2` é o correto — não confundir os dois.
+
+### 8. `readSamples` do `M360ItemDef` não é implementado
+O campo existe na struct mas a biblioteca nunca o lê: `_readCb(i)` é chamado uma
+única vez por item, por ciclo. Médias devem ser feitas dentro do driver.
+Corolário útil: drivers **consumptivos** (que zeram um acumulador ao ler, como o
+contador de pulsos de vazão do nó 99) são seguros nesse contrato.
+
+### 10. `inventario.md` deve acompanhar toda mudança em `src/DRY/horta/`
+`src/DRY/horta/inventario.md` é a referência única de nós e child IDs e o
+contrato com o `flows.json`. Regra do projeto: qualquer alteração de código em
+`src/DRY/horta/` é refletida no inventário na **mesma** entrega — inclusão,
+remoção ou renumeração de child, mudança de `label`/`S_*`/`V_*`/`pin`/atributos,
+inclusão ou remoção de nó, troca de perfil de energia, ou mudança de escala e
+unidade. Registrada em `CLAUDE.md`, `AGENTS.md`, no SKILL (SSoT) e como R12 do
+workflow `m360-node-factory`.
+
+### 9. Child IDs do nó 99 são contrato com o Node-RED
+O dashboard e o motor de irrigação endereçam os atuadores por número fixo
+(31/32/33 solenóides, 38/39 bombas) e leem o clima nos children 11/12.
+Renumerar o firmware sem atualizar o `flows.json` faz os comandos serem
+descartados **em silêncio** — `M360Node::handleMessage()` casa `childId` exato e
+não responde a IDs desconhecidos. O sintoma é timeout no Sincronizador ACK.
+Após renumerar, disparar **REPRESENT** para o `Mapeia nós` limpar os children
+antigos do `mys_nodes`.
+
 ---
 
 ## Decisões de Design Registradas
@@ -225,17 +295,25 @@ Periféricos que conflitem com D9/D10 devem ser movidos.
 | Decisão | Alternativa rejeitada | Motivo |
 |---|---|---|
 | `send(outMsg, true)` + `publishTransportAck()` | Esperar `receive()` com `isAck()` | `receive()` não é chamado para ACKs de transporte no gateway |
-| Remapeamento `V_LEVEL→V_PERCENTAGE` por `nodeId` no Node-RED | Consultar `mys_nodes` em tempo real | Evita race condition: SET pode chegar antes da PRESENTATION ser processada |
+| Identificar o nó de solo por `nodeId` **ou** prefixo do rótulo (`A_`/`B_`) | Depender só de `mys_nodes` em tempo real | Evita race condition: o SET pode chegar antes da PRESENTATION ser processada |
 | Alias de sensor preservado de `m.payload` na apresentação | `getNomeAmigavel()` genérico | Firmware já define nomes canônicos ("A_1m_10cm", "Umidade ZTS") |
 | Fallback do mapa com nomes reais do firmware para Nó 01 | Genéricos "Canal N" | Nomes estão no código-fonte e são estáveis |
-| Isolamento de build PlatformIO via `workspace_dir` | Sincronizar pasta `.pio` no Google Drive | Evita lock de arquivos, permission denied e poluição da nuvem |
+| Versionamento no **GitHub** | Repositório no Google Drive com link simbólico | Sincronização de arquivos sobre um `.git` corrompe o índice e faz arquivos desaparecerem |
+| Isolamento de build via `workspace_dir` no TEMP | Manter `.pio` dentro da árvore do projeto | Evita lock de arquivos e poluição do repositório |
 
 ---
 
-## Sincronização Multi-Desktop e Infraestrutura de Build
+## Repositório e Infraestrutura de Build
 
-- **Guia Completo de Sincronização:** [diretrizes_sincronizacao_desktops.md](file:///g:/Meu%20Drive/Meus%20Documentos/Projetos/ViridIoTech/Projetos/Manejo360/m360horta/docs/diretrizes_sincronizacao_desktops.md)
-- **Repositório Central:** Mantido no Google Drive (`G:\Meu Drive\...\m360horta`) com modo **Disponível off-line**.
-- **Acesso na IDE:** Sempre via link simbólico local (`C:\Users\<usuario>\Documents\PlatformIO\m360horta`).
-- **Isolamento de Compilação:** Diretiva `workspace_dir = ${sysenv.TEMP}/pio_workspaces/${sysenv.USERNAME}/${project.name}` no `platformio.ini` raiz, garantindo zero overhead de rede e sem concorrência de I/O em arquivos binários.
-
+- **Repositório central: GitHub.** O versionamento e a sincronização entre
+  máquinas são feitos por `git push` / `git pull`, não por sincronização de
+  arquivos.
+- **Descontinuado:** o repositório **não** fica mais no Google Drive e **não** é
+  mais acessado por link simbólico local. O clone é uma pasta comum de trabalho.
+- **Consequência prática:** trabalho não commitado existe apenas na máquina
+  local. Commitar cedo e com frequência é o único mecanismo de proteção.
+- **Isolamento de compilação:** `workspace_dir = ${sysenv.TEMP}/pio_builds/${sysenv.USERNAME}/m360_horta` no `platformio.ini` raiz mantém os binários fora
+  da árvore versionada.
+- **Monorepo:** o `platformio.ini` raiz agrega `src/DRY/horta/platformio.ini` e
+  `src/DRY/kit-helio/platformio.ini` via `extra_configs`, e define `src_dir = .`
+  — por isso todo `build_src_filter` começa em `src/DRY/...`.

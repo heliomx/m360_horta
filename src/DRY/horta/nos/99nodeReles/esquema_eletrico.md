@@ -156,28 +156,33 @@ Este módulo recebe o sinal de controle e o distribui para apenas 1 dos 16 canai
 
 ### Relés e Atuadores Nativos (Operação Concorrente)
 Os relés listados abaixo possuem pinos dedicados no Arduino e podem operar simultaneamente a qualquer outro relé.
-| Canal Relé | Pino Arduino | Carga (Atuador) | Especificação Alimentação |
-| :--- | :--- | :--- | :--- |
-| **Relé NFT** | A0 (D14) | Bomba Circulação NFT | 220V AC |
-| **Relé Oxi** | A1 (D15) | Bomba Oxigenação | 220V AC |
+| Canal Relé | Child ID | Pino Arduino | Carga (Atuador) | Especificação Alimentação |
+| :--- | :--- | :--- | :--- | :--- |
+| **Relé NFT** | 38 | A0 (D14) | Bomba Circulação NFT | 220V AC |
+| **Relé Oxi** | 39 | A1 (D15) | Bomba Oxigenação | 220V AC |
 
 ### Sensores Nativos (Operação Concorrente)
 O sensor abaixo possui pino dedicado no Arduino e pode operar simultaneamente a qualquer outro item.
 | Sensor | Pino Arduino | Medição | Especificação Alimentação |
 | :--- | :--- | :--- | :--- |
 | **DHT11** | D2 | Temperatura e Umidade ambiente do quadro | 5V DC (Sinal com resistor pull-up de 4.7kΩ a 10kΩ para VCC) |
+| **YF-S201** | D3 (INT1) | Vazão de irrigação, em L/min | 5V DC (saída em coletor aberto; usa o pull-up interno do AVR) |
+
+> **Pinos de interrupção:** o ATmega328P do Nano oferece apenas D2 (INT0) e
+> D3 (INT1). Com o DHT11 em D2, o sensor de vazão ocupa necessariamente D3.
+> O fator do YF-S201 é `F(Hz) = 7.5 × Q(L/min)`, ou 450 pulsos por litro.
 
 ### Relés e Atuadores Multiplexados (Concorrência Restrita)
 Os relés listados abaixo são controlados pelas saídas do MUX. Apenas **UM** relé desta lista pode ser ativado simultaneamente.
-| Canal MUX | Ligação | Carga (Atuador) | Especificação Alimentação |
-| :--- | :--- | :--- | :--- |
-| **Canal 0** | MUX C0 | Solenóide Canteiro A | 12V DC |
-| **Canal 1** | MUX C1 | Solenóide Canteiro B | 12V DC |
-| **Canal 2** | MUX C2 | Solenóide Canteiro C | 12V DC |
-| **Canal 3** | MUX C3 | Bomba Peristáltica Suplemento A | 12V DC / 0.5A |
-| **Canal 4** | MUX C4 | Bomba Peristáltica Suplemento B | 12V DC / 0.5A |
-| **Canal 5** | MUX C5 | Bomba Peristáltica pH+ | 12V DC / 0.5A |
-| **Canal 6** | MUX C6 | Bomba Peristáltica pH- | 12V DC / 0.5A |
+| Canal MUX | Child ID | Ligação | Carga (Atuador) | Especificação Alimentação |
+| :--- | :--- | :--- | :--- | :--- |
+| **Canal 0** | 31 | MUX C0 | Solenóide Canteiro A | 12V DC |
+| **Canal 1** | 32 | MUX C1 | Solenóide Canteiro B | 12V DC |
+| **Canal 2** | 33 | MUX C2 | Solenóide Canteiro C | 12V DC |
+| **Canal 3** | 34 | MUX C3 | Bomba Peristáltica Suplemento A | 12V DC / 0.5A |
+| **Canal 4** | 35 | MUX C4 | Bomba Peristáltica Suplemento B | 12V DC / 0.5A |
+| **Canal 5** | 36 | MUX C5 | Bomba Peristáltica pH+ | 12V DC / 0.5A |
+| **Canal 6** | 37 | MUX C6 | Bomba Peristáltica pH- | 12V DC / 0.5A |
 *(Nota: Os canais 7 a 15 estão reservados para uso futuro.)*
 
 ### Esquema de Ligação nos Bornes do Relé (Operação Segura com sinal LOW)

@@ -201,29 +201,66 @@ graph TD
 
 ### 3.3 Relés e Atuadores Nativos (Operação Concorrente)
 Os relés listados abaixo possuem pinos dedicados no Arduino e operam de forma independente e simultânea a qualquer outro canal.
-| Canal Relé | Pino Arduino | Carga (Atuador) | Especificação Alimentação |
-| :--- | :--- | :--- | :--- |
-| **Relé NFT** | A0 (D14) | Bomba Circulação NFT | 220V AC |
-| **Relé Oxi** | A1 (D15) | Bomba Oxigenação | 220V AC |
+| Canal Relé | Child ID | Pino Arduino | Carga (Atuador) | Especificação Alimentação |
+| :--- | :--- | :--- | :--- | :--- |
+| **Relé NFT** | 38 | A0 (D14) | Bomba Circulação NFT | 220V AC |
+| **Relé Oxi** | 39 | A1 (D15) | Bomba Oxigenação | 220V AC |
 
 ### 3.4 Sensores Nativos (Operação Concorrente)
 O sensor abaixo possui conexão direta ao Arduino, permitindo leituras periódicas sem interferência no estado de chaveamento do MUX.
 | Sensor | Pino Arduino | Medição | Especificação Alimentação |
 | :--- | :--- | :--- | :--- |
 | **DHT11** | D2 | Temperatura e Umidade interna do quadro | 5V DC (Sinal digital com pull-up de 4.7kΩ-10kΩ para VCC) |
+| **YF-S201** | D3 (INT1) | Vazão de irrigação (L/min) | 5V DC (saída em coletor aberto — usa pull-up interno) |
+
+> D2 e D3 são os **únicos** pinos de interrupção externa do Nano. D2 está ocupado
+> pelo DHT11, logo o sensor de vazão obrigatoriamente usa D3/INT1.
 
 ### 3.5 Relés e Atuadores Multiplexados (Concorrência Restrita)
 Os relés listados abaixo são controlados pelas saídas lógicas do MUX. Apenas **UM** relé desta lista pode ser ativado simultaneamente.
-| Canal MUX | Ligação Física | Carga (Atuador) | Especificação Alimentação |
-| :--- | :--- | :--- | :--- |
-| **Canal 0** | MUX C0 | Solenóide Canteiro A | 12V DC |
-| **Canal 1** | MUX C1 | Solenóide Canteiro B | 12V DC |
-| **Canal 2** | MUX C2 | Solenóide Canteiro C | 12V DC |
-| **Canal 3** | MUX C3 | Bomba Peristáltica Suplemento A | 12V DC / 0.5A |
-| **Canal 4** | MUX C4 | Bomba Peristáltica Suplemento B | 12V DC / 0.5A |
-| **Canal 5** | MUX C5 | Bomba Peristáltica pH+ | 12V DC / 0.5A |
-| **Canal 6** | MUX C6 | Bomba Peristáltica pH- | 12V DC / 0.5A |
+| Canal MUX | Child ID | Ligação Física | Carga (Atuador) | Especificação Alimentação |
+| :--- | :--- | :--- | :--- | :--- |
+| **Canal 0** | 31 | MUX C0 | Solenóide Canteiro A | 12V DC |
+| **Canal 1** | 32 | MUX C1 | Solenóide Canteiro B | 12V DC |
+| **Canal 2** | 33 | MUX C2 | Solenóide Canteiro C | 12V DC |
+| **Canal 3** | 34 | MUX C3 | Bomba Peristáltica Suplemento A | 12V DC / 0.5A |
+| **Canal 4** | 35 | MUX C4 | Bomba Peristáltica Suplemento B | 12V DC / 0.5A |
+| **Canal 5** | 36 | MUX C5 | Bomba Peristáltica pH+ | 12V DC / 0.5A |
+| **Canal 6** | 37 | MUX C6 | Bomba Peristáltica pH- | 12V DC / 0.5A |
 *(Nota: Os canais 7 a 15 do MUX estão desocupados e reservados para futura expansão).*
+
+### 3.6 Mapa de Child IDs (contrato com o Node-RED)
+
+Os child IDs seguem as faixas normativas de `M360Constants.h` e são **contrato
+com o `flows.json`**: o dashboard e o motor de irrigação endereçam os atuadores
+por esses números. Renumerar o firmware sem atualizar o Node-RED faz os comandos
+serem descartados em silêncio — `M360Node::handleMessage()` casa `childId` exato.
+
+| Child | Constante | Tipo MySensors | Item | Faixa |
+| :--- | :--- | :--- | :--- | :--- |
+| 11 | `CHILD_ID_DHT_TEMP` | `S_TEMP` / `V_TEMP` | Temperatura do ar | Clima 11-20 |
+| 12 | `CHILD_ID_DHT_HUM` | `S_HUM` / `V_HUM` | Umidade do ar | Clima 11-20 |
+| 21 | `CHILD_ID_FLOW` | `S_WATER` / `V_FLOW` | Vazão de irrigação (L/min) | Hidrometria 21-30 |
+| 31 | `CHILD_ID_SOL_A` | `S_BINARY` / `V_STATUS` | Solenóide Canteiro A | Atuação 31-40 |
+| 32 | `CHILD_ID_SOL_B` | `S_BINARY` / `V_STATUS` | Solenóide Canteiro B | Atuação 31-40 |
+| 33 | `CHILD_ID_SOL_C` | `S_BINARY` / `V_STATUS` | Solenóide Canteiro C | Atuação 31-40 |
+| 34 | `CHILD_ID_PERIST_A` | `S_BINARY` / `V_STATUS` | Peristáltica Suplemento A | Atuação 31-40 |
+| 35 | `CHILD_ID_PERIST_B` | `S_BINARY` / `V_STATUS` | Peristáltica Suplemento B | Atuação 31-40 |
+| 36 | `CHILD_ID_PH_PLUS` | `S_BINARY` / `V_STATUS` | Peristáltica pH+ | Atuação 31-40 |
+| 37 | `CHILD_ID_PH_MINUS` | `S_BINARY` / `V_STATUS` | Peristáltica pH- | Atuação 31-40 |
+| 38 | `CHILD_ID_NFT_PUMP` | `S_BINARY` / `V_STATUS` | Bomba Circulação NFT | Atuação 31-40 |
+| 39 | `CHILD_ID_NFT_OXI` | `S_BINARY` / `V_STATUS` | Bomba Oxigenação NFT | Atuação 31-40 |
+| 253 | — | `V_TEXT` | Debug remoto (reservado) | — |
+| 254 | — | `V_VAR1` | Intervalo (reservado) | — |
+| 255 | — | `V_VOLTAGE` | Bateria (reservado) | — |
+
+Exemplo de comando MQTT (formato nativo) — ligar a Solenóide A:
+```
+tópico:  m360/DF/0000/in/99/31/1/0/2
+payload: 1
+```
+
+---
 
 ---
 
@@ -242,7 +279,7 @@ A lógica adotada no código é **LOW = LIGADO** (Active-LOW). Para garantir a m
 O Nó 99 utiliza a biblioteca unificada **M360-DRY** rodando sob o perfil de energia **`ALWAYS_ON`** (alimentado por fonte fixa).
 
 ### 5.1 Codificação Virtual de Pinos (MUX)
-Como o multiplexador possui apenas um pino físico de entrada/saída ligado ao Arduino (D3), os canais de controle do MUX são mapeados como pinos virtuais dentro do array `NODE_ITEMS[]` no firmware:
+Como o multiplexador possui apenas um pino físico de entrada/saída ligado ao Arduino (**D8**, o `SIG`), os canais de controle do MUX são mapeados como pinos virtuais dentro do array `NODE_ITEMS[]` no firmware:
 * `pino_virtual = MUX_CHANNEL_OFFSET (100) + canal_mux`
 * **Exemplos:** Canal 0 mapeia para o pino `100`, Canal 5 mapeia para `105`.
 * O setup de pinos físico desses pinos virtuais é ignorado pelo core e controlado manualmente no `initSensors()`.
@@ -254,7 +291,7 @@ O driver de software (`sensorDrivers.cpp`) impõe via código que **apenas um ca
 
 ### 5.3 Tratamento do DHT11 (Sensor Nativo)
 Por ser um protocolo bidirecional, o DHT11 é conectado diretamente ao pino nativo `D2`. A leitura dele ocorre no callback `readItem()` em `99nodeReles.cpp`:
-* Quando o motor solicita a leitura do ID 18 (temperatura) ou ID 19 (umidade), a lógica desvia a requisição direto para `readDHTTemp()` ou `readDHTHum()`.
+* Quando o motor solicita a leitura do child **11** (temperatura) ou **12** (umidade), a lógica desvia a requisição direto para `readDHTTemp()` ou `readDHTHum()`.
 * Essas funções realizam a leitura direta no pino D2 usando a biblioteca Adafruit DHT, tratando erros de leitura (retornando `NAN` caso ocorram problemas físicos) e mantendo a integridade do barramento MUX.
 
 ---

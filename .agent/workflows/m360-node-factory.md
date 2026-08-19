@@ -4,7 +4,7 @@
 
 Orientar a criação completa de um novo nó da rede **M360 Horta**, garantindo conformidade com:
 
-- Biblioteca `lib/M360-DRY` (padrão canônico — **não** usar `src/DRY/nos/shared/`)
+- Biblioteca `lib/M360-DRY` (padrão canônico — **não** usar `src/DRY/horta/nos/shared/`)
 - Padrão MySensors v2.x
 - Estrutura PlatformIO do projeto
 - Documentação de esquema elétrico e diagrama de blocos
@@ -12,7 +12,7 @@ Orientar a criação completa de um novo nó da rede **M360 Horta**, garantindo 
 
 Sempre utilizar como referências primárias:
 - Template: `lib/M360-DRY/examples/NodeTemplate/`
-- Nós existentes: `src/DRY/nos/` (99nodeReles, 80nodeAqua, 13nodeZTS_UmidadeHall, 01nodeSolo3d)
+- Nós existentes: `src/DRY/horta/nos/` (99nodeReles, 04noodeSolarMini, 01nodeSolo3dNano, 02nodeSolo3dNano)
 - API: `lib/M360-DRY/API_REFERENCE.md`
 
 ---
@@ -58,7 +58,7 @@ Proibido em qualquer `.h` ou `.cpp`:
 ```cpp
 static const M360::M360ItemDef NODE_ITEMS[] = { ... };  // static const
 static const uint8_t NODE_ITEMS_COUNT = sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
-static MyMessage messages[NODE_ITEMS_COUNT + 2];  // +2 obrigatório (intervalo + bateria)
+static MyMessage messages[NODE_ITEMS_COUNT + 3];  // +3 obrigatório (intervalo + bateria + debug)
 static float     lastValues[NODE_ITEMS_COUNT];
 static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
 static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, messages, lastValues, nNoUpdates, PERFIL);
@@ -66,18 +66,34 @@ static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, messages, lastValues, n
 
 ## R5 — Contrato de callbacks `onRead` / `onWrite`
 
-O motor `M360Node` chama ambos com **nodeIndex** (posição no array `NODE_ITEMS[]`, não `childId`):
+O motor `M360Node` chama os callbacks com **nodeIndex** (posição no array
+`NODE_ITEMS[]`), **nunca** com `childId`:
 
 ```cpp
-// CORRETO — recebe índice no array
 float readItem(uint8_t nodeIndex) { ... }
 void  writeItem(uint8_t nodeIndex, bool state) { ... }
-
-// ERRADO — nunca passar childId para writeNodeItem
-writeNodeItem(NODE_ITEMS[nodeIndex].childId, state); // ← BUG
-// CORRETO
-writeNodeItem(nodeIndex, state);                      // ← OK
 ```
+
+O que o callback repassa ao driver depende da convenção adotada pelo nó — as
+duas são válidas, desde que o `.h` e o `.cpp` concordem:
+
+```cpp
+// Convenção A — driver indexado por posição (nós 02, 05)
+//   float readNodeItem(uint8_t nodeIndex);
+return readNodeItem(nodeIndex);
+
+// Convenção B — driver endereçado por pino, real ou virtual MUX (nó 99)
+//   void writeNodeItem(uint8_t pin, bool state);
+writeNodeItem(NODE_ITEMS[nodeIndex].pin, state);
+```
+
+```cpp
+// ERRADO em qualquer convenção — childId não é nem índice nem pino
+writeNodeItem(NODE_ITEMS[nodeIndex].childId, state); // ← BUG
+```
+
+> Desde o realinhamento normativo, os `childId` do nó 99 vão de 31 a 39 — usar
+> um deles como índice de array estouraria os buffers imediatamente.
 
 ## R6 — `wait()` em vez de `delay()` dentro de callbacks MySensors
 
@@ -97,6 +113,7 @@ Para nós com MUX CD74HC4067 (encoding virtual `pin = 100 + canal`), `setupPins(
 
 | childId | Uso reservado |
 |---------|--------------|
+| 253 | Debug remoto (`V_TEXT`) — `M360Node::sendDebug()` |
 | 254 | Intervalo (`V_VAR1`) |
 | 255 | Bateria (`V_VOLTAGE`) |
 
@@ -108,13 +125,31 @@ O motor `M360Node` processa os seguintes payloads via `V_CUSTOM` + `C_SET` — t
 |-----------|---------|--------|
 | `CMD_FORCE_UPDATE` | `"FORCE_UPDATE"` | Leitura imediata de todos os sensores; em `M360_PASSIVE` liga/desliga periféricos |
 | `CMD_REPRESENT` | `"REPRESENT"` | Re-anuncia todos os children via `present()` sem resetar estado; exibe `REPRES:OK` no Serial |
-| `CMD_RESET` | `"RESET"` | Reservado para uso no nó (ex: zerar acumuladores de vazão) |
+| `CMD_DEBUG_NET` | `"DEBUG_NET"` | Responde diagnóstico de rede (`P:<parent> D:<dist> R:<S/N>`) via child 253 |
 
 Para acionar `CMD_REPRESENT` via MQTT, publicar em `m360/{UF}/{CAR}/in`:
 ```json
 { "nodeId": <ID>, "sensorId": 0, "command": 1, "type": 48, "payload": "REPRESENT" }
 ```
 > `type: 48` = `V_CUSTOM`. `sensorId` pode ser qualquer childId válido do nó.
+
+## R12 — Atualizar o inventário na mesma entrega
+
+Qualquer alteração de código em `src/DRY/horta/` **deve** ser refletida em
+`src/DRY/horta/inventario.md`. Criar um nó novo exige acrescentar:
+
+- a linha do nó em §1 (env, placa, perfil, faixa de children)
+- uma seção própria com **todos** os children, um a um, informando `childId`,
+  `label`, `kind`, `S_*`, `V_*`, tipo do payload, `pin`, `reportIntervalMin`,
+  `wakeOnRadio` e `flags`
+- se algum child for endereçado pelo Node-RED, a linha correspondente em §8
+  (contrato com o `flows.json`)
+
+> O inventário é o contrato com o Node-RED. Um `childId` que não exista lá — ou
+> que exista com outro número — leva a comandos **descartados em silêncio** pelo
+> nó, sem erro de compilação nem de log.
+
+---
 
 ## R9 — EEPROM — mapa de memória fixo (nunca escrever em 0–511)
 
@@ -179,8 +214,11 @@ Potência RF: [ ] LOW  [ ] HIGH (default)  [ ] MAX
 Timeout de rádio MY_RADIO_TIMEOUT_MS (deixar em branco para omitir):
 ```
 
-> ⚠️ Se o nó usa SoftwareSerial (RS485, GPS), verificar conflito com CE/CSN nos pinos 9/10.
-> Nó 13 (RS485): CE=D6, CSN=D4 para evitar conflito com SoftwareSerial em D9/D10.
+> ⚠️ **No Arduino Nano, CE/CSN são fixos em D9/D10.** A placa não aceita
+> remapeamento via `#define MY_RF24_CE_PIN` / `MY_RF24_CSN_PIN`. Se o nó usa
+> SoftwareSerial (RS485, GPS) ou outro periférico que dispute D9/D10, mova o
+> **periférico**, nunca o rádio.
+> Em Pro Mini e ESP8266 o remapeamento funciona (o gateway usa CE=D2/CSN=D15).
 
 ## 1.5 Gestão de VCC dos sensores
 
@@ -233,7 +271,7 @@ O agente escolhe `S_*` e `V_*` mais adequados e apresenta para confirmação:
 S_TEMP / V_TEMP       — temperatura
 S_HUM / V_HUM         — umidade relativa
 S_MOISTURE / V_LEVEL  — umidade de solo (0–100%)
-S_WATER / V_FLOW      — vazão (L/s)
+S_WATER / V_FLOW      — vazão (L/min — convenção do projeto, ver nó 99)
 S_WATER_QUALITY / V_PH  — pH
 S_WATER_QUALITY / V_EC  — condutividade elétrica
 S_BINARY / V_STATUS   — atuador liga/desliga
@@ -243,11 +281,16 @@ S_CUSTOM / V_VAR1..5  — grandeza sem tipo padrão
 Opções adicionais por item:
 
 ```
-readSamples (1 = leitura única, 3–10 = média):
 reportIntervalMin (0 = sempre envia se mudou):
 wakeOnRadio (true = solicita estado ao gateway após acordar):
 flags bit0 (true = multiplica valor × 100 antes de enviar):
 ```
+
+> ⚠️ O campo `readSamples` do `M360ItemDef` **não é lido pela biblioteca** —
+> `_readCb(i)` é chamado uma única vez por item, por ciclo. Preencher com `1`.
+> Se o nó precisa de média, faça a amostragem dentro do próprio driver.
+> Consequência importante: um driver **consumptivo** (que zera um acumulador ao
+> ler, como o contador de pulsos de vazão) é seguro nesse contrato.
 
 > Se usar MUX CD74HC4067: informe o número do canal MUX (0–15).
 > O agente codifica automaticamente como `pin = MUX_CHANNEL_OFFSET + canal` (ex: canal 3 → pin 103).
@@ -277,7 +320,7 @@ Emitir relatório antes de gerar qualquer código.
 
 ## 2.2 Artefatos existentes
 
-Verificar se já existe pasta `src/DRY/nos/<nomeNó>/`:
+Verificar se já existe pasta `src/DRY/horta/nos/<nomeNó>/`:
 
 - **Sim**: analisar o que pode ser aproveitado
 - **Não**: criar a estrutura completa
@@ -287,16 +330,16 @@ Verificar se já existe pasta `src/DRY/nos/<nomeNó>/`:
 # Passo 3 — Estrutura de Arquivos a Criar
 
 ```
-src/DRY/nos/<nomeNó>/
-├── withLibDRY/
-│   └── <nomeNó>.cpp        ← sketch declarativo (NUNCA hardwareaquí)
+src/DRY/horta/nos/<nomeNó>/
+├── <nomeNó>.cpp             ← sketch declarativo (NUNCA hardware aqui)
 ├── sensorDrivers.h          ← interface pública do driver
 ├── sensorDrivers.cpp        ← implementação física dos sensores
 ├── esquema_eletrico.md      ← documentação de pinagem
 └── diagrama_blocos.svg      ← diagrama visual do hardware
 ```
 
-> O subdiretório **sempre** se chama `withLibDRY` (DRY maiúsculo).
+> O sketch fica **direto na pasta do nó**. O subdiretório `withLibDRY/` foi
+> abandonado — nenhum nó do projeto o utiliza.
 
 ---
 
@@ -323,8 +366,10 @@ Estrutura mínima:
 void  initSensors();
 void  powerUpSensors();    // Presente apenas se houver pino VCC controlado
 void  powerDownSensors();  // Presente apenas se houver pino VCC controlado
-float readNodeItem(uint8_t nodeIndex);   // Parâmetro é índice no NODE_ITEMS[], NÃO childId
-void  writeNodeItem(uint8_t nodeIndex, bool state);  // Omitir se não há atuadores
+// Escolha UMA convenção (ver R5) e mantenha .h e .cpp coerentes — nunca childId:
+float readNodeItem(uint8_t nodeIndex);              // Convenção A: índice em NODE_ITEMS[]
+void  writeNodeItem(uint8_t pin, bool state);       // Convenção B: pino real ou virtual MUX
+                                                    // Omitir write se não há atuadores
 ```
 
 ## 4.2 `sensorDrivers.cpp`
@@ -374,7 +419,7 @@ void writeNodeItem(uint8_t nodeIndex, bool state) {
 
 ---
 
-# Passo 5 — Geração do Sketch Principal (`withLibDRY/<nomeNó>.cpp`)
+# Passo 5 — Geração do Sketch Principal (`<nomeNó>.cpp`)
 
 Basear estritamente no template `lib/M360-DRY/examples/NodeTemplate/NodeTemplate.cpp`.
 
@@ -405,7 +450,7 @@ static const M360::M360ItemDef NODE_ITEMS[] = {
 static const uint8_t NODE_ITEMS_COUNT = sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
 
 // ===== BUFFERS (alocação estática — sem heap) =====
-static MyMessage messages[NODE_ITEMS_COUNT + 2];  // +2: intervalo e bateria
+static MyMessage messages[NODE_ITEMS_COUNT + 3];  // +3: intervalo (254), bateria (255), debug (253)
 static float     lastValues[NODE_ITEMS_COUNT];
 static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
 
@@ -466,8 +511,7 @@ board = nanoatmega328
 framework = arduino
 
 build_src_filter =
-    +<DRY/nos/<nomeNó>/withLibDRY/*.cpp>
-    +<DRY/nos/<nomeNó>/sensorDrivers.cpp>
+    +<src/DRY/horta/nos/<nomeNó>/>
 
 monitor_speed = ${common.monitor_speed}
 
@@ -495,7 +539,7 @@ build_flags =
 ## 7.1 `esquema_eletrico.md`
 
 Documento Markdown com tabela de conexões. Usar como referência:
-`src/DRY/nos/80nodeAqua/esquema_eletrico.md`
+`src/DRY/horta/nos/99nodeReles/esquema_eletrico.md`
 
 Conteúdo mínimo:
 - Tabela pino → componente → sinal
@@ -511,7 +555,7 @@ Diagrama visual SVG representando:
 - Sensores e atuadores
 - Alimentação e pino VCC controlado (se houver)
 
-Usar como referência: `src/DRY/nos/80nodeAqua/diagrama_blocos.svg`
+Usar como referência: `src/DRY/horta/gateway/diagrama_blocos.svg`
 
 ---
 
@@ -522,20 +566,21 @@ Verificar cada item antes de entregar o código:
 | # | Anti-padrão | Verificação |
 |---|-------------|-------------|
 | 1 | `#define MY_*` em `.cpp` ou `.h` | Buscar `MY_` fora do `platformio.ini` |
-| 2 | `messages[N]` com N fixo em vez de `NODE_ITEMS_COUNT + 2` | Conferir declaração |
+| 2 | `messages[N]` com N fixo, ou `+ 2` em vez de `NODE_ITEMS_COUNT + 3` | `M360Node::begin()` escreve em `[_count+2]`; `+2` estoura o array |
 | 3 | `NODE_ITEMS[]` sem `static const` | Confirmar declaração |
 | 4 | Buffers sem `static` | `messages`, `lastValues`, `nNoUpdates` |
 | 5 | `Serial.begin()` em `setup()` | Deve estar em `before()` |
 | 6 | `initSensors()` em `setup()` | Deve estar em `before()` |
 | 7 | `delay()` dentro de `readNodeItem()` ou `writeNodeItem()` | Substituir por `wait()` |
-| 8 | `writeNodeItem(NODE_ITEMS[i].childId, ...)` | Deve ser `writeNodeItem(nodeIndex, ...)` |
+| 8 | `writeNodeItem(NODE_ITEMS[i].childId, ...)` | `childId` não é índice nem pino: usar `nodeIndex` ou `NODE_ITEMS[i].pin`, conforme a convenção do driver (R5) |
 | 9 | `node.setupPins()` com pinos virtuais MUX (100+) | Omitir; init em `initSensors()` |
 | 10 | `EEPROM.put()` direto no nó | Usar `M360::saveInterval()` |
 | 11 | `CHILD_ID_*` como índice de array (`lastValues[CHILD_ID_X]`) | Usar `nodeIndex` ou constante `IDX_*` |
 | 12 | `MY_RF24_CS_PIN` em vez de `MY_RF24_CSN_PIN` | Verificar flag no `.ini` |
-| 13 | `build_src_filter` com casing inconsistente | `withLibDRY` (DRY maiúsculo) |
+| 13 | `build_src_filter` com caminho errado | Deve partir de `src/DRY/horta/nos/` — o `src_dir` do projeto é a raiz do repo |
 | 14 | childId 254 ou 255 em `NODE_ITEMS[]` | Reservados para intervalo e bateria |
 | 15 | Ordem errada de includes (`M360.h` antes de `MySensors.h`) | Causa banner truncado + hang; ordem correta: `Arduino.h` → `MySensors.h` → `M360.h` → `sensorDrivers.h` |
+| 16 | `src/DRY/horta/` alterado sem atualizar `inventario.md` | Ver R12 — inventário é contrato com o Node-RED |
 
 ---
 
@@ -546,12 +591,13 @@ Ao finalizar apresentar lista de arquivos criados/modificados e walkthrough:
 ## Arquivos
 
 ```
-src/DRY/nos/<nomeNó>/withLibDRY/<nomeNó>.cpp
-src/DRY/nos/<nomeNó>/sensorDrivers.h
-src/DRY/nos/<nomeNó>/sensorDrivers.cpp
-src/DRY/nos/<nomeNó>/esquema_eletrico.md
-src/DRY/nos/<nomeNó>/diagrama_blocos.svg
-platformio.ini  (env adicionado)
+src/DRY/horta/nos/<nomeNó>/<nomeNó>.cpp
+src/DRY/horta/nos/<nomeNó>/sensorDrivers.h
+src/DRY/horta/nos/<nomeNó>/sensorDrivers.cpp
+src/DRY/horta/nos/<nomeNó>/esquema_eletrico.md
+src/DRY/horta/nos/<nomeNó>/diagrama_blocos.svg
+src/DRY/horta/platformio.ini  (env adicionado)
+src/DRY/horta/inventario.md   (nó e children acrescentados — R12)
 ```
 
 ## Resumo de configuração

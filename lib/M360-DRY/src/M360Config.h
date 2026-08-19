@@ -61,6 +61,18 @@ namespace M360 {
 	String buildTopicGatewayStatus(const M360DeviceConfig& cfg);
 #endif
 
+	// Utilitários de Validação de Faixas Normativas de Node ID
+	inline bool isClimaNode(uint8_t id)    { return id >= 1 && id <= 50; }
+	inline bool isSoloNode(uint8_t id)     { return id >= 51 && id <= 150; }
+	inline bool isActuatorNode(uint8_t id) { return id >= 151 && id <= 200; }
+	inline bool isWaterNode(uint8_t id)    { return id >= 201 && id <= 254; }
+
+	// Utilitários de Validação de Faixas Normativas de Child ID
+	inline bool isSoloChild(uint8_t id)     { return id >= 1 && id <= 10; }
+	inline bool isClimaChild(uint8_t id)    { return id >= 11 && id <= 20; }
+	inline bool isFlowChild(uint8_t id)     { return id >= 21 && id <= 30; }
+	inline bool isActuatorChild(uint8_t id) { return id >= 31 && id <= 40; }
+
 } // namespace M360
 
 // ===== INTERVALO (minutos) =====

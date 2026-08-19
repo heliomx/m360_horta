@@ -31,6 +31,20 @@
         "info": ""
     },
     {
+        "id": "5f670c411a47a898",
+        "type": "tab",
+        "label": "IA Repórter (Diário)",
+        "disabled": false,
+        "info": "Gera o diário diário da horta com base nos logs."
+    },
+    {
+        "id": "tab_irrigacao_m360",
+        "type": "tab",
+        "label": "Irrigação",
+        "disabled": false,
+        "info": "Motor de Regras de Irrigação Automática M360 Horta com Notificações via Telegram:\n- Canteiro B (Manejo360): Irrigação Inteligente com Sensores de Solo + DHT11 Clima\n- Canteiro A (Controle Tradicional): Agendamento Fixo 2x/dia (07h e 17h x 5min) para 6x1m / 35 alfaces\n- Notificações Telegram: Disparo automático de mensagens no início e fim de cada rega"
+    },
+    {
         "id": "178d6e63b26ceeb2",
         "type": "mqtt-broker",
         "name": "mqtt.viridiotech.com.br",
@@ -60,14 +74,6 @@
         "willMsg": {},
         "userProps": "",
         "sessionExpiry": ""
-    },
-    {
-        "id": "2b8b56ca852d12bb",
-        "type": "global-config",
-        "env": [],
-        "modules": {
-            "@flowfuse/node-red-dashboard": "1.30.2"
-        }
     },
     {
         "id": "82c01b7088685b89",
@@ -635,8 +641,7 @@
         "y": 460,
         "wires": [
             [
-                "d626b61e2f670799",
-                "fd216e1614ec7f57"
+                "d626b61e2f670799"
             ]
         ]
     },
@@ -805,6 +810,38 @@
         ]
     },
     {
+        "id": "m360_global_catch",
+        "type": "catch",
+        "z": "6e38860673f8fc3a",
+        "name": "Global Error Catch",
+        "scope": null,
+        "uncaught": false,
+        "x": 200,
+        "y": 1000,
+        "wires": [
+            [
+                "m360_global_error_log"
+            ]
+        ]
+    },
+    {
+        "id": "m360_global_error_log",
+        "type": "debug",
+        "z": "6e38860673f8fc3a",
+        "name": "Log Erros Críticos",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 450,
+        "y": 1000,
+        "wires": []
+    },
+    {
         "id": "4eadad94c4c9d871",
         "type": "function",
         "z": "a757ff0be26f944a",
@@ -820,8 +857,7 @@
         "y": 180,
         "wires": [
             [
-                "3ce607812261d4c5",
-                "fd216e1614ec7f57"
+                "3ce607812261d4c5"
             ]
         ]
     },
@@ -1264,8 +1300,7 @@
         "y": 180,
         "wires": [
             [
-                "a8dc9ab7df0ef1bc",
-                "fd216e1614ec7f57"
+                "a8dc9ab7df0ef1bc"
             ]
         ]
     },
@@ -2579,48 +2614,9 @@
         ]
     },
     {
-        "id": "m360_global_catch",
-        "type": "catch",
-        "z": "6e38860673f8fc3a",
-        "name": "Global Error Catch",
-        "scope": null,
-        "uncaught": false,
-        "x": 200,
-        "y": 1000,
-        "wires": [
-            [
-                "m360_global_error_log"
-            ]
-        ]
-    },
-    {
-        "id": "m360_global_error_log",
-        "type": "debug",
-        "z": "6e38860673f8fc3a",
-        "name": "Log Erros Críticos",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 450,
-        "y": 1000,
-        "wires": []
-    },
-    {
-        "id": "ai_reporter_tab",
-        "type": "tab",
-        "label": "IA Repórter (Diário)",
-        "disabled": false,
-        "info": "Gera o diário diário da horta com base nos logs."
-    },
-    {
-        "id": "agent_trigger",
+        "id": "ca181fafeb3b2433",
         "type": "inject",
-        "z": "ai_reporter_tab",
+        "z": "5f670c411a47a898",
         "name": "Diário 08:00 AM",
         "props": [
             {
@@ -2638,29 +2634,29 @@
         "y": 100,
         "wires": [
             [
-                "build_prompt"
+                "0d61733e2abf2137"
             ]
         ]
     },
     {
-        "id": "build_prompt",
+        "id": "0d61733e2abf2137",
         "type": "function",
-        "z": "ai_reporter_tab",
+        "z": "5f670c411a47a898",
         "name": "Montar Contexto e Prompt Gemini",
         "func": "// Chaves de Configuração\nvar GEMINI_API_KEY = global.get('GEMINI_API_KEY') || 'COLE_AQUI';\nvar TELEGRAM_BOT_TOKEN = global.get('TELEGRAM_BOT_TOKEN') || 'COLE_AQUI';\nvar TELEGRAM_CHAT_ID = global.get('TELEGRAM_CHAT_ID') || 'COLE_AQUI';\n\n// Puxa o log direto da RAM (Central Logger armazena aqui)\nvar logsArray = global.get('mqtt_logs') || [];\nvar logs = \"\";\n\n// Converte os ultimos logs para string CSV\nlogsArray.forEach(function(item) {\n    logs += item.timestamp + ' | ' + item.dir + ' | ' + item.topic + ' | ' + JSON.stringify(item.payload) + '\\n';\n});\n\nvar system_prompt = \"Você é um agente autônomo analista de dados de uma Horta Inteligente (Projeto M360 Horta).\\n\\n\" +\n\"O usuário solicitou um DIÁRIO COMPLETO das últimas 24 horas. Seu foco:\\n\" +\n\"1. RESUMO OPERACIONAL: Resuma quantos comandos e ativações automáticas de atuadores (Bombas, Solenóides) ocorreram.\\n\" +\n\"2. SAÚDE DA HORTA: Analise criticamente os sensores (Umidade, vazão). Houve falta de água? Algum nó ficou muito tempo sem enviar leitura?\\n\" +\n\"3. CONCLUSÃO: Dê uma nota de saúde (Ex: 9/10) e diga se alguma ação manual é recomendada hoje.\\n\\n\" +\n\"Retorne EXCLUSIVAMENTE o texto formatado em MARKDOWN, curto, direto e objetivo para ser lido no Telegram.\\n\\n\" +\n\"Abaixo estão os logs crus:\\n\\n\";\n\nif (logs.length > 80000) {\n    logs = logs.substring(logs.length - 80000);\n}\n\nmsg.gemini_key = GEMINI_API_KEY;\nmsg.telegram_token = TELEGRAM_BOT_TOKEN;\nmsg.telegram_chat_id = TELEGRAM_CHAT_ID;\n\nmsg.payload = {\n    \"contents\": [{\n        \"parts\": [{\"text\": system_prompt + logs}]\n    }],\n    \"systemInstruction\": {\n        \"parts\": [{\"text\": \"Escreva sempre em PT-BR. Use emojis adequados.\"}]\n    }\n};\n\nmsg.headers = { \"Content-Type\": \"application/json\" };\nreturn msg;",
         "outputs": 1,
-        "x": 600,
+        "x": 440,
         "y": 100,
         "wires": [
             [
-                "call_gemini"
+                "ccc820a2b226fbe8"
             ]
         ]
     },
     {
-        "id": "call_gemini",
+        "id": "ccc820a2b226fbe8",
         "type": "http request",
-        "z": "ai_reporter_tab",
+        "z": "5f670c411a47a898",
         "name": "Gemini API",
         "method": "POST",
         "ret": "obj",
@@ -2673,33 +2669,33 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 830,
+        "x": 710,
         "y": 100,
         "wires": [
             [
-                "parse_gemini"
+                "2aa78207a5e244e8"
             ]
         ]
     },
     {
-        "id": "parse_gemini",
+        "id": "2aa78207a5e244e8",
         "type": "function",
-        "z": "ai_reporter_tab",
+        "z": "5f670c411a47a898",
         "name": "Extrair Markdown & Enviar Telegram",
         "func": "if (!msg.payload || !msg.payload.candidates || msg.payload.candidates.length === 0) {\n    node.error(\"Detalhes do erro do Gemini: \" + JSON.stringify(msg.payload), msg);\n    return null;\n}\n\nvar text = msg.payload.candidates[0].content.parts[0].text;\n\nmsg.payload = {\n    \"chat_id\": msg.telegram_chat_id,\n    \"text\": text,\n    \"parse_mode\": \"Markdown\"\n};\n\nmsg.url = \"https://api.telegram.org/bot\" + msg.telegram_token + \"/sendMessage\";\nreturn msg;",
         "outputs": 1,
-        "x": 1050,
-        "y": 100,
+        "x": 630,
+        "y": 200,
         "wires": [
             [
-                "call_telegram"
+                "464d4b6241734a71"
             ]
         ]
     },
     {
-        "id": "call_telegram",
+        "id": "464d4b6241734a71",
         "type": "http request",
-        "z": "ai_reporter_tab",
+        "z": "5f670c411a47a898",
         "name": "Telegram Bot API",
         "method": "POST",
         "ret": "txt",
@@ -2712,19 +2708,19 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 1310,
-        "y": 100,
+        "x": 810,
+        "y": 300,
         "wires": [
             [
-                "debug_agent_output"
+                "49352e3014f88c90"
             ]
         ]
     },
     {
-        "id": "debug_agent_output",
+        "id": "49352e3014f88c90",
         "type": "debug",
-        "z": "ai_reporter_tab",
-        "name": "Resultado Bot",
+        "z": "5f670c411a47a898",
+        "name": "Bot IA Reporter",
         "active": true,
         "tosidebar": true,
         "console": false,
@@ -2733,16 +2729,9 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1510,
-        "y": 100,
+        "x": 960,
+        "y": 420,
         "wires": []
-    },
-    {
-        "id": "tab_irrigacao_m360",
-        "type": "tab",
-        "label": "Irrigação",
-        "disabled": false,
-        "info": "Motor de Regras de Irrigação Automática M360 Horta com Notificações via Telegram:\n- Canteiro B (Manejo360): Irrigação Inteligente com Sensores de Solo + DHT11 Clima\n- Canteiro A (Controle Tradicional): Agendamento Fixo 2x/dia (07h e 17h x 5min) para 6x1m / 35 alfaces\n- Notificações Telegram: Disparo automático de mensagens no início e fim de cada rega"
     },
     {
         "id": "cron_canteiro_a_7h",
@@ -2809,7 +2798,8 @@
         "y": 130,
         "wires": [
             [
-                "pub_mqtt_solenoides_a"
+                "pub_mqtt_solenoides_a",
+                "d38bdac50abe2782"
             ],
             [
                 "fn_formatador_telegram"
@@ -2830,8 +2820,8 @@
         "correl": "",
         "expiry": "",
         "broker": "178d6e63b26ceeb2",
-        "x": 870,
-        "y": 130,
+        "x": 890,
+        "y": 120,
         "wires": []
     },
     {
@@ -2847,7 +2837,7 @@
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 170,
+        "x": 130,
         "y": 300,
         "wires": [
             [
@@ -2868,7 +2858,9 @@
         "libs": [],
         "x": 510,
         "y": 300,
-        "wires": []
+        "wires": [
+            []
+        ]
     },
     {
         "id": "cron_avaliador_canteiro_b",
@@ -2906,11 +2898,12 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 540,
+        "x": 580,
         "y": 400,
         "wires": [
             [
-                "pub_mqtt_solenoides_b"
+                "pub_mqtt_solenoides_b",
+                "d38bdac50abe2782"
             ],
             [
                 "fn_formatador_telegram"
@@ -2931,8 +2924,8 @@
         "correl": "",
         "expiry": "",
         "broker": "178d6e63b26ceeb2",
-        "x": 870,
-        "y": 400,
+        "x": 950,
+        "y": 380,
         "wires": []
     },
     {
@@ -2970,8 +2963,37 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 1130,
+        "x": 1140,
+        "y": 260,
+        "wires": [
+            [
+                "d38bdac50abe2782"
+            ]
+        ]
+    },
+    {
+        "id": "d38bdac50abe2782",
+        "type": "debug",
+        "z": "tab_irrigacao_m360",
+        "name": "irrigação automática",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1500,
         "y": 260,
         "wires": []
+    },
+    {
+        "id": "8222bb60b624e5ca",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@flowfuse/node-red-dashboard": "1.30.2"
+        }
     }
 ]

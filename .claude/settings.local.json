@@ -35,7 +35,24 @@
       "PowerShell(& \"C:\\\\Users\\\\jmarc\\\\.platformio\\\\penv\\\\Scripts\\\\platformio.exe\" run -e ProMini_01nodeSolo3d -e nano_13nodeZTS_UmidadeHall -e nano_99reles 2>&1)",
       "PowerShell(& \"C:\\\\Users\\\\jmarc\\\\.platformio\\\\penv\\\\Scripts\\\\platformio.exe\" check -e check_m360_dry 2>&1)",
       "PowerShell(& \"C:\\\\Users\\\\jmarc\\\\.platformio\\\\penv\\\\Scripts\\\\platformio.exe\" run -e d1_mini_libdry 2>&1)",
-      "Bash(find / -iname \"MyMessage.h\" 2>/dev/null | head -20; find / -ipath \"*MySensors*/core*\" -iname \"*.cpp\" 2>/dev/null | head -20)"
+      "Bash(find / -iname \"MyMessage.h\" 2>/dev/null | head -20; find / -ipath \"*MySensors*/core*\" -iname \"*.cpp\" 2>/dev/null | head -20)",
+      "Bash(env)",
+      "Bash(git log *)",
+      "PowerShell($pio = \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\"; & $pio check -e check_m360_dry 2>&1 | Select-String -Pattern \"Error|error|Checking|components|SUCCESS|FAILED|defects|Nothing\" | Select-Object -First 20)",
+      "PowerShell($pio = \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\"; & $pio run 2>&1 | Select-String -Pattern \"error:|Error|SUCCESS|FAILED|succeeded\" | Select-Object -Last 20)",
+      "Bash(git ls-tree *)",
+      "Bash(git checkout *)",
+      "PowerShell($pio = \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\"; & $pio run 2>&1 | Select-String -Pattern \"error:|SUCCESS|FAILED|succeeded\" | Select-Object -Last 12)",
+      "PowerShell($pio = \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\"; foreach \\($e in @\\('ProMini_04noodeSolarMini','nano_99reles_rep','pro16MHz_miniDHT'\\)\\) { Write-Output \"##### $e\"; & $pio run -e $e 2>&1 | Select-String -Pattern \"error|multiple definition|SUCCESS|FAILED|RAM:|Flash:\" | Select-Object -First 8 })",
+      "PowerShell($pio = \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\"; & $pio check -e check_m360_dry 2>&1 | Select-String -Pattern \"Checking|\\\\[high|\\\\[medium|Components|Total|libdeps|UVSensor|MyTransportRS485\" | Select-Object -First 25)",
+      "Bash(git check-ignore *)",
+      "PowerShell($pio = \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\"; & $pio check -e check_m360_dry 2>&1 | Select-Object -Last 30)",
+      "PowerShell($pio = \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\"; & $pio check -e check_m360_dry 2>&1 | Select-Object -Last 15)",
+      "Bash(grep -oE '[A-Za-z0-9_/\\\\\\\\.:-]*M360-DRY[\\\\\\\\/]src[\\\\\\\\/]M360[A-Za-z]*\\\\.\\(cpp|h\\)' \"C:/Users/jmarc/.claude/projects/c--Users-jmarc-Documents-PlatformIO-Projects-m360-horta/bc93eb24-b2ab-44e1-9a59-66ae8376617a/tool-results/bptm901g3.txt\")",
+      "PowerShell($pio = \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\"; $envs = & $pio project config 2>&1 | Select-String -Pattern \"^env:\"; Write-Output \"Total de envs: $\\($envs.Count\\)\"; $envs)",
+      "Bash(python -c ' *)",
+      "Bash(grep -nE \"^[[:space:]]*V_\\(TEMP|HUM|STATUS|PERCENTAGE|FLOW|VOLUME|LEVEL|VOLTAGE|VAR1|CUSTOM\\)[[:space:]]*=\" \"C:/Users/jmarc/AppData/Local/Temp/pio_builds/jmarc/m360_horta/libdeps/check_m360_dry/MySensors/core/MyMessage.h\")",
+      "Read(//c/Users/jmarc/AppData/Local/Temp/pio_builds/jmarc/m360_horta/libdeps/check_m360_dry/MySensors/core/**)"
     ]
   }
 }

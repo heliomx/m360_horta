@@ -39,24 +39,46 @@
 #define PIN_NFT_PUMP    A0  // Bomba Circulação Principal — Hidroponia NFT
 #define PIN_NFT_OXI     A1  // Bomba Oxigenação — Hidroponia NFT
 
-// ===== CHILD IDs — Canais via MUX CD74HC4067 =====
-#define CHILD_ID_SOL_A      0   // Canal 0 — Solenóide Gotejamento Canteiro A
-#define CHILD_ID_SOL_B      1   // Canal 1 — Solenóide Gotejamento Canteiro B
-#define CHILD_ID_SOL_C      2   // Canal 2 — Solenóide Gotejamento Canteiro C
-#define CHILD_ID_PERIST_A   3   // Canal 3 — Peristáltica Suplemento A
-#define CHILD_ID_PERIST_B   4   // Canal 4 — Peristáltica Suplemento B
-#define CHILD_ID_PH_PLUS    5   // Canal 5 — Peristáltica pH+
-#define CHILD_ID_PH_MINUS   6   // Canal 6 — Peristáltica pH-
-// Canais 7-15: Reservados para expansão (climatização/iluminação)
+// ===== CHILD IDs — FAIXAS NORMATIVAS M360 =====
+// Os child IDs seguem as faixas de M360Constants.h e SÃO CONTRATO com o
+// Node-RED (flows.json), que endereça os atuadores por esses números.
+// NÃO confundir com o canal do MUX: o canal vive no campo `pin` de
+// M360ItemDef, como MUX_CHANNEL_OFFSET + canal.
+//
+//   Clima      11-20  (CHILD_ID_CLIMA_MIN/MAX)
+//   Hidrometria 21-30 (CHILD_ID_FLOW_MIN/MAX)
+//   Atuação    31-40  (CHILD_ID_ACTUATOR_MIN/MAX)
 
-// ===== CHILD IDs — Pinos Nativos Concorrentes =====
-#define CHILD_ID_NFT_PUMP   16  // A0 — Bomba Circulação Principal NFT
-#define CHILD_ID_NFT_OXI    17  // A1 — Bomba Oxigenação NFT
-#define CHILD_ID_DHT_TEMP   18  // Sensor de Temperatura DHT11
-#define CHILD_ID_DHT_HUM    19  // Sensor de Umidade DHT11
+// ----- Clima (11-20) -----
+#define CHILD_ID_DHT_TEMP   11  // Temperatura do Ar (DHT11, D2)
+#define CHILD_ID_DHT_HUM    12  // Umidade do Ar (DHT11, D2)
+
+// ----- Hidrometria (21-30) -----
+#define CHILD_ID_FLOW       21  // Vazão de irrigação (YF-S201, D3/INT1)
+
+// ----- Atuação via MUX CD74HC4067 (31-40) -----
+#define CHILD_ID_SOL_A      31  // Canal MUX 0 — Solenóide Gotejamento Canteiro A
+#define CHILD_ID_SOL_B      32  // Canal MUX 1 — Solenóide Gotejamento Canteiro B
+#define CHILD_ID_SOL_C      33  // Canal MUX 2 — Solenóide Gotejamento Canteiro C
+#define CHILD_ID_PERIST_A   34  // Canal MUX 3 — Peristáltica Suplemento A
+#define CHILD_ID_PERIST_B   35  // Canal MUX 4 — Peristáltica Suplemento B
+#define CHILD_ID_PH_PLUS    36  // Canal MUX 5 — Peristáltica pH+
+#define CHILD_ID_PH_MINUS   37  // Canal MUX 6 — Peristáltica pH-
+// Canais MUX 7-15: Reservados para expansão (climatização/iluminação)
+
+// ----- Atuação via pinos nativos (31-40) -----
+#define CHILD_ID_NFT_PUMP   38  // A0 — Bomba Circulação Principal NFT
+#define CHILD_ID_NFT_OXI    39  // A1 — Bomba Oxigenação NFT
 
 // ===== PINO NATIVO DHT11 =====
 #define PIN_DHT             2   // D2 para sinal digital do DHT11
+
+// ===== SENSOR DE VAZÃO YF-S201 =====
+// D3 é o único pino de interrupção externa livre no Nano (INT1):
+// D2 = DHT11, D4-D8 = MUX, D9-D13 = NRF24, A0/A1 = bombas.
+#define PIN_FLOW            3      // D3 / INT1 — sinal de pulso do YF-S201
+// Fator K do YF-S201: F(Hz) = 7.5 x Q(L/min)  →  450 pulsos por litro.
+#define FLOW_K_FACTOR       7.5f
 
 // ===== ENCODING DE PINOS VIRTUAIS (MUX) =====
 // Canais MUX são representados como pinos virtuais no campo `pin` de M360ItemDef:
@@ -99,3 +121,21 @@ float readDHTTemp();
  * Lê a umidade do sensor DHT11.
  */
 float readDHTHum();
+
+/**
+ * Configura o pino de vazão e registra a interrupção de contagem de pulsos.
+ * Chamada por initSensors(); não precisa ser invocada diretamente.
+ */
+void initFlowSensor();
+
+/**
+ * Lê a vazão instantânea em litros/minuto e reinicia a janela de contagem.
+ *
+ * Calcula a média sobre o intervalo decorrido desde a chamada anterior:
+ *   Q(L/min) = (pulsos / Δt_segundos) / FLOW_K_FACTOR
+ *
+ * CONSUMPTIVO: zera o contador a cada chamada. Chamar apenas no ciclo de
+ * leitura do M360Node (via readItem), nunca em dois pontos concorrentes,
+ * sob pena de dividir os pulsos entre os chamadores.
+ */
+float readFlowLpm();

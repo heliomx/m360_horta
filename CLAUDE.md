@@ -5,7 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Projeto
 Sistema IoT de monitoramento agrícola M360 Horta.  
 **Plataforma:** PlatformIO · Arduino/AVR · MySensors RF24 · ESP8266  
-**Arquitetura:** Gateway MQTT (`src/DRY/gateway/`) + Nós sensores/atuadores (`src/DRY/nos/`)
+**Arquitetura:** Monorepo com dois sub-projetos agregados por `extra_configs`:
+- **Horta** — gateway em `src/DRY/horta/gateway/`, nós em `src/DRY/horta/nos/`
+- **Kit Hélio** — gateway em `src/DRY/kit-helio/gateway/`, nós em `src/DRY/kit-helio/nos/`
+
+O `platformio.ini` da raiz define `src_dir = .`, portanto todo `build_src_filter`
+parte de `src/DRY/...`. Os envs vivem nos `platformio.ini` de cada sub-projeto.
 
 ---
 
@@ -33,14 +38,23 @@ pio run
 
 ### Ambientes disponíveis
 
-| `env`                        | Hardware               | Porta  | Nó  |
-|------------------------------|------------------------|--------|-----|
-| `d1_mini_libdry`             | ESP8266 D1 Mini        | COM5   | 0 (Gateway) |
-| `nano_01nodeSolo3d`          | Arduino Nano (5V)      | —      | 1  |
-| `ProMini_04nodeClima`        | Arduino Pro Mini (3.3V/8MHz) | — | 4  |
-| `nano_99_reles_nano`         | Arduino Nano (5V)      | COM4   | 99 |
-| `nano_13nodeZTS_UmidadeHall` | Arduino Nano (5V)      | —      | 13 |
-| `nano_80nodeAqua`            | Arduino Nano (5V)      | —      | 80 |
+Definidos em `src/DRY/horta/platformio.ini` e `src/DRY/kit-helio/platformio.ini`.
+
+| `env`                       | Hardware                    | Porta | Nó |
+|-----------------------------|-----------------------------|-------|----|
+| `d1_mini_gateway`           | ESP8266 D1 Mini             | COM5  | 0 (Gateway Horta) |
+| `nano_01nodeSolo3d`         | Arduino Nano (5V)           | —     | 1  |
+| `ProMini_01nodeSolo3d`      | Arduino Pro Mini (5V/16MHz) | —     | 1  |
+| `nano_02nodeSolo3d`         | Arduino Nano (5V)           | —     | 2  |
+| `ProMini_04noodeSolarMini`  | Arduino Pro Mini (5V/16MHz) | —     | 4  |
+| `nano_99reles`              | Arduino Nano (5V)           | COM4  | 99 |
+| `nano_99reles_rep`          | Arduino Nano (5V)           | COM4  | 99 (repeater) |
+| `d1_mini_kit_helio_gateway` | ESP8266 D1 Mini             | COM5  | 0 (Gateway Kit Hélio) |
+| `pro16MHz_miniDHT`          | Arduino Pro Mini (5V/16MHz) | —     | 11 |
+| `check_m360_dry`            | — (análise estática)        | —     | —  |
+
+> Os nós **5** (Solo MUX), **13** (ZTS) e **80** (Aqua) foram removidos do
+> projeto. Ver `src/DRY/horta/inventario.md`.
 
 ---
 
@@ -62,7 +76,37 @@ Ao trabalhar em qualquer arquivo dentro de `src/DRY/` (nós **ou** gateway), apl
 
 - **Referência consolidada (SSoT):** `.agent/skills/bmad-mysensors-node-coding/SKILL.md`
 
-### Resumo das regras críticas para nós legados (`src/DRY/nos/shared/`)
+---
+
+## Regra Obrigatória — Manter o Inventário Sincronizado
+
+Qualquer alteração de código em `src/DRY/horta/` **deve** ser refletida em
+[`src/DRY/horta/inventario.md`](src/DRY/horta/inventario.md) na **mesma** entrega.
+O inventário é a referência única de nós e child IDs, e o contrato com o
+`flows.json` do Node-RED — se ficar defasado, comandos passam a ser descartados
+em silêncio pelos nós, sem erro de compilação nem de log.
+
+**Gatilhos que exigem atualizar o inventário:**
+
+| Mudança no código | O que atualizar |
+|---|---|
+| Incluir, remover ou renumerar um `childId` | Tabela do nó + §1 (faixa de children) + §8 se for endereçado pelo Node-RED |
+| Alterar `label`, `S_*`, `V_*`, `pin`, `reportIntervalMin`, `wakeOnRadio` ou `flags` | Linha correspondente na tabela do nó |
+| Incluir ou remover um nó (env / `MY_NODE_ID`) | §1, seção própria do nó e Apêndice B |
+| Trocar o perfil de energia | Cabeçalho da seção do nó e §1 |
+| Mudar escala, unidade ou tipo do payload | §2 (tipo do payload) e §9 (escalas) |
+| Alterar pinagem do nó | Coluna de pino + `esquema_eletrico.md` do nó |
+
+**Verificação antes de entregar** — conferir que cada `childId` de
+`NODE_ITEMS[]` / `nodeItems[]` aparece no inventário com o mesmo `label`,
+`S_*`, `V_*` e demais atributos. Divergir aqui é o mesmo que quebrar o contrato
+com o Node-RED.
+
+> Alterar um `childId` sem atualizar o `flows.json` faz o nó **ignorar o comando
+> silenciosamente** — `M360Node::handleMessage()` casa `childId` exato e não
+> responde a IDs desconhecidos. O sintoma é timeout no Sincronizador ACK.
+
+### Resumo das regras críticas para nós legados (`src/DRY/horta/nos/shared/`)
 
 **Nunca escrever manualmente** o que já existe como macro no `node_engine.h`:
 
@@ -81,7 +125,7 @@ Ao trabalhar em qualquer arquivo dentro de `src/DRY/` (nós **ou** gateway), apl
 | `MyMessage messages[N]` fixo | `messages[NODE_ITEMS_COUNT + 2]` |
 | Código após `sleep()` | mover `request()`/`wait()` para **antes** |
 
-### Regras críticas do Gateway (`src/DRY/gateway/`)
+### Regras críticas do Gateway (`src/DRY/horta/gateway/`)
 
 | Padrão proibido | Regra |
 |---|---|
@@ -90,13 +134,13 @@ Ao trabalhar em qualquer arquivo dentro de `src/DRY/` (nós **ou** gateway), apl
 | MQTT ou WebServer em `before()` | Exclusivos de `setup()` |
 | `setupWiFi()` fora de `before()` | Exclusivo de `before()` |
 | `mqttClient.loop()` em modo AP | Checar `WiFi.getMode() == WIFI_AP` primeiro |
-| Lógica de infraestrutura em `newGatewayMqtt.cpp` | Módulo dedicado em `ngm/` |
+| Lógica de infraestrutura em `libDryGatewayMqtt.cpp` | Módulo dedicado em `lib/M360-DRY/` |
 
 ---
 
 ## Biblioteca M360-DRY (`lib/M360-DRY/`)
 
-A lib canônica para nós e gateway. **Novos nós usam esta lib**, não os arquivos legados em `src/DRY/nos/shared/`.
+A lib canônica para nós e gateway. **Novos nós usam esta lib**, não os arquivos legados em `src/DRY/horta/nos/shared/`.
 
 ### Componentes principais
 
@@ -183,21 +227,28 @@ void receive(const MyMessage& msg) { node.handleMessage(msg); }
 
 ```
 src/DRY/
-├── gateway/
-│   ├── ngm/              config_utils, wifi_utils, mqtt_utils, webserver, leds
-│   └── withLibDRY/       libDryGatewayMqtt.cpp (usa M360::M360Gateway)
-└── nos/
-    ├── shared/           Motor legado (node_engine.h macros) — não usar em novos nós
-    ├── 01nodeSolo3d/     Solo 3D resistivo — 18 canais via MUX CD74HC4067 (Pro Mini 3.3V, LP)
-    ├── 13nodeZTS_UmidadeHall/ Umidade capacitiva ZTS-3002 Modbus RS485 + Hall (Nano, LP)
-    ├── 80nodeAqua/       pH, EC, DS18B20, ultrassônico, 4x vazão YF-S201 (Nano, ON)
-    └── 99nodeReles/      9 atuadores: 7 via MUX CD74HC4067 + 2 nativos + DHT11 (Nano, ON)
+├── horta/                       Sub-projeto Horta (platformio.ini próprio)
+│   ├── gateway/                 libDryGatewayMqtt.cpp (usa M360::M360Gateway)
+│   ├── nodered/flows.json       Fluxos Node-RED (dashboard + irrigação + ACK)
+│   ├── inventario.md            Nós e child IDs — contrato com o Node-RED
+│   └── nos/
+│       ├── shared/              Motor legado (node_engine.h) — não usar em novos nós
+│       ├── 01nodeSolo3dNano/    Solo resistivo — 6 canais nativos (Nó 1, LP)
+│       ├── 02nodeSolo3dNano/    Solo resistivo — 6 canais nativos (Nó 2, LP)
+│       ├── 04noodeSolarMini/    DHT11 + DS18B20, alimentação solar (Nó 4, LP)
+│       └── 99nodeReles/         9 atuadores (7 MUX + 2 nativos) + DHT11 + vazão YF-S201 (Nó 99, ON)
+└── kit-helio/                   Sub-projeto Kit Hélio (platformio.ini próprio)
+    ├── gateway/                 libDryGatewayMqtt.cpp
+    └── nos/miniDHT/             DHT11 (Nó 11, ON)
 
 lib/M360-DRY/             Biblioteca canônica (M360Node, M360Gateway, M360Translator…)
 include/
     M360Credentials.h     Credenciais locais (gitignored)
     M360Credentials.h.example  Template de credenciais
 ```
+
+> A infraestrutura do gateway (LEDs, webserver, WiFi, MQTT) vive em `lib/M360-DRY/`.
+> O antigo diretório `gateway/ngm/` e o subdiretório `withLibDRY/` não existem mais.
 
 ---
 

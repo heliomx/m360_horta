@@ -34,7 +34,7 @@ namespace M360
 #endif
 	}
 
-	float readBatteryVoltage() {
+	__attribute__((weak)) float readBatteryVoltage() {
 		uint16_t result = readADCInternal();
 		if (result == 0) {
 			return 0.0f;

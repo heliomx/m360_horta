@@ -28,10 +28,17 @@ namespace M360
 	// Mesma regra de namespace acima se aplica.
 	void powerUp();
 
-	// ===== FUNÇÕES INTERNAS DA BIBLIOTECA =====
-
-	// Leitura de tensão via ADC interno (apenas AVR ATmega328P/168)
+	// Leitura da tensão da bateria.
+	// Padrão (símbolo fraco): ADC interno contra a referência de 1,1 V
+	// (apenas AVR ATmega328P/168) — ver M360Power.cpp.
+	//
+	// Nós com hardware de medição próprio (ex.: divisor resistivo em um pino
+	// analógico) devem sobrescrever esta função. Mesma regra de namespace das
+	// funções acima: implemente DENTRO do namespace M360, ou o linker tratará
+	// os símbolos como distintos e a implementação padrão continuará valendo.
 	float readBatteryVoltage();
+
+	// ===== FUNÇÕES INTERNAS DA BIBLIOTECA =====
 
 	// Converte tensão em porcentagem (MIN_VOLTAGE=0%, MAX_VOLTAGE=100%)
 	uint8_t voltageToPercent(float voltage);

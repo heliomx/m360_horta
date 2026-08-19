@@ -77,15 +77,14 @@ static const M360::M360ItemDef NODE_ITEMS[] = {
      "Temperatura do Ar", false, 0},
     {CHILD_ID_DHT_HUM, M360::M360_SENSOR, S_HUM, V_HUM, PIN_DHT, 0, 1,
      "Umidade do Ar", false, 0},
-    // --- Sensor de Vazão Único de Irrigação (Pulsos Brutos - RAW) ---
-    {CHILD_ID_FLOW, M360::M360_SENSOR, S_WATER, V_VAR1, -1, 1, 1,
-     "Vazao.Canteiro", false, 0},
+    // --- Vazão de irrigação (YF-S201 em D3/INT1) ---
+    // pin = -1: a leitura não passa por readNodeItem(), é despachada por
+    // childId em readItem() abaixo.
+    {CHILD_ID_FLOW, M360::M360_SENSOR, S_WATER, V_FLOW, -1, 0, 1,
+     "Vazao.Irrig", false, 0},
 };
 static const uint8_t NODE_ITEMS_COUNT =
     sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
-
-// Índice para reporte rápido da vazão de irrigação
-static const uint8_t IDX_FLOW_A = 11;
 
 // ===== BUFFERS =====
 // +3 OBRIGATÓRIO: M360Node::begin() escreve _messages[_count], [_count+1] e
@@ -116,7 +115,7 @@ static float readItem(uint8_t index) {
     return readDHTHum();
   }
   if (NODE_ITEMS[index].childId == CHILD_ID_FLOW) {
-    return getFlowForCanteiro(CHILD_ID_SOL_A);
+    return readFlowLpm();
   }
   return readNodeItem(NODE_ITEMS[index].pin);
 }
@@ -159,19 +158,6 @@ void setup() {
 }
 
 void loop() {
-  updateFlows();
-
-  // Reporte de pulsos em tempo real sempre que houver alteração
-  static float lastSentFlowA = -1.0f;
-
-  float flowA = getFlowForCanteiro(CHILD_ID_SOL_A);
-
-  // Envia atualização imediata se houver variação na contagem de pulsos
-  if (fabsf(flowA - lastSentFlowA) >= 1.0f || (flowA == 0.0f && lastSentFlowA > 0.0f)) {
-    lastSentFlowA = flowA;
-    send(messages[IDX_FLOW_A].set((uint32_t)flowA));
-  }
-
   node.process();
 
 
