@@ -24,7 +24,8 @@
  *   ┌──────┬──────────────────────────────────────────────────┐
  *   │  A0  │ Bomba Circulação Principal — Hidroponia NFT      │
  *   │  A1  │ Bomba Oxigenação — Hidroponia NFT                │
- *   │  D3 │ Sensor DHT11 DATA                                │
+ *   │  D2  │ Sensor DHT11 DATA                                │
+ *   │  D3  │ Sensor de Vazão YF-S201 (INT1)                   │
  *   └──────┴──────────────────────────────────────────────────┘
  *
  * Macros MY_* definidas no platformio.ini [env:node_99_reles_nano]
@@ -105,6 +106,96 @@ static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, messages, lastValues,
                            nNoUpdates, M360::M360_ALWAYS_ON);
 #endif
 
+// ===== FAILSAFE DE ATUAÇÃO =====
+// Um comando OFF perdido deixa a carga ligada indefinidamente. Isso não é
+// hipotético: o desligamento da irrigação é agendado por `setTimeout()` dentro
+// de um function node do Node-RED, que morre em qualquer redeploy ou restart —
+// e o gateway publica o ACK assim que o rádio confirma o salto, então o
+// Sincronizador nunca reenvia. Nenhuma camada acima do nó garante o OFF.
+//
+// Por isso cada atuador tem um tempo máximo ligado. Ao estourar, o nó desliga
+// sozinho e envia V_STATUS=0 ao gateway, para o Node-RED reconciliar o estado.
+// Esta é a única proteção que sobrevive à queda do WiFi, do MQTT, do Node-RED
+// e do próprio gateway.
+//
+// 0 = sem limite. As bombas NFT (38/39) operam em regime contínuo por projeto:
+// um timeout nelas interromperia a circulação da hidroponia.
+static uint16_t maxOnSecondsFor(uint8_t childId) {
+  switch (childId) {
+  case CHILD_ID_SOL_A:
+  case CHILD_ID_SOL_B:
+  case CHILD_ID_SOL_C:
+    return 600; // 10 min — a irrigação real usa no máximo 300 s (cron do A)
+  case CHILD_ID_PERIST_A:
+  case CHILD_ID_PERIST_B:
+  case CHILD_ID_PH_PLUS:
+  case CHILD_ID_PH_MINUS:
+    return 120; // 2 min — dosagem de suplemento/pH é sempre curta
+  default:
+    return 0; // bombas NFT (38/39): regime contínuo, sem prazo
+  }
+}
+
+// Instante (millis) em que cada atuador deve desligar sozinho.
+// 0 = desarmado, e por isso um prazo que calhe em 0 é deslocado para 1.
+static uint32_t actuatorDeadlineMs[NODE_ITEMS_COUNT];
+
+static void armFailsafe(uint8_t index, bool state) {
+  if (NODE_ITEMS[index].kind != M360::M360_ACTUATOR) {
+    return;
+  }
+
+  if (!state) {
+    actuatorDeadlineMs[index] = 0;
+    return;
+  }
+
+  // Ligar um canal MUX desliga o anterior no hardware (ver writeNodeItem()):
+  // desarmar os demais evita disparar o failsafe sobre um relé já desligado.
+  // O eco de V_STATUS=0 do child preemptado é feito por writeItem().
+  if (IS_MUX_CH(NODE_ITEMS[index].pin)) {
+    for (uint8_t i = 0; i < NODE_ITEMS_COUNT; i++) {
+      if (i != index && IS_MUX_CH(NODE_ITEMS[i].pin)) {
+        actuatorDeadlineMs[i] = 0;
+      }
+    }
+  }
+
+  const uint16_t limite = maxOnSecondsFor(NODE_ITEMS[index].childId);
+  if (limite == 0) {
+    actuatorDeadlineMs[index] = 0;
+    return;
+  }
+
+  uint32_t prazo = millis() + (uint32_t)limite * 1000UL;
+  if (prazo == 0) {
+    prazo = 1;
+  }
+  actuatorDeadlineMs[index] = prazo;
+}
+
+static void checkActuatorFailsafe() {
+  const uint32_t agora = millis();
+
+  for (uint8_t i = 0; i < NODE_ITEMS_COUNT; i++) {
+    if (actuatorDeadlineMs[i] == 0) {
+      continue;
+    }
+    // Comparação por subtração com sinal: correta no overflow de millis()
+    // (~49 dias), ao contrário de `agora >= prazo`.
+    if ((int32_t)(agora - actuatorDeadlineMs[i]) < 0) {
+      continue;
+    }
+
+    actuatorDeadlineMs[i] = 0;
+    writeNodeItem(NODE_ITEMS[i].pin, false);
+    send(messages[i].set(false)); // reconcilia o estado no gateway/Node-RED
+
+    Serial.print(F("FAILSAFE OFF child "));
+    Serial.println(NODE_ITEMS[i].childId);
+  }
+}
+
 // ===== CALLBACKS =====
 
 static float readItem(uint8_t index) {
@@ -120,8 +211,29 @@ static float readItem(uint8_t index) {
   return readNodeItem(NODE_ITEMS[index].pin);
 }
 
+// Ligar um canal MUX desliga o canal anterior no hardware. Sem este eco, o
+// gateway e o Node-RED continuariam mostrando o child preemptado como ligado —
+// e a irrigação daquele canteiro seria cortada sem nenhum sinal em lugar algum.
+// Enviado ANTES do eco do child comandado (M360Node::handleMessage() envia o
+// dele logo após esta callback), então o Node-RED vê "31→0" e depois "32→1".
+static void reportPreemptedMuxChannel(int8_t channel) {
+  for (uint8_t i = 0; i < NODE_ITEMS_COUNT; i++) {
+    if (NODE_ITEMS[i].pin == MUX_CHANNEL_OFFSET + channel) {
+      send(messages[i].set(false));
+      Serial.print(F("MUX preempcao OFF child "));
+      Serial.println(NODE_ITEMS[i].childId);
+      return;
+    }
+  }
+}
+
 static void writeItem(uint8_t index, bool state) {
-  writeNodeItem(NODE_ITEMS[index].pin, state);
+  const int8_t preempted = writeNodeItem(NODE_ITEMS[index].pin, state);
+  armFailsafe(index, state);
+
+  if (preempted >= 0) {
+    reportPreemptedMuxChannel(preempted);
+  }
 }
 
 namespace M360 {
@@ -159,6 +271,10 @@ void setup() {
 
 void loop() {
   node.process();
+
+  // node.process() em M360_ALWAYS_ON termina em wait(50), então o failsafe é
+  // avaliado ~20x por segundo — resolução de sobra para prazos de minutos.
+  checkActuatorFailsafe();
 
 
   // Log periódico de RSSI (saída Serial apenas — não enviado como sensor

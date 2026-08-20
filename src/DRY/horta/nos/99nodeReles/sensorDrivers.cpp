@@ -73,14 +73,17 @@ void initSensors()
 	initFlowSensor();
 }
 
-void writeNodeItem(uint8_t pin, bool state)
+int8_t writeNodeItem(uint8_t pin, bool state)
 {
+	int8_t preempted = -1; // canal desligado pela restrição de concorrência
+
 	if (IS_MUX_CH(pin)) {
 		uint8_t ch = MUX_CH(pin);
 
 		if (state) {
 			// Restrição de concorrência: desligar canal MUX ativo (se diferente)
 			if (s_activeMuxChannel >= 0 && s_activeMuxChannel != (int8_t)ch) {
+				preempted = s_activeMuxChannel; // devolvido ao chamador para o eco
 				muxSelect((uint8_t)s_activeMuxChannel);
 				digitalWrite(MUX_SIG_PIN, HIGH); // relay OFF
 				s_muxChannelState[s_activeMuxChannel] = false;
@@ -104,6 +107,8 @@ void writeNodeItem(uint8_t pin, bool state)
 		// Pino nativo: acionamento direto (Active-LOW)
 		digitalWrite(pin, state ? LOW : HIGH);
 	}
+
+	return preempted;
 }
 
 float readNodeItem(uint8_t pin)

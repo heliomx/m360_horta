@@ -100,10 +100,16 @@ void initSensors();
 /**
  * Escreve estado em atuador. O parâmetro `pin` pode ser:
  *   - Pino virtual MUX:  MUX_CHANNEL_OFFSET + canal (ex: 104 para canal 4)
- *   - Pino físico nativo: PIN_NFT_PUMP (2) ou PIN_NFT_OXI (8)
+ *   - Pino físico nativo: PIN_NFT_PUMP (A0) ou PIN_NFT_OXI (A1)
  * Impõe restrição de concorrência MUX automaticamente.
+ *
+ * @return canal MUX que foi desligado automaticamente para respeitar a
+ *         restrição de concorrência, ou -1 se nenhum. O chamador precisa
+ *         desse retorno para reportar o child preemptado ao gateway: sem
+ *         isso, o Node-RED continua mostrando aquele relé como ligado.
+ *         Sempre -1 para pinos nativos e para qualquer desligamento.
  */
-void writeNodeItem(uint8_t pin, bool state);
+int8_t writeNodeItem(uint8_t pin, bool state);
 
 /**
  * Lê estado lógico do atuador.

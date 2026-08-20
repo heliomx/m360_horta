@@ -183,11 +183,49 @@ O child 21 declara `pin = -1`: a leitura é despachada por `childId` para
 **Concorrência:** apenas **um** canal MUX (31–37) pode estar ligado por vez — o
 driver desliga o anterior antes de comutar. Os nativos (38, 39) são livres.
 
+Ao comutar, o nó **ecoa `V_STATUS=0` do child preemptado** antes do eco do child
+comandado (`writeNodeItem()` devolve o canal desligado; ver
+`reportPreemptedMuxChannel()`). O Node-RED recebe, nessa ordem, `31→0` e `32→1`.
+Sem esse eco, ligar a Solenóide B durante a rega da A cortaria a irrigação da A
+sem nenhum sinal — o dashboard continuaria mostrando as duas ligadas.
+
 **Lógica dos relés:** Active-LOW (`LOW` = ligado), com ligação em NA/COM para que
 uma falha ou reset deixe as cargas desligadas.
 
 **Pinagem completa:** MUX `SIG=D8`, `S0–S3=D4–D7` · DHT11 `D2` · Vazão `D3` ·
 Bombas `A0`/`A1` · NRF24 `D9–D13`.
+
+### 7.3 Failsafe de atuação
+
+Cada atuador tem um **tempo máximo ligado**. Ao estourar, o nó desliga a carga
+sozinho e envia `V_STATUS=0` ao gateway — o Node-RED recebe isso como uma
+leitura normal (`command=1`, `type=2`, `ack=0`) e reconcilia o estado.
+
+| Child | Carga | Tempo máximo | Motivo |
+|---:|---|---:|---|
+| 31, 32, 33 | Solenóides de gotejamento | **600 s** | A irrigação real usa no máximo 300 s (cron do Canteiro A) |
+| 34, 35, 36, 37 | Peristálticas (suplemento, pH) | **120 s** | Dosagem é sempre curta |
+| 38, 39 | Bombas NFT (circulação, oxigenação) | **sem limite** | Regime contínuo por projeto — um timeout interromperia a hidroponia |
+
+Implementado em `99nodeReles.cpp` (`maxOnSecondsFor()`, `armFailsafe()`,
+`checkActuatorFailsafe()`), avaliado a cada volta do `loop()`.
+
+**Por que existe:** nenhuma camada acima do nó garante o comando OFF. O
+desligamento da irrigação é agendado por `setTimeout()` dentro de um function
+node do Node-RED, que morre em qualquer redeploy ou restart; e o gateway publica
+o ACK assim que o rádio confirma o salto (`send(outMsg, false)` +
+`publishTransportAck()`), então o Sincronizador dá o comando por confirmado e
+nunca reenvia. Este failsafe é a única proteção que sobrevive à queda do WiFi,
+do MQTT, do Node-RED e do próprio gateway.
+
+> Ao alterar um tempo aqui, conferir se o fluxo do Node-RED não pede uma janela
+> maior — uma rega mais longa que o limite seria cortada pela metade, e o único
+> sinal seria o `V_STATUS=0` inesperado.
+
+Ao ligar um canal MUX, o failsafe desarma o prazo dos demais canais MUX — o
+hardware já os desligou, e disparar o failsafe sobre um relé desligado geraria
+log e tráfego de rádio inúteis. O eco de `V_STATUS=0` do child preemptado é
+responsabilidade do `writeItem()` (ver §7.2).
 
 ---
 

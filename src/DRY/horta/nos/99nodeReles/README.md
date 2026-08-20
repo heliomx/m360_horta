@@ -288,6 +288,13 @@ Como o multiplexador possui apenas um pino físico de entrada/saída ligado ao A
 O driver de software (`sensorDrivers.cpp`) impõe via código que **apenas um canal MUX pode ficar ativo por vez**. 
 * Ao receber o comando para ligar um canal, a rotina de escrita `writeNodeItem()` desliga o canal ativo anterior antes de alterar as linhas de endereço (S0-S3) e puxar `SIG` para `LOW`.
 * Isso impede que múltiplos relés sejam ligados ao mesmo tempo no barramento do multiplexador, limitando o consumo de corrente na fonte de 12V e transientes na rede elétrica.
+* `writeNodeItem()` **devolve o canal preemptado** (ou `-1`), e `writeItem()` usa esse retorno para ecoar `V_STATUS=0` do child correspondente ao gateway. Sem esse eco, ligar a Solenóide B durante a rega da A cortaria a irrigação da A e o dashboard continuaria mostrando as duas ligadas.
+
+### 5.2.1 Failsafe de Atuação
+Nenhuma camada acima do nó garante o comando de desligamento: o OFF da irrigação é agendado por `setTimeout()` dentro de um function node do Node-RED (morre em qualquer redeploy) e o gateway publica o ACK assim que o rádio confirma o salto, de modo que o Sincronizador nunca reenvia.
+* Cada atuador tem um **tempo máximo ligado** (`maxOnSecondsFor()`): solenóides **600 s**, peristálticas **120 s**, bombas NFT **sem limite**.
+* As bombas NFT (childs 38/39) ficam de fora por projeto — são circulação e oxigenação em regime contínuo, e um timeout nelas interromperia a hidroponia.
+* Ao estourar o prazo, `checkActuatorFailsafe()` desliga a carga e envia `V_STATUS=0`, permitindo ao Node-RED reconciliar o estado. É a única proteção que sobrevive à queda do WiFi, do MQTT, do Node-RED e do próprio gateway.
 
 ### 5.3 Tratamento do DHT11 (Sensor Nativo)
 Por ser um protocolo bidirecional, o DHT11 é conectado diretamente ao pino nativo `D2`. A leitura dele ocorre no callback `readItem()` em `99nodeReles.cpp`:
