@@ -135,6 +135,10 @@ com o Node-RED.
 | `setupWiFi()` fora de `before()` | Exclusivo de `before()` |
 | `mqttClient.loop()` em modo AP | Checar `WiFi.getMode() == WIFI_AP` primeiro |
 | Lógica de infraestrutura em `libDryGatewayMqtt.cpp` | Módulo dedicado em `lib/M360-DRY/` |
+| `atoi()` em segmento de tópico | `parseTopicByte()` — `atoi("xx")` vale 0 e o comando some sem rastro |
+| Comando malformado descartado com `println` | `reportCommandRejected()` — publica o motivo em `.../out/events` |
+| `send()` fora de `dispatchCommand()` | Ponto único: valida, envia e reporta sucesso **ou** falha |
+| Montar `JsonDocument` no caminho nativo | `Translator::fromNative()` — os campos já vieram do tópico |
 
 ---
 
@@ -274,20 +278,55 @@ include/
 
 ### ACK de transporte MySensors no gateway
 
-`send(outMsg, true)` solicita ACK RF24. O ACK **é consumido internamente** pela
-camada MySensors — **`receive()` nunca é chamado** para esse retorno. Para
-publicar o ACK no MQTT, chamar `publishTransportAck()` após `send()` retornar `true`.
+`send(outMsg, true)` solicitaria eco do destino. O eco **é consumido internamente**
+pela camada MySensors — **`receive()` nunca é chamado** para esse retorno. Por isso
+o ACK precisa ser publicado à mão, com `publishTransportAck()`.
+
+O gateway usa **`send(outMsg, false)`** deliberadamente, para não bloquear o loop
+nem colidir pacotes. Todo o envio passa por `dispatchCommand()`, ponto único:
 
 ```cpp
-bool success = send(outMsg, true);
-if (success) publishTransportAck(outMsg, targetNodeId);  // obrigatório
+const bool success = send(outMsg, false);
+if (success) publishTransportAck(outMsg, targetNodeId);
+else         publishTransportEvent("command_send_failed", details, targetNodeId);
 ```
+
+> **O que esse `success` significa de fato:** apenas o auto-ACK de hardware do
+> RF24 do **próximo salto** — não confirmação de que o nó recebeu ou aplicou o
+> comando. Com o Nó 99 em modo repetidor na rede, o ACK pode vir do repetidor.
+> A confirmação real é o **eco de aplicação do nó** (`M360Node.cpp`, `handleMessage()`
+> envia `send(_messages[i].set(state))` depois de acionar o atuador).
 
 ### `outMsg.getSender()` retorna 0 no contexto de envio
 
 Em mensagens **enviadas** pelo gateway, `getSender()` retorna `0` (ID do gateway),
-não o nó de destino. O JSON de ACK deve usar `targetNodeId` explicitamente.
-`publishTransportAck()` em `libDryGatewayMqtt.cpp` já implementa isso.
+não o nó de destino. O JSON de ACK deve usar `targetNodeId` explicitamente —
+passar no 3º parâmetro de `Translator::toJSON(msg, isAck, nodeIdOverride)`.
+`publishTransportAck()` em `libDryGatewayMqtt.cpp` já faz isso.
+
+O mesmo vale para o tópico no modo nativo: `Translator::buildNativeTopic()` usa
+`getSender()` e **não serve** para ACK — o tópico é montado com `targetNodeId`.
+
+### Payload de `V_STATUS`: só `"0"` e `"1"` — tudo mais **desliga**
+
+O nó lê o valor com `MyMessage::getBool()`, que para payload `P_STRING` faz
+**`atoi()`**. `"true"`, `"ON"` ou qualquer lixo viram `0` — ou seja, **desligam** o
+relé em vez de ligar, indistinguíveis de um OFF legítimo em qualquer log.
+
+No modo nativo (`M360_NATIVE_MQTT=1`), `nodeId`/`sensorId`/`command`/`ack`/`type`
+vão no **tópico** e o payload MQTT é só o valor bruto:
+
+```
+tópico:  m360/DF/0000/in/99/31/1/0/2
+payload: 1
+```
+
+Publicar o envelope JSON como payload faz o gateway repassá-lo inteiro como
+string ao nó, `atoi()` devolve 0 e **o relé nunca liga** — com ACK confirmado e
+notificação de sucesso no caminho todo. Foi exatamente esse o defeito da aba
+Irrigação do Node-RED. `Translator::validate()` hoje rejeita isso no gateway, mas
+o `mqtt out` do Node-RED serializa objeto para JSON em silêncio: **conferir que
+`msg.payload` é string** ao criar qualquer comando de atuação.
 
 ### `V_LEVEL` (37) nos Nós 01 e 13 significa umidade de solo
 
@@ -300,8 +339,28 @@ atualizar simultaneamente o firmware dos nós.
 Para comandos broadcast (`sensorId=255`), o ACK pode voltar com qualquer sensorId
 do mesmo nó. Condição correta:
 
+A confirmação é o **eco de aplicação do nó**, não o ACK de transporte:
+
 ```javascript
 data.nodeId == targetNode &&
 (targetSensor == 255 || data.sensorId == targetSensor) &&
-(data.direction === 'ack' || data.ack === 1 || data.command === 1)
+data.command === 1 && data.type === 2 && data.ack === 0 &&
+String(data.payload) === String(currentItem.payload)
 ```
+
+Cada termo carrega um caso real:
+
+| Termo | Por quê |
+|---|---|
+| `data.type === 2` | `C_SET` vale 1 e leituras de sensor também chegam como `command === 1`. Sem filtrar por `V_STATUS`, o relatório de clima do Nó 99 — que sai a cada minuto — confirmaria qualquer comando pendente para o nó |
+| `data.ack === 0` | Descarta o ACK de transporte que o gateway fabrica em `publishTransportAck()`. Ele só prova que o **próximo salto** respondeu — com o Nó 99 em modo repetidor, pode vir do repetidor. Aceitá-lo dava "confirmado" com o nó desligado, e os 3 retries nunca disparavam na falha de última milha |
+| `payload` igual | Evita casar com um eco de outra origem para o mesmo child — p.ex. o failsafe do Nó 99, que envia `0` sozinho ao estourar o tempo máximo ligado |
+
+O `Decodificador Nativo` rotula `ack === 1` como **`direction: 'transport_ack'`**
+(não `'ack'`), justamente para que essa distinção não dependa de convenção tácita.
+`Mapeia nós` também ignora `ack == 1` ao gravar `values[]`, senão o dashboard
+mostraria estado de relé que nenhum nó confirmou.
+
+> Consequência esperada: comando para um child que **não é atuador** (o nó só
+> ecoa `kind == M360_ACTUATOR`) agora falha com erro após 3 tentativas, em vez de
+> ser falsamente confirmado. É o diagnóstico correto.

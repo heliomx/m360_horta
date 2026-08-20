@@ -15,6 +15,19 @@
 
 namespace M360 {
 
+	// Resultado da decodificação de um comando vindo do broker.
+	// Existe para que o gateway possa dizer no MQTT *por que* rejeitou — antes,
+	// todo comando malformado sumia com um println no Serial.
+	typedef enum {
+		M360_CMD_OK = 0,
+		M360_CMD_ERR_NODE_ID,
+		M360_CMD_ERR_SENSOR_ID,
+		M360_CMD_ERR_COMMAND,
+		M360_CMD_ERR_TYPE,
+		M360_CMD_ERR_PAYLOAD_SIZE,
+		M360_CMD_ERR_PAYLOAD_VALUE
+	} M360CommandStatus;
+
 	class Translator {
 	public:
 		// Tamanhos de buffer recomendados (baseados na arquitetura)
@@ -24,8 +37,40 @@ namespace M360 {
 
 		/*
 		 * Converte uma MyMessage para o envelope JSON padrão M360.
+		 *
+		 * @param nodeIdOverride  Se >= 0, substitui msg.getSender() no campo
+		 *        "nodeId". Necessário para ACKs: em mensagens *enviadas* pelo
+		 *        gateway getSender() vale 0 (o próprio gateway), não o destino.
 		 */
-		static String toJSON(const MyMessage& msg, bool isAck = false);
+		static String toJSON(const MyMessage& msg, bool isAck = false,
+		                     int nodeIdOverride = -1);
+
+		/*
+		 * Decodifica um comando no formato nativo MySensors, cujos campos já
+		 * vieram do tópico. Não passa por JSON: o caminho antigo montava um
+		 * JsonDocument, serializava e reparseava só para chegar aqui — três
+		 * alocações de heap por comando, e um doc subdimensionado que descartava
+		 * o payload em silêncio quando estourava.
+		 *
+		 * @param payload  String NUL-terminada com o payload bruto do MQTT.
+		 * @return M360_CMD_OK, ou o motivo da rejeição.
+		 */
+		static M360CommandStatus fromNative(int nodeId, int sensorId,
+		                                    int command, int type,
+		                                    const char* payload,
+		                                    MyMessage& outMsg,
+		                                    uint8_t& targetNode);
+
+		/*
+		 * Valida uma MyMessage já montada, antes de ir para o rádio.
+		 * Ponto único de checagem: vale tanto para o caminho nativo quanto para
+		 * o envelope JSON.
+		 */
+		static M360CommandStatus validate(const MyMessage& msg,
+		                                  uint8_t targetNode);
+
+		// Descrição legível do status, para log Serial e evento MQTT.
+		static const char* describeStatus(M360CommandStatus status);
 
 		/*
 		 * Constrói o JSON de Heartbeat do gateway.

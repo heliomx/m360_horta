@@ -260,6 +260,30 @@ payload: 1
 
 `command 1` = `C_SET` · `type 2` = `V_STATUS`.
 
+### 8.1 Validação no gateway
+
+O gateway **rejeita** o comando, em vez de repassar algo degradado, quando:
+
+| Rejeição | Motivo |
+|---|---|
+| Tópico sem exatamente 8 barras | Truncado, ou níveis extras que a assinatura `in/#` também entrega |
+| Segmento não numérico | `atoi("xx")` valia 0 e o comando virava `sensorId=0`, descartado pelo nó sem rastro |
+| `command` fora de {1, 2, 3} | Só `C_SET`, `C_REQ` e `C_INTERNAL` fazem sentido do gateway para o nó |
+| `nodeId`/`sensorId`/`type` fora de 0–255 | — |
+| Payload maior que `MAX_PAYLOAD_SIZE` (25) | `MyMessage::set()` truncava em silêncio; nenhum comando legítimo chega perto |
+| **`C_SET`/`V_STATUS` com payload diferente de `"0"` ou `"1"`** | O nó resolve com `getBool()`, que faz `atoi()`: `"true"`, `"ON"` ou lixo virariam **0** e **desligariam** o relé, indistinguíveis de um OFF legítimo |
+
+Toda rejeição publica em `m360/{UF}/{CAR}/out/events`:
+
+```json
+{"event":"command_rejected","nodeId":99,"details":"payload de V_STATUS deve ser 0 ou 1"}
+```
+
+E quando o rádio falha no envio, o evento é `command_send_failed`. Antes, os dois
+casos morriam num `println` no Serial e o Node-RED só percebia pelos ~35 s de
+timeout do Sincronizador, sem nunca saber a causa. **Vale assinar esse tópico no
+Node-RED** — é o diagnóstico mais direto para comando que "não faz nada".
+
 > Após renumerar children e regravar o nó, disparar **REPRESENT** pelo dashboard:
 > o nó `Mapeia nós` só limpa os children antigos do `mys_nodes` nessa mensagem,
 > senão os IDs anteriores permanecem como fantasmas.

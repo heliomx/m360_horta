@@ -59,7 +59,6 @@ void sendMQTT(const MyMessage &message, bool isAck = false);
 void publishHeartbeat();
 void mqttCallback(char* topic, byte* payload, unsigned int length);
 void processMQTTCommand(const String& payloadStr);
-void processMQTTCommand(const JsonDocument& doc);
 void processMQTTCommandNative(const char* topic, const byte* payload, unsigned int length);
 void publishTransportEvent(const char* event, const char* details = "", int nodeId = 0);
 void checkNodeTimeouts();
@@ -68,12 +67,25 @@ void updateLEDStatus();
 // ==== FUNÇÕES MYSENSORS ====
 
 static const char* getNodeCategoryLabel(uint8_t nodeId) {
-    if (nodeId == M360::NODE_ID_GATEWAY) return "Gateway";
-    if (M360::isClimaNode(nodeId))    return "Clima (1-50)";
-    if (M360::isSoloNode(nodeId))     return "Solo (51-150)";
-    if (M360::isActuatorNode(nodeId)) return "Atuação (151-200)";
-    if (M360::isWaterNode(nodeId))    return "Água/Reservatório (201-254)";
-    return "Fora da Faixa Normativa";
+    switch (nodeId) {
+        case 0:  return "Gateway";
+        case 1:  return "Solo Canteiro A";
+        case 2:  return "Solo Canteiro B";
+        case 4:  return "SolarMini";
+        case 99: return "Central de Relés";
+        default: return "Nó IoT";
+    }
+}
+
+static const char* getChildCategoryLabel(uint8_t childId) {
+    if (M360::isSoloChild(childId))     return "Solo (1-10)";
+    if (M360::isClimaChild(childId))    return "Clima (11-20)";
+    if (M360::isFlowChild(childId))     return "Vazão (21-30)";
+    if (M360::isActuatorChild(childId)) return "Atuação (31-40)";
+    if (childId == M360::CHILD_ID_DEBUG)    return "Debug (253)";
+    if (childId == M360::CHILD_ID_INTERVAL) return "Intervalo (254)";
+    if (childId == M360::CHILD_ID_BATTERY)  return "Bateria (255)";
+    return "Custom";
 }
 
 void presentation() {
@@ -92,6 +104,7 @@ void receive(const MyMessage &message) {
 	Serial.print("   Nó: ");     Serial.print(nodeId);
 	Serial.print(" [");          Serial.print(getNodeCategoryLabel(nodeId)); Serial.print("]");
 	Serial.print(", Child: ");   Serial.print(childId);
+	Serial.print(" [");          Serial.print(getChildCategoryLabel(childId)); Serial.print("]");
 	Serial.print(", Comando: "); Serial.print(cmd);
 	Serial.print(", Tipo: ");    Serial.println(message.getType());
 
@@ -377,16 +390,14 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 #ifdef M360_NATIVE_MQTT
 	processMQTTCommandNative(topic, payload, length);
 #else
-	DynamicJsonDocument doc(512);
-	DeserializationError error = deserializeJson(doc, payload, length);
-
-	if (error) {
-		Serial.print("❌ Erro ao parsear JSON: ");
-		Serial.println(error.c_str());
-		return;
+	// Um único parse: Translator::fromJSON() já desserializa. Desserializar aqui
+	// para reserializar dentro de processMQTTCommand() era um round-trip duplo.
+	String payloadStr;
+	payloadStr.reserve(length + 1);
+	for (unsigned int i = 0; i < length; i++) {
+		payloadStr += (char)payload[i];
 	}
-
-	processMQTTCommand(doc);
+	processMQTTCommand(payloadStr);
 #endif
 }
 
@@ -419,12 +430,9 @@ static void publishTransportAck(const MyMessage& outMsg, uint8_t targetNodeId) {
 	}
 #else
 	if (!mqttClient.connected()) return;
-	String base = M360::Translator::toJSON(outMsg, true);
-	DynamicJsonDocument doc(512);
-	deserializeJson(doc, base);
-	doc["nodeId"] = targetNodeId;   // corrige 0 → ID real do nó de destino
-	String ackJson;
-	serializeJson(doc, ackJson);
+	// toJSON() já aceita o nodeId de destino: antes era preciso serializar,
+	// reparsear, corrigir o campo e reserializar só para trocar um inteiro.
+	String ackJson  = M360::Translator::toJSON(outMsg, true, targetNodeId);
 	String topicOut = M360::buildTopicOut(config);
 	if (mqttClient.publish(topicOut.c_str(), ackJson.c_str())) {
 		Serial.printf("📤 ACK de transporte publicado — nó %d sensor %d\n",
@@ -435,87 +443,144 @@ static void publishTransportAck(const MyMessage& outMsg, uint8_t targetNodeId) {
 #endif
 }
 
+// Publica a rejeição de um comando no tópico de eventos. Sem isto, um comando
+// malformado sumia com um println no Serial e o Node-RED só percebia pelos
+// 35 s de timeout do Sincronizador — sem nunca saber a causa.
+static void reportCommandRejected(const char* reason, int nodeId = 0) {
+	Serial.print("❌ Comando rejeitado: ");
+	Serial.println(reason);
+	ledFlicker(LED_RED);
+	publishTransportEvent("command_rejected", reason, nodeId);
+}
+
+// Converte um segmento do tópico em inteiro 0-255, exigindo que seja realmente
+// numérico. atoi() devolvia 0 em silêncio para segmento vazio ou não numérico
+// ("…/in/99/xx/1/0/2" virava sensor 0), e o comando era descartado pelo nó sem
+// deixar rastro em lugar nenhum.
+static bool parseTopicByte(const char* begin, const char* end, int& out) {
+	if (begin >= end) {
+		return false;  // segmento vazio
+	}
+	int value = 0;
+	for (const char* p = begin; p < end; p++) {
+		if (*p < '0' || *p > '9') {
+			return false;
+		}
+		value = value * 10 + (*p - '0');
+		if (value > 255) {
+			return false;
+		}
+	}
+	out = value;
+	return true;
+}
+
+// Ponto único de saída para o rádio: valida, envia, e reporta o resultado.
+// Usado tanto pelo caminho nativo quanto pelo envelope JSON.
+static void dispatchCommand(MyMessage& outMsg, uint8_t targetNodeId) {
+	const M360::M360CommandStatus status =
+	    M360::Translator::validate(outMsg, targetNodeId);
+	if (status != M360::M360_CMD_OK) {
+		reportCommandRejected(M360::Translator::describeStatus(status), targetNodeId);
+		return;
+	}
+
+	outMsg.setDestination(targetNodeId);
+	// Envio direto via RF24 (com Auto-ACK de hardware pelo chip).
+	// Não usa requestEcho síncrono para evitar bloqueio e colisão de pacotes.
+	const bool success = send(outMsg, false);
+	Serial.printf("🎯 Comando para Nó %u child %u: %s\n",
+	              targetNodeId, outMsg.getSensor(), success ? "✅" : "❌");
+	ledFlicker(success ? LED_YELLOW : LED_RED);
+
+	if (success) {
+		publishTransportAck(outMsg, targetNodeId);
+	} else {
+		char details[64];
+		snprintf(details, sizeof(details), "send() falhou para child %u",
+		         outMsg.getSensor());
+		publishTransportEvent("command_send_failed", details, targetNodeId);
+	}
+}
+
 void processMQTTCommandNative(const char* topic, const byte* payload, unsigned int length) {
 	// Tópico esperado: m360/{UF}/{CAR}/in/{nodeId}/{sensorId}/{cmd}/{ack}/{type}
-	// Slashes: 0     1   2    3    4        5          6       7    8
-	const char* p = topic;
+	// Índice da barra:      0   1     2   3        4          5     6     7
 	const char* slashes[9];
-	int slashCount = 0;
-	while (*p && slashCount < 9) {
-		if (*p == '/') slashes[slashCount++] = p;
-		p++;
+	uint8_t slashCount = 0;
+	for (const char* p = topic; *p; p++) {
+		if (*p != '/') {
+			continue;
+		}
+		if (slashCount >= 9) {
+			slashCount = 9;  // já passou do formato — basta saber que excedeu
+			break;
+		}
+		slashes[slashCount++] = p;
 	}
-	if (slashCount < 8) {
-		Serial.println("❌ Tópico nativo inválido (partes insuficientes)");
+	// Exatamente 8: nem menos (tópico truncado) nem mais (níveis extras que a
+	// assinatura com '#' também entrega aqui).
+	if (slashCount != 8) {
+		Serial.printf("❌ Tópico nativo com %u barras (esperado 8): %s\n",
+		              slashCount, topic);
+		reportCommandRejected("topico nativo com numero de niveis invalido");
 		return;
 	}
 
-	int nodeId   = atoi(slashes[3] + 1);
-	int sensorId = atoi(slashes[4] + 1);
-	int cmd      = atoi(slashes[5] + 1);
-	int type     = atoi(slashes[7] + 1);
-
-	if (nodeId < 1 || nodeId > 255) {
-		Serial.println("❌ nodeId inválido no tópico nativo");
+	const char* topicEnd = topic + strlen(topic);
+	int nodeId, sensorId, cmd, ack, type;
+	if (!parseTopicByte(slashes[3] + 1, slashes[4], nodeId)   ||
+	    !parseTopicByte(slashes[4] + 1, slashes[5], sensorId) ||
+	    !parseTopicByte(slashes[5] + 1, slashes[6], cmd)      ||
+	    !parseTopicByte(slashes[6] + 1, slashes[7], ack)      ||
+	    !parseTopicByte(slashes[7] + 1, topicEnd,   type)) {
+		Serial.printf("❌ Segmento não numérico no tópico: %s\n", topic);
+		reportCommandRejected("segmento nao numerico no topico nativo");
 		return;
 	}
+	(void)ack;  // o campo ack do tópico de entrada não é usado no envio
 
-	char payloadBuf[129];
-	unsigned int len = length < 128 ? length : 128;
-	memcpy(payloadBuf, payload, len);
-	payloadBuf[len] = '\0';
+	// Buffer do tamanho exato que o rádio comporta. Copiar 128 bytes para depois
+	// truncar em 25 dentro de MyMessage::set() só escondia payloads inválidos.
+	if (length > MAX_PAYLOAD_SIZE) {
+		Serial.printf("❌ Payload de %u bytes (máx %u)\n", length, MAX_PAYLOAD_SIZE);
+		reportCommandRejected(
+		    M360::Translator::describeStatus(M360::M360_CMD_ERR_PAYLOAD_SIZE), nodeId);
+		return;
+	}
+	char payloadBuf[MAX_PAYLOAD_SIZE + 1];
+	memcpy(payloadBuf, payload, length);
+	payloadBuf[length] = '\0';
 
 	Serial.printf("📦 Nativo: nó=%d sensor=%d cmd=%d tipo=%d payload='%s'\n",
 	              nodeId, sensorId, cmd, type, payloadBuf);
 
-	DynamicJsonDocument doc(256);
-	doc["nodeId"]   = nodeId;
-	doc["sensorId"] = sensorId;
-	doc["command"]  = cmd;
-	doc["type"]     = type;
-	doc["payload"]  = payloadBuf;
-
-	processMQTTCommand(doc);
-}
-
-void processMQTTCommand(const JsonDocument& doc) {
-	String payloadStr;
-	serializeJson(doc, payloadStr);
-
-	uint8_t   targetNodeId;
+	// Direto para MyMessage: sem JsonDocument intermediário, sem serializar e
+	// reparsear. Os campos já vieram decodificados do tópico.
 	MyMessage outMsg;
+	uint8_t   targetNodeId;
+	const M360::M360CommandStatus status = M360::Translator::fromNative(
+	    nodeId, sensorId, cmd, type, payloadBuf, outMsg, targetNodeId);
 
-	if (M360::Translator::fromJSON(payloadStr, outMsg, targetNodeId)) {
-		outMsg.setDestination(targetNodeId);
-		// ACK de transporte apenas para V_STATUS (relés) — comandos administrativos
-		// (V_CUSTOM, V_VAR1, etc.) usam fire-and-forget; confirmação semântica vem
-		// pela resposta do nó (estados re-enviados ao broker).
-		bool withAck = (outMsg.getType() == V_STATUS);
-		bool success = send(outMsg, withAck);
-		Serial.print("🎯 Comando enviado para Nó "); Serial.print(targetNodeId);
-		Serial.println(success ? " ✅" : " ❌");
-		ledFlicker(success ? LED_YELLOW : LED_RED);
-		if (success && withAck) publishTransportAck(outMsg, targetNodeId);
-	} else {
-		Serial.println("❌ Erro ao decodificar JSON ou comando inválido");
+	if (status != M360::M360_CMD_OK) {
+		reportCommandRejected(M360::Translator::describeStatus(status), nodeId);
+		return;
 	}
+
+	dispatchCommand(outMsg, targetNodeId);
 }
 
+// Caminho do envelope JSON (gateway compilado sem M360_NATIVE_MQTT).
 void processMQTTCommand(const String& payloadStr) {
 	uint8_t   targetNodeId;
 	MyMessage outMsg;
 
-	if (M360::Translator::fromJSON(payloadStr, outMsg, targetNodeId)) {
-		outMsg.setDestination(targetNodeId);
-		bool withAck = (outMsg.getType() == V_STATUS);
-		bool success = send(outMsg, withAck);
-		Serial.print("🎯 Comando enviado para Nó "); Serial.print(targetNodeId);
-		Serial.println(success ? " ✅" : " ❌");
-		ledFlicker(success ? LED_YELLOW : LED_RED);
-		if (success && withAck) publishTransportAck(outMsg, targetNodeId);
-	} else {
-		Serial.println("❌ Erro ao decodificar JSON ou comando inválido");
+	if (!M360::Translator::fromJSON(payloadStr, outMsg, targetNodeId)) {
+		reportCommandRejected("JSON invalido, incompleto ou acao desconhecida");
+		return;
 	}
+
+	dispatchCommand(outMsg, targetNodeId);
 }
 
 // ==== RASTREAMENTO DE NÓS ====

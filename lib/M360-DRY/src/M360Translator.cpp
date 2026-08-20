@@ -12,9 +12,9 @@
 
 namespace M360 {
 
-	String Translator::toJSON(const MyMessage& msg, bool isAck) {
+	String Translator::toJSON(const MyMessage& msg, bool isAck, int nodeIdOverride) {
 		DynamicJsonDocument doc(DOC_SIZE_MSG);
-		doc["nodeId"]	   = msg.getSender();
+		doc["nodeId"]	   = (nodeIdOverride >= 0) ? (uint8_t)nodeIdOverride : msg.getSender();
 		doc["sensorId"]	 = msg.getSensor();
 		doc["destination"] = msg.getDestination();
 		doc["command"]	 = msg.getCommand();
@@ -92,6 +92,79 @@ namespace M360 {
 		return json;
 	}
 
+	M360CommandStatus Translator::validate(const MyMessage& msg, uint8_t targetNode) {
+		// 0 é o próprio gateway; 255 é broadcast MySensors e é legítimo.
+		if (targetNode < 1) {
+			return M360_CMD_ERR_NODE_ID;
+		}
+
+		const uint8_t cmd = msg.getCommand();
+		if (cmd != C_SET && cmd != C_REQ && cmd != C_INTERNAL) {
+			return M360_CMD_ERR_COMMAND;
+		}
+
+		// C_SET/V_STATUS é o caminho de atuação. O nó resolve o valor com
+		// MyMessage::getBool(), que para payload P_STRING faz atoi(): "true",
+		// "ON" ou qualquer lixo viram 0 e DESLIGAM o relé em vez de ligar,
+		// indistinguíveis de um OFF legítimo em qualquer log. Só "0" e "1".
+		if (cmd == C_SET && msg.getType() == V_STATUS) {
+			char buf[MAX_PAYLOAD_SIZE + 1];
+			const char* value = msg.getString(buf);
+			if (value == NULL ||
+			    (strcmp(value, "0") != 0 && strcmp(value, "1") != 0)) {
+				return M360_CMD_ERR_PAYLOAD_VALUE;
+			}
+		}
+
+		return M360_CMD_OK;
+	}
+
+	M360CommandStatus Translator::fromNative(int nodeId, int sensorId,
+	                                         int command, int type,
+	                                         const char* payload,
+	                                         MyMessage& outMsg,
+	                                         uint8_t& targetNode) {
+		if (nodeId < 1 || nodeId > 255) {
+			return M360_CMD_ERR_NODE_ID;
+		}
+		if (sensorId < 0 || sensorId > 255) {
+			return M360_CMD_ERR_SENSOR_ID;
+		}
+		if (command != C_SET && command != C_REQ && command != C_INTERNAL) {
+			return M360_CMD_ERR_COMMAND;
+		}
+		if (type < 0 || type > 255) {
+			return M360_CMD_ERR_TYPE;
+		}
+		// MyMessage::set() trunca em MAX_PAYLOAD_SIZE sem avisar. Rejeitar é
+		// melhor que enviar meia string: nenhum comando legítimo chega perto
+		// (o mais longo, "FORCE_UPDATE", tem 12 bytes).
+		if (payload != NULL && strlen(payload) > MAX_PAYLOAD_SIZE) {
+			return M360_CMD_ERR_PAYLOAD_SIZE;
+		}
+
+		targetNode = (uint8_t)nodeId;
+		outMsg.setSensor((uint8_t)sensorId);
+		outMsg.setCommand((mysensors_command_t)command);
+		outMsg.setType((uint8_t)type);
+		outMsg.set(payload != NULL ? payload : "");
+
+		return validate(outMsg, targetNode);
+	}
+
+	const char* Translator::describeStatus(M360CommandStatus status) {
+		switch (status) {
+			case M360_CMD_OK:                return "ok";
+			case M360_CMD_ERR_NODE_ID:       return "nodeId fora de faixa (1-255)";
+			case M360_CMD_ERR_SENSOR_ID:     return "sensorId fora de faixa (0-255)";
+			case M360_CMD_ERR_COMMAND:       return "command invalido (1=SET, 2=REQ, 3=INTERNAL)";
+			case M360_CMD_ERR_TYPE:          return "type fora de faixa (0-255)";
+			case M360_CMD_ERR_PAYLOAD_SIZE:  return "payload excede MAX_PAYLOAD_SIZE";
+			case M360_CMD_ERR_PAYLOAD_VALUE: return "payload de V_STATUS deve ser 0 ou 1";
+			default:                         return "erro desconhecido";
+		}
+	}
+
 	bool Translator::fromJSON(const String& json, MyMessage& outMsg, uint8_t& targetNode) {
 		DynamicJsonDocument doc(DOC_SIZE_MSG);
 		DeserializationError error = deserializeJson(doc, json);
@@ -111,7 +184,20 @@ namespace M360 {
 			outMsg.setCommand((mysensors_command_t)(int)doc["command"]);
 			
 			if (doc.containsKey("payload")) {
-				outMsg.set(doc["payload"].as<const char*>());
+				// as<const char*>() devolve NULL quando o payload não é string
+				// (ex.: {"payload": 1}), e MyMessage::set(NULL) faz
+				// strncpy(data, NULL, 0) — UB formal, e resultado vazio que o
+				// nó lê como 0. Converter por String cobre número, bool e texto.
+				JsonVariantConst pv = doc["payload"];
+				if (pv.isNull()) {
+					return false;
+				}
+				if (pv.is<bool>()) {
+					// "true"/"false" seriam lidos como 0 pelo atoi() do nó.
+					outMsg.set(pv.as<bool>() ? "1" : "0");
+				} else {
+					outMsg.set(pv.as<String>().c_str());
+				}
 			} else if (doc.containsKey("value")) {
 				if (doc["value"].is<bool>())  outMsg.set(doc["value"].as<bool>());
 				else if (doc["value"].is<int>())   outMsg.set(doc["value"].as<int>());
