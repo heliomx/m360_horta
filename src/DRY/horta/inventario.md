@@ -24,7 +24,8 @@ Relação de todos os nós da rede MySensors e de seus child IDs, um a um.
 | **4** | `ProMini_04noodeSolarMini` | Pro Mini 16MHz | `LOW_POWER` | 1, 11, 12 | Sim — Filtro Clima SolarMini |
 | **99** | `nano_99reles` · `nano_99reles_rep` | Nano 5V | `ALWAYS_ON` | 11, 12, 21, 31–39 | Sim — comandos, clima e vazão |
 
-**Total: 27 children declarados** (6 + 6 + 3 + 12), mais os 3 reservados por nó.
+**Total: 27 children declarados** (6 + 6 + 3 + 12), mais os 3 reservados por nó.  
+*Nota de Hardware:* Todos os módulos nRF24L01+ de todos os nós e gateways possuem capacitor de desacoplamento instalado (premissa de hardware confirmada).
 
 ---
 

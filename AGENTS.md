@@ -116,3 +116,4 @@ src/DRY/
 - **Precisão float:** 1 casa decimal (`set(val, 1)`)
 - **Solo:** escala 0 (seco) → 100 (água)
 - **JSON gateway:** `DynamicJsonDocument(512)` para mensagens, `(384)` para heartbeat, `(256)` para eventos
+- **Hardware Rádio RF24:** Todos os módulos nRF24L01+ de todos os nós e gateways possuem capacitor de desacoplamento instalado (premissa de hardware confirmada, não questionar).
