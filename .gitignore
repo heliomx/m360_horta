@@ -20,6 +20,13 @@ desktop.ini
 # IDE / Extensions
 .history/
 
+# Gerados pelo PlatformIO conforme o env ativo na IDE. Carregam caminhos
+# absolutos da máquina local (inclusive o diretório de build em %TEMP%) e são
+# reescritos a cada troca de env — versioná-los só produz conflito recorrente.
+# Os demais arquivos de .vscode/ (extensions, settings, tasks) continuam versionados.
+.vscode/c_cpp_properties.json
+.vscode/launch.json
+
 .bmad-loop/runs/
 .bmad-loop/cache/
 
