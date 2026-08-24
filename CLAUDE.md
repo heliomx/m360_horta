@@ -328,6 +328,47 @@ Irrigação do Node-RED. `Translator::validate()` hoje rejeita isso no gateway, 
 o `mqtt out` do Node-RED serializa objeto para JSON em silêncio: **conferir que
 `msg.payload` é string** ao criar qualquer comando de atuação.
 
+### `MAX_RT` no gateway acusa o **transmissor**, não o receptor
+
+Diagnosticado em 20/08/2026, depois de uma caçada longa. Comandos do Node-RED
+não chegavam ao Nó 99 — 0 de 20 numa captura — com o gateway acusando
+`RF24:TXM:MAX_RT` e `st=NACK` em todo envio, enquanto o sentido nó→gateway
+funcionava 100%. **A causa era o módulo nRF24 do gateway.** Trocá-lo resolveu.
+
+A armadilha é uma correlação real que aponta para o lado errado: comandos
+disparados logo depois de uma transmissão do nó entravam (`TSF:MSG:READ` 93 ms
+depois), e em repouso não entravam. Isso parece "o nó só escuta após
+transmitir", mas um transmissor marginal no gateway produz o mesmo padrão —
+ele só acerta quando o rádio acabou de ser reconfigurado por uma recepção.
+
+**O sinal que separa os dois lados:** se o nó registra `TSF:MSG:READ,0-0-255`
+(broadcast) em repouso, o rádio dele **está** escutando — broadcast não usa
+auto-ACK — e o defeito está no transmissor do gateway.
+
+Antes de suspeitar de firmware, elimine o rádio. Estes foram descartados com
+teste, não por dedução, e nenhum era a causa: exaustão de RAM; a lib M360-DRY e
+o firmware da aplicação (um sketch MySensors puro, 419 bytes de RAM, ficou
+igualmente surdo); o datarate; o módulo do nó; e alimentar o rádio do nó por
+fonte independente.
+
+**Ferramenta de diagnóstico:** `env:nano_99reles_diag` compila o Nó 99 com
+`-D NODE99_HEALTH_LOG` — tick de 5 s com uptime e RAM livre, e sonda de TX a
+cada 30 s. A instrumentação vive atrás do `#ifdef`, então `nano_99reles`
+compila idêntico. Para testar a descida **sem acionar relé**, publique vazio em
+`m360/{UF}/{CAR}/in/99/11/2/0/0` (C_REQ, somente leitura) e observe
+`.../out/events`.
+
+### Canal de rádio: o padrão (76) é o validado
+
+Durante a caçada acima, o canal foi trocado para 86 na tentativa de fugir de
+interferência. **Não era interferência.** Com o rádio do gateway trocado, o
+canal padrão do MySensors (76) entrega 38/38 — medido em 20/08/2026, com o
+único NACK ocorrendo 2,1 s antes de o nó concluir o boot, o que é corrida de
+inicialização e não falha de enlace.
+
+Não defina `MY_RF24_CHANNEL` sem uma medição que justifique. A configuração
+validada é a do `[common]`: canal padrão, `RF24_250KBPS`, `RF24_PA_HIGH`.
+
 ### `V_LEVEL` (37) nos Nós 01 e 13 significa umidade de solo
 
 Esses nós usam `V_LEVEL` para solo por decisão histórica. No Node-RED, o

@@ -119,7 +119,7 @@ graph TD
     Reg5V -->|5V DC| ReleM6
     Reg5V -->|5V DC| DHT
     
-    Reg3V3 -->|3.3V DC| NRF
+    Nano -->|5V via adaptador regulado| NRF
     
     %% Conexões SPI (Arduino -> NRF)
     Nano -->|D11 MOSI, D12 MISO, D13 SCK| NRF
@@ -179,13 +179,27 @@ graph TD
 ### 3.1 NRF24L01 (Comunicação SPI)
 | Pino Módulo | Pino Arduino | Descrição |
 | :--- | :--- | :--- |
-| VCC | Regulador 3.3V | Alimentação exclusiva (NÃO usar 5V do Arduino) |
+| VCC | 5V do Nano | Via adaptador socket regulado (o adaptador entrega 3,3 V ao módulo) |
 | GND | GND Comum | Referência de Terra |
 | CE | D9 | Chip Enable (Configurável no código) |
 | CSN | D10 | Chip Select Not (Configurável no código) |
 | SCK | D13 | Serial Clock (Padrão SPI) |
 | MOSI | D11 | Master Out Slave In (Padrão SPI) |
 | MISO | D12 | Master In Slave Out (Padrão SPI) |
+
+> **Alimentação do rádio — verificado em 20/08/2026.** O nRF24 do Nó 99 opera
+> alimentado pelo **pino 5V do Arduino Nano**, através do **adaptador socket
+> regulado** sobre o qual o módulo está montado. O adaptador contém o regulador
+> de 3,3 V; o módulo em si continua recebendo 3,3 V.
+>
+> **Isto só vale com o adaptador regulado.** Um nRF24L01+ nu tem máximo absoluto
+> de 3,6 V — ligar 5 V direto nos pinos do módulo o danifica. Ao replicar este
+> nó, confirme que o adaptador está presente antes de usar o 5 V.
+>
+> Com isso, a linha dedicada de 3,3 V deixou de ser necessária para o rádio.
+> Também foi testada e descartada a alimentação do rádio por **fonte
+> independente**: não corrigiu a falha de recepção que se investigava (a causa
+> era o módulo nRF24 do gateway) e, sem terra comum bem feito, piorou o quadro.
 
 ### 3.2 Multiplexador CD74HC4067
 | Pino MUX | Pino Arduino | Descrição |

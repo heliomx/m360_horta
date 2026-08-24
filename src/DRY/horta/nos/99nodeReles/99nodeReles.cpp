@@ -46,6 +46,24 @@
 static unsigned long lastRssiLog = 0;
 #endif
 
+// ===== INSTRUMENTACAO DE DIAGNOSTICO (temporaria) =====
+// Ativada apenas por -D NODE99_HEALTH_LOG (env nano_99reles_diag).
+// Objetivo: separar travamento do loop() de exaustao de RAM.
+//   - o tick para de sair  -> o loop() travou; bissectar node.process()
+//   - o tick sai e ram cai -> colisao pilha/heap se aproximando
+// Todas as strings ficam em flash via F(), para nao deslocar o proprio defeito.
+#ifdef NODE99_HEALTH_LOG
+static unsigned long lastHealthLog = 0;
+
+// Distancia em bytes entre o topo do heap e o topo da pilha.
+static int freeRam() {
+  extern int __heap_start;
+  extern int *__brkval;
+  int v;
+  return (int)&v - (__brkval == 0 ? (int)&__heap_start : (int)__brkval);
+}
+#endif
+
 // ===== DEFINIÇÃO DOS ITENS DO NÓ =====
 // Colunas: childId | kind | presentType | valueType | pin | intMin | smp |
 // label | wakeOnRadio | flags
@@ -275,6 +293,30 @@ void loop() {
   // node.process() em M360_ALWAYS_ON termina em wait(50), então o failsafe é
   // avaliado ~20x por segundo — resolução de sobra para prazos de minutos.
   checkActuatorFailsafe();
+
+#ifdef NODE99_HEALTH_LOG
+  // Batimento a cada 5 s: uptime em segundos e RAM livre.
+  if (millis() - lastHealthLog >= 5000UL) {
+    lastHealthLog = millis();
+    Serial.print(F("[TICK] up="));
+    Serial.print(millis() / 1000UL);
+    Serial.print(F("s ram="));
+    Serial.println(freeRam());
+
+    // A cada 6 ticks (30 s), testa se o radio ainda TRANSMITE.
+    // st=OK prova que o gateway respondeu o auto-ACK de hardware, ou seja,
+    // que o radio do no ainda fala E ouve a resposta imediata. Combinado com
+    // MAX_RT no sentido gateway->no, isola o defeito no modo de escuta (RX).
+    static uint8_t txProbe = 0;
+    if (++txProbe >= 6) {
+      txProbe = 0;
+      MyMessage probe(M360_CHILD_ID_DEBUG, V_TEXT);
+      const bool ok = send(probe.set("probe"));
+      Serial.print(F("[TXPROBE] "));
+      Serial.println(ok ? F("OK") : F("NACK"));
+    }
+  }
+#endif
 
 
   // Log periódico de RSSI (saída Serial apenas — não enviado como sensor
