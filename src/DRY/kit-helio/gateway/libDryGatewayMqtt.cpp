@@ -16,9 +16,9 @@
 #include <EEPROM.h>
 #include <ArduinoJson.h>
 
-// Habilita prints de depuração gerais e depuração detalhada do rádio (RF24)
+// Habilita prints de depuração gerais (RF24 detalhado desativado para logs limpos)
 #define MY_DEBUG
-#define MY_DEBUG_VERBOSE_RF24
+//#define MY_DEBUG_VERBOSE_RF24
 
 // ESP8266WebServer define DEBUG_OUTPUT como Serial; MySensors redefine internamente.
 #undef DEBUG_OUTPUT
@@ -67,15 +67,6 @@ void updateLEDStatus();
 
 // ==== FUNÇÕES MYSENSORS ====
 
-static const char* getNodeCategoryLabel(uint8_t nodeId) {
-    if (nodeId == M360::NODE_ID_GATEWAY) return "Gateway";
-    if (M360::isClimaNode(nodeId))    return "Clima (1-50)";
-    if (M360::isSoloNode(nodeId))     return "Solo (51-150)";
-    if (M360::isActuatorNode(nodeId)) return "Atuação (151-200)";
-    if (M360::isWaterNode(nodeId))    return "Água/Reservatório (201-254)";
-    return "Fora da Faixa Normativa";
-}
-
 void presentation() {
 	sendSketchInfo("Manejo360 Gateway MQTT", "2.0.0");
 	Serial.println("📡 Gateway MySensors apresentado (v2.0.0)");
@@ -87,18 +78,11 @@ void receive(const MyMessage &message) {
 	uint8_t childId = message.getSensor();
 	uint8_t cmd = message.getCommand();
 
-	Serial.println("📨 Mensagem MySensors recebida:");
 	ledFlicker(LED_GREEN);
-	Serial.print("   Nó: ");     Serial.print(nodeId);
-	Serial.print(" [");          Serial.print(getNodeCategoryLabel(nodeId)); Serial.print("]");
-	Serial.print(", Child: ");   Serial.print(childId);
-	Serial.print(", Comando: "); Serial.print(cmd);
-	Serial.print(", Tipo: ");    Serial.println(message.getType());
 
+	char payloadDbg[MAX_PAYLOAD + 1] = "";
 	if (message.getLength() > 0) {
-		char payloadDbg[MAX_PAYLOAD + 1];
-		Serial.print("   Payload: ");
-		Serial.println(message.getString(payloadDbg));
+		message.getString(payloadDbg);
 	}
 
 	if (gateway.registry().update(nodeId)) {
@@ -107,8 +91,9 @@ void receive(const MyMessage &message) {
 
 	// Auto-Discovery: Tratar Apresentação de Childs (C_PRESENTATION)
 	if (cmd == C_PRESENTATION) {
-		char aliasBuf[MAX_PAYLOAD + 1];
+		char aliasBuf[MAX_PAYLOAD + 1] = "";
 		message.getString(aliasBuf);
+		gateway.registry().registerChild(nodeId, childId, message.getType(), aliasBuf);
 		char details[128];
 		snprintf(details, sizeof(details), "Child presentation: ID %d, Type %d, Label: %s", childId, message.getType(), aliasBuf);
 		publishTransportEvent("child_presentation", details, nodeId);
@@ -121,15 +106,16 @@ void receive(const MyMessage &message) {
 				publishTransportEvent("node_presentation", "Node presented itself to gateway", nodeId);
 				break;
 			case I_SKETCH_NAME: {
-				char nameBuf[MAX_PAYLOAD + 1];
+				char nameBuf[MAX_PAYLOAD + 1] = "";
 				message.getString(nameBuf);
+				gateway.registry().registerSketchName(nodeId, nameBuf);
 				char details[128];
 				snprintf(details, sizeof(details), "Sketch Name: %s", nameBuf);
 				publishTransportEvent("node_sketch_name", details, nodeId);
 				break;
 			}
 			case I_SKETCH_VERSION: {
-				char verBuf[MAX_PAYLOAD + 1];
+				char verBuf[MAX_PAYLOAD + 1] = "";
 				message.getString(verBuf);
 				char details[128];
 				snprintf(details, sizeof(details), "Sketch Version: %s", verBuf);
@@ -146,7 +132,7 @@ void receive(const MyMessage &message) {
 				publishTransportEvent("node_heartbeat", "Node heartbeat received", nodeId);
 				break;
 			case I_DISCOVER_RESPONSE: {
-				char discBuf[MAX_PAYLOAD + 1];
+				char discBuf[MAX_PAYLOAD + 1] = "";
 				String details = "Node discovered, parent: ";
 				details += message.getString(discBuf);
 				publishTransportEvent(M360::EVT_NODE_DISCOVER, details.c_str(), nodeId);
@@ -156,6 +142,12 @@ void receive(const MyMessage &message) {
 				break;
 		}
 	}
+
+	// Feedback Inteligível em Linguagem Natural
+	String humanLog = M360::Translator::formatHumanDescription(
+		gateway.registry(), nodeId, childId, cmd, message.getType(), payloadDbg, false
+	);
+	Serial.printf("📨 [RECEBIDO] %s\n", humanLog.c_str());
 
 	sendMQTT(message, message.isAck());
 }
@@ -477,8 +469,14 @@ void processMQTTCommand(const JsonDocument& doc) {
 		// pela resposta do nó (estados re-enviados ao broker).
 		bool withAck = (outMsg.getType() == V_STATUS);
 		bool success = send(outMsg, withAck);
-		Serial.print("🎯 Comando enviado para Nó "); Serial.print(targetNodeId);
-		Serial.println(success ? " ✅" : " ❌");
+
+		char payloadBuf[MAX_PAYLOAD + 1] = "";
+		outMsg.getString(payloadBuf);
+		String humanDesc = M360::Translator::formatHumanDescription(
+			gateway.registry(), targetNodeId, outMsg.getSensor(),
+			outMsg.getCommand(), outMsg.getType(), payloadBuf, true
+		);
+		Serial.printf("🎯 [ENVIO] %s -> %s\n", humanDesc.c_str(), success ? "✅ Sucesso" : "❌ Falha");
 		ledFlicker(success ? LED_YELLOW : LED_RED);
 		if (success && withAck) publishTransportAck(outMsg, targetNodeId);
 	} else {

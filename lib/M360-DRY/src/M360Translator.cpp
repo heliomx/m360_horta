@@ -333,6 +333,78 @@ namespace M360 {
 		}
 	}
 
+	String Translator::formatHumanDescription(const NodeRegistry& registry,
+	                                          uint8_t nodeId,
+	                                          uint8_t childId,
+	                                          uint8_t command,
+	                                          uint8_t type,
+	                                          const char* payload,
+	                                          bool isSending) {
+		// 1. Identificação amigável do Nó
+		const char* nodeNameFound = registry.getNodeName(nodeId);
+		String nodeStr;
+		if (nodeNameFound != nullptr && strlen(nodeNameFound) > 0) {
+			nodeStr = String(nodeNameFound) + " [Nó " + String(nodeId) + "]";
+		} else {
+			nodeStr = "Nó " + String(nodeId);
+		}
+
+		// 2. Identificação amigável do Child (sensor/atuador)
+		const char* childLabelFound = registry.getChildLabel(nodeId, childId);
+		String childStr;
+		if (childLabelFound != nullptr && strlen(childLabelFound) > 0) {
+			childStr = String(childLabelFound);
+		} else {
+			if (childId == CHILD_ID_DEBUG) childStr = "Debug Remoto";
+			else if (childId == CHILD_ID_INTERVAL) childStr = "Intervalo de Reporte";
+			else if (childId == CHILD_ID_BATTERY) childStr = "Nível de Bateria";
+			else childStr = "Child " + String(childId);
+		}
+
+		const char* p = (payload != nullptr) ? payload : "";
+		String actionDesc;
+
+		if (command == C_INTERNAL) {
+			actionDesc = String("Mensagem interna ") + getInternalTypeDescription(type);
+			if (strlen(p) > 0) {
+				actionDesc += " (" + String(p) + ")";
+			}
+		} else if (type == V_STATUS) {
+			bool isOne = (strcmp(p, "1") == 0 || strcmp(p, "true") == 0);
+			if (isSending) {
+				actionDesc = (isOne ? "Ligar " : "Desligar ") + childStr + " (Child " + String(childId) + ")";
+			} else {
+				actionDesc = childStr + (isOne ? " ligada/acionada" : " desligada/desativada") + " (Child " + String(childId) + ")";
+			}
+		} else if (type == V_FLOW) {
+			actionDesc = childStr + " = " + String(p) + " L/min (Child " + String(childId) + ")";
+		} else if (type == V_TEMP) {
+			actionDesc = childStr + " = " + String(p) + " °C (Child " + String(childId) + ")";
+		} else if (type == V_HUM || type == V_LEVEL) {
+			actionDesc = childStr + " = " + String(p) + " % (Child " + String(childId) + ")";
+		} else if (type == V_VOLTAGE) {
+			actionDesc = childStr + " = " + String(p) + " V (Child " + String(childId) + ")";
+		} else if (type == V_VAR1) {
+			if (isSending) {
+				actionDesc = "Ajustar " + childStr + " = " + String(p) + " min (Child " + String(childId) + ")";
+			} else {
+				actionDesc = childStr + " = " + String(p) + " min (Child " + String(childId) + ")";
+			}
+		} else if (type == V_CUSTOM) {
+			actionDesc = "Comando '" + String(p) + "' em " + childStr + " (Child " + String(childId) + ")";
+		} else if (type == V_TEXT) {
+			actionDesc = childStr + ": \"" + String(p) + "\" (Child " + String(childId) + ")";
+		} else {
+			actionDesc = childStr + " = " + String(p) + " (Child " + String(childId) + ")";
+		}
+
+		if (isSending) {
+			return "Mensagem enviada para o " + nodeStr + ": " + actionDesc;
+		} else {
+			return "Mensagem recebida do " + nodeStr + ": " + actionDesc;
+		}
+	}
+
 } // namespace M360
 
 #endif // ESP8266

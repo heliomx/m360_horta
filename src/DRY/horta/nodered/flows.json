@@ -31,20 +31,6 @@
         "info": ""
     },
     {
-        "id": "5f670c411a47a898",
-        "type": "tab",
-        "label": "IA Repórter (Diário)",
-        "disabled": false,
-        "info": "Gera o diário diário da horta com base nos logs."
-    },
-    {
-        "id": "tab_irrigacao_m360",
-        "type": "tab",
-        "label": "Irrigação",
-        "disabled": false,
-        "info": "Motor de Regras de Irrigação Automática M360 Horta com Notificações via Telegram:\n- Canteiro B (Manejo360): Irrigação Inteligente com Sensores de Solo + DHT11 Clima\n- Canteiro A (Controle Tradicional): Agendamento Fixo 2x/dia (07h e 17h x 5min) para 6x1m / 35 alfaces\n- Notificações Telegram: Disparo automático de mensagens no início e fim de cada rega"
-    },
-    {
         "id": "178d6e63b26ceeb2",
         "type": "mqtt-broker",
         "name": "mqtt.viridiotech.com.br",
@@ -191,6 +177,14 @@
         "visible": "true",
         "disabled": "false",
         "groupType": "default"
+    },
+    {
+        "id": "8222bb60b624e5ca",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@flowfuse/node-red-dashboard": "1.30.2"
+        }
     },
     {
         "id": "d626b61e2f670799",
@@ -853,8 +847,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 880,
-        "y": 180,
+        "x": 1300,
+        "y": 480,
         "wires": [
             [
                 "3ce607812261d4c5"
@@ -875,8 +869,8 @@
         "correl": "",
         "expiry": "",
         "broker": "178d6e63b26ceeb2",
-        "x": 1130,
-        "y": 180,
+        "x": 1510,
+        "y": 420,
         "wires": []
     },
     {
@@ -908,8 +902,8 @@
         "enablePointerup": false,
         "pointerupPayload": "",
         "pointerupPayloadType": "str",
-        "x": 150,
-        "y": 80,
+        "x": 830,
+        "y": 20,
         "wires": [
             [
                 "fn_solenoides_dispatch"
@@ -926,19 +920,19 @@
         "order": 3,
         "width": 3,
         "height": 1,
+        "emulateClick": false,
         "tooltip": "",
         "icon": "",
         "payload": "{\"nodeId\": 99, \"sensorId\": 31, \"command\": 1, \"type\": 2, \"payload\": \"0\"}",
         "payloadType": "json",
         "topic": "",
-        "x": 160,
-        "y": 120,
+        "x": 840,
+        "y": 60,
         "wires": [
             [
                 "fn_solenoides_dispatch"
             ]
-        ],
-        "emulateClick": false
+        ]
     },
     {
         "id": "d5113aa8b58b627f",
@@ -950,19 +944,19 @@
         "order": 4,
         "width": 3,
         "height": 1,
+        "emulateClick": false,
         "tooltip": "",
         "icon": "",
         "payload": "{\"nodeId\": 99, \"sensorId\": 32, \"command\": 1, \"type\": 2, \"payload\": \"1\"}",
         "payloadType": "json",
         "topic": "",
-        "x": 150,
-        "y": 160,
+        "x": 830,
+        "y": 100,
         "wires": [
             [
                 "fn_solenoides_dispatch"
             ]
-        ],
-        "emulateClick": false
+        ]
     },
     {
         "id": "f322977c0cdba1a5",
@@ -974,19 +968,19 @@
         "order": 5,
         "width": 3,
         "height": 1,
+        "emulateClick": false,
         "tooltip": "",
         "icon": "",
         "payload": "{\"nodeId\": 99, \"sensorId\": 32, \"command\": 1, \"type\": 2, \"payload\": \"0\"}",
         "payloadType": "json",
         "topic": "",
-        "x": 160,
-        "y": 200,
+        "x": 840,
+        "y": 140,
         "wires": [
             [
                 "fn_solenoides_dispatch"
             ]
-        ],
-        "emulateClick": false
+        ]
     },
     {
         "id": "06bc82b2a8afaa23",
@@ -998,19 +992,19 @@
         "order": 6,
         "width": 3,
         "height": 1,
+        "emulateClick": false,
         "tooltip": "",
         "icon": "",
         "payload": "{\"nodeId\": 99, \"sensorId\": 33, \"command\": 1, \"type\": 2, \"payload\": \"1\"}",
         "payloadType": "json",
         "topic": "",
-        "x": 150,
-        "y": 240,
+        "x": 830,
+        "y": 180,
         "wires": [
             [
                 "fn_solenoides_dispatch"
             ]
-        ],
-        "emulateClick": false
+        ]
     },
     {
         "id": "fe082f23b6ace22b",
@@ -1022,19 +1016,19 @@
         "order": 7,
         "width": 3,
         "height": 1,
+        "emulateClick": false,
         "tooltip": "",
         "icon": "",
         "payload": "{\"nodeId\": 99, \"sensorId\": 33, \"command\": 1, \"type\": 2, \"payload\": \"0\"}",
         "payloadType": "json",
         "topic": "",
-        "x": 160,
-        "y": 280,
+        "x": 840,
+        "y": 220,
         "wires": [
             [
                 "fn_solenoides_dispatch"
             ]
-        ],
-        "emulateClick": false
+        ]
     },
     {
         "id": "a223962e8d10b09b",
@@ -1052,8 +1046,8 @@
         "options": [],
         "topic": "selectedNodeId",
         "topicType": "str",
-        "x": 660,
-        "y": 340,
+        "x": 740,
+        "y": 620,
         "wires": [
             [
                 "df4aaf4278ebec2f"
@@ -1089,8 +1083,8 @@
         ],
         "topic": "selectedAction",
         "topicType": "str",
-        "x": 660,
-        "y": 380,
+        "x": 740,
+        "y": 660,
         "wires": [
             [
                 "df4aaf4278ebec2f"
@@ -1120,8 +1114,8 @@
         "textColor": "",
         "iconColor": "",
         "enableClick": true,
-        "x": 690,
-        "y": 420,
+        "x": 770,
+        "y": 580,
         "wires": [
             [
                 "df4aaf4278ebec2f"
@@ -1140,8 +1134,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 940,
-        "y": 380,
+        "x": 1100,
+        "y": 660,
         "wires": [
             [
                 "fn_solenoides_dispatch"
@@ -1161,7 +1155,7 @@
         "finalize": "",
         "libs": [],
         "x": 410,
-        "y": 340,
+        "y": 620,
         "wires": [
             [
                 "a223962e8d10b09b"
@@ -1189,11 +1183,120 @@
         "topic": "init",
         "payload": "",
         "payloadType": "date",
-        "x": 160,
-        "y": 340,
+        "x": 140,
+        "y": 620,
         "wires": [
             [
                 "ebedc6108943d61b"
+            ]
+        ]
+    },
+    {
+        "id": "fn_solenoides_dispatch",
+        "type": "function",
+        "z": "a757ff0be26f944a",
+        "name": "Despachante & Feedback Imediato Solenóides",
+        "func": "// Despachante & Feedback Imediato Solenóides\nvar p = msg.payload;\nif (typeof p === 'string') {\n    try { p = JSON.parse(p); } catch(e) {}\n}\n\nvar buttonIndexMap = {\n    '31:1': 0, // Ligar Solenóide A\n    '31:0': 1, // Desligar Solenóide A\n    '32:1': 2, // Ligar Solenóide B\n    '32:0': 3, // Desligar Solenóide B\n    '33:1': 4, // Ligar Solenóide C\n    '33:0': 5, // Desligar Solenóide C\n    'admin': 6  // Botão Enviar Comando\n};\n\nvar buttonIdMap = {\n    '31:1': 'd24ac9884d836b5f',\n    '31:0': '5a74fe774d0b8e06',\n    '32:1': 'd5113aa8b58b627f',\n    '32:0': 'f322977c0cdba1a5',\n    '33:1': '06bc82b2a8afaa23',\n    '33:0': 'fe082f23b6ace22b',\n    'admin': '2c4b494c55bff84b'\n};\n\nvar key = (p && p.sensorId !== undefined && p.payload !== undefined && p.type === 2) \n          ? (p.sensorId + ':' + p.payload) \n          : 'admin';\n\nvar idx = buttonIndexMap[key] !== undefined ? buttonIndexMap[key] : 6;\nvar bId = buttonIdMap[key] || '2c4b494c55bff84b';\n\nif (p && typeof p === 'object') {\n    p._buttonId = bId;\n    msg.payload = p;\n}\n\n// Mensagem de Feedback Imediato (Amarelo / Pendente)\nvar pendingMsg = {\n    ui_update: {\n        buttonColor: '#f59e0b',\n        textColor: '#ffffff'\n    },\n    buttonColor: '#f59e0b',\n    textColor: '#ffffff'\n};\n\nvar outputs = [null, null, null, null, null, null, null, null];\noutputs[idx] = pendingMsg;\noutputs[7] = msg; // Comando enviado ao Sincronizador ACK\n\nreturn outputs;\n",
+        "outputs": 8,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 440,
+        "wires": [
+            [
+                "d24ac9884d836b5f"
+            ],
+            [
+                "5a74fe774d0b8e06"
+            ],
+            [
+                "d5113aa8b58b627f"
+            ],
+            [
+                "f322977c0cdba1a5"
+            ],
+            [
+                "06bc82b2a8afaa23"
+            ],
+            [
+                "fe082f23b6ace22b"
+            ],
+            [
+                "2c4b494c55bff84b"
+            ],
+            [
+                "link_solenoides_cmd_out",
+                "4eadad94c4c9d871"
+            ]
+        ]
+    },
+    {
+        "id": "link_solenoides_cmd_out",
+        "type": "link out",
+        "z": "a757ff0be26f944a",
+        "name": "Link Solenóides Cmd Out",
+        "mode": "link",
+        "links": [
+            "link_ack_cmd_in"
+        ],
+        "x": 1000,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "link_solenoides_feedback_in",
+        "type": "link in",
+        "z": "a757ff0be26f944a",
+        "name": "Link Solenóides Feedback In",
+        "links": [
+            "link_ack_feedback_out"
+        ],
+        "x": 225,
+        "y": 80,
+        "wires": [
+            [
+                "fn_solenoides_feedback"
+            ]
+        ]
+    },
+    {
+        "id": "fn_solenoides_feedback",
+        "type": "function",
+        "z": "a757ff0be26f944a",
+        "name": "Processador Feedback Visual Solenóides",
+        "func": "// Processador de Feedback & Estado Visual Solenóides\nvar status = msg.status;\nvar buttonId = msg.buttonId;\nvar sensorId = msg.sensorId;\nvar val = String(msg.value !== undefined ? msg.value : '');\n\n// Estado mantido no contexto de fluxo dos solenóides\nvar solState = flow.get('solenoid_states') || { 31: false, 32: false, 33: false };\n\n// Mapeamento:\n// 0: Ligar Sol A, 1: Desligar Sol A\n// 2: Ligar Sol B, 3: Desligar Sol B\n// 4: Ligar Sol C, 5: Desligar Sol C\n// 6: Botão Enviar Comando Admin\n\nvar outputs = [null, null, null, null, null, null, null];\n\nfunction makeStyle(color) {\n    return {\n        ui_update: { buttonColor: color, textColor: color ? '#ffffff' : '' },\n        buttonColor: color,\n        textColor: color ? '#ffffff' : ''\n    };\n}\n\nif (status === 'error') {\n    var errorIndexMap = {\n        'd24ac9884d836b5f': 0, '5a74fe774d0b8e06': 1,\n        'd5113aa8b58b627f': 2, 'f322977c0cdba1a5': 3,\n        '06bc82b2a8afaa23': 4, 'fe082f23b6ace22b': 5,\n        '2c4b494c55bff84b': 6\n    };\n    var idx = buttonId ? errorIndexMap[buttonId] : -1;\n    if (idx !== -1) {\n        outputs[idx] = makeStyle('#ef4444'); // Vermelho\n        setTimeout(function() {\n            var currentSolState = flow.get('solenoid_states') || { 31: false, 32: false, 33: false };\n            var resetOutputs = [null, null, null, null, null, null, null];\n            resetOutputs[0] = makeStyle(currentSolState[31] ? '#10b981' : '');\n            resetOutputs[1] = makeStyle('');\n            resetOutputs[2] = makeStyle(currentSolState[32] ? '#10b981' : '');\n            resetOutputs[3] = makeStyle('');\n            resetOutputs[4] = makeStyle(currentSolState[33] ? '#10b981' : '');\n            resetOutputs[5] = makeStyle('');\n            resetOutputs[6] = makeStyle('');\n            node.send(resetOutputs);\n        }, 4500);\n        return outputs;\n    }\n}\n\nif (status === 'success') {\n    if (sensorId == 31 || sensorId == 32 || sensorId == 33) {\n        var isOn = (val === '1' || val === 'true');\n        \n        if (isOn) {\n            // MUX: apenas 1 solenóide ativa por vez\n            solState[31] = (sensorId == 31);\n            solState[32] = (sensorId == 32);\n            solState[33] = (sensorId == 33);\n        } else {\n            solState[sensorId] = false;\n        }\n        flow.set('solenoid_states', solState);\n        \n        // Mantém verde o botão \"Ligar\" correspondente enquanto a solenóide estiver ligada\n        outputs[0] = makeStyle(solState[31] ? '#10b981' : '');\n        outputs[2] = makeStyle(solState[32] ? '#10b981' : '');\n        outputs[4] = makeStyle(solState[33] ? '#10b981' : '');\n        \n        // Feedback breve no botão desligar\n        if (!isOn) {\n            var offIdx = (sensorId == 31 ? 1 : (sensorId == 32 ? 3 : 5));\n            outputs[offIdx] = makeStyle('#10b981');\n            setTimeout(function() {\n                var r = [null, null, null, null, null, null, null];\n                r[offIdx] = makeStyle('');\n                node.send(r);\n            }, 2500);\n        }\n        \n        return outputs;\n    } else if (buttonId === '2c4b494c55bff84b') {\n        outputs[6] = makeStyle('#10b981');\n        setTimeout(function() {\n            var r = [null, null, null, null, null, null, null];\n            r[6] = makeStyle('');\n            node.send(r);\n        }, 3000);\n        return outputs;\n    }\n}\n\nreturn null;\n",
+        "outputs": 7,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 80,
+        "wires": [
+            [
+                "d24ac9884d836b5f"
+            ],
+            [
+                "5a74fe774d0b8e06"
+            ],
+            [
+                "d5113aa8b58b627f"
+            ],
+            [
+                "f322977c0cdba1a5"
+            ],
+            [
+                "06bc82b2a8afaa23"
+            ],
+            [
+                "fe082f23b6ace22b"
+            ],
+            [
+                "2c4b494c55bff84b"
             ]
         ]
     },
@@ -1207,19 +1310,19 @@
         "order": 8,
         "width": 3,
         "height": 1,
+        "emulateClick": false,
         "tooltip": "",
         "icon": "",
         "payload": "{\"nodeId\": 99, \"sensorId\": 38, \"command\": 1, \"type\": 2, \"payload\": \"1\"}",
         "payloadType": "json",
         "topic": "",
-        "x": 150,
-        "y": 80,
+        "x": 930,
+        "y": 60,
         "wires": [
             [
                 "fn_bombas_dispatch"
             ]
-        ],
-        "emulateClick": false
+        ]
     },
     {
         "id": "e159c6a41b612278",
@@ -1231,19 +1334,19 @@
         "order": 9,
         "width": 3,
         "height": 1,
+        "emulateClick": false,
         "tooltip": "",
         "icon": "",
         "payload": "{\"nodeId\": 99, \"sensorId\": 38, \"command\": 1, \"type\": 2, \"payload\": \"0\"}",
         "payloadType": "json",
         "topic": "",
-        "x": 160,
-        "y": 120,
+        "x": 940,
+        "y": 100,
         "wires": [
             [
                 "fn_bombas_dispatch"
             ]
-        ],
-        "emulateClick": false
+        ]
     },
     {
         "id": "816fdc9c18b87b2f",
@@ -1255,19 +1358,19 @@
         "order": 10,
         "width": 3,
         "height": 1,
+        "emulateClick": false,
         "tooltip": "",
         "icon": "",
         "payload": "{\"nodeId\": 99, \"sensorId\": 39, \"command\": 1, \"type\": 2, \"payload\": \"1\"}",
         "payloadType": "json",
         "topic": "",
-        "x": 150,
-        "y": 160,
+        "x": 930,
+        "y": 140,
         "wires": [
             [
                 "fn_bombas_dispatch"
             ]
-        ],
-        "emulateClick": false
+        ]
     },
     {
         "id": "1b2ef9f3f78dd3e4",
@@ -1279,19 +1382,19 @@
         "order": 11,
         "width": 3,
         "height": 1,
+        "emulateClick": false,
         "tooltip": "",
         "icon": "",
         "payload": "{\"nodeId\": 99, \"sensorId\": 39, \"command\": 1, \"type\": 2, \"payload\": \"0\"}",
         "payloadType": "json",
         "topic": "",
-        "x": 160,
-        "y": 200,
+        "x": 940,
+        "y": 180,
         "wires": [
             [
                 "fn_bombas_dispatch"
             ]
-        ],
-        "emulateClick": false
+        ]
     },
     {
         "id": "c45c49f934245b7e",
@@ -1305,8 +1408,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 510,
-        "y": 180,
+        "x": 1070,
+        "y": 400,
         "wires": [
             [
                 "a8dc9ab7df0ef1bc"
@@ -1327,9 +1430,100 @@
         "correl": "",
         "expiry": "",
         "broker": "178d6e63b26ceeb2",
-        "x": 750,
-        "y": 180,
+        "x": 1350,
+        "y": 400,
         "wires": []
+    },
+    {
+        "id": "fn_bombas_dispatch",
+        "type": "function",
+        "z": "1e714cfec06339e2",
+        "name": "Despachante & Feedback Imediato Bombas",
+        "func": "// Despachante & Feedback Imediato Bombas\nvar p = msg.payload;\nif (typeof p === 'string') {\n    try { p = JSON.parse(p); } catch(e) {}\n}\n\nvar buttonIndexMap = {\n    '38:1': 0, // Ligar Bomba NFT\n    '38:0': 1, // Desligar Bomba NFT\n    '39:1': 2, // Ligar Bomba Oxi\n    '39:0': 3  // Desligar Bomba Oxi\n};\n\nvar buttonIdMap = {\n    '38:1': 'ad676d3d3b01fdfb',\n    '38:0': 'e159c6a41b612278',\n    '39:1': '816fdc9c18b87b2f',\n    '39:0': '1b2ef9f3f78dd3e4'\n};\n\nvar key = (p && p.sensorId !== undefined && p.payload !== undefined) ? (p.sensorId + ':' + p.payload) : '';\nvar idx = buttonIndexMap[key] !== undefined ? buttonIndexMap[key] : -1;\nvar bId = buttonIdMap[key] || '';\n\nif (idx === -1) return null;\n\nif (p && typeof p === 'object') {\n    p._buttonId = bId;\n    msg.payload = p;\n}\n\n// Feedback Imediato Amarelo / Pendente\nvar pendingMsg = {\n    ui_update: {\n        buttonColor: '#f59e0b',\n        textColor: '#ffffff'\n    },\n    buttonColor: '#f59e0b',\n    textColor: '#ffffff'\n};\n\nvar outputs = [null, null, null, null, null];\noutputs[idx] = pendingMsg;\noutputs[4] = msg; // Comando enviado ao Sincronizador ACK\n\nreturn outputs;\n",
+        "outputs": 5,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 280,
+        "wires": [
+            [
+                "ad676d3d3b01fdfb"
+            ],
+            [
+                "e159c6a41b612278"
+            ],
+            [
+                "816fdc9c18b87b2f"
+            ],
+            [
+                "1b2ef9f3f78dd3e4"
+            ],
+            [
+                "link_bombas_cmd_out",
+                "c45c49f934245b7e"
+            ]
+        ]
+    },
+    {
+        "id": "link_bombas_cmd_out",
+        "type": "link out",
+        "z": "1e714cfec06339e2",
+        "name": "Link Bombas Cmd Out",
+        "mode": "link",
+        "links": [
+            "link_ack_cmd_in"
+        ],
+        "x": 1335,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "link_bombas_feedback_in",
+        "type": "link in",
+        "z": "1e714cfec06339e2",
+        "name": "Link Bombas Feedback In",
+        "links": [
+            "link_ack_feedback_out"
+        ],
+        "x": 240,
+        "y": 80,
+        "wires": [
+            [
+                "fn_bombas_feedback"
+            ]
+        ]
+    },
+    {
+        "id": "fn_bombas_feedback",
+        "type": "function",
+        "z": "1e714cfec06339e2",
+        "name": "Processador Feedback Visual Bombas",
+        "func": "// Processador de Feedback & Estado Visual Bombas\nvar status = msg.status;\nvar buttonId = msg.buttonId;\nvar sensorId = msg.sensorId;\nvar val = String(msg.value !== undefined ? msg.value : '');\n\nvar pumpState = flow.get('pump_states') || { 38: false, 39: false };\n\nvar outputs = [null, null, null, null];\n\nfunction makeStyle(color) {\n    return {\n        ui_update: { buttonColor: color, textColor: color ? '#ffffff' : '' },\n        buttonColor: color,\n        textColor: color ? '#ffffff' : ''\n    };\n}\n\nif (status === 'error') {\n    var errorIndexMap = {\n        'ad676d3d3b01fdfb': 0, 'e159c6a41b612278': 1,\n        '816fdc9c18b87b2f': 2, '1b2ef9f3f78dd3e4': 3\n    };\n    var idx = buttonId ? errorIndexMap[buttonId] : -1;\n    if (idx !== -1) {\n        outputs[idx] = makeStyle('#ef4444');\n        setTimeout(function() {\n            var currentPumpState = flow.get('pump_states') || { 38: false, 39: false };\n            var resetOutputs = [null, null, null, null];\n            resetOutputs[0] = makeStyle(currentPumpState[38] ? '#10b981' : '');\n            resetOutputs[1] = makeStyle('');\n            resetOutputs[2] = makeStyle(currentPumpState[39] ? '#10b981' : '');\n            resetOutputs[3] = makeStyle('');\n            node.send(resetOutputs);\n        }, 4500);\n        return outputs;\n    }\n}\n\nif (status === 'success') {\n    if (sensorId == 38 || sensorId == 39) {\n        var isOn = (val === '1' || val === 'true');\n        pumpState[sensorId] = isOn;\n        flow.set('pump_states', pumpState);\n        \n        // Mantém verde o botão \"Ligar\" correspondente enquanto a bomba estiver ligada\n        outputs[0] = makeStyle(pumpState[38] ? '#10b981' : '');\n        outputs[2] = makeStyle(pumpState[39] ? '#10b981' : '');\n        \n        if (!isOn) {\n            var offIdx = (sensorId == 38 ? 1 : 3);\n            outputs[offIdx] = makeStyle('#10b981');\n            setTimeout(function() {\n                var r = [null, null, null, null];\n                r[offIdx] = makeStyle('');\n                node.send(r);\n            }, 2500);\n        }\n        \n        return outputs;\n    }\n}\n\nreturn null;\n",
+        "outputs": 4,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 80,
+        "wires": [
+            [
+                "ad676d3d3b01fdfb"
+            ],
+            [
+                "e159c6a41b612278"
+            ],
+            [
+                "816fdc9c18b87b2f"
+            ],
+            [
+                "1b2ef9f3f78dd3e4"
+            ]
+        ]
     },
     {
         "id": "18095edd2e91ae65",
@@ -1361,14 +1555,14 @@
         "type": "function",
         "z": "50fbcdf0053fa19f",
         "name": "Configurações Globais M360",
-        "func": "var prefix = global.get('mqtt_topic_prefix');\nif (!prefix) {\n    prefix = 'm360/DF/0000';\n    global.set('mqtt_topic_prefix', prefix);\n}\nif (flow.get('ack_timeout_ms') === null || flow.get('ack_timeout_ms') === undefined) {\n    flow.set('ack_timeout_ms', 5000);\n}\nif (flow.get('ack_max_retries') === null || flow.get('ack_max_retries') === undefined) {\n    flow.set('ack_max_retries', 3);\n}\nif (flow.get('nodes_ttl_ms') === null || flow.get('nodes_ttl_ms') === undefined) {\n    flow.set('nodes_ttl_ms', 172800000);\n}\nnode.status({fill:'green',shape:'dot',text:'prefix='+prefix+' timeout='+flow.get('ack_timeout_ms')+'ms'});\nmsg.payload = {mqtt_topic_prefix:prefix, ack_timeout_ms:flow.get('ack_timeout_ms'), ack_max_retries:flow.get('ack_max_retries')};\nreturn msg;",
+        "func": "var prefix = global.get('mqtt_topic_prefix');\nif (!prefix) {\n    prefix = 'm360/DF/0000';\n    global.set('mqtt_topic_prefix', prefix);\n}\nif (flow.get('ack_timeout_ms') === null || flow.get('ack_timeout_ms') === undefined) {\n    flow.set('ack_timeout_ms', 5000);\n}\nif (flow.get('ack_max_retries') === null || flow.get('ack_max_retries') === undefined) {\n    flow.set('ack_max_retries', 3);\n}\nif (flow.get('nodes_ttl_ms') === null || flow.get('nodes_ttl_ms') === undefined) {\n    flow.set('nodes_ttl_ms', 172800000);\n}\nnode.status({fill:'green',shape:'dot',text:'prefix='+prefix+' timeout='+flow.get('ack_timeout_ms')+'ms'});\nmsg.payload = {mqtt_topic_prefix:prefix, ack_timeout_ms:flow.get('ack_timeout_ms'), ack_max_retries:flow.get('ack_max_retries')};\nreturn msg;\nglobal.set(\"TELEGRAM_BOT_TOKEN\", \"8810722382:AAEB_ZiUczEMdv0dGEjciMNfBUPEkWZLb0E\");\nglobal.set(\"TELEGRAM_CHAT_ID\", \"7928783784\");\n\nif (!global.get('telegram_subscribers')) {\n    global.set('telegram_subscribers', [{ chatId: '7928783784', name: 'Marcelo', origin: 'admin', registeredAt: new Date().toISOString() }]);\n}\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 700,
+        "x": 600,
         "y": 40,
         "wires": [
             []
@@ -1395,7 +1589,7 @@
         "topic": "control",
         "payload": "true",
         "payloadType": "bool",
-        "x": 270,
+        "x": 250,
         "y": 260,
         "wires": [
             [
@@ -1424,7 +1618,7 @@
         "topic": "control",
         "payload": "false",
         "payloadType": "bool",
-        "x": 310,
+        "x": 290,
         "y": 320,
         "wires": [
             [
@@ -1444,14 +1638,15 @@
         "initialize": "context.set('waiting', false);\ncontext.set('queue', []);\ncontext.set('retries', 0);\ncontext.set('timer', null);",
         "finalize": "",
         "libs": [],
-        "x": 640,
-        "y": 320,
+        "x": 660,
+        "y": 220,
         "wires": [
             [
                 "55c692c06d8badbf"
             ],
             [
-                "link_ack_feedback_out"
+                "link_ack_feedback_out",
+                "fn_monitor_falhas_rede"
             ]
         ]
     },
@@ -1468,7 +1663,7 @@
         "finalize": "",
         "libs": [],
         "x": 1050,
-        "y": 300,
+        "y": 220,
         "wires": [
             [
                 "50c4097310c1b2d4",
@@ -1490,8 +1685,8 @@
         "correl": "",
         "expiry": "",
         "broker": "178d6e63b26ceeb2",
-        "x": 1330,
-        "y": 300,
+        "x": 1350,
+        "y": 220,
         "wires": []
     },
     {
@@ -1507,8 +1702,8 @@
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 200,
-        "y": 440,
+        "x": 220,
+        "y": 480,
         "wires": [
             [
                 "a257c9f4fe1ac2d7",
@@ -1529,8 +1724,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 470,
-        "y": 460,
+        "x": 570,
+        "y": 400,
         "wires": [
             [
                 "9bc7d791f76c952b",
@@ -1551,8 +1746,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 540,
-        "y": 1200,
+        "x": 520,
+        "y": 440,
         "wires": [
             []
         ]
@@ -1569,8 +1764,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 750,
-        "y": 380,
+        "x": 830,
+        "y": 400,
         "wires": [
             [
                 "18be8659b461a055"
@@ -1626,8 +1821,8 @@
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 230,
-        "y": 520,
+        "x": 250,
+        "y": 580,
         "wires": [
             [
                 "df78e0382519577b",
@@ -1647,8 +1842,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 520,
-        "y": 1300,
+        "x": 540,
+        "y": 680,
         "wires": [
             []
         ]
@@ -1671,7 +1866,7 @@
         "payload": "",
         "payloadType": "date",
         "x": 200,
-        "y": 1380,
+        "y": 1220,
         "wires": [
             [
                 "bdbef42229770d30"
@@ -1691,9 +1886,11 @@
         "finalize": "",
         "libs": [],
         "x": 510,
-        "y": 1380,
+        "y": 1220,
         "wires": [
-            []
+            [
+                "fn_monitor_falhas_rede"
+            ]
         ]
     },
     {
@@ -1713,7 +1910,7 @@
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 270,
+        "x": 290,
         "y": 180,
         "wires": [
             [
@@ -1734,7 +1931,7 @@
         "finalize": "",
         "libs": [],
         "x": 590,
-        "y": 180,
+        "y": 140,
         "wires": [
             [
                 "18be8659b461a055"
@@ -1778,7 +1975,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 920,
+        "x": 940,
         "y": 100,
         "wires": [
             [
@@ -1822,8 +2019,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1030,
-        "y": 740,
+        "x": 1050,
+        "y": 940,
         "wires": [
             [
                 "7ccfed409fa10873"
@@ -1842,8 +2039,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 990,
-        "y": 820,
+        "x": 1010,
+        "y": 1020,
         "wires": [
             [
                 "453c74513e4aa03d"
@@ -1872,8 +2069,8 @@
         "removeOlderUnit": "86400",
         "width": "6",
         "height": "5",
-        "x": 1680,
-        "y": 1060,
+        "x": 1700,
+        "y": 1260,
         "wires": [
             []
         ]
@@ -1900,8 +2097,8 @@
         "removeOlderUnit": "86400",
         "width": "6",
         "height": "5",
-        "x": 1690,
-        "y": 1100,
+        "x": 1710,
+        "y": 1300,
         "wires": [
             []
         ]
@@ -1918,8 +2115,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1340,
-        "y": 740,
+        "x": 1360,
+        "y": 940,
         "wires": [
             [
                 "f09aef9e1352049f"
@@ -1938,8 +2135,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1340,
-        "y": 820,
+        "x": 1360,
+        "y": 1020,
         "wires": [
             [
                 "101e32b4492e0f5f"
@@ -1964,7 +2161,7 @@
         "payload": "",
         "payloadType": "date",
         "x": 590,
-        "y": 1020,
+        "y": 1100,
         "wires": [
             [
                 "6b98d5b3b7e2c72b"
@@ -1983,8 +2180,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 990,
-        "y": 1100,
+        "x": 1010,
+        "y": 1300,
         "wires": [
             [
                 "f09aef9e1352049f"
@@ -2017,7 +2214,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 980,
+        "x": 1000,
         "y": 1200,
         "wires": [
             [
@@ -2037,7 +2234,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1270,
+        "x": 1290,
         "y": 1200,
         "wires": [
             [
@@ -2067,8 +2264,8 @@
         "removeOlderUnit": "86400",
         "width": "6",
         "height": "5",
-        "x": 1640,
-        "y": 1140,
+        "x": 1660,
+        "y": 1340,
         "wires": [
             []
         ]
@@ -2085,8 +2282,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1000,
-        "y": 620,
+        "x": 1020,
+        "y": 820,
         "wires": [
             [
                 "f49270df3a18c750"
@@ -2105,8 +2302,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1350,
-        "y": 620,
+        "x": 1370,
+        "y": 820,
         "wires": [
             [
                 "3d814f95596b3c0d"
@@ -2135,8 +2332,8 @@
         "removeOlderUnit": "86400",
         "width": "6",
         "height": "5",
-        "x": 1650,
-        "y": 1180,
+        "x": 1670,
+        "y": 1380,
         "wires": [
             []
         ]
@@ -2153,8 +2350,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1000,
-        "y": 700,
+        "x": 1020,
+        "y": 900,
         "wires": [
             [
                 "8f755cd1f6315ec4"
@@ -2176,8 +2373,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1340,
-        "y": 660,
+        "x": 1360,
+        "y": 860,
         "wires": [
             [
                 "88998a0951cf5b53"
@@ -2196,8 +2393,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1350,
-        "y": 700,
+        "x": 1370,
+        "y": 900,
         "wires": [
             [
                 "21fa0003e634bd24"
@@ -2226,8 +2423,8 @@
         "removeOlderUnit": "86400",
         "width": "6",
         "height": "5",
-        "x": 1660,
-        "y": 1220,
+        "x": 1680,
+        "y": 1420,
         "wires": [
             []
         ]
@@ -2254,8 +2451,8 @@
         "removeOlderUnit": "86400",
         "width": "6",
         "height": "5",
-        "x": 1670,
-        "y": 1260,
+        "x": 1690,
+        "y": 1460,
         "wires": [
             []
         ]
@@ -2272,8 +2469,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1030,
-        "y": 780,
+        "x": 1050,
+        "y": 980,
         "wires": [
             [
                 "9ccb6a0740665eef"
@@ -2292,8 +2489,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1340,
-        "y": 780,
+        "x": 1360,
+        "y": 980,
         "wires": [
             [
                 "744913072e936a35"
@@ -2322,8 +2519,8 @@
         "removeOlderUnit": "86400",
         "width": "6",
         "height": "5",
-        "x": 1680,
-        "y": 1300,
+        "x": 1700,
+        "y": 1500,
         "wires": [
             []
         ]
@@ -2345,8 +2542,8 @@
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 1070,
-        "y": 1300,
+        "x": 190,
+        "y": 1520,
         "wires": [
             [
                 "ed1d8ca4298ab93c"
@@ -2365,8 +2562,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1330,
-        "y": 1300,
+        "x": 450,
+        "y": 1520,
         "wires": [
             [
                 "744913072e936a35"
@@ -2380,8 +2577,8 @@
         "name": "Tag MQTT IN",
         "func": "msg.mqtt_dir = 'IN';\nreturn msg;",
         "outputs": 1,
-        "x": 1360,
-        "y": 420,
+        "x": 1380,
+        "y": 500,
         "wires": [
             [
                 "bfefeccb117e5e57"
@@ -2395,8 +2592,8 @@
         "name": "Tag MQTT OUT",
         "func": "msg.mqtt_dir = 'OUT';\nreturn msg;",
         "outputs": 1,
-        "x": 1360,
-        "y": 360,
+        "x": 1380,
+        "y": 280,
         "wires": [
             [
                 "bfefeccb117e5e57"
@@ -2464,8 +2661,8 @@
         "mobileBreakpointType": "defaults",
         "action": "replace",
         "className": "tabela-mqtt-log",
-        "x": 2120,
-        "y": 560,
+        "x": 1870,
+        "y": 480,
         "wires": [
             []
         ]
@@ -2489,7 +2686,7 @@
         "payloadType": "str",
         "topic": "export",
         "x": 240,
-        "y": 1460,
+        "y": 1300,
         "wires": [
             [
                 "9226204feb0ad2be"
@@ -2511,7 +2708,7 @@
         "templateScope": "local",
         "className": "",
         "x": 510,
-        "y": 1460,
+        "y": 1300,
         "wires": [
             []
         ]
@@ -2534,8 +2731,8 @@
         "payload": "clear",
         "payloadType": "str",
         "topic": "clear",
-        "x": 1610,
-        "y": 560,
+        "x": 990,
+        "y": 680,
         "wires": [
             [
                 "90a5f48894e6c7b7"
@@ -2549,8 +2746,8 @@
         "name": "Esvaziar Log MQTT",
         "func": "global.set('mqtt_logs', []);\nmsg.payload = [];\nreturn msg;",
         "outputs": 1,
-        "x": 1840,
-        "y": 560,
+        "x": 1610,
+        "y": 680,
         "wires": [
             [
                 "e8372b2c7b35e787"
@@ -2567,7 +2764,7 @@
         "upload": false,
         "swaggerDoc": "",
         "x": 190,
-        "y": 1540,
+        "y": 1380,
         "wires": [
             [
                 "e129c49e84d1bb43"
@@ -2582,7 +2779,7 @@
         "func": "var logs = global.get('mqtt_logs') || [];\nvar lines = [];\nlines.push('\"Timestamp\",\"Direction\",\"Topic\",\"Payload\"');\n\nfor (var i = 0; i < logs.length; i++) {\n    var item = logs[i];\n    var ts = item.timestamp || '';\n    var dir = item.dir || '';\n    var topic = (item.topic || '').replace(/\"/g, '\"\"');\n    var payload = (item.payload || '').replace(/\"/g, '\"\"');\n    lines.push('\"' + ts + '\",\"' + dir + '\",\"' + topic + '\",\"' + payload + '\"');\n}\n\nvar csvStr = lines.join('\\n');\nmsg.headers = {\n    'Content-Type': 'text/csv; charset=utf-8',\n    'Content-Disposition': 'attachment; filename=\"mqtt_log_m360_' + Date.now() + '.csv\"'\n};\nmsg.payload = csvStr;\nreturn msg;",
         "outputs": 1,
         "x": 480,
-        "y": 1540,
+        "y": 1380,
         "wires": [
             [
                 "a8db6ece9525c5eb"
@@ -2597,7 +2794,7 @@
         "statusCode": "",
         "headers": {},
         "x": 720,
-        "y": 1540,
+        "y": 1380,
         "wires": []
     },
     {
@@ -2614,131 +2811,70 @@
         "passthru": false,
         "templateScope": "local",
         "className": "",
-        "x": 1840,
-        "y": 620,
+        "x": 1610,
+        "y": 740,
         "wires": [
             []
         ]
     },
     {
-        "id": "ca181fafeb3b2433",
-        "type": "inject",
-        "z": "5f670c411a47a898",
-        "name": "Diário 08:00 AM",
-        "props": [
-            {
-                "p": "payload"
-            }
+        "id": "link_ack_cmd_in",
+        "type": "link in",
+        "z": "50fbcdf0053fa19f",
+        "name": "Comandos para ACK Sync (Link In)",
+        "links": [
+            "link_solenoides_cmd_out",
+            "link_bombas_cmd_out"
         ],
-        "repeat": "",
-        "crontab": "00 08 * * *",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "start",
-        "payloadType": "str",
-        "x": 150,
-        "y": 100,
+        "x": 505,
+        "y": 360,
         "wires": [
             [
-                "0d61733e2abf2137"
+                "9bc7d791f76c952b"
             ]
         ]
     },
     {
-        "id": "0d61733e2abf2137",
-        "type": "function",
-        "z": "5f670c411a47a898",
-        "name": "Montar Contexto e Prompt Gemini",
-        "func": "// Chaves de Configuração\nvar GEMINI_API_KEY = global.get('GEMINI_API_KEY') || 'COLE_AQUI';\nvar TELEGRAM_BOT_TOKEN = global.get('TELEGRAM_BOT_TOKEN') || 'COLE_AQUI';\nvar TELEGRAM_CHAT_ID = global.get('TELEGRAM_CHAT_ID') || 'COLE_AQUI';\n\n// Puxa o log direto da RAM (Central Logger armazena aqui)\nvar logsArray = global.get('mqtt_logs') || [];\nvar logs = \"\";\n\n// Converte os ultimos logs para string CSV\nlogsArray.forEach(function(item) {\n    logs += item.timestamp + ' | ' + item.dir + ' | ' + item.topic + ' | ' + JSON.stringify(item.payload) + '\\n';\n});\n\nvar system_prompt = \"Você é um agente autônomo analista de dados de uma Horta Inteligente (Projeto M360 Horta).\\n\\n\" +\n\"O usuário solicitou um DIÁRIO COMPLETO das últimas 24 horas. Seu foco:\\n\" +\n\"1. RESUMO OPERACIONAL: Resuma quantos comandos e ativações automáticas de atuadores (Bombas, Solenóides) ocorreram.\\n\" +\n\"2. SAÚDE DA HORTA: Analise criticamente os sensores (Umidade, vazão). Houve falta de água? Algum nó ficou muito tempo sem enviar leitura?\\n\" +\n\"3. CONCLUSÃO: Dê uma nota de saúde (Ex: 9/10) e diga se alguma ação manual é recomendada hoje.\\n\\n\" +\n\"Retorne EXCLUSIVAMENTE o texto formatado em MARKDOWN, curto, direto e objetivo para ser lido no Telegram.\\n\\n\" +\n\"Abaixo estão os logs crus:\\n\\n\";\n\nif (logs.length > 80000) {\n    logs = logs.substring(logs.length - 80000);\n}\n\nmsg.gemini_key = GEMINI_API_KEY;\nmsg.telegram_token = TELEGRAM_BOT_TOKEN;\nmsg.telegram_chat_id = TELEGRAM_CHAT_ID;\n\nmsg.payload = {\n    \"contents\": [{\n        \"parts\": [{\"text\": system_prompt + logs}]\n    }],\n    \"systemInstruction\": {\n        \"parts\": [{\"text\": \"Escreva sempre em PT-BR. Use emojis adequados.\"}]\n    }\n};\n\nmsg.headers = { \"Content-Type\": \"application/json\" };\nreturn msg;",
-        "outputs": 1,
-        "x": 440,
-        "y": 100,
-        "wires": [
-            [
-                "ccc820a2b226fbe8"
-            ]
-        ]
-    },
-    {
-        "id": "ccc820a2b226fbe8",
-        "type": "http request",
-        "z": "5f670c411a47a898",
-        "name": "Gemini API",
-        "method": "POST",
-        "ret": "obj",
-        "paytoqs": "ignore",
-        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={{{gemini_key}}}",
-        "tls": "",
-        "persist": false,
-        "proxy": "",
-        "insecureHTTPParser": false,
-        "authType": "",
-        "senderr": false,
-        "headers": [],
-        "x": 710,
-        "y": 100,
-        "wires": [
-            [
-                "2aa78207a5e244e8"
-            ]
-        ]
-    },
-    {
-        "id": "2aa78207a5e244e8",
-        "type": "function",
-        "z": "5f670c411a47a898",
-        "name": "Extrair Markdown & Enviar Telegram",
-        "func": "if (!msg.payload || !msg.payload.candidates || msg.payload.candidates.length === 0) {\n    node.error(\"Detalhes do erro do Gemini: \" + JSON.stringify(msg.payload), msg);\n    return null;\n}\n\nvar text = msg.payload.candidates[0].content.parts[0].text;\n\nmsg.payload = {\n    \"chat_id\": msg.telegram_chat_id,\n    \"text\": text,\n    \"parse_mode\": \"Markdown\"\n};\n\nmsg.url = \"https://api.telegram.org/bot\" + msg.telegram_token + \"/sendMessage\";\nreturn msg;",
-        "outputs": 1,
-        "x": 630,
-        "y": 200,
-        "wires": [
-            [
-                "464d4b6241734a71"
-            ]
-        ]
-    },
-    {
-        "id": "464d4b6241734a71",
-        "type": "http request",
-        "z": "5f670c411a47a898",
-        "name": "Telegram Bot API",
-        "method": "POST",
-        "ret": "txt",
-        "paytoqs": "ignore",
-        "url": "",
-        "tls": "",
-        "persist": false,
-        "proxy": "",
-        "insecureHTTPParser": false,
-        "authType": "",
-        "senderr": false,
-        "headers": [],
-        "x": 810,
+        "id": "link_ack_feedback_out",
+        "type": "link out",
+        "z": "50fbcdf0053fa19f",
+        "name": "Feedback ACK / Status (Link Out)",
+        "mode": "link",
+        "links": [
+            "link_solenoides_feedback_in",
+            "link_bombas_feedback_in"
+        ],
+        "x": 705,
         "y": 300,
+        "wires": []
+    },
+    {
+        "id": "mqtt_in_all_commands",
+        "type": "mqtt in",
+        "z": "50fbcdf0053fa19f",
+        "name": "MQTT IN Comandos (Global OUT Logger)",
+        "topic": "m360/+/+/in/#",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "178d6e63b26ceeb2",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 1080,
+        "y": 360,
         "wires": [
             [
-                "49352e3014f88c90"
+                "fd216e1614ec7f57"
             ]
         ]
     },
     {
-        "id": "49352e3014f88c90",
-        "type": "debug",
-        "z": "5f670c411a47a898",
-        "name": "Bot IA Reporter",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 960,
-        "y": 420,
-        "wires": []
+        "id": "tab_irrigacao_m360",
+        "type": "tab",
+        "label": "Irrigação",
+        "disabled": false,
+        "info": "Motor de Regras de Irrigação Automática M360 Horta com Notificações via Telegram:\n- Canteiro B (Manejo360): Irrigação Inteligente com Sensores de Solo + DHT11 Clima\n- Canteiro A (Controle Tradicional): Agendamento Fixo 2x/dia (07h e 17h x 5min) para 6x1m / 35 alfaces\n- Notificações Telegram: Disparo automático de mensagens no início e fim de cada rega"
     },
     {
         "id": "cron_canteiro_a_7h",
@@ -2899,7 +3035,7 @@
         "type": "function",
         "z": "tab_irrigacao_m360",
         "name": "Motor de Regras Canteiro B (Manejo360)",
-        "func": "// Regras B.1 a B.5 do Manejo360 para o Canteiro B\nvar soloB = flow.get(\"solo_b_readings\") || {};\nvar clima = flow.get(\"clima_dht11\") || { temp: 20.0, hum: 20.0 };\nvar now = Date.now();\n\n// Regra M.4: Verificar Soak Time (Trava de Absorção de 15 a 20 min)\nvar lastIrrig = flow.get(\"last_irrig_b_time\") || 0;\nvar soakTimeMin = (clima.temp < 18.0) ? 20 : 15;\nvar soakTimeMs = soakTimeMin * 60 * 1000;\n\nif ((now - lastIrrig) < soakTimeMs) {\n    var restMin = Math.ceil((soakTimeMs - (now - lastIrrig)) / 60000);\n    node.status({fill: \"yellow\", shape: \"ring\", text: \"Soak Time ativo (\" + restMin + \" min restantes)\"});\n    return null;\n}\n\n// Regra M.1: Sanitização e Filtro de Outliers\nvar validVals = [];\nfor (var childId in soloB) {\n    var v = soloB[childId].val;\n    if ((now - soloB[childId].ts) < 1800000) {\n        if (v >= 0 && v <= 1023) {\n            validVals.push(v);\n        }\n    }\n}\n\nif (validVals.length === 0) {\n    node.status({fill: \"red\", shape: \"dot\", text: \"Sem leituras válidas no Solo B\"});\n    return null;\n}\n\n// Mediana\nvalidVals.sort(function(a, b){ return a - b; });\nvar mid = Math.floor(validVals.length / 2);\nvar mediana = (validVals.length % 2 !== 0) ? validVals[mid] : (validVals[mid - 1] + validVals[mid]) / 2.0;\n\n// Regra M.2: Modulação Climatológica\nvar fatorClima = 1.0;\nif (clima.temp > 25.0 && clima.hum < 18.0) {\n    fatorClima = 1.33;\n}\n\n// Regra M.3: Limiares de Solo\nvar duracaoBase = 0;\nif (mediana < 350) {\n    node.status({fill: \"green\", shape: \"dot\", text: \"Solo Úmido (Mediana: \" + mediana.toFixed(1) + \" ADC) - OFF\"});\n    return null;\n} else if (mediana <= 500) {\n    duracaoBase = 15;\n} else {\n    duracaoBase = 45;\n}\n\nvar duracaoFinal = Math.round(duracaoBase * fatorClima);\nflow.set(\"last_irrig_b_time\", now);\n\n// Formato nativo (M360_NATIVE_MQTT=1): nodeId/sensorId/command/ack/type vao no\n// TOPICO; o payload MQTT e o valor bruto (\"1\"/\"0\"). Publicar o envelope JSON\n// aqui faz o gateway repassa-lo como string ao no, que resolve getBool() por\n// atoi() -> 0, e o rele nunca liga. Ver inventario.md secao 8.\n// Comando MQTT ON Solenóide B (Child 32 / Nó 99)\nvar msgOn = {\n    payload: \"1\",\n    topic: \"m360/DF/0000/in/99/32/1/0/2\"\n};\n\n// Comando MQTT OFF Solenóide B\nvar msgOff = {\n    payload: \"0\",\n    topic: \"m360/DF/0000/in/99/32/1/0/2\"\n};\n\n// Notificações Telegram\nvar msgTelegramStart = {\n    telegram_event: {\n        canteiro: \"B\",\n        status: \"INICIADA\",\n        duracao: duracaoFinal,\n        modo: \"Inteligente (Manejo360 Solo + Clima)\",\n        detalhes: \"Mediana Solo: \" + mediana.toFixed(1) + \" ADC | Temp Ar: \" + clima.temp + \"°C | Umidade Ar: \" + clima.hum + \"%\"\n    }\n};\n\nvar msgTelegramEnd = {\n    telegram_event: {\n        canteiro: \"B\",\n        status: \"FINALIZADA\",\n        duracao: duracaoFinal,\n        modo: \"Inteligente (Manejo360 Solo + Clima)\"\n    }\n};\n\nnode.status({fill: \"blue\", shape: \"dot\", text: \"Irrigando B por \" + duracaoFinal + \"s (Mediana: \" + mediana.toFixed(1) + \" ADC)\"});\n\nsetTimeout(function() {\n    node.send([msgOff, msgTelegramEnd]);\n    node.status({fill: \"grey\", shape: \"ring\", text: \"Canteiro B Standby\"});\n}, duracaoFinal * 1000);\n\nreturn [msgOn, msgTelegramStart];",
+        "func": "// Regras B.1 a B.5 do Manejo360 para o Canteiro B\nvar soloB = flow.get(\"solo_b_readings\") || {};\nvar clima = flow.get(\"clima_dht11\") || { temp: 20.0, hum: 20.0 };\nvar previsao = flow.get(\"previsao_tempo\") || { probChuvaMax: 0, precipTotalMm: 0 };\nvar now = Date.now();\n\n// Regra M.4: Verificar Soak Time (Trava de Absorção de 15 a 20 min)\nvar lastIrrig = flow.get(\"last_irrig_b_time\") || 0;\nvar soakTimeMin = (clima.temp < 18.0) ? 20 : 15;\nvar soakTimeMs = soakTimeMin * 60 * 1000;\n\nif ((now - lastIrrig) < soakTimeMs) {\n    var restMin = Math.ceil((soakTimeMs - (now - lastIrrig)) / 60000);\n    node.status({fill: \"yellow\", shape: \"ring\", text: \"Soak Time ativo (\" + restMin + \" min restantes)\"});\n    return null;\n}\n\n// Regra M.1: Sanitização e Filtro de Outliers\nvar validVals = [];\nfor (var childId in soloB) {\n    var v = soloB[childId].val;\n    if ((now - soloB[childId].ts) < 1800000) {\n        if (v >= 0 && v <= 1023) {\n            validVals.push(v);\n        }\n    }\n}\n\nif (validVals.length === 0) {\n    node.status({fill: \"red\", shape: \"dot\", text: \"Sem leituras válidas no Solo B\"});\n    return null;\n}\n\n// Mediana\nvalidVals.sort(function(a, b){ return a - b; });\nvar mid = Math.floor(validVals.length / 2);\nvar mediana = (validVals.length % 2 !== 0) ? validVals[mid] : (validVals[mid - 1] + validVals[mid]) / 2.0;\n\n// Regra M.2: Modulação Climatológica\nvar fatorClima = 1.0;\nif (clima.temp > 25.0 && clima.hum < 18.0) {\n    fatorClima = 1.33;\n}\n\n// Regra M.3: Cálculo do Tempo Projetado de Irrigação\n// Se solo úmido (mediana < 350 ADC), capacidade de campo atingida\nif (mediana < 350) {\n    node.status({fill: \"green\", shape: \"dot\", text: \"Solo Úmido (Mediana: \" + mediana.toFixed(1) + \" ADC) - Standby\"});\n    return null;\n}\n\n// Projeção contínua do tempo de irrigação baseado no déficit hídrico\n// Escala: ADC 350 (0s) a ADC 850 (600s / 10 min de referência)\nvar duracaoProjetadaBase = Math.round(((mediana - 350) / 500) * 600);\nif (duracaoProjetadaBase > 600) duracaoProjetadaBase = 600; // Cap de segurança de 10 min\n\nvar duracaoFinal = Math.round(duracaoProjetadaBase * fatorClima);\n\n// Condição 1: Só acionar se o tempo projetado for MAIOR que 3 minutos (180 segundos)\nvar MIN_TEMPO_IRRIGACAO_SEG = 180; // 3 minutos = 180s\nif (duracaoFinal <= MIN_TEMPO_IRRIGACAO_SEG) {\n    var durMin = (duracaoFinal / 60).toFixed(1);\n    node.status({fill: \"yellow\", shape: \"ring\", text: \"Standby: Tempo projetado (\" + durMin + \" min / \" + duracaoFinal + \"s) <= 3 min\"});\n    return null;\n}\n\n// Regra M.5: Previsão de Chuva (>70%) vs Estresse Hídrico Crítico\n// Se houver previsão de chuva > 70% para as próximas horas, adia a irrigação até sinal de estresse hídrico\nvar LIMIAR_ESTRESSE_CRITICO_ADC = 700.0;\nvar modoIrrigacao = \"Inteligente (Manejo360 Solo + Clima)\";\nvar detalheClima = \"Mediana Solo: \" + mediana.toFixed(1) + \" ADC | Temp Ar: \" + clima.temp + \"°C | Umidade Ar: \" + clima.hum + \"%\";\n\nif (previsao && previsao.probChuvaMax > 70) {\n    if (mediana < LIMIAR_ESTRESSE_CRITICO_ADC) {\n        // Solo ainda não entrou em estresse crítico: adiar a irrigação aguardando a chuva\n        node.status({\n            fill: \"blue\",\n            shape: \"ring\",\n            text: \"🌧️ Adiada: Chuva prevista \" + previsao.probChuvaMax + \"% (>70%) | Solo: \" + mediana.toFixed(1) + \" ADC (<\" + LIMIAR_ESTRESSE_CRITICO_ADC + \")\"\n        });\n        return null;\n    } else {\n        // Solo atingiu estresse crítico (>= 700 ADC) antes da chuva: aciona irrigação emergencial de proteção\n        modoIrrigacao = \"Emergência (Estresse Hídrico Crítico - Chuva prevista \" + previsao.probChuvaMax + \"% tardia)\";\n        detalheClima += \" | ⚠️ Estresse Hídrico: Solo \" + mediana.toFixed(1) + \" ADC >= \" + LIMIAR_ESTRESSE_CRITICO_ADC;\n    }\n}\n\nflow.set(\"last_irrig_b_time\", now);\n\n// Formato nativo (M360_NATIVE_MQTT=1): nodeId/sensorId/command/ack/type vao no\n// TOPICO; o payload MQTT e o valor bruto (\"1\"/\"0\"). Publicar o envelope JSON\n// aqui faz o gateway repassa-lo como string ao no, que resolve getBool() por\n// atoi() -> 0, e o rele nunca liga. Ver inventario.md secao 8.\n// Comando MQTT ON Solenóide B (Child 32 / Nó 99)\nvar msgOn = {\n    payload: \"1\",\n    topic: \"m360/DF/0000/in/99/32/1/0/2\"\n};\n\n// Comando MQTT OFF Solenóide B\nvar msgOff = {\n    payload: \"0\",\n    topic: \"m360/DF/0000/in/99/32/1/0/2\"\n};\n\nvar min = Math.floor(duracaoFinal / 60);\nvar seg = duracaoFinal % 60;\nvar duracaoFormatada = min + \" min\" + (seg > 0 ? \" \" + seg + \"s\" : \"\");\n\n// Notificações Telegram\nvar msgTelegramStart = {\n    telegram_event: {\n        canteiro: \"B\",\n        status: \"INICIADA\",\n        duracao: duracaoFinal,\n        modo: modoIrrigacao,\n        detalhes: detalheClima + \" | Tempo Projetado: \" + duracaoFormatada\n    }\n};\n\nvar msgTelegramEnd = {\n    telegram_event: {\n        canteiro: \"B\",\n        status: \"FINALIZADA\",\n        duracao: duracaoFinal,\n        modo: modoIrrigacao\n    }\n};\n\nnode.status({fill: \"blue\", shape: \"dot\", text: \"Irrigando B por \" + duracaoFormatada + \" (\" + duracaoFinal + \"s) - Mediana: \" + mediana.toFixed(1) + \" ADC\"});\n\nsetTimeout(function() {\n    node.send([msgOff, msgTelegramEnd]);\n    node.status({fill: \"grey\", shape: \"ring\", text: \"Canteiro B Standby\"});\n}, duracaoFinal * 1000);\n\nreturn [msgOn, msgTelegramStart];",
         "outputs": 2,
         "noerr": 0,
         "initialize": "",
@@ -2940,7 +3076,7 @@
         "type": "function",
         "z": "tab_irrigacao_m360",
         "name": "Formatador Mensagem Telegram",
-        "func": "// Formatar e enviar notificação de início/fim de irrigação no Telegram\nvar botToken = global.get(\"TELEGRAM_BOT_TOKEN\") || env.get(\"TELEGRAM_BOT_TOKEN\") || \"\";\nvar chatId = global.get(\"TELEGRAM_CHAT_ID\") || env.get(\"TELEGRAM_CHAT_ID\") || \"\";\n\nvar event = msg.telegram_event || {};\nif (!event.status) return null;\n\nvar emoji = (event.status === \"INICIADA\") ? \"💧\" : \"✅\";\nvar canteiroNome = (event.canteiro === \"B\" || event.canteiro === \"M\") ? \"Canteiro B (Manejo360)\" : \"Canteiro A (Controle Tradicional)\";\n\nvar texto = emoji + \" *IRRIGAÇÃO \" + event.status + \"*\\n\\n\" +\n    \"📍 *Local:* \" + canteiroNome + \"\\n\" +\n    \"⏱️ *Duração:* \" + event.duracao + \" segundos\\n\" +\n    \"⚙️ *Modo:* \" + event.modo + \"\\n\";\n\nif (event.detalhes) {\n    texto += \"📊 *Detalhes:* \" + event.detalhes + \"\\n\";\n}\n\nvar agora = new Date().toLocaleTimeString(\"pt-BR\", {hour: \"2-digit\", minute: \"2-digit\", second: \"2-digit\"});\ntexto += \"🕒 *Horário:* \" + agora + \" (Horário de Brasília)\";\n\nmsg.payload = {\n    \"chat_id\": (chatId && chatId !== \"COLE_AQUI\") ? chatId : \"@M360HortaBot\",\n    \"text\": texto,\n    \"parse_mode\": \"Markdown\"\n};\n\n// Se token configurado dinamicamente\nif (botToken && botToken !== \"COLE_AQUI\") {\n    msg.url = \"https://api.telegram.org/bot\" + botToken + \"/sendMessage\";\n} else {\n    // fallback padrão via variáveis globais\n    msg.url = \"https://api.telegram.org/bot/sendMessage\";\n}\n\nnode.status({fill: \"green\", shape: \"dot\", text: \"Telegram \" + event.canteiro + \" \" + event.status});\nreturn msg;",
+        "func": "// Formatar e enviar notificação de início/fim de irrigação no Telegram\nvar botToken = global.get(\"TELEGRAM_BOT_TOKEN\") || \"8810722382:AAEB_ZiUczEMdv0dGEjciMNfBUPEkWZLb0E\";\nvar chatId = global.get(\"TELEGRAM_CHAT_ID\") || \"7928783784\";\n\nvar event = msg.telegram_event || {};\nif (!event.status) return null;\n\nvar emoji = (event.status === \"INICIADA\") ? \"💧\" : \"✅\";\nvar canteiroNome = (event.canteiro === \"B\" || event.canteiro === \"M\") ? \"Canteiro B (Manejo360)\" : \"Canteiro A (Controle Tradicional)\";\n\nvar duracaoTexto = \"\";\nif (event.duracao >= 60) {\n    var min = Math.floor(event.duracao / 60);\n    var seg = event.duracao % 60;\n    duracaoTexto = min + \" minuto\" + (min > 1 ? \"s\" : \"\") + (seg > 0 ? \" e \" + seg + \" segundo\" + (seg > 1 ? \"s\" : \"\") : \"\");\n} else {\n    duracaoTexto = event.duracao + \" segundos\";\n}\n\nvar texto = emoji + \" *IRRIGAÇÃO \" + event.status + \"*\\n\\n\" +\n    \"📍 *Local:* \" + canteiroNome + \"\\n\" +\n    \"⏱️ *Duração:* \" + duracaoTexto + \"\\n\" +\n    \"⚙️ *Modo:* \" + event.modo + \"\\n\";\n\nif (event.detalhes) {\n    texto += \"📊 *Detalhes:* \" + event.detalhes + \"\\n\";\n}\n\nvar agora = new Date().toLocaleTimeString(\"pt-BR\", {hour: \"2-digit\", minute: \"2-digit\", second: \"2-digit\"});\ntexto += \"🕒 *Horário:* \" + agora + \" (Horário de Brasília)\";\n\nmsg.payload = {\n    \"chat_id\": (chatId && chatId !== \"COLE_AQUI\") ? chatId : \"@M360HortaBot\",\n    \"text\": texto,\n    \"parse_mode\": \"Markdown\"\n};\n\n// Se token configurado dinamicamente\nif (botToken && botToken !== \"COLE_AQUI\") {\n    msg.url = \"https://api.telegram.org/bot\" + botToken + \"/sendMessage\";\n} else {\n    // fallback padrão via variáveis globais\n    msg.url = \"https://api.telegram.org/bot/sendMessage\";\n}\n\nnode.status({fill: \"green\", shape: \"dot\", text: \"Telegram \" + event.canteiro + \" \" + event.status});\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -2996,242 +3132,373 @@
         "wires": []
     },
     {
-        "id": "8222bb60b624e5ca",
-        "type": "global-config",
-        "env": [],
-        "modules": {
-            "@flowfuse/node-red-dashboard": "1.30.2"
-        }
-    },
-    {
-        "id": "link_ack_cmd_in",
-        "type": "link in",
-        "z": "50fbcdf0053fa19f",
-        "name": "Comandos para ACK Sync (Link In)",
-        "links": [
-            "link_solenoides_cmd_out",
-            "link_bombas_cmd_out"
+        "id": "cron_previsao_tempo",
+        "type": "inject",
+        "z": "tab_irrigacao_m360",
+        "name": "Consultar Previsão Open-Meteo (a cada 30 min)",
+        "props": [
+            {
+                "p": "payload"
+            }
         ],
-        "x": 480,
-        "y": 260,
+        "repeat": "1800",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 2,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 230,
+        "y": 520,
         "wires": [
             [
-                "9bc7d791f76c952b"
+                "http_previsao_open_meteo"
             ]
         ]
     },
     {
-        "id": "link_ack_feedback_out",
-        "type": "link out",
-        "z": "50fbcdf0053fa19f",
-        "name": "Feedback ACK / Status (Link Out)",
-        "mode": "link",
-        "links": [
-            "link_solenoides_feedback_in",
-            "link_bombas_feedback_in"
+        "id": "http_previsao_open_meteo",
+        "type": "http request",
+        "z": "tab_irrigacao_m360",
+        "name": "API Open-Meteo (Estufa -15.9639, -47.8040)",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://api.open-meteo.com/v1/forecast?latitude=-15.963944&longitude=-47.804028&hourly=precipitation_probability,precipitation,temperature_2m&forecast_days=2&timezone=America%2FSao_Paulo",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 580,
+        "y": 520,
+        "wires": [
+            [
+                "fn_parser_previsao_tempo"
+            ]
+        ]
+    },
+    {
+        "id": "fn_parser_previsao_tempo",
+        "type": "function",
+        "z": "tab_irrigacao_m360",
+        "name": "Processar Previsão Meteorológica",
+        "func": "// Processa a previsão meteorológica do Open-Meteo para a estufa (-15.963944, -47.804028)\nvar data = msg.payload;\nif (!data || !data.hourly || !data.hourly.time) {\n    node.status({fill: \"red\", shape: \"ring\", text: \"Erro: Resposta inválida da API\"});\n    return null;\n}\n\nvar times = data.hourly.time;\nvar probs = data.hourly.precipitation_probability || [];\nvar precips = data.hourly.precipitation || [];\nvar temps = data.hourly.temperature_2m || [];\n\nvar now = new Date();\nvar currentHourTs = now.getTime();\n\n// Analisar as próximas 4 horas (janela de previsão iminente)\nvar JANELA_HORAS = 4;\nvar probMax = 0;\nvar precipTotal = 0;\nvar tempMedia = 0;\nvar count = 0;\nvar horasDetalhadas = [];\n\nfor (var i = 0; i < times.length; i++) {\n    var t = new Date(times[i]).getTime();\n    // Considera a partir da hora atual até +4 horas\n    if (t >= currentHourTs - 3600000 && t <= currentHourTs + (JANELA_HORAS * 3600000)) {\n        var p = probs[i] || 0;\n        var prec = precips[i] || 0;\n        var tmp = temps[i] || 0;\n\n        if (p > probMax) probMax = p;\n        precipTotal += prec;\n        tempMedia += tmp;\n        count++;\n\n        var horaStr = times[i].split(\"T\")[1] || times[i];\n        horasDetalhadas.push(horaStr + \": \" + p + \"% (\" + prec.toFixed(1) + \"mm)\");\n        if (count >= JANELA_HORAS) break;\n    }\n}\n\nif (count > 0) tempMedia = tempMedia / count;\n\nvar previsaoObj = {\n    probChuvaMax: probMax,\n    precipTotalMm: parseFloat(precipTotal.toFixed(1)),\n    tempMedia: parseFloat(tempMedia.toFixed(1)),\n    janelaHoras: JANELA_HORAS,\n    detalhes: horasDetalhadas.join(\" | \"),\n    updatedAt: Date.now(),\n    updatedAtStr: new Date().toLocaleTimeString(\"pt-BR\", {hour: \"2-digit\", minute: \"2-digit\"})\n};\n\nflow.set(\"previsao_tempo\", previsaoObj);\n\nvar statusColor = (probMax >= 70) ? \"blue\" : ((probMax >= 40) ? \"yellow\" : \"green\");\nnode.status({\n    fill: statusColor,\n    shape: \"dot\",\n    text: \"Chuva próx \" + JANELA_HORAS + \"h: \" + probMax + \"% (\" + previsaoObj.precipTotalMm + \"mm) às \" + previsaoObj.updatedAtStr\n});\n\nmsg.payload = previsaoObj;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 920,
+        "y": 520,
+        "wires": [
+            [
+                "d38bdac50abe2782"
+            ]
+        ]
+    },
+    {
+        "id": "5f670c411a47a898",
+        "type": "tab",
+        "label": "IA Repórter (Diário)",
+        "disabled": false,
+        "info": "Gera o diário diário da horta com base nos logs."
+    },
+    {
+        "id": "ca181fafeb3b2433",
+        "type": "inject",
+        "z": "5f670c411a47a898",
+        "name": "Diário 08:00 AM",
+        "props": [
+            {
+                "p": "payload"
+            }
         ],
-        "x": 900,
-        "y": 360,
+        "repeat": "",
+        "crontab": "00 08 * * *",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "start",
+        "payloadType": "str",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "0d61733e2abf2137"
+            ]
+        ]
+    },
+    {
+        "id": "0d61733e2abf2137",
+        "type": "function",
+        "z": "5f670c411a47a898",
+        "name": "Montar Contexto e Prompt Gemini",
+        "func": "// Chaves de Configuração\nvar GEMINI_API_KEY = global.get('GEMINI_API_KEY') || 'COLE_AQUI';\nvar TELEGRAM_BOT_TOKEN = global.get('TELEGRAM_BOT_TOKEN') || '8810722382:AAEB_ZiUczEMdv0dGEjciMNfBUPEkWZLb0E';\nvar TELEGRAM_CHAT_ID = global.get('TELEGRAM_CHAT_ID') || '7928783784';\n\n// Puxa o log direto da RAM (Central Logger armazena aqui)\nvar logsArray = global.get('mqtt_logs') || [];\nvar logs = \"\";\n\n// Converte os ultimos logs para string CSV\nlogsArray.forEach(function(item) {\n    logs += item.timestamp + ' | ' + item.dir + ' | ' + item.topic + ' | ' + JSON.stringify(item.payload) + '\\n';\n});\n\nvar system_prompt = \"Você é um agente autônomo analista de dados de uma Horta Inteligente (Projeto M360 Horta).\\n\\n\" +\n\"O usuário solicitou um DIÁRIO COMPLETO das últimas 24 horas. Seu foco:\\n\" +\n\"1. RESUMO OPERACIONAL: Resuma quantos comandos e ativações automáticas de atuadores (Bombas, Solenóides) ocorreram.\\n\" +\n\"2. SAÚDE DA HORTA: Analise criticamente os sensores (Umidade, vazão). Houve falta de água? Algum nó ficou muito tempo sem enviar leitura?\\n\" +\n\"3. CONCLUSÃO: Dê uma nota de saúde (Ex: 9/10) e diga se alguma ação manual é recomendada hoje.\\n\\n\" +\n\"Retorne EXCLUSIVAMENTE o texto formatado em MARKDOWN, curto, direto e objetivo para ser lido no Telegram.\\n\\n\" +\n\"Abaixo estão os logs crus:\\n\\n\";\n\nif (logs.length > 80000) {\n    logs = logs.substring(logs.length - 80000);\n}\n\nmsg.gemini_key = GEMINI_API_KEY;\nmsg.telegram_token = TELEGRAM_BOT_TOKEN;\nmsg.telegram_chat_id = TELEGRAM_CHAT_ID;\n\nmsg.payload = {\n    \"contents\": [{\n        \"parts\": [{\"text\": system_prompt + logs}]\n    }],\n    \"systemInstruction\": {\n        \"parts\": [{\"text\": \"Escreva sempre em PT-BR. Use emojis adequados.\"}]\n    }\n};\n\nmsg.headers = { \"Content-Type\": \"application/json\" };\nreturn msg;",
+        "outputs": 1,
+        "x": 440,
+        "y": 100,
+        "wires": [
+            [
+                "ccc820a2b226fbe8"
+            ]
+        ]
+    },
+    {
+        "id": "ccc820a2b226fbe8",
+        "type": "http request",
+        "z": "5f670c411a47a898",
+        "name": "Gemini API",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={{{gemini_key}}}",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 710,
+        "y": 100,
+        "wires": [
+            [
+                "2aa78207a5e244e8"
+            ]
+        ]
+    },
+    {
+        "id": "2aa78207a5e244e8",
+        "type": "function",
+        "z": "5f670c411a47a898",
+        "name": "Extrair Markdown & Enviar Telegram",
+        "func": "if (!msg.payload || !msg.payload.candidates || msg.payload.candidates.length === 0) {\n    node.error(\"Detalhes do erro do Gemini: \" + JSON.stringify(msg.payload), msg);\n    return null;\n}\n\nvar text = msg.payload.candidates[0].content.parts[0].text;\n\nmsg.payload = {\n    \"chat_id\": msg.telegram_chat_id,\n    \"text\": text,\n    \"parse_mode\": \"Markdown\"\n};\n\nmsg.url = \"https://api.telegram.org/bot\" + msg.telegram_token + \"/sendMessage\";\nreturn msg;",
+        "outputs": 1,
+        "x": 630,
+        "y": 200,
+        "wires": [
+            [
+                "464d4b6241734a71"
+            ]
+        ]
+    },
+    {
+        "id": "464d4b6241734a71",
+        "type": "http request",
+        "z": "5f670c411a47a898",
+        "name": "Telegram Bot API",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 810,
+        "y": 300,
+        "wires": [
+            [
+                "49352e3014f88c90"
+            ]
+        ]
+    },
+    {
+        "id": "49352e3014f88c90",
+        "type": "debug",
+        "z": "5f670c411a47a898",
+        "name": "Bot IA Reporter",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 960,
+        "y": 420,
         "wires": []
     },
     {
-        "id": "fn_solenoides_dispatch",
+        "id": "mqtt_in_gateway_events",
+        "type": "mqtt in",
+        "z": "50fbcdf0053fa19f",
+        "name": "MQTT IN Eventos (Gateway)",
+        "topic": "m360/+/+/out/events",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "178d6e63b26ceeb2",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 200,
+        "y": 200,
+        "wires": [
+            [
+                "fn_monitor_falhas_rede",
+                "93f941ae256d2364"
+            ]
+        ]
+    },
+    {
+        "id": "fn_monitor_falhas_rede",
         "type": "function",
-        "z": "a757ff0be26f944a",
-        "name": "Despachante & Feedback Imediato Solenóides",
-        "func": "// Despachante & Feedback Imediato Solenóides\nvar p = msg.payload;\nif (typeof p === 'string') {\n    try { p = JSON.parse(p); } catch(e) {}\n}\n\nvar buttonIndexMap = {\n    '31:1': 0, // Ligar Solenóide A\n    '31:0': 1, // Desligar Solenóide A\n    '32:1': 2, // Ligar Solenóide B\n    '32:0': 3, // Desligar Solenóide B\n    '33:1': 4, // Ligar Solenóide C\n    '33:0': 5, // Desligar Solenóide C\n    'admin': 6  // Botão Enviar Comando\n};\n\nvar buttonIdMap = {\n    '31:1': 'd24ac9884d836b5f',\n    '31:0': '5a74fe774d0b8e06',\n    '32:1': 'd5113aa8b58b627f',\n    '32:0': 'f322977c0cdba1a5',\n    '33:1': '06bc82b2a8afaa23',\n    '33:0': 'fe082f23b6ace22b',\n    'admin': '2c4b494c55bff84b'\n};\n\nvar key = (p && p.sensorId !== undefined && p.payload !== undefined && p.type === 2) \n          ? (p.sensorId + ':' + p.payload) \n          : 'admin';\n\nvar idx = buttonIndexMap[key] !== undefined ? buttonIndexMap[key] : 6;\nvar bId = buttonIdMap[key] || '2c4b494c55bff84b';\n\nif (p && typeof p === 'object') {\n    p._buttonId = bId;\n    msg.payload = p;\n}\n\n// Mensagem de Feedback Imediato (Amarelo / Pendente)\nvar pendingMsg = {\n    ui_update: {\n        buttonColor: '#f59e0b',\n        textColor: '#ffffff'\n    },\n    buttonColor: '#f59e0b',\n    textColor: '#ffffff'\n};\n\nvar outputs = [null, null, null, null, null, null, null, null];\noutputs[idx] = pendingMsg;\noutputs[7] = msg; // Comando enviado ao Sincronizador ACK\n\nreturn outputs;\n",
-        "outputs": 8,
-        "timeout": 0,
+        "z": "50fbcdf0053fa19f",
+        "name": "Monitor de Falhas de Comunicação & Alertas Telegram",
+        "func": "// Monitor Inteligente de Conectividade com Máquina de Estados Anti-Rajada\nvar botToken = global.get(\"TELEGRAM_BOT_TOKEN\") || \"8810722382:AAEB_ZiUczEMdv0dGEjciMNfBUPEkWZLb0E\";\nvar chatId = global.get(\"TELEGRAM_CHAT_ID\") || \"7928783784\";\n\nvar nodes; try { nodes = global.get('mys_nodes', 'file') || {}; } catch(e) { nodes = global.get('mys_nodes') || {}; }\nvar now = Date.now();\n\n// Tabela de estados de conexão por nó: { [nodeId]: 'ONLINE' | 'OFFLINE' }\nvar nodeStates = flow.get('node_connection_states') || {};\nvar lastAlertTimes = flow.get('last_network_alert_times') || {};\n\nfunction getNodeDesc(id) {\n    var n = nodes[id];\n    if (!n) return \"Nó \" + id;\n    return (n.sketchName || n.presentName || (\"Nó \" + id)) + (n.sketchVersion ? \" v\" + n.sketchVersion : \"\");\n}\n\nvar agoraStr = new Date().toLocaleTimeString(\"pt-BR\", {hour: \"2-digit\", minute: \"2-digit\", second: \"2-digit\"});\nvar dataStr = new Date().toLocaleDateString(\"pt-BR\");\n\nvar text = \"\";\nvar alertKey = \"\";\nvar COOLDOWN_LOST_MS = 15 * 60 * 1000; // Máximo 1 alerta de queda a cada 15 min por nó\nvar COOLDOWN_RECON_MS = 15 * 60 * 1000; // Máximo 1 alerta de reconexão a cada 15 min por nó\n\n// 1. Eventos do Gateway (m360/+/+/out/events)\nif (msg.topic && msg.topic.includes('/events')) {\n    var ev = msg.payload;\n    if (typeof ev === 'string') { try { ev = JSON.parse(ev); } catch(e) {} }\n    if (!ev || ev.nodeId === undefined) return null;\n    \n    var nId = String(ev.nodeId);\n    var currentState = nodeStates[nId] || 'ONLINE';\n    \n    // --- EVENTO: QUEDA / PERDA DE NÓ (node_lost) ---\n    if (ev.event === 'node_lost') {\n        var lastLostAlert = lastAlertTimes['lost_' + nId] || 0;\n        \n        // Só alerta se estava ONLINE e passou o cooldown\n        if (currentState !== 'OFFLINE' && (now - lastLostAlert > COOLDOWN_LOST_MS)) {\n            nodeStates[nId] = 'OFFLINE';\n            lastAlertTimes['lost_' + nId] = now;\n            \n            text = \"⚠️ *ALERTA DE CONECTIVIDADE: Nó Inativo*\\n\\n\" +\n                   \"📍 *Dispositivo:* \" + getNodeDesc(nId) + \" (ID: \" + nId + \")\\n\" +\n                   \"⏱️ *Motivo:* \" + (ev.details || \"Inatividade detectada (> 300s sem transmissão)\") + \"\\n\" +\n                   \"📡 *Último RSSI:* \" + (ev.rssi ? ev.rssi + \" dBm\" : \"N/A\") + \"\\n\" +\n                   \"🕒 *Horário:* \" + agoraStr + \" (\" + dataStr + \")\\n\\n\" +\n                   \"⚙️ _O gateway avisará assim que o nó restabelecer contato._\";\n        } else {\n            nodeStates[nId] = 'OFFLINE';\n            return null; // Silencia repetições\n        }\n    }\n    \n    // --- EVENTO: RECONEXÃO (node_reconnected) ---\n    else if (ev.event === 'node_reconnected') {\n        var lastReconAlert = lastAlertTimes['recon_' + nId] || 0;\n        \n        // SÓ ALERTA SE O NÓ ESTAVA PREVIAMENTE REGISTRADO COMO OFFLINE!\n        // Se já estava ONLINE, é tráfego normal — NÃO envia nada!\n        if (currentState === 'OFFLINE' && (now - lastReconAlert > COOLDOWN_RECON_MS)) {\n            nodeStates[nId] = 'ONLINE';\n            lastAlertTimes['recon_' + nId] = now;\n            delete lastAlertTimes['lost_' + nId]; // Permite alertar se cair no futuro\n            \n            text = \"✅ *COMUNICAÇÃO RESTABELECIDA*\\n\\n\" +\n                   \"📍 *Dispositivo:* \" + getNodeDesc(nId) + \" (ID: \" + nId + \")\\n\" +\n                   \"📡 *Sinal RSSI:* \" + (ev.rssi ? ev.rssi + \" dBm\" : \"N/A\") + \"\\n\" +\n                   \"🕒 *Horário:* \" + agoraStr + \" (\" + dataStr + \")\";\n        } else {\n            nodeStates[nId] = 'ONLINE';\n            return null; // Silencia pacotes subsequentes / rajadas\n        }\n    }\n}\n\n// 2. Falha Definitiva de ACK / Timeout de Atuador\nelse if (msg.status === 'error' && msg.nodeId !== undefined) {\n    alertKey = 'ack_fail_' + msg.nodeId + '_' + msg.sensorId;\n    var lastAckAlert = lastAlertTimes[alertKey] || 0;\n    if (now - lastAckAlert > 60000) {\n        lastAlertTimes[alertKey] = now;\n        text = \"🚨 *FALHA DE COMANDO: Timeout de ACK*\\n\\n\" +\n               \"📍 *Alvo:* \" + getNodeDesc(msg.nodeId) + \" (ID: \" + msg.nodeId + \")\\n\" +\n               \"🔌 *Atuador Child:* ID \" + msg.sensorId + \"\\n\" +\n               \"⚠️ *Detalhe:* O nó não confirmou a execução do comando após 3 tentativas consecutivas.\\n\" +\n               \"🕒 *Horário:* \" + agoraStr + \" (\" + dataStr + \")\";\n    }\n}\n\n// 3. Watchdog: Gateway Central Offline\nelse if (msg.payload && msg.payload.alerta === 'GATEWAY OFFLINE') {\n    alertKey = 'gateway_offline';\n    var lastGwayAlert = lastAlertTimes[alertKey] || 0;\n    if (now - lastGwayAlert > 15 * 60 * 1000) {\n        lastAlertTimes[alertKey] = now;\n        text = \"🚨 *ALERTA CRÍTICO: Gateway Central Offline*\\n\\n\" +\n               \"📍 *Gateway:* Gateway Central M360 (ESP8266)\\n\" +\n               \"⏱️ *Sem resposta há:* \" + (msg.payload.semRespostaHa || \"mais de 2 minutos\") + \"\\n\" +\n               \"🕒 *Último Contato:* \" + (msg.payload.ultimoContato || agoraStr) + \"\\n\\n\" +\n               \"⚠️ _Verifique a alimentação do gateway ou o enlace WiFi da estufa._\";\n    }\n}\n\nflow.set('node_connection_states', nodeStates);\nflow.set('last_network_alert_times', lastAlertTimes);\n\nif (!text) return null;\n\nmsg.payload = {\n    chat_id: chatId,\n    text: text,\n    parse_mode: \"Markdown\"\n};\nmsg.url = \"https://api.telegram.org/bot\" + botToken + \"/sendMessage\";\nnode.status({fill: \"green\", shape: \"dot\", text: \"Alerta enviado: \" + agoraStr});\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 680,
+        "y": 200,
+        "wires": [
+            [
+                "http_telegram_alertas_rede",
+                "d38bdac50abe2782"
+            ]
+        ]
+    },
+    {
+        "id": "http_telegram_alertas_rede",
+        "type": "http request",
+        "z": "50fbcdf0053fa19f",
+        "name": "Disparar Alerta Telegram (API)",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1040,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "tg_bot_config_m360",
+        "type": "telegram bot",
+        "botname": "m360_IA_reporte_bot",
+        "usernames": "",
+        "chatids": "",
+        "baseapiurl": "",
+        "updatemode": "polling",
+        "pollinterval": "300",
+        "usesocks": false,
+        "sockshost": "",
+        "socksport": "6667",
+        "socksusername": "anonymous",
+        "sockspassword": "",
+        "bothistory": false,
+        "botBothistory": false,
+        "localbotapiserver": false,
+        "localbotapiport": "8081",
+        "publicbotapiurl": "",
+        "token": "8810722382:AAEB_ZiUczEMdv0dGEjciMNfBUPEkWZLb0E"
+    },
+    {
+        "id": "tab_telegram_bot",
+        "type": "tab",
+        "label": "Telegram Bot Interativo",
+        "disabled": false,
+        "info": "Gerenciador interativo de comandos do Telegram Bot (convites, registro de chatIds, status da horta e ajuda)."
+    },
+    {
+        "id": "tg_receiver_1",
+        "type": "telegram receiver",
+        "z": "tab_telegram_bot",
+        "name": "Telegram Receiver",
+        "bot": "tg_bot_config_m360",
+        "saveDataDir": "",
+        "filterCommands": false,
+        "x": 180,
+        "y": 180,
+        "wires": [
+            [
+                "fn_processa_comandos_telegram"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "fn_processa_comandos_telegram",
+        "type": "function",
+        "z": "tab_telegram_bot",
+        "name": "Tratar Comandos e Convites Telegram",
+        "func": "// Tratamento Interativo de Comandos do Bot Telegram (@m360_IA_reporte_bot)\nvar p = msg.payload || {};\nvar chatId = p.chatId || (p.chat && p.chat.id) || (p.from && p.from.id);\nvar text = (p.content || p.text || \"\").trim();\nvar firstName = (p.from && p.from.first_name) || (p.chat && p.chat.first_name) || \"Usuário\";\n\nif (!chatId) return null;\n\n// Gestão de múltiplos inscritos no contexto global\nvar subscribers = global.get(\"telegram_subscribers\") || [];\nif (!Array.isArray(subscribers)) subscribers = [subscribers];\n\nfunction addSubscriber(id, name, origin) {\n    var exists = subscribers.find(function(s) { return String(s.chatId) === String(id); });\n    if (!exists) {\n        subscribers.push({\n            chatId: id,\n            name: name,\n            origin: origin,\n            registeredAt: new Date().toISOString()\n        });\n        global.set(\"telegram_subscribers\", subscribers);\n        global.set(\"TELEGRAM_CHAT_ID\", String(id)); // Mantém como chat principal\n    }\n}\n\nvar replyText = \"\";\nvar lower = text.toLowerCase();\n\n// 1. /start convite\nif (lower === \"/start convite\" || lower.startsWith(\"/start convite\")) {\n    flow.set(\"telegram_chatid_convite\", chatId);\n    addSubscriber(chatId, firstName, \"convite\");\n    \n    replyText = \"🌱 *Olá, \" + firstName + \"! Seu acesso foi identificado como CONVITE.*\\n\\n\" +\n                \"✅ Seu chatId (`\" + chatId + \"`) foi registrado com sucesso na Estufa M360!\\n\\n\" +\n                \"Você passará a receber:\\n\" +\n                \"• 💧 Alertas automáticos de início e fim de irrigação\\n\" +\n                \"• ⚠️ Notificações de falha de conexão de nós da estufa\\n\" +\n                \"• 📊 Relatórios diários de telemetria\\n\\n\" +\n                \"Digite */status* para ver a horta agora ou */ajuda* para ver os comandos disponíveis.\";\n}\n// 2. /start padrão\nelse if (lower === \"/start\" || lower.startsWith(\"/start\")) {\n    addSubscriber(chatId, firstName, \"manual\");\n    replyText = \"🌱 *Olá, \" + firstName + \"! Bem-vindo ao M360 Horta Bot.*\\n\\n\" +\n                \"🤖 *Status:* Bot ativo e conectado à rede da estufa.\\n\" +\n                \"🆔 *Seu Chat ID:* `\" + chatId + \"`\\n\\n\" +\n                \"💡 *Comandos disponíveis:*\\n\" +\n                \"• */status* — Exibe a leitura em tempo real dos sensores e atuadores\\n\" +\n                \"• */id* — Exibe o seu Chat ID do Telegram\\n\" +\n                \"• */ajuda* — Instruções do sistema\\n\\n\" +\n                \"_Se você veio por convite de administrador, use o link com ?start=convite._\";\n}\n// 3. /id\nelse if (lower === \"/id\") {\n    replyText = \"🆔 *Identificação do Chat:*\\n\\n\" +\n                \"• *Nome:* \" + firstName + \"\\n\" +\n                \"• *Chat ID:* `\" + chatId + \"`\\n\" +\n                \"• *Tipo de Chat:* \" + ((p.chat && p.chat.type) || \"Privado\");\n}\n// 4. /status\nelse if (lower === \"/status\") {\n    var nodes; try { nodes = global.get(\"mys_nodes\", \"file\") || {}; } catch(e) { nodes = global.get(\"mys_nodes\") || {}; }\n    var n99 = nodes[\"99\"] || {};\n    var vals99 = n99.values || {};\n    var n1 = nodes[\"1\"] || {};\n    var n2 = nodes[\"2\"] || {};\n    \n    var temp = vals99[\"11\"] || vals99[\"18\"] || \"N/A\";\n    var hum = vals99[\"12\"] || vals99[\"19\"] || \"N/A\";\n    var flowRate = vals99[\"21\"] || \"0\";\n    var bat99 = n99.batteryVoltage ? n99.batteryVoltage + \"V\" : \"N/A\";\n    \n    var agora = new Date().toLocaleTimeString(\"pt-BR\", {hour: \"2-digit\", minute: \"2-digit\"});\n    \n    replyText = \"📊 *STATUS ATUAL DA HORTA M360* (\" + agora + \")\\n\\n\" +\n                \"🌡️ *Clima da Estufa (Nó 99):*\\n\" +\n                \"• Temperatura: *\" + temp + \" °C*\\n\" +\n                \"• Umidade do Ar: *\" + hum + \" %*\\n\" +\n                \"• Vazão Irrigação: *\" + flowRate + \" L/min*\\n\" +\n                \"• Alimentação: *\" + bat99 + \"*\\n\\n\" +\n                \"🌱 *Rede de Sensores:*\\n\" +\n                \"• *Nó 01 (Solo A):* \" + (n1.status || \"Ativo\") + \"\\n\" +\n                \"• *Nó 02 (Solo B):* \" + (n2.status || \"Ativo\") + \"\\n\" +\n                \"• *Nó 99 (Atuadores):* \" + (n99.status || \"Ativo\") + \"\\n\\n\" +\n                \"⚙️ _Automação de irrigação operando em modo automático no Canteiro B._\";\n}\n// 5. /ajuda\nelse if (lower === \"/ajuda\" || lower === \"ajuda\") {\n    replyText = \"ℹ️ *M360 Horta — Ajuda e Comandos:*\\n\\n\" +\n                \"• */status* — Consulta o clima, vazão e estado dos nós em tempo real\\n\" +\n                \"• */id* — Mostra seu Chat ID\\n\" +\n                \"• */start convite* — Registra-se para receber alertas de irrigação e falhas\\n\" +\n                \"• */ajuda* — Exibe este menu de ajuda\";\n}\nelse {\n    replyText = \"🤖 Comando não reconhecido. Digite */status* para ver o estado da horta ou */ajuda* para mais opções.\";\n}\n\nmsg.payload = {\n    chatId: chatId,\n    type: \"message\",\n    content: replyText,\n    options: {\n        parse_mode: \"Markdown\"\n    }\n};\n\nreturn msg;",
+        "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
         "x": 520,
-        "y": 200,
-        "wires": [
-            [
-                "d24ac9884d836b5f"
-            ],
-            [
-                "5a74fe774d0b8e06"
-            ],
-            [
-                "d5113aa8b58b627f"
-            ],
-            [
-                "f322977c0cdba1a5"
-            ],
-            [
-                "06bc82b2a8afaa23"
-            ],
-            [
-                "fe082f23b6ace22b"
-            ],
-            [
-                "2c4b494c55bff84b"
-            ],
-            [
-                "link_solenoides_cmd_out",
-                "4eadad94c4c9d871"
-            ]
-        ]
-    },
-    {
-        "id": "link_solenoides_cmd_out",
-        "type": "link out",
-        "z": "a757ff0be26f944a",
-        "name": "Link Solenóides Cmd Out",
-        "mode": "link",
-        "links": [
-            "link_ack_cmd_in"
-        ],
-        "x": 860,
-        "y": 240,
-        "wires": []
-    },
-    {
-        "id": "link_solenoides_feedback_in",
-        "type": "link in",
-        "z": "a757ff0be26f944a",
-        "name": "Link Solenóides Feedback In",
-        "links": [
-            "link_ack_feedback_out"
-        ],
-        "x": 480,
-        "y": 60,
-        "wires": [
-            [
-                "fn_solenoides_feedback"
-            ]
-        ]
-    },
-    {
-        "id": "fn_solenoides_feedback",
-        "type": "function",
-        "z": "a757ff0be26f944a",
-        "name": "Processador Feedback Visual Solenóides",
-        "func": "// Processador de Feedback & Estado Visual Solenóides\nvar status = msg.status;\nvar buttonId = msg.buttonId;\nvar sensorId = msg.sensorId;\nvar val = String(msg.value !== undefined ? msg.value : '');\n\n// Estado mantido no contexto de fluxo dos solenóides\nvar solState = flow.get('solenoid_states') || { 31: false, 32: false, 33: false };\n\n// Mapeamento:\n// 0: Ligar Sol A, 1: Desligar Sol A\n// 2: Ligar Sol B, 3: Desligar Sol B\n// 4: Ligar Sol C, 5: Desligar Sol C\n// 6: Botão Enviar Comando Admin\n\nvar outputs = [null, null, null, null, null, null, null];\n\nfunction makeStyle(color) {\n    return {\n        ui_update: { buttonColor: color, textColor: color ? '#ffffff' : '' },\n        buttonColor: color,\n        textColor: color ? '#ffffff' : ''\n    };\n}\n\nif (status === 'error') {\n    var errorIndexMap = {\n        'd24ac9884d836b5f': 0, '5a74fe774d0b8e06': 1,\n        'd5113aa8b58b627f': 2, 'f322977c0cdba1a5': 3,\n        '06bc82b2a8afaa23': 4, 'fe082f23b6ace22b': 5,\n        '2c4b494c55bff84b': 6\n    };\n    var idx = buttonId ? errorIndexMap[buttonId] : -1;\n    if (idx !== -1) {\n        outputs[idx] = makeStyle('#ef4444'); // Vermelho\n        setTimeout(function() {\n            var currentSolState = flow.get('solenoid_states') || { 31: false, 32: false, 33: false };\n            var resetOutputs = [null, null, null, null, null, null, null];\n            resetOutputs[0] = makeStyle(currentSolState[31] ? '#10b981' : '');\n            resetOutputs[1] = makeStyle('');\n            resetOutputs[2] = makeStyle(currentSolState[32] ? '#10b981' : '');\n            resetOutputs[3] = makeStyle('');\n            resetOutputs[4] = makeStyle(currentSolState[33] ? '#10b981' : '');\n            resetOutputs[5] = makeStyle('');\n            resetOutputs[6] = makeStyle('');\n            node.send(resetOutputs);\n        }, 4500);\n        return outputs;\n    }\n}\n\nif (status === 'success') {\n    if (sensorId == 31 || sensorId == 32 || sensorId == 33) {\n        var isOn = (val === '1' || val === 'true');\n        \n        if (isOn) {\n            // MUX: apenas 1 solenóide ativa por vez\n            solState[31] = (sensorId == 31);\n            solState[32] = (sensorId == 32);\n            solState[33] = (sensorId == 33);\n        } else {\n            solState[sensorId] = false;\n        }\n        flow.set('solenoid_states', solState);\n        \n        // Mantém verde o botão \"Ligar\" correspondente enquanto a solenóide estiver ligada\n        outputs[0] = makeStyle(solState[31] ? '#10b981' : '');\n        outputs[2] = makeStyle(solState[32] ? '#10b981' : '');\n        outputs[4] = makeStyle(solState[33] ? '#10b981' : '');\n        \n        // Feedback breve no botão desligar\n        if (!isOn) {\n            var offIdx = (sensorId == 31 ? 1 : (sensorId == 32 ? 3 : 5));\n            outputs[offIdx] = makeStyle('#10b981');\n            setTimeout(function() {\n                var r = [null, null, null, null, null, null, null];\n                r[offIdx] = makeStyle('');\n                node.send(r);\n            }, 2500);\n        }\n        \n        return outputs;\n    } else if (buttonId === '2c4b494c55bff84b') {\n        outputs[6] = makeStyle('#10b981');\n        setTimeout(function() {\n            var r = [null, null, null, null, null, null, null];\n            r[6] = makeStyle('');\n            node.send(r);\n        }, 3000);\n        return outputs;\n    }\n}\n\nreturn null;\n",
-        "outputs": 7,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 750,
-        "y": 60,
-        "wires": [
-            [
-                "d24ac9884d836b5f"
-            ],
-            [
-                "5a74fe774d0b8e06"
-            ],
-            [
-                "d5113aa8b58b627f"
-            ],
-            [
-                "f322977c0cdba1a5"
-            ],
-            [
-                "06bc82b2a8afaa23"
-            ],
-            [
-                "fe082f23b6ace22b"
-            ],
-            [
-                "2c4b494c55bff84b"
-            ]
-        ]
-    },
-    {
-        "id": "fn_bombas_dispatch",
-        "type": "function",
-        "z": "1e714cfec06339e2",
-        "name": "Despachante & Feedback Imediato Bombas",
-        "func": "// Despachante & Feedback Imediato Bombas\nvar p = msg.payload;\nif (typeof p === 'string') {\n    try { p = JSON.parse(p); } catch(e) {}\n}\n\nvar buttonIndexMap = {\n    '38:1': 0, // Ligar Bomba NFT\n    '38:0': 1, // Desligar Bomba NFT\n    '39:1': 2, // Ligar Bomba Oxi\n    '39:0': 3  // Desligar Bomba Oxi\n};\n\nvar buttonIdMap = {\n    '38:1': 'ad676d3d3b01fdfb',\n    '38:0': 'e159c6a41b612278',\n    '39:1': '816fdc9c18b87b2f',\n    '39:0': '1b2ef9f3f78dd3e4'\n};\n\nvar key = (p && p.sensorId !== undefined && p.payload !== undefined) ? (p.sensorId + ':' + p.payload) : '';\nvar idx = buttonIndexMap[key] !== undefined ? buttonIndexMap[key] : -1;\nvar bId = buttonIdMap[key] || '';\n\nif (idx === -1) return null;\n\nif (p && typeof p === 'object') {\n    p._buttonId = bId;\n    msg.payload = p;\n}\n\n// Feedback Imediato Amarelo / Pendente\nvar pendingMsg = {\n    ui_update: {\n        buttonColor: '#f59e0b',\n        textColor: '#ffffff'\n    },\n    buttonColor: '#f59e0b',\n    textColor: '#ffffff'\n};\n\nvar outputs = [null, null, null, null, null];\noutputs[idx] = pendingMsg;\noutputs[4] = msg; // Comando enviado ao Sincronizador ACK\n\nreturn outputs;\n",
-        "outputs": 5,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 480,
-        "y": 140,
-        "wires": [
-            [
-                "ad676d3d3b01fdfb"
-            ],
-            [
-                "e159c6a41b612278"
-            ],
-            [
-                "816fdc9c18b87b2f"
-            ],
-            [
-                "1b2ef9f3f78dd3e4"
-            ],
-            [
-                "link_bombas_cmd_out",
-                "c45c49f934245b7e"
-            ]
-        ]
-    },
-    {
-        "id": "link_bombas_cmd_out",
-        "type": "link out",
-        "z": "1e714cfec06339e2",
-        "name": "Link Bombas Cmd Out",
-        "mode": "link",
-        "links": [
-            "link_ack_cmd_in"
-        ],
-        "x": 800,
         "y": 180,
+        "wires": [
+            [
+                "tg_sender_1"
+            ]
+        ]
+    },
+    {
+        "id": "tg_sender_1",
+        "type": "telegram sender",
+        "z": "tab_telegram_bot",
+        "name": "Telegram Sender",
+        "bot": "tg_bot_config_m360",
+        "haserroroutput": true,
+        "outputs": 2,
+        "x": 820,
+        "y": 180,
+        "wires": [
+            [
+                "debug_tg_ok"
+            ],
+            [
+                "debug_tg_err"
+            ]
+        ]
+    },
+    {
+        "id": "debug_tg_ok",
+        "type": "debug",
+        "z": "tab_telegram_bot",
+        "name": "Telegram OK",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "x": 1040,
+        "y": 160,
         "wires": []
     },
     {
-        "id": "link_bombas_feedback_in",
-        "type": "link in",
-        "z": "1e714cfec06339e2",
-        "name": "Link Bombas Feedback In",
-        "links": [
-            "link_ack_feedback_out"
-        ],
-        "x": 480,
-        "y": 40,
-        "wires": [
-            [
-                "fn_bombas_feedback"
-            ]
-        ]
-    },
-    {
-        "id": "fn_bombas_feedback",
-        "type": "function",
-        "z": "1e714cfec06339e2",
-        "name": "Processador Feedback Visual Bombas",
-        "func": "// Processador de Feedback & Estado Visual Bombas\nvar status = msg.status;\nvar buttonId = msg.buttonId;\nvar sensorId = msg.sensorId;\nvar val = String(msg.value !== undefined ? msg.value : '');\n\nvar pumpState = flow.get('pump_states') || { 38: false, 39: false };\n\nvar outputs = [null, null, null, null];\n\nfunction makeStyle(color) {\n    return {\n        ui_update: { buttonColor: color, textColor: color ? '#ffffff' : '' },\n        buttonColor: color,\n        textColor: color ? '#ffffff' : ''\n    };\n}\n\nif (status === 'error') {\n    var errorIndexMap = {\n        'ad676d3d3b01fdfb': 0, 'e159c6a41b612278': 1,\n        '816fdc9c18b87b2f': 2, '1b2ef9f3f78dd3e4': 3\n    };\n    var idx = buttonId ? errorIndexMap[buttonId] : -1;\n    if (idx !== -1) {\n        outputs[idx] = makeStyle('#ef4444');\n        setTimeout(function() {\n            var currentPumpState = flow.get('pump_states') || { 38: false, 39: false };\n            var resetOutputs = [null, null, null, null];\n            resetOutputs[0] = makeStyle(currentPumpState[38] ? '#10b981' : '');\n            resetOutputs[1] = makeStyle('');\n            resetOutputs[2] = makeStyle(currentPumpState[39] ? '#10b981' : '');\n            resetOutputs[3] = makeStyle('');\n            node.send(resetOutputs);\n        }, 4500);\n        return outputs;\n    }\n}\n\nif (status === 'success') {\n    if (sensorId == 38 || sensorId == 39) {\n        var isOn = (val === '1' || val === 'true');\n        pumpState[sensorId] = isOn;\n        flow.set('pump_states', pumpState);\n        \n        // Mantém verde o botão \"Ligar\" correspondente enquanto a bomba estiver ligada\n        outputs[0] = makeStyle(pumpState[38] ? '#10b981' : '');\n        outputs[2] = makeStyle(pumpState[39] ? '#10b981' : '');\n        \n        if (!isOn) {\n            var offIdx = (sensorId == 38 ? 1 : 3);\n            outputs[offIdx] = makeStyle('#10b981');\n            setTimeout(function() {\n                var r = [null, null, null, null];\n                r[offIdx] = makeStyle('');\n                node.send(r);\n            }, 2500);\n        }\n        \n        return outputs;\n    }\n}\n\nreturn null;\n",
-        "outputs": 4,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 740,
-        "y": 40,
-        "wires": [
-            [
-                "ad676d3d3b01fdfb"
-            ],
-            [
-                "e159c6a41b612278"
-            ],
-            [
-                "816fdc9c18b87b2f"
-            ],
-            [
-                "1b2ef9f3f78dd3e4"
-            ]
-        ]
+        "id": "debug_tg_err",
+        "type": "debug",
+        "z": "tab_telegram_bot",
+        "name": "Telegram ERRO",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "x": 1050,
+        "y": 220,
+        "wires": []
     }
 ]

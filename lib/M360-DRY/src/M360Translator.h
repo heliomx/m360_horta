@@ -12,6 +12,7 @@
 #include <core/MyMessage.h>
 #include <ArduinoJson.h>
 #include "M360Config.h"
+#include "M360Registry.h"
 
 namespace M360 {
 
@@ -100,6 +101,19 @@ namespace M360 {
 		// I_... para C_INTERNAL — os dois enums compartilham o mesmo espaço
 		// numérico, então o command é obrigatório para desambiguar).
 		static const char* getTypeDescription(uint8_t command, uint8_t type);
+
+		/*
+		 * Gera descrição humanizada da mensagem (em português).
+		 * Exemplo Envio: "Nó 99 (Central de Relés): Ligar Sol.CanteiroA [Child 31]"
+		 * Exemplo Recebido: "Do Nó 99 (Central de Relés): Sol.CanteiroA ligada [Child 31]"
+		 */
+		static String formatHumanDescription(const NodeRegistry& registry,
+		                                    uint8_t nodeId,
+		                                    uint8_t childId,
+		                                    uint8_t command,
+		                                    uint8_t type,
+		                                    const char* payload,
+		                                    bool isSending);
 
 		// Modo nativo MySensors MQTT (usar com -D M360_NATIVE_MQTT=1 no platformio.ini)
 		// buildNativeTopic: monta {prefix}/{nodeId}/{sensorId}/{command}/{ack}/{type}
