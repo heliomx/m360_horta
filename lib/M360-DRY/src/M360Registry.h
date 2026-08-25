@@ -35,7 +35,7 @@ namespace M360 {
 	class NodeRegistry {
 	public:
 		static const int MAX_NODES = MAX_REGISTRY_NODES;
-		static const unsigned long DEFAULT_TIMEOUT_MS = 300000; // 5 minutos
+		static const unsigned long DEFAULT_TIMEOUT_MS = 900000; // 15 minutos (900 s)
 
 		NodeRegistry(unsigned long timeoutMs = DEFAULT_TIMEOUT_MS);
 

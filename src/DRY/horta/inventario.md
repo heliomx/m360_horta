@@ -295,7 +295,11 @@ Node-RED** — é o diagnóstico mais direto para comando que "não faz nada".
 
 - **Umidade de solo** (nós 1 e 2): `V_LEVEL` (37) em **ADC bruto 0–1023**, não em
   percentual. Valor alto = solo seco (sensor resistivo). O Motor de Regras do
-  Node-RED opera nessa escala (limiares 350 e 500).
+  Node-RED opera nessa escala:
+  - $< 350\text{ ADC}$: Solo saturado / Capacidade de campo (Standby).
+  - $350\text{ a }850\text{ ADC}$: Escala contínua de déficit hídrico mapeada em lâmina de reposição líquida ($0\text{ a }3.5\text{ mm}$ com cap de $4.5\text{ mm}$).
+  - $\ge 700\text{ ADC}$: Limiar de estresse hídrico crítico (sobrepõe adiamento por chuva).
+- **Motor Agroclimático do Canteiro B (Open-Meteo + IoT):** Integração de $ET_0$ FAO-56 Penman-Monteith, VPD, radiação solar, vento e previsão de chuva com corte mínimo de duração $> 3\text{ minutos}$ ($180\text{ s}$) — ver documentação detalhada em [`docs/motor_agroclimatico_manejo360.md`](../../../docs/motor_agroclimatico_manejo360.md).
 - **Temperatura** (`V_TEMP`): °C, 1 casa decimal.
 - **Umidade do ar** (`V_HUM`): % relativa, 1 casa decimal.
 - **Vazão** (nó 99, child 21): `V_FLOW` (34) em **L/min**. Fator do YF-S201:

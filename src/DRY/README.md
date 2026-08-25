@@ -167,7 +167,7 @@ Localizado em **`src/DRY/gateway/`**, o gateway atua como a ponte inteligente en
 2.  **Downstream (MQTT → Rádio):** O gateway assina o tópico `m360/{UF}/{CAR}/in` e recebe comandos em formato JSON, mapeando-os tanto em comandos MySensors brutos quanto em comandos amigáveis simplificados (ex: `"action": "PUMP_ON"`).
 
 ### 🛡️ Diagnóstico e Confiabilidade
-*   **Rastreamento de Nós (Node Tracking):** O gateway mantém um registro local dos nós ativos. Caso um nó configurado fique sem se comunicar por mais de 5 minutos, publica um evento de alerta `node_lost` no tópico `{topic}/events`.
+*   **Rastreamento de Nós (Node Tracking):** O gateway mantém um registro local dos nós ativos. Caso um nó configurado fique sem se comunicar por mais de 15 minutos, publica um evento de alerta `node_lost` no tópico `{topic}/events`.
 *   **Sinalização por LEDs:**
     *   *Verde Acesso:* Conexões WiFi e MQTT ativas e estáveis.
     *   *Amarelo Piscando:* WiFi OK, porém sem conexão com o Broker MQTT.

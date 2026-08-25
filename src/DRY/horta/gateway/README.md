@@ -52,7 +52,7 @@ Rastreamento de Nós (Node Tracking)
 O gateway mantém um registro de até 10 nós (nodeRegistry).
 
 Se um nó envia mensagem, ele é marcado como active.
-Se um nó não se comunica por 5 minutos (NODE_TIMEOUT_MS), o gateway publica um evento "node_lost" no tópico MQTT de eventos para alertar o backend.
+Se um nó não se comunica por 15 minutos (DEFAULT_TIMEOUT_MS = 900 s), o gateway publica um evento "node_lost" no tópico MQTT de eventos para alertar o backend.
 Diagnóstico por LEDs
 Estado Visual	Significado
 Verde Aceso	Sistema Online (WiFi + MQTT OK).
