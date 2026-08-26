@@ -98,6 +98,7 @@ namespace M360
 		_messages[_count + 2] = MyMessage(M360_CHILD_ID_DEBUG,    V_TEXT);
 
 		_interval = loadInterval();
+		_announceInterval();
 
 		_printNetDiag();
 	}
@@ -174,7 +175,7 @@ namespace M360
 				saveInterval(_interval);
 			}
 			// Sempre confirma o valor vigente (gateway sabe se a mudança foi aceita ou rejeitada)
-			send(_messages[_count].set(_interval));
+			_announceInterval();
 			Serial.print(F("INT:"));
 			Serial.println(_interval);
 			return;
@@ -301,7 +302,17 @@ namespace M360
 		present(M360_CHILD_ID_INTERVAL, S_CUSTOM,     F("Intervalo"));
 		present(M360_CHILD_ID_BATTERY,  S_MULTIMETER, F("Bateria"));
 		present(M360_CHILD_ID_DEBUG,    S_INFO,       F("Debug"));
+		_announceInterval();
 		Serial.println(F("REPRES:OK"));
+	}
+
+	// Publica o intervalo VIGENTE no child 254. Sem isto o gateway só descobria a
+	// cadência do nó quando alguém mandava um C_SET: depois de um reboot do
+	// gateway (ESP, rotineiro) o registro voltava ao timeout default de 15 min e
+	// declarava node_lost a cada 15 min num nó que dorme 60. REPRESENT — o gesto
+	// natural de ressincronizar pelo dashboard — também não corrigia.
+	void M360Node::_announceInterval() {
+		send(_messages[_count].set(_interval));
 	}
 
 	void M360Node::_printNetDiag() {

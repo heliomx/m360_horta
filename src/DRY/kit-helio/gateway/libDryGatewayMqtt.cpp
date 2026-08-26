@@ -138,8 +138,24 @@ void receive(const MyMessage &message) {
 				publishTransportEvent(M360::EVT_NODE_DISCOVER, details.c_str(), nodeId);
 				break;
 			}
-			default:
-				break;
+		}
+	}
+
+	// Capturar intervalo de telemetria anunciado pelo nó (Child 254 / V_VAR1).
+	// O nó publica isto na apresentação, no REPRESENT e como eco de todo C_SET de
+	// intervalo — inclusive quando rejeita o valor, caso em que ecoa o vigente.
+	//
+	// Exigir cmd == C_SET não é zelo: os números de tipo se repetem entre as
+	// classes de comando (V_VAR1 vale 24, e S_DUST na apresentação também).
+	// Hoje escapa só porque o child 254 é apresentado como S_CUSTOM (23).
+	// !isAck() descarta o ACK de transporte que o próprio gateway fabrica — ele
+	// prova apenas que o próximo salto respondeu, não que o nó aplicou algo.
+	if (cmd == C_SET && !message.isAck() &&
+	    childId == M360::CHILD_ID_INTERVAL &&
+	    (message.getType() == V_VAR1 || message.getType() == V_VAR5)) {
+		uint16_t iv = (uint16_t)atoi(payloadDbg);
+		if (iv > 0) {
+			gateway.registry().registerInterval(nodeId, iv);
 		}
 	}
 
@@ -478,6 +494,11 @@ void processMQTTCommand(const JsonDocument& doc) {
 		);
 		Serial.printf("🎯 [ENVIO] %s -> %s\n", humanDesc.c_str(), success ? "✅ Sucesso" : "❌ Falha");
 		ledFlicker(success ? LED_YELLOW : LED_RED);
+		// NÃO registrar aqui o intervalo comandado: `success` é apenas o auto-ACK
+		// de hardware do RF24 do PRÓXIMO SALTO, não prova que o nó recebeu nem que
+		// aceitou o valor. A fonte da verdade é o eco do nó no child 254, que
+		// M360Node::handleMessage() sempre devolve (inclusive ao rejeitar) e que
+		// receive() captura.
 		if (success && withAck) publishTransportAck(outMsg, targetNodeId);
 	} else {
 		Serial.println("❌ Erro ao decodificar JSON ou comando inválido");

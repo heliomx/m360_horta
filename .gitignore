@@ -30,3 +30,8 @@ desktop.ini
 .bmad-loop/runs/
 .bmad-loop/cache/
 
+
+# Credenciais em texto plano (usuário/senha do Node-RED de produção — ver
+# "Renovação Automática de Autenticação" no CLAUDE.md). NUNCA versionar.
+.env
+**/.env

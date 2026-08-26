@@ -5,6 +5,7 @@
 #ifdef ESP8266
 
 #include "M360Registry.h"
+#include "M360Config.h"   // M360_MIN_INTERVAL / M360_MAX_INTERVAL
 #include <string.h>
 
 namespace M360 {
@@ -17,6 +18,8 @@ namespace M360 {
 			_registry[i].nodeId = 0;
 			_registry[i].sketchName[0] = '\0';
 			_registry[i].lastSeen = 0;
+			_registry[i].intervalMin = 0;
+			_registry[i].timeoutMs = _timeoutMs;
 			_registry[i].active = false;
 			_registry[i].childCount = 0;
 			for (int j = 0; j < MAX_CHILDREN_PER_NODE; j++) {
@@ -48,6 +51,8 @@ namespace M360 {
 			_registry[idx].nodeId = nodeId;
 			_registry[idx].sketchName[0] = '\0';
 			_registry[idx].lastSeen = millis();
+			_registry[idx].intervalMin = 0;
+			_registry[idx].timeoutMs = _timeoutMs;
 			_registry[idx].active = true;
 			_registry[idx].childCount = 0;
 			return idx;
@@ -66,12 +71,40 @@ namespace M360 {
 			_registry[evictIdx].nodeId = nodeId;
 			_registry[evictIdx].sketchName[0] = '\0';
 			_registry[evictIdx].lastSeen = millis();
+			_registry[evictIdx].intervalMin = 0;
+			_registry[evictIdx].timeoutMs = _timeoutMs;
 			_registry[evictIdx].active = true;
 			_registry[evictIdx].childCount = 0;
 			return evictIdx;
 		}
 
 		return -1;
+	}
+
+	void NodeRegistry::registerInterval(uint8_t nodeId, uint16_t intervalMin) {
+		// 0 é o gateway; 255 é BROADCAST — nunca um remetente real. Sem esta guarda,
+		// um comando de intervalo em broadcast criava um "nó 255" ativo no registro,
+		// que ocupava slot, podia despejar um nó real por LRU e depois disparava um
+		// node_lost para um nó que não existe.
+		if (nodeId == 0 || nodeId == 255) return;
+
+		// Mesma faixa que M360Node::handleMessage() aplica antes de aceitar o valor.
+		// Sem o clamp as duas pontas discordavam por construção, e um valor absurdo
+		// (atoi de um typo) estourava o cálculo: unsigned long tem 32 bits no
+		// ESP8266, e intervalMs + deltaTMs passa de 2^32 acima de ~47.700 min,
+		// fazendo o timeout dar wrap para um valor pequeno e arbitrário.
+		if (intervalMin < M360_MIN_INTERVAL || intervalMin > M360_MAX_INTERVAL) return;
+
+		// Só atualiza nó já conhecido: aprender uma cadência não é motivo para
+		// inventar um nó que nunca falou. Quem cria a entrada é update(), chamado
+		// em receive() antes deste ponto para toda mensagem que chega pelo rádio.
+		int idx = findNodeIndex(nodeId);
+		if (idx >= 0) {
+			_registry[idx].intervalMin = intervalMin;
+			unsigned long intervalMs = (unsigned long)intervalMin * 60000UL;
+			unsigned long deltaTMs   = (intervalMs / 2UL > 120000UL) ? (intervalMs / 2UL) : 120000UL; // Max(2 min, 50% intervalo)
+			_registry[idx].timeoutMs = intervalMs + deltaTMs;
+		}
 	}
 
 	bool NodeRegistry::update(uint8_t nodeId) {
@@ -172,11 +205,16 @@ namespace M360 {
 	void NodeRegistry::checkTimeouts(std::function<void(uint8_t nodeId, const char* reason)> onNodeLost) {
 		unsigned long now = millis();
 		for (int i = 0; i < _count; i++) {
-			if (_registry[i].active && (now - _registry[i].lastSeen > _timeoutMs)) {
+			unsigned long nodeTimeout = (_registry[i].timeoutMs > 0) ? _registry[i].timeoutMs : _timeoutMs;
+			if (_registry[i].active && (now - _registry[i].lastSeen > nodeTimeout)) {
 				_registry[i].active = false;
 				if (onNodeLost) {
-					char buffer[32];
-					snprintf(buffer, sizeof(buffer), "timeout %lu s", _timeoutMs / 1000);
+					char buffer[48];
+					if (_registry[i].intervalMin > 0) {
+						snprintf(buffer, sizeof(buffer), "timeout %lu s (Int: %u min)", nodeTimeout / 1000, _registry[i].intervalMin);
+					} else {
+						snprintf(buffer, sizeof(buffer), "timeout %lu s", nodeTimeout / 1000);
+					}
 					onNodeLost(_registry[i].nodeId, buffer);
 				}
 			}

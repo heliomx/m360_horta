@@ -137,12 +137,26 @@ Convenção do label: `<canteiro>_<distância>_<profundidade>`.
 
 | Child | Constante | Label | `kind` | `S_*` | `V_*` | Payload | Sensor | Pino | `reportIntervalMin` | `wakeOnRadio` | `flags` |
 |---:|---|---|---|---|---|---|---|---|:---:|:---:|:---:|
-| **1** | `CHILD_ID_SOIL_TEMP` | `Temperatura Solo` | `M360_SENSOR` | `S_TEMP` | `V_TEMP` (0) | float, 1 casa | DS18B20 | −1 | 1 | false | 0 |
-| **11** | `CHILD_ID_TEMP` | `Temperatura Ar` | `M360_SENSOR` | `S_TEMP` | `V_TEMP` (0) | float, 1 casa | DHT11 | −1 | 1 | false | 0 |
-| **12** | `CHILD_ID_HUM` | `Umidade Ar` | `M360_SENSOR` | `S_HUM` | `V_HUM` (1) | float, 1 casa | DHT11 | −1 | 1 | false | 0 |
+| **1** | `CHILD_ID_SOIL_TEMP` | `Temperatura Solo` | `M360_SENSOR` | `S_TEMP` | `V_TEMP` (0) | float, 1 casa | DS18B20 | −1 | 60 | false | 0 |
+| **11** | `CHILD_ID_TEMP` | `Temperatura Ar` | `M360_SENSOR` | `S_TEMP` | `V_TEMP` (0) | float, 1 casa | DHT11 | −1 | 60 | false | 0 |
+| **12** | `CHILD_ID_HUM` | `Umidade Ar` | `M360_SENSOR` | `S_HUM` | `V_HUM` (1) | float, 1 casa | DHT11 | −1 | 60 | false | 0 |
 
 `pin = -1` porque a leitura é resolvida por `childId` em `sensorDrivers.cpp`, não
-por porta. `reportIntervalMin = 1` reduz tráfego num nó a bateria.
+por porta.
+
+> **A coluna `reportIntervalMin` é documentação, não configuração.** O campo
+> `M360ItemDef.reportIntervalMin` não é lido por nenhum ponto de `M360Node` — a
+> cadência real do nó é `_interval`, carregado de `loadInterval()` (EEPROM 512–515)
+> e alterável só pelo child 254. A coluna registra a cadência **pretendida**.
+>
+> Consequência para o Nó 4: `-D M360_DEFAULT_INTERVAL=60` no `platformio.ini` só
+> vale para EEPROM virgem. O nó já em campo gravou `magic + 1` no primeiro boot da
+> versão anterior, e **regravar o firmware mantém o ciclo de 1 minuto**. Para
+> passar a 60 min de fato, depois de gravar dispare **⏱️ Definir Intervalo = 60**
+> no dashboard (aba de comandos), com o nó 4 selecionado. Como o nó é
+> `M360_LOW_POWER` e fica acordado ~3 s por ciclo, pode ser preciso repetir até o
+> comando pegar a janela — a confirmação é o eco do child 254 em `.../out`, e é
+> ele que ensina o timeout dinâmico ao gateway.
 
 > Este nó **sobrescreve** `M360::readBatteryVoltage()` (divisor 100k/100k em
 > `PIN_BATTERY_ADC`) em vez de usar o bandgap interno de 1,1 V da lib. O child 255
@@ -250,6 +264,7 @@ Sincronizador ACK, não erro de log.
 | 4 / 1, 11, 12 | `Filtro Clima SolarMini` | Gráficos de clima |
 | 1 / 1–6 | `Filtro Umidade Solo Canteiro A` (`type=37`) | Gráficos de solo |
 | 2 / 1–6 | `Filtro Canteiro B` + `Coletor Telemetria` | Gráficos + irrigação |
+| qualquer / 254 | `Seletor de Ação` / `Intervalo (min)` | Configuração de intervalo de reporte (1–1440 min via `C_SET`/`V_VAR1`) |
 | qualquer / 255 | `Filtro Bateria` | Gráfico de bateria |
 
 Comando MQTT em formato nativo (`M360_NATIVE_MQTT=1`) — ligar a Solenóide A:

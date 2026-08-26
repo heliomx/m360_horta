@@ -27,6 +27,8 @@ namespace M360 {
 		uint8_t   nodeId;
 		char      sketchName[MAX_NAME_LEN]; // "Central de Relés"
 		unsigned long lastSeen;
+		uint16_t  intervalMin;              // Intervalo configurado em minutos
+		unsigned long timeoutMs;            // Limiar dinâmico: (intervalMin * 60000UL) + deltaTMs
 		bool      active;
 		uint8_t   childCount;
 		ChildInfo children[MAX_CHILDREN_PER_NODE];
@@ -42,6 +44,9 @@ namespace M360 {
 		// Atualiza o status e lastSeen de um nó (chamado ao receber qualquer mensagem)
 		// Retorna true se o nó for novo no registro
 		bool update(uint8_t nodeId);
+
+		// Registra/atualiza o intervalo de reporte do nó e recalcula o timeout dinâmico (Intervalo + Delta T)
+		void registerInterval(uint8_t nodeId, uint16_t intervalMin);
 
 		// Registra/atualiza o nome do sketch informado pelo nó (I_SKETCH_NAME)
 		void registerSketchName(uint8_t nodeId, const char* name);

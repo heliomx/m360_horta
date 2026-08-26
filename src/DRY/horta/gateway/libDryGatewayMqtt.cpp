@@ -137,8 +137,24 @@ void receive(const MyMessage &message) {
 				publishTransportEvent(M360::EVT_NODE_DISCOVER, details.c_str(), nodeId);
 				break;
 			}
-			default:
-				break;
+		}
+	}
+
+	// Capturar intervalo de telemetria anunciado pelo nó (Child 254 / V_VAR1).
+	// O nó publica isto na apresentação, no REPRESENT e como eco de todo C_SET de
+	// intervalo — inclusive quando rejeita o valor, caso em que ecoa o vigente.
+	//
+	// Exigir cmd == C_SET não é zelo: os números de tipo se repetem entre as
+	// classes de comando (V_VAR1 vale 24, e S_DUST na apresentação também).
+	// Hoje escapa só porque o child 254 é apresentado como S_CUSTOM (23).
+	// !isAck() descarta o ACK de transporte que o próprio gateway fabrica — ele
+	// prova apenas que o próximo salto respondeu, não que o nó aplicou algo.
+	if (cmd == C_SET && !message.isAck() &&
+	    childId == M360::CHILD_ID_INTERVAL &&
+	    (message.getType() == V_VAR1 || message.getType() == V_VAR5)) {
+		uint16_t iv = (uint16_t)atoi(payloadDbg);
+		if (iv > 0) {
+			gateway.registry().registerInterval(nodeId, iv);
 		}
 	}
 
@@ -478,6 +494,16 @@ static void dispatchCommand(MyMessage& outMsg, uint8_t targetNodeId) {
 	ledFlicker(success ? LED_YELLOW : LED_RED);
 
 	if (success) {
+		// NÃO registrar aqui o intervalo comandado: `success` é apenas o auto-ACK
+		// de hardware do RF24 do PRÓXIMO SALTO, não prova que o nó recebeu nem que
+		// aceitou o valor. Um nó M360_LOW_POWER fica acordado ~3 s por ciclo e
+		// perde quase todo comando; um valor fora de M360_MIN/MAX_INTERVAL é
+		// rejeitado pelo nó. Registrar por otimismo estende o timeout do registro
+		// (até 36 h) para um nó que segue na cadência antiga — cegando justamente
+		// a detecção de nó morto a bateria.
+		// A fonte da verdade é o eco do nó: M360Node::handleMessage() sempre
+		// devolve o intervalo VIGENTE no child 254, inclusive quando rejeita.
+		// Esse eco é capturado em receive().
 		publishTransportAck(outMsg, targetNodeId);
 	} else {
 		char details[64];
