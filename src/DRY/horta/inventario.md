@@ -153,10 +153,12 @@ por porta.
 > vale para EEPROM virgem. O nó já em campo gravou `magic + 1` no primeiro boot da
 > versão anterior, e **regravar o firmware mantém o ciclo de 1 minuto**. Para
 > passar a 60 min de fato, depois de gravar dispare **⏱️ Definir Intervalo = 60**
-> no dashboard (aba de comandos), com o nó 4 selecionado. Como o nó é
-> `M360_LOW_POWER` e fica acordado ~3 s por ciclo, pode ser preciso repetir até o
-> comando pegar a janela — a confirmação é o eco do child 254 em `.../out`, e é
-> ele que ensina o timeout dinâmico ao gateway.
+> no dashboard (aba de comandos), com o nó 4 selecionado. O nó é `M360_LOW_POWER` e
+> fica acordado ~3 s por ciclo, mas não é preciso acertar a janela na mão: a
+> **Caixa Postal** do Node-RED retém o comando e o despacha no próximo despertar
+> (ver `nodered/funcionalidades_nodered.md` §5.5). A confirmação é o eco do child 254
+> em `.../out` — é ele que ensina o timeout dinâmico ao gateway, e o Telegram avisa
+> com *"PARÂMETRO CONFIRMADO: Intervalo de Envio"*.
 
 > Este nó **sobrescreve** `M360::readBatteryVoltage()` (divisor 100k/100k em
 > `PIN_BATTERY_ADC`) em vez de usar o bandgap interno de 1,1 V da lib. O child 255
