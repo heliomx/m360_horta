@@ -44,7 +44,7 @@ Estas chaves são o estado vivo do sistema. Alterar seu significado quebra vári
 | Chave | Escopo | Inicializada em | Conteúdo |
 |---|---|---|---|
 | `mqtt_topic_prefix` | global | `Configurações Globais M360` | `m360/DF/0000` |
-| `mys_nodes` | global (**file**) | `Mapeia nós` | Registro completo de nós: childs, valores, cadência, status |
+| `mys_nodes` | global (**memória** — ver nota) | `Mapeia nós` | Registro completo de nós: childs, valores, cadência, status |
 | `mqtt_logs` | global | `Central Logger MQTT` | Buffer circular de 6000 mensagens MQTT |
 | `m360_mailbox` | global | `Sincronizador ACK` | **Caixa Postal** — um comando retido por nó LP, aguardando o despertar |
 | `telegram_subscribers` | global | `Configurações Globais M360` | Lista de chats inscritos no bot |
@@ -59,10 +59,20 @@ Estas chaves são o estado vivo do sistema. Alterar seu significado quebra vári
 | `last_network_alert_times` | flow | `Monitor de Falhas` | Marcas de cooldown por tipo de alerta |
 | `solo_b_readings`, `clima_dht11`, `agro_meteo` | flow | abas de irrigação | Telemetria consolidada para o motor de regras |
 | `last_irrig_b_time` | flow | `Motor de Regras Canteiro B` | Marca do soak time |
+| `m360_irrig_deadlines` | global | Controladores A/B | **Prazo de desligamento por child** — lido pelo `Reconciliador de Irrigação` (§6.4) |
+| `flow_vol_node_{nó}_{child}` | **global** | `Filtro Vazão e Volume` | Volume acumulado (L). Era `flow` e o `Radar M360` lia de outra aba — sempre `undefined` |
 | `hist_solo_A`, `hist_solo_B`, `hist_clima`, … | flow | nós `Salvar Histórico *` | Séries de 7 dias para replay dos gráficos |
 
-`mys_nodes` usa **armazenamento em arquivo** (`global.get('mys_nodes','file')`) com
-fallback para memória — sobrevive a reinício do Node-RED.
+> ⚠️ **`mys_nodes` NÃO sobrevive a reinício do Node-RED.** O código faz
+> `global.get('mys_nodes','file')` dentro de `try/catch`, mas o servidor está
+> configurado com `contextStorage: {default: "memory", stores: ["memory"]}` —
+> **não existe store `file`**. Toda chamada cai no `catch` e usa memória. O mesmo
+> vale para `m360_irrig_deadlines` e para os históricos dos gráficos.
+>
+> Consequência prática: um restart do processo apaga o registro de nós, os prazos
+> de irrigação em curso e as séries dos gráficos. Contra restart durante uma rega,
+> a única proteção é o **failsafe do firmware** do Nó 99 (§9). Configurar um store
+> `file` em `settings.js` fecharia essa lacuna de uma vez para as três coisas.
 
 ---
 
@@ -80,9 +90,24 @@ em **tópico nativo + payload bruto**.
 | Ligar/Desligar Solenóide C | Nó 99 / child 33 | `"1"` / `"0"` |
 | Ligar/Desligar Bomba NFT | Nó 99 / child 38 | `"1"` / `"0"` |
 | Ligar/Desligar Bomba Oxi | Nó 99 / child 39 | `"1"` / `"0"` |
-| Reboot Gateway | Nó 0 | ação `REBOOT_GATEWAY` |
 | Re-apresenta Nó 02 / 04 | child 0, `V_CUSTOM` (48) | `"REPRESENT"` |
 | Lê Sensores Nó 02 / 04 / 99 | child 0, `V_CUSTOM` (48) | `"FORCE_UPDATE"` |
+
+> **"Reboot Gateway" foi removido** em 26/08/2026. Não existe caminho MQTT que
+> reinicie o gateway: `ESP.restart()` só é chamado pelo portal web
+> (`M360Webserver.cpp:200`). O inject caía em `Pub MQTT Injects`, que **ignora o
+> campo `action`**, e publicava `.../in/0/0/1/0/2` com payload **vazio** — um
+> `C_SET`/`V_STATUS` sem sentido para o nó 0. Botão que prometia o que o firmware
+> não implementa.
+>
+> Os cinco injects de REPRESENT/FORCE_UPDATE estavam com **`wires: [[]]`** — sem
+> fio de saída, clicar não fazia nada, em silêncio. Religados a `Pub MQTT Injects`
+> na mesma data.
+>
+> ⚠️ Estes injects de relé publicam **direto**, fora do `Sincronizador ACK`. Além de
+> furar Caixa Postal e retentativa, um inject disparado enquanto o Sincronizador
+> aguarda pode gerar um eco que **confirma falsamente** o comando pendente (mesmo
+> nó, mesmo child, mesmo payload). É bancada — usar com o dashboard parado.
 
 ### 3.2 `Watchdog da rede` (a cada 60 s)
 
@@ -195,7 +220,7 @@ Ações disponíveis:
 
 | Assinatura | Destino |
 |---|---|
-| `m360/+/+/out/#` | `Decodificador Nativo` + `Translator Json` + logger |
+| `m360/+/+/out/#` | `Decodificador Nativo` + logger |
 | `m360/+/+/out/events` | `Monitor de Falhas` + logger |
 | `m360/+/+/in/#` | logger (marca direção OUT) |
 | `m360/+/+/gateway/status` | `Gateway Status + Watchdog` + logger |
@@ -210,31 +235,35 @@ Normaliza os dois formatos num objeto único:
 
 `direction` vale `'sensor'` ou **`'transport_ack'`** quando `ack === 1`.
 
-Distribui para quatro destinos: `Sincronizador ACK`, `Separar ACK / Leituras`,
-`Mapeia nós` e `Monitor de Falhas`.
+Distribui para **cinco** destinos: `Sincronizador ACK`, `Separar ACK / Leituras`,
+`Mapeia nós`, `Monitor de Falhas` e `Telemetria decodificada (Link Out)` — este
+último alimenta o `Coletor Telemetria Canteiro B` na aba Irrigação (§6.5).
 
 > Essa rotulagem é deliberada. `ack === 1` **nunca vem de um nó**: é o ACK que o
 > gateway fabrica em `publishTransportAck()` assim que o rádio confirma o salto.
 > Com o Nó 99 como repetidor, pode vir do repetidor. Confundi-lo com confirmação do
 > nó dava "sucesso" com o nó desligado.
 
-### 5.3 `Translator Json`
+### 5.3 `Translator Json` — **removido em 26/08/2026**
 
-Traduz a mensagem para texto legível com tabelas completas de `C_*`, `S_*`, `V_*`,
-`I_*`, e aplica diagnóstico agronômico (`MANEJO360`):
+Traduzia a mensagem para texto legível com tabelas `C_*`/`S_*`/`V_*`/`I_*` e
+diagnóstico agronômico (`MANEJO360`). Foi **excluído**, não apenas desconectado.
 
-| Grandeza | Faixa ideal | Alerta |
-|---|---|---|
-| `V_TEMP` | 18–25 °C | fora da faixa |
-| `V_PERCENTAGE` (solo) | 60–90 % | seco / excesso de água |
-| `V_PH` | 5.8–6.5 | baixo / alto |
-| `V_EC` | 1.2–2.2 mS/cm | diluída / concentrada |
-| `V_LEVEL` (reservatório) | > 30 % | reservatório baixo |
-| `V_VOLTAGE` | > 3.3 V | bateria fraca |
+Por quê:
 
-> **Remapeamento `V_LEVEL` → `V_PERCENTAGE`:** feito de forma *programática*, olhando
-> se o child foi apresentado como `S_MOISTURE` — não por `nodeId` hardcoded. Os nós
-> 01 e 02 usam `V_LEVEL` (37) para umidade de solo por decisão histórica.
+- estava com **`wires: [[]]`** — nenhum destino — e era o **primeiro** fio do
+  `mqtt in`, então executava a cada mensagem MQTT, antes do decodificador, fazia
+  um `global.get('mys_nodes')` e montava uma string grande para jogar fora;
+- por ser o primeiro fio, recebia o payload **cru**, não o objeto decodificado:
+  `m.command` era `undefined` de qualquer jeito;
+- seu `avaliarManejo()` julgava umidade de solo na escala **0–100**
+  (`<60` seco, `>90` excesso de água) aplicada a valores **ADC 0–1023 em que alto
+  = seco** (§9). O diagnóstico saía **invertido**: 640 ADC — solo seco — era
+  rotulado *"⚠ Possível excesso de água"*.
+
+Religá-lo sem corrigir a escala reintroduz o diagnóstico invertido. Se voltar a
+fazer falta, o lugar dele é **depois** do `Decodificador Nativo`, e a tabela
+`MANEJO360` precisa de uma entrada própria para `V_LEVEL` em ADC.
 
 ### 5.4 `Mapeia nós` — o registro
 
@@ -345,6 +374,12 @@ Cada termo carrega um caso real:
 | `ack === 0` | descarta o ACK de transporte; aceitá-lo dava "confirmado" com o nó desligado e os 3 retries nunca disparavam |
 | `payload` igual | evita casar com eco de outra origem — p.ex. o failsafe do Nó 99, que envia `0` sozinho |
 
+**Carimbo de `command` / `type` nos status** — toda mensagem da saída 2
+(`success`, `error`, `mailbox_*`) carrega `command` e `type` do comando que a
+originou. Na fila de ACK são sempre `1`/`2` (só entra comando de relé); no bypass
+são os valores reais. É o que permite ao `Monitor de Falhas` separar atuação de
+comando administrativo sem adivinhar pela faixa do `sensorId` (§5.9).
+
 **Bypass** — comandos que **não** são de relé seguem direto, sem esperar ACK:
 `!ack_sync_enabled`, `targetNode === 255`, `command === 3`, ou `!(command===1 && type===2)`.
 É por aí que passam REPRESENT, FORCE_UPDATE, DEBUG e **Definir Intervalo** — depois de
@@ -368,7 +403,19 @@ passarem, quando aplicável, pela Caixa Postal.
 > `nodeId` e eram descartados em silêncio. Corrigido em produção em 26/08/2026.
 > Ao mexer no contrato de controle desta função, **conferir os dois injects juntos.**
 
-### 5.6 Watchdog do gateway
+### 5.6 Watchdog do gateway e mapa de rede
+
+> **Critério único de "nó OFFLINE".** O `Processador do Mapa` usava
+> `3 × cycleMs` limitado a `[300, 21600]`, enquanto o `Watchdog da rede` (aba MQTT)
+> usava `timeoutSec` (Intervalo + ΔT, §9). O mesmo nó podia aparecer **ONLINE** no
+> mapa e **OFFLINE** na tabela. Desde 26/08/2026 ambos usam a fórmula do §9.
+>
+> **Status do gateway no mapa.** Era o literal `'ONLINE'`: o mapa mostrava o
+> gateway no ar enquanto o `Verifica Gateway Offline` — mesma aba, mesmo escopo de
+> flow — disparava alerta de OFFLINE no Telegram. Agora lê `flow.gateway_online`
+> (e mostra `DESCONHECIDO` antes do primeiro contato).
+
+#### Nós do watchdog
 
 | Nó | Cadência | Função |
 |---|---|---|
@@ -382,6 +429,38 @@ passarem, quando aplicável, pela Caixa Postal.
 `Separar ACK / Leituras` (switch por `payload.direction`) distribui as leituras para
 seis filtros. Cada filtro alimenta um `Salvar Histórico *` (retenção **7 dias**,
 teto de 3000 pontos) que por sua vez alimenta o gráfico.
+
+> **Todo filtro começa com `if (Number(m.command) !== 1 || Number(m.ack) === 1) return null;`**
+> (exceção: `Filtro Bateria SolarMini`, que trata os dois caminhos de bateria —
+> `command 3`/`I_BATTERY_LEVEL` e `command 1`/`V_VOLTAGE` — e por isso só descarta
+> `ack === 1`).
+>
+> A saída `direction === 'sensor'` do switch **inclui apresentação (`command 0`) e
+> mensagens internas (`command 3`)**. Sem essa guarda:
+> - numa apresentação, o payload é o **rótulo** do child — `parseFloat("B_1m_10cm")`
+>   = `NaN` — e ia direto para o gráfico e para o histórico. **Todo REPRESENT
+>   envenenava as séries de solo.**
+> - `command 3` + `type 0` é `I_BATTERY_LEVEL`, que casava com o teste de
+>   temperatura do `Filtro Temp/Hum Ar`: o nível de bateria era plotado como °C.
+>
+> Na mesma passagem caíram duas condições mortas: `child.tipo === 'V_LEVEL'`
+> (`tipo` guarda sempre um `S_*`) e `m.type === 35`, que é `V_VOLUME` na tabela
+> `V_*` — era o número de `S_MOISTURE` (tabela `S_*`) usado numa comparação de
+> tipo de variável. O teste correto de solo é `type === 37` (`V_LEVEL`) ou
+> `type === 3` (`V_PERCENTAGE`), ou `child.tipo === 'S_MOISTURE'`.
+
+> **`Filtro Vazão e Volume`** — a mensagem de volume passou a carregar `ts`. Sem
+> ele, `Salvar Histórico Volume` avaliava `(now - undefined) < CUTOFF` → `NaN` →
+> `false` e **descartava toda entrada, inclusive a recém-inserida**: `hist_volume`
+> ficava eternamente vazio enquanto o acumulador marcava centenas de litros. Os
+> sete `Salvar Histórico *` agora também aplicam `ts = msg.ts || Date.now()`.
+>
+> O acumulador migrou de `flow` para **`global`** (`flow_vol_node_{nó}_{child}`):
+> o `Radar M360` da aba IA lia a chave com `flow.get()` de **outra aba**, onde ela
+> nunca existiu — o volume saía sempre `0` no relatório diário.
+>
+> ⚠️ O acumulador **nunca zera**: "Consumo de Água (Litros)" é total vitalício, não
+> diário. Um reset periódico continua pendente.
 
 | Filtro | Gráfico | Origem |
 |---|---|---|
@@ -428,7 +507,8 @@ Alertas emitidos:
 | Sincronizador | `mailbox_enqueued` | Comando enfileirado — nó em hibernação |
 | Sincronizador | `mailbox_dispatched` | Nó despertou, comando despachado |
 | Sincronizador | `success` (child 254) | Comando de intervalo enviado |
-| Sincronizador | `success` (child < 200) | Atuação confirmada, com estado LIGADO/DESLIGADO |
+| Sincronizador | `success` + `command 1` + `type 2` + `0 < child < 200` | Atuação confirmada, com estado LIGADO/DESLIGADO |
+| Sincronizador | `success` **não**-atuação | Comando administrativo despachado (diz explicitamente que **não** aguarda ACK) |
 | Sincronizador | `error` | Timeout após 3 tentativas |
 | Gateway | transição de estado | Gateway offline/online |
 
@@ -438,14 +518,53 @@ O texto do `node_lost` já é escrito em termos de **Intervalo + ΔT**, consumin
 O alerta de intervalo só dispara quando o valor **muda** (`last_param_values`), então o
 eco periódico do child 254 não vira spam.
 
+> **O teste `isAtuacao` (`command === 1 && type === 2`) não é redundante.** A
+> condição anterior era só `cId < 200`, e o painel administrativo manda
+> `sensorId: 0`. Resultado: apertar **REPRESENT** disparava
+> *"🎯 COMANDO EXECUTADO: Atuação Confirmada — Atuador: Child 0 — Estado:
+> **DESLIGADO (0)** — ✅ ACK recebido com sucesso"*. Falso nos três pontos: não é
+> atuação; o valor era a string `"REPRESENT"` (que `String(msg.value) === '1'`
+> avalia como falso, virando "DESLIGADO"); e esse comando sai pelo **bypass**,
+> sem ACK nenhum. Corrigido em 26/08/2026.
+>
+> Para isso o `Sincronizador ACK` passou a **carimbar `command` e `type`** em todas
+> as mensagens de status que emite (§5.5). Quem consumir esses status daqui em
+> diante deve discriminar por esses campos, nunca pela faixa do `sensorId`.
+
 ---
 
 ## 6. Aba **Irrigação**
 
+### 6.0 Caminho do comando — **mudou em 26/08/2026**
+
+```
+Controlador A / Motor B / Reconciliador
+   └── envelope {nodeId, sensorId, command, type, payload}
+         └── link out → Sincronizador ACK → mqtt out
+```
+
+Antes, os dois controladores publicavam **direto** num `mqtt out` com o tópico
+literal `m360/DF/0000/in/99/3X/1/0/2`. Três defeitos de uma vez:
+
+1. **Sem retentativa.** Um OFF perdido no rádio deixava a válvula aberta, sem
+   erro, sem alerta, sem reenvio. Agora o Sincronizador confirma pelo eco de
+   aplicação do nó e **reenvia até 3×** (§5.5).
+2. **Prefixo `m360/DF/0000` hardcoded** em 2 function nodes, 2 `mqtt out` e 1
+   `mqtt in`, enquanto todo o resto usa `global.mqtt_topic_prefix`. Trocar UF/CAR
+   no gateway fazia a irrigação comandar o tópico errado **em silêncio**, com o
+   dashboard continuando a funcionar. Os nós `Publicar Comando Solenóide A/B`
+   foram **removidos**.
+3. **Sem dono do desligamento** — ver §6.4.
+
+> Efeito colateral desejável: como o comando agora passa pelo Sincronizador, os
+> botões da aba Solenóides passam a refletir o estado da irrigação automática
+> (o `buttonId` vem nulo e o feedback casa pelo `sensorId`).
+
 ### 6.1 Canteiro A — timer fixo
 
-Cron **07:00** e **17:00**. Liga o child 31 do Nó 99 por **300 s** (padrão), agenda o
-desligamento por `setTimeout` e notifica início/fim no Telegram.
+Cron **07:00** e **17:00**. Liga o child 31 do Nó 99 por **300 s** (padrão), registra
+o prazo em `m360_irrig_deadlines`, agenda o desligamento por `setTimeout` e notifica
+início/fim no Telegram.
 Manejo tradicional, sem consultar sensor. Parcela 6×1 m, 35 pés de alface.
 
 ### 6.2 Canteiro B — motor agroclimático
@@ -476,6 +595,48 @@ duração_s = volume_L / (2,5/60)               (gotejamento 2,5 L/min), cap 600
 ```
 
 Comando final: child **32** do Nó 99, `payload "1"` → `setTimeout` → `"0"`.
+
+### 6.4 `Reconciliador de Irrigação` — rede de segurança do OFF
+
+Tick de **30 s**. Existe porque o desligamento era agendado por `setTimeout()`
+**dentro do function node que ligou a válvula**: qualquer redeploy do Node-RED
+destrói esse timer e a válvula fica aberta indefinidamente. Este nó não depende de
+nenhum timer em memória do nó de origem.
+
+| Camada | Gatilho | Ação |
+|---|---|---|
+| 1 — Prazo vencido | `m360_irrig_deadlines[child].until` já passou | envia OFF pelo Sincronizador e avisa no Telegram (`FINALIZADA … fechada pelo Reconciliador`) |
+| 2 — Válvula órfã | `mys_nodes[99].values[child] === '1'` por **> 11 min** sem prazo dono | envia OFF, `node.error()` e alerta `RECONCILIADA` |
+
+Detalhes que não são arbitrários:
+
+- **O limiar da camada 2 (660 s) é deliberadamente maior que o failsafe de 600 s
+  do firmware** (`maxOnSecondsFor()` em `99nodeReles.cpp`). Com o firmware
+  gravado, o nó desliga sozinho primeiro e este ramo **nunca dispara**. Ele só age
+  quando o failsafe do nó não está presente ou não funcionou.
+- **Bombas NFT (38/39) são ignoradas** — regime contínuo por projeto, exatamente
+  como o firmware define (`return 0` = sem limite).
+- O `setTimeout` dos controladores **checa o registro antes de mandar o OFF**: se o
+  Reconciliador já fechou, o timer não manda um OFF duplicado.
+
+> ⚠️ **O que isto NÃO cobre.** O registro de prazos vive em contexto `global` de
+> **memória** (§2) — sobrevive a *deploy*, **não** a restart do processo. E
+> `C_REQ` só responde para `M360_SENSOR` (`M360Node.cpp:157`), então **não há como
+> perguntar ao nó o estado atual de um relé** para ressincronizar depois de um
+> restart. Contra restart durante uma rega, a única proteção é o failsafe do
+> firmware. Fechar essa lacuna exige um store `file` em `settings.js` **e** suporte
+> a `C_REQ` em atuadores no firmware.
+
+### 6.5 `Coletor Telemetria Canteiro B`
+
+Consome o objeto **já decodificado** pelo `Decodificador Nativo` via link in
+(§5.2). Antes esta aba tinha o próprio `mqtt in` (com prefixo literal) e o próprio
+parser, que exigia `parts.length >= 9` — ou seja, **só entendia o tópico nativo**.
+
+> Em modo JSON o coletor ficava mudo, `solo_b_readings` nunca enchia, o Motor de
+> Regras respondia *"Sem leituras válidas no Solo B"* e o **Canteiro B nunca
+> irrigava** — sem erro, sem log, sem alerta. Era também um segundo parser para o
+> mesmo dado, que podia divergir do principal.
 
 ### 6.3 Open-Meteo
 
@@ -533,6 +694,13 @@ Alterar qualquer linha abaixo exige mudança **simultânea** nos dois lados.
 | Sufixo `[LP]` no sketch name | detecção de nó LP na Caixa Postal | `M360Node::begin()` — sufixo por `M360PowerProfile` |
 | Janela de despertar ~3 s | Caixa Postal despacha na telemetria | `M360_MIN_AWAKE_MS` + `smartSleep()` |
 | Child IDs por nó | filtros e coletores | `inventario.md` |
+| **Teto de tempo ligado dos solenóides** | `BACKSTOP_MS` = 660 s no `Reconciliador de Irrigação` | `maxOnSecondsFor()` = 600 s em `99nodeReles.cpp` |
+| **Bombas NFT sem teto** | Reconciliador ignora childs 38/39 | `maxOnSecondsFor()` → `return 0` |
+| Escala de umidade de solo | filtros, `Coletor Telemetria B`, Motor de Regras | `readNodeItem()` devolve **ADC bruto 0–1023**, alto = seco |
+
+> O contrato do teto tem uma **ordem** embutida: o número do Node-RED tem que ser
+> **maior** que o do firmware. Inverter isso faz o Node-RED fechar a válvula antes
+> do nó e mascarar um failsafe de firmware que parou de funcionar.
 
 ---
 
@@ -568,6 +736,9 @@ O fluxo de trabalho é o definido no `CLAUDE.md` / `AGENTS.md`:
 | Incluir ou alterar botão, dropdown ou ação administrativa | §4.3 |
 | Alterar o caminho de despacho de um botão ou as cores de feedback | §4.1 |
 | Alterar como o Sincronizador separa controle / telemetria / comando | §5.5 ("Discriminação") |
+| Alterar o caminho de comando da irrigação ou o Reconciliador | §6.0, §6.4 **e** §9 |
+| Alterar guarda de `command`/`ack` em qualquer filtro de gráfico | §5.7 |
+| Alterar escopo de contexto de qualquer chave | §2 (e conferir quem lê de outra aba) |
 | Alterar assinatura MQTT | §5.1 |
 | Mudar regra de decodificação, registro ou matching de ACK | §5.2 – §5.5 |
 | Incluir, remover ou alterar filtro/gráfico | §5.7 |

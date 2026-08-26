@@ -1,6 +1,7 @@
 {
   "permissions": {
     "allow": [
+      "Bash(bash src/DRY/horta/nodered/deploy_flows.sh:*)",
       "Bash(grep -r \"powerUp\\\\|powerDown\" lib/M360-DRY/src/*.cpp lib/M360-DRY/src/*.h)",
       "Read(//tmp/**)",
       "Bash(python3)",

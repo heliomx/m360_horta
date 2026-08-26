@@ -169,7 +169,7 @@ src/DRY/
 
 ---
 
-## Convenções de Código
+## Convenções de Código e Formatação
 
 - **Linguagem dos comentários e logs Serial:** português
 - **IDs reservados:** 253 = Debug remoto (`V_TEXT`), 254 = Intervalo (`V_VAR1`), 255 = Bateria (`V_VOLTAGE`)
@@ -180,3 +180,4 @@ src/DRY/
 - **Solo:** escala 0 (seco) → 100 (água)
 - **JSON gateway:** `DynamicJsonDocument(512)` para mensagens, `(384)` para heartbeat, `(256)` para eventos
 - **Hardware Rádio RF24:** Todos os módulos nRF24L01+ de todos os nós e gateways possuem capacitor de desacoplamento instalado (premissa de hardware confirmada, não questionar).
+- **Formatação de Texto e Equações nas Respostas:** PROIBIDO utilizar código LaTeX cru ou delimitadores matemáticos (`$...$`, `$$...$$`, `\le`, `\text{}`, `\mu`, `\approx`, etc.). Sempre formatar grandezas, fórmulas e unidades de forma limpa em Markdown/Unicode simples (ex: `<= 20 mA`, `100 µs`, `10 kΩ`, `Q = ∫ I dt`, `R_solo`).

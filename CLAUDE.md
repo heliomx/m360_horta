@@ -124,7 +124,16 @@ Ao trabalhar em qualquer arquivo dentro de `src/DRY/` (nós **ou** gateway), apl
    - **Diagnosticar antes de renovar.** Testar o token vigente direto na Admin API: `GET https://nr.viridiotech.com.br/flows` com `Authorization: Bearer <token>`. Se responder 200, o token é válido e o 401 vem do **processo MCP com valor obsoleto em memória** — editar o config não resolve sozinho, é preciso reiniciar a conexão MCP, e isso é ação do usuário.
    - Renovação (só quando o token estiver de fato inválido): `POST https://nr.viridiotech.com.br/auth/token`, form-urlencoded, `client_id=node-red-admin&grant_type=password&scope=*&username=…&password=…`.
    - ⚠️ Em 26/08/2026 esse POST devolveu `403 invalid_grant` com as credenciais do `.env` — elas estão defasadas em relação ao servidor. Diante de 403, **parar e avisar o usuário**; não retentar em laço (risco de lockout).
-   - Com o MCP bloqueado e a alteração urgente, a Admin API (`POST /flows` com header `Node-RED-Deployment-Type: nodes`) é o mesmo endpoint que o MCP encapsula e cumpre a regra de "alterar produção, não o arquivo" — mas **confirmar com o usuário antes**, por ser escrita em produção. Fazer backup do `GET /flows` antes e verificar, depois do deploy, que apenas os nós pretendidos mudaram.
+   - Com o MCP bloqueado e a alteração urgente, a Admin API (`PUT /flow/{id}` com header `Node-RED-Deployment-Type: nodes`) é o mesmo endpoint que o MCP encapsula — mas **confirmar com o usuário antes**, por ser escrita em produção.
+   - **Não montar esse request à mão.** Usar [`src/DRY/horta/nodered/deploy_flows.sh`](src/DRY/horta/nodered/deploy_flows.sh):
+
+     ```bash
+     bash src/DRY/horta/nodered/deploy_flows.sh                       # dry run: só GET, mostra o diff por aba
+     bash src/DRY/horta/nodered/deploy_flows.sh --apply --all-changed  # publica as abas divergentes
+     ```
+
+     Sem `--apply` ele nunca escreve. Com `--apply`, grava backup do `GET /flows` em `backups/` (gitignored), publica **por aba** com a aba `ACK Handling` primeiro (ela define os `link out` que as outras consomem), e aborta no primeiro HTTP ≠ 200. Nós de **configuração** (broker MQTT, bot Telegram) ficam de fora de propósito: mudá-los exigiria `PUT /flows` completo, que arrisca as credenciais. Depois do deploy, rodar o dry run de novo — tem que dizer `Abas divergentes: nenhuma`.
+   - Este script é o **caminho de exceção**, para alteração autorada fora do editor (revisão em lote, payload grande demais para parâmetro MCP). O caminho normal continua sendo alterar no servidor e espelhar em `flows.json`.
 
 ---
 
@@ -319,7 +328,7 @@ include/
 
 ---
 
-## Convenções de Código
+## Convenções de Código e Formatação
 
 - **Linguagem dos comentários e logs Serial:** português
 - **IDs reservados:** 254 = Intervalo (`V_VAR1`), 255 = Bateria (`V_VOLTAGE`), 253 = Debug remoto (`V_TEXT`, apenas lib M360-DRY — ver `M360Node::sendDebug()` / `CMD_DEBUG_NET`)
@@ -327,10 +336,14 @@ include/
 - **EEPROM gateway (ESP):** região 0–511 = MySensors (reservado), 512–520 = M360NodeConfig, 521+ = `DeviceConfig`/`M360DeviceConfig` com CRC
 - **Perfil de energia:** definir exatamente um dos dois — nunca ambos simultaneamente
 - **Precisão float:** 1 casa decimal (`set(val, 1)`)
-- **Solo:** escala 0 (seco) → 100 (água)
+- **Solo (nós 1 e 2):** **ADC bruto 0–1023, valor alto = solo SECO** — não é
+  percentual e não é 0→100. `readNodeItem()` devolve `(float)analogRead(pin)`
+  sem conversão. Ver `inventario.md` §9, que é a referência desta escala; o
+  motor de irrigação do Node-RED opera nela (<350 úmido, ≥700 estresse crítico).
 - **JSON gateway:** `DynamicJsonDocument(512)` para mensagens, `(384)` para heartbeat, `(256)` para eventos
 - **Macros MY_\*:** definidas exclusivamente no `platformio.ini` — nunca no `.cpp` após `#include <MySensors.h>`
 - **Pinos virtuais MUX (Nó 99):** `pin = MUX_CHANNEL_OFFSET + canal` (100–115) — `setupPins()` deve ser omitido; pinos gerenciados em `initSensors()`
+- **Formatação de Texto e Equações nas Respostas:** PROIBIDO utilizar código LaTeX cru ou delimitadores matemáticos (`$...$`, `$$...$$`, `\le`, `\text{}`, `\mu`, `\approx`, etc.). Sempre formatar grandezas, fórmulas e unidades de forma limpa em Markdown/Unicode simples (ex: `<= 20 mA`, `100 µs`, `10 kΩ`, `Q = ∫ I dt`, `R_solo`).
 
 ---
 
@@ -432,11 +445,21 @@ inicialização e não falha de enlace.
 Não defina `MY_RF24_CHANNEL` sem uma medição que justifique. A configuração
 validada é a do `[common]`: canal padrão, `RF24_250KBPS`, `RF24_PA_HIGH`.
 
-### `V_LEVEL` (37) nos Nós 01 e 13 significa umidade de solo
+### `V_LEVEL` (37) nos Nós 01 e 02 significa umidade de solo
 
-Esses nós usam `V_LEVEL` para solo por decisão histórica. No Node-RED, o
-`Translator Json` remapeia `V_LEVEL → V_PERCENTAGE` por `nodeId`. Não mudar sem
-atualizar simultaneamente o firmware dos nós.
+Esses nós usam `V_LEVEL` para solo por decisão histórica, e o valor é **ADC
+bruto 0–1023** (alto = seco), não percentual. Quem consome esse child no
+Node-RED — os filtros de gráfico e o `Coletor Telemetria Canteiro B` — casa por
+`type === 37` e/ou pelo tipo apresentado `S_MOISTURE`. Não mudar sem atualizar
+simultaneamente o firmware dos nós.
+
+> Este parágrafo já afirmou que o `Translator Json` remapeava
+> `V_LEVEL → V_PERCENTAGE` **por `nodeId`**. Eram duas imprecisões: o remap era
+> pelo **tipo apresentado** (`S_MOISTURE`), não por `nodeId`; e o nó foi
+> **removido** em 26/08/2026 — estava com `wires: [[]]`, rodava em toda mensagem
+> MQTT sem destino, e seu `avaliarManejo()` julgava a escala 0–100 sobre valores
+> 0–1023, invertendo o diagnóstico (640 ADC, solo seco, saía como "possível
+> excesso de água").
 
 ### Sincronizador ACK — critério de matching
 

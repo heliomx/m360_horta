@@ -35,3 +35,6 @@ desktop.ini
 # "Renovação Automática de Autenticação" no CLAUDE.md). NUNCA versionar.
 .env
 **/.env
+
+# Backups do GET /flows gerados por src/DRY/horta/nodered/deploy_flows.sh
+src/DRY/horta/nodered/backups/
