@@ -22,6 +22,8 @@ namespace M360 {
 			_registry[i].cycleMs = 0;
 			_registry[i].timeoutMs = _timeoutMs;
 			_registry[i].active = false;
+			_registry[i].alwaysOn = false;
+			_registry[i].lastPresentReqMs = 0;
 			_registry[i].childCount = 0;
 			for (int j = 0; j < MAX_CHILDREN_PER_NODE; j++) {
 				_registry[i].children[j].childId = 0;
@@ -56,6 +58,8 @@ namespace M360 {
 			_registry[idx].cycleMs = 0;
 			_registry[idx].timeoutMs = _timeoutMs;
 			_registry[idx].active = true;
+			_registry[idx].alwaysOn = false;
+			_registry[idx].lastPresentReqMs = 0;
 			_registry[idx].childCount = 0;
 			return idx;
 		}
@@ -77,6 +81,8 @@ namespace M360 {
 			_registry[evictIdx].cycleMs = 0;
 			_registry[evictIdx].timeoutMs = _timeoutMs;
 			_registry[evictIdx].active = true;
+			_registry[evictIdx].alwaysOn = false;
+			_registry[evictIdx].lastPresentReqMs = 0;
 			_registry[evictIdx].childCount = 0;
 			return evictIdx;
 		}
@@ -108,6 +114,24 @@ namespace M360 {
 		}
 	}
 
+	bool NodeRegistry::shouldRequestPresentation(uint8_t nodeId) {
+		int idx = findNodeIndex(nodeId);
+		if (idx < 0) return false;
+		if (_registry[idx].sketchName[0] != '\0') return false; // já sabemos quem é
+
+		const unsigned long now = millis();
+		if (_registry[idx].lastPresentReqMs != 0UL &&
+		    (now - _registry[idx].lastPresentReqMs) < PRESENT_REQ_RETRY_MS) {
+			return false;
+		}
+		_registry[idx].lastPresentReqMs = now;
+		return true;
+	}
+
+	bool NodeRegistry::isAlwaysOn(int idx) const {
+		return (idx >= 0 && idx < MAX_NODES && _registry[idx].alwaysOn);
+	}
+
 	// Limiar de inatividade, em ponto único: base = max(intervalo declarado,
 	// cadência observada), mais Delta T = Max(2 min, 50% da base).
 	//
@@ -129,6 +153,21 @@ namespace M360 {
 		if (idx < 0 || idx >= MAX_NODES) return;
 
 		unsigned long base = (unsigned long)_registry[idx].intervalMin * 60000UL;
+
+		// Piso determinístico para nó ALWAYS_ON: o pior caso de silêncio legítimo é
+		// STALE_FORCE_CYCLES vezes o intervalo, porque é a cada 10 ciclos que
+		// M360Node::_readAndSendAll() reenvia um sensor cujo valor não mudou.
+		// Sem este piso, o limiar só chegava lá por convergência da média móvel —
+		// e cada passo da convergência custava um node_lost falso, com alerta de
+		// Telegram junto. Nó LOW_POWER não entra: o smartSleep emite
+		// I_PRE/POST_SLEEP_NOTIFICATION todo ciclo, então ele nunca fica em
+		// silêncio além do próprio intervalo.
+		// intervalMin <= M360_MAX_INTERVAL (1440) => 1440*60000*10 = 864e6, cabe em
+		// 32 bits; o teto de MAX_TIMEOUT_MS corta o excesso adiante.
+		if (base > 0UL && isAlwaysOn(idx)) {
+			base *= STALE_FORCE_CYCLES;
+		}
+
 		if (_registry[idx].cycleMs > base) {
 			base = _registry[idx].cycleMs;
 		}
@@ -182,10 +221,19 @@ namespace M360 {
 		if (nodeId == 0 || name == NULL) return;
 		int idx = getOrAddNodeIndex(nodeId);
 		if (idx >= 0) {
+			// Perfil lido do nome COMPLETO, antes do truncamento: M360Node::begin()
+			// anexa " [LP]" / " [ON]" / " [PAS]" / " [REP]", e num nome longo como
+			// "02nodeSolo3dNano [ON]" (21 chars) o sufixo não caberia em
+			// sketchName[18]. [ON] e [REP] dividem o ramo sem sleep de
+			// M360Node::process(), então ambos herdam o piso de STALE_FORCE_CYCLES.
+			_registry[idx].alwaysOn = (strstr(name, "[ON]") != NULL) ||
+			                          (strstr(name, "[REP]") != NULL);
+
 			strncpy(_registry[idx].sketchName, name, MAX_NAME_LEN - 1);
 			_registry[idx].sketchName[MAX_NAME_LEN - 1] = '\0';
 			_registry[idx].lastSeen = millis();
 			_registry[idx].active = true;
+			recalcTimeout(idx); // o piso depende do perfil recém-descoberto
 		}
 	}
 

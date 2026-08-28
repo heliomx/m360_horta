@@ -330,6 +330,23 @@ Comportamentos:
 > São dois relógios independentes sobre os mesmos dados — se divergirem, o nó
 > aparece ONLINE de um lado e perdido do outro.
 >
+> **Piso de 10 intervalos para nó `[ON]`/`[REP]`.** Os dois lados multiplicam a base
+> pelo `STALE_FORCE_CYCLES` do motor do nó quando o sketch name traz esse sufixo.
+> Sem o piso o limiar só alcançava a realidade por convergência da média móvel, e
+> cada passo custava um `node_lost` falso — para o Nó 99, cerca de 4 alarmes ao
+> longo de ~40 min a cada vez que o clima estabilizava. Com o piso, `intervalMin = 1`
+> dá 600 s de base e 900 s de janela, direto.
+>
+> Isso depende de o gateway **conhecer** o sketch name, e o nó só o envia no próprio
+> boot. Depois de um reboot do gateway ele ficaria sem essa informação até o nó
+> reiniciar — por isso o gateway agora pede `I_PRESENTATION` (tipo 19, `C_INTERNAL`)
+> a todo nó cujo nome desconhece, o que faz o nó rodar `presentNode()` inteiro:
+> apresentação de nó, sketch name/versão, children e child 254. O pedido se repete a
+> cada 5 min enquanto o nome faltar, porque o primeiro pode levar NACK.
+>
+> Efeito colateral bem-vindo: como a apresentação de nó chega junto, o `Mapeia nós`
+> reconstrói a tabela de childs (§5.4) sem precisar de um REPRESENT manual.
+>
 > O firmware descarta duas classes de amostra que o `Mapeia nós` também descarta:
 > gaps abaixo de 15 s (rajada de apresentação, eco de atuador) e — só no firmware —
 > o gap medido a partir de um nó **inativo**, que é tempo de queda e não ritmo de
@@ -775,6 +792,8 @@ Alterar qualquer linha abaixo exige mudança **simultânea** nos dois lados.
 | Child 253 = debug | `getChildDesc()` | `M360Node::sendDebug()` |
 | `ack == 1` = ACK de transporte | `Decodificador Nativo` | `publishTransportAck()` |
 | Fórmula do timeout: `base = max(intervalo declarado, cadência observada)`, `timeout = base + max(2 min, 50 %)` | `Watchdog da rede`, `Mapeia nós` (`cycleMs`), `Monitor de Falhas` | `NodeRegistry::recalcTimeout()` — média móvel 0,7/0,3 em `NodeStatus.cycleMs`, alimentada por `update()` |
+| Piso de 10 intervalos para nó sem sleep | `Mapeia nós`: `/\[(ON\|REP)\]/` no `sketchName` multiplica a base por 10 | `NodeRegistry::STALE_FORCE_CYCLES` = 10, espelhando `staleForced = _nNoUpdates[i] >= 10` em `M360Node::_readAndSendAll()`. Mudar o `10` do motor do nó obriga a mudar os dois watchdogs |
+| Sufixo de perfil no sketch name | detecção de nó LP na Caixa Postal **e** piso do timeout | `M360Node::begin()` anexa ` [LP]` / ` [ON]` / ` [PAS]` / ` [REP]`. No gateway o sufixo é lido do nome **completo** antes do truncamento para `MAX_NAME_LEN` (18) — `"02nodeSolo3dNano [ON]"` tem 21 chars e perderia o sufixo |
 | Silêncio legítimo de nó `ALWAYS_ON` | `max(intervalMin, cycleMs)` no `Mapeia nós` (§5.4) | `staleForced = _nNoUpdates[i] >= 10` em `M360Node::_readAndSendAll()` — mexer no `10` muda o pior caso de silêncio |
 | `rssi` no evento do gateway | `Monitor de Falhas` rotula "Wi-Fi do gateway" | `publishTransportEvent()` passa **`WiFi.RSSI()` do gateway** — é o enlace Wi-Fi do ESP8266, **não** o do rádio RF24 do nó. Até 28/08/2026 o alerta dizia "Último RSSI"/"Sinal RSSI", o que se lia como qualidade do enlace do nó e sustentou um diagnóstico inteiro de "link budget saudável". O nRF24L01+ não tem RSSI (só RPD de 1 bit); RSSI de rádio exigiria `MY_SIGNAL_REPORT_ENABLED` |
 | Faixa de intervalo 1–1440 | widget `Intervalo (min)` | `M360_MIN_INTERVAL` / `M360_MAX_INTERVAL` |

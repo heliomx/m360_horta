@@ -88,6 +88,30 @@ void receive(const MyMessage &message) {
 		publishTransportEvent(M360::EVT_NODE_RECONN, "Node back online or discovered", nodeId);
 	}
 
+	// Nó do qual ainda não sabemos o sketch name — normalmente porque o GATEWAY
+	// reiniciou, não o nó. O nó só envia I_SKETCH_NAME e o child 254 no próprio
+	// boot, então sem pedir ficaríamos sem o perfil de energia e sem o intervalo
+	// até o nó reiniciar sozinho — e é o perfil que define o piso do timeout em
+	// NodeRegistry::recalcTimeout(). I_PRESENTATION faz o nó rodar presentNode()
+	// inteiro (apresentação de nó, sketch info, children e intervalo).
+	//
+	// Fora do bloco de reconexão de propósito: o primeiro pedido pode levar NACK
+	// (aconteceu com os nós 2 e 99 em 28/08/2026) e update() só devolve true na
+	// transição inativo->ativo, então não haveria segunda chance. Quem controla a
+	// repetição é shouldRequestPresentation(), que exige nome ausente e espaça os
+	// pedidos em PRESENT_REQ_RETRY_MS.
+	if (gateway.registry().shouldRequestPresentation(nodeId)) {
+		// `send()` NÃO serve aqui: ele sobrescreve o comando com C_SET
+		// (MySensorsCore.cpp), e o pedido saía como c=1,t=19 — que o nó descarta
+		// em silêncio por não casar V_STATUS nem V_CUSTOM. `build()` +
+		// `_sendRoute()` é o par que preserva C_INTERNAL; o ctor de dois
+		// argumentos do MyMessage também não serve, porque recebe
+		// mysensors_data_t (tipos V_*) e não aceita um tipo interno I_*.
+		MyMessage req;
+		_sendRoute(build(req, nodeId, NODE_SENSOR_ID, C_INTERNAL, I_PRESENTATION).set(""));
+		Serial.printf("🔎 Nó %u sem sketch name — apresentação solicitada\n", nodeId);
+	}
+
 	// Auto-Discovery: Tratar Apresentação de Childs (C_PRESENTATION)
 	if (cmd == C_PRESENTATION) {
 		char aliasBuf[MAX_PAYLOAD + 1] = "";
