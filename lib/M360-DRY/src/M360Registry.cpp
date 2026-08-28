@@ -19,6 +19,7 @@ namespace M360 {
 			_registry[i].sketchName[0] = '\0';
 			_registry[i].lastSeen = 0;
 			_registry[i].intervalMin = 0;
+			_registry[i].cycleMs = 0;
 			_registry[i].timeoutMs = _timeoutMs;
 			_registry[i].active = false;
 			_registry[i].childCount = 0;
@@ -52,6 +53,7 @@ namespace M360 {
 			_registry[idx].sketchName[0] = '\0';
 			_registry[idx].lastSeen = millis();
 			_registry[idx].intervalMin = 0;
+			_registry[idx].cycleMs = 0;
 			_registry[idx].timeoutMs = _timeoutMs;
 			_registry[idx].active = true;
 			_registry[idx].childCount = 0;
@@ -72,6 +74,7 @@ namespace M360 {
 			_registry[evictIdx].sketchName[0] = '\0';
 			_registry[evictIdx].lastSeen = millis();
 			_registry[evictIdx].intervalMin = 0;
+			_registry[evictIdx].cycleMs = 0;
 			_registry[evictIdx].timeoutMs = _timeoutMs;
 			_registry[evictIdx].active = true;
 			_registry[evictIdx].childCount = 0;
@@ -101,10 +104,45 @@ namespace M360 {
 		int idx = findNodeIndex(nodeId);
 		if (idx >= 0) {
 			_registry[idx].intervalMin = intervalMin;
-			unsigned long intervalMs = (unsigned long)intervalMin * 60000UL;
-			unsigned long deltaTMs   = (intervalMs / 2UL > 120000UL) ? (intervalMs / 2UL) : 120000UL; // Max(2 min, 50% intervalo)
-			_registry[idx].timeoutMs = intervalMs + deltaTMs;
+			recalcTimeout(idx);
 		}
+	}
+
+	// Limiar de inatividade, em ponto único: base = max(intervalo declarado,
+	// cadência observada), mais Delta T = Max(2 min, 50% da base).
+	//
+	// O intervalo declarado sozinho NÃO descreve o silêncio legítimo de um nó.
+	// M360Node::_readAndSendAll() só transmite um sensor quando o valor muda ou a
+	// cada 10 ciclos (staleForced = _nNoUpdates[i] >= 10), então um nó ALWAYS_ON
+	// com intervalMin = 1 pode ficar ~11 min calado sem nenhum defeito. Derivando
+	// só do intervalo, o Nó 99 ganhava timeout de 180 s e o gateway declarava
+	// node_lost em toda janela sem mudança de leitura. Antes de 28/08/2026 isso
+	// não aparecia porque o limiar era fixo em 900 s — acidentalmente seguro.
+	//
+	// Nó LOW_POWER não muda de comportamento: o smartSleep emite
+	// I_PRE/POST_SLEEP_NOTIFICATION a cada ciclo, então cadência observada e
+	// intervalo declarado coincidem e o max() devolve o mesmo valor de antes.
+	//
+	// Mesma fórmula do `Mapeia nós` no Node-RED — é contrato de dois lados
+	// (nodered/funcionalidades_nodered.md §9). Mudar aqui exige mudar lá.
+	void NodeRegistry::recalcTimeout(int idx) {
+		if (idx < 0 || idx >= MAX_NODES) return;
+
+		unsigned long base = (unsigned long)_registry[idx].intervalMin * 60000UL;
+		if (_registry[idx].cycleMs > base) {
+			base = _registry[idx].cycleMs;
+		}
+		if (base == 0UL) {
+			_registry[idx].timeoutMs = _timeoutMs; // nada aprendido ainda
+			return;
+		}
+
+		const unsigned long deltaTMs = (base / 2UL > 120000UL) ? (base / 2UL) : 120000UL;
+		unsigned long timeout = base + deltaTMs;
+		if (timeout > MAX_TIMEOUT_MS) {
+			timeout = MAX_TIMEOUT_MS;
+		}
+		_registry[idx].timeoutMs = timeout;
 	}
 
 	bool NodeRegistry::update(uint8_t nodeId) {
@@ -112,7 +150,25 @@ namespace M360 {
 
 		int idx = findNodeIndex(nodeId);
 		if (idx >= 0) {
-			_registry[idx].lastSeen = millis();
+			const unsigned long now = millis();
+
+			// Aprende a cadência real, para alimentar recalcTimeout().
+			// Só amostra com o nó ATIVO: o intervalo desde um node_lost é tempo de
+			// queda, não ritmo de reporte — usá-lo faria o nó que volta esticar a
+			// própria janela na proporção do tempo em que esteve fora.
+			// Gaps curtos também não entram: a rajada de apresentação e o eco de
+			// atuador chegam em milissegundos e puxariam a média para baixo.
+			if (_registry[idx].active && _registry[idx].lastSeen != 0UL) {
+				const unsigned long gap = now - _registry[idx].lastSeen; // wrap-safe
+				if (gap > MIN_CYCLE_SAMPLE_MS) {
+					_registry[idx].cycleMs = (_registry[idx].cycleMs > 0UL)
+					    ? (7UL * _registry[idx].cycleMs + 3UL * gap) / 10UL  // média móvel 0,7/0,3
+					    : gap;
+					recalcTimeout(idx);
+				}
+			}
+
+			_registry[idx].lastSeen = now;
 			bool wasActive = _registry[idx].active;
 			_registry[idx].active = true;
 			return !wasActive; // Retorna true se reconectou
@@ -209,9 +265,19 @@ namespace M360 {
 			if (_registry[i].active && (now - _registry[i].lastSeen > nodeTimeout)) {
 				_registry[i].active = false;
 				if (onNodeLost) {
+					// O motivo diz de onde veio a janela: sem as duas parcelas não dá
+					// para saber se o limiar nasceu do intervalo declarado ou da
+					// cadência aprendida. O texto cabe no buffer de 64 do
+					// publishTransportEvent() mesmo no pior caso ("Inactivity
+					// detected: " + 41 chars).
 					char buffer[48];
-					if (_registry[i].intervalMin > 0) {
+					if (_registry[i].intervalMin > 0 && _registry[i].cycleMs > 0) {
+						snprintf(buffer, sizeof(buffer), "timeout %lu s (Int %u min, obs %lu s)",
+						         nodeTimeout / 1000, _registry[i].intervalMin, _registry[i].cycleMs / 1000);
+					} else if (_registry[i].intervalMin > 0) {
 						snprintf(buffer, sizeof(buffer), "timeout %lu s (Int: %u min)", nodeTimeout / 1000, _registry[i].intervalMin);
+					} else if (_registry[i].cycleMs > 0) {
+						snprintf(buffer, sizeof(buffer), "timeout %lu s (obs %lu s)", nodeTimeout / 1000, _registry[i].cycleMs / 1000);
 					} else {
 						snprintf(buffer, sizeof(buffer), "timeout %lu s", nodeTimeout / 1000);
 					}

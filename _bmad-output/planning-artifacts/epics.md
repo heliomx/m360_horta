@@ -30,6 +30,12 @@ Este documento lista os épicos e histórias do projeto M360 Horta, gerados a pa
   - **Implementação Base:** `src/DRY/gateway/newGatewayMqtt.cpp` / `libDryGatewayMqtt.cpp`
   - **Cenário de Aceitação:** Dado um payload de sensor na malha local, Quando o gateway recebê-lo e estiver online via WiFi, Então deve converter para JSON (tamanho máximo 512 bytes) e publicar no tópico específico `m360/{uf}/{carNumber}/out`.
 
+- **Story 1.4:** Rastreamento de Nós e Detecção de Inatividade (`M360Registry`)
+  - **Contexto:** O gateway precisa saber quais nós estão vivos sem exigir heartbeat dedicado, e um limiar fixo não serve: o motor do nó só transmite um sensor quando o valor muda ou a cada 10 ciclos, então o silêncio legítimo de um nó `ALWAYS_ON` chega a ~11 × o intervalo declarado.
+  - **Implementação Base:** `lib/M360-DRY/src/M360Registry.{h,cpp}`
+  - **Cenário de Aceitação:** Dado um nó já conhecido e ativo, Quando chegar uma mensagem dele após um intervalo maior que 15 s, Então o registro deve atualizar a cadência observada por média móvel (0,7 anterior / 0,3 amostra) e recalcular o limiar como `max(intervalo declarado, cadência observada) + max(2 min, 50 % da base)`, limitado a 2 h; e Quando o nó estiver inativo, Então o intervalo desde a última mensagem **não** deve alimentar a cadência, por ser tempo de queda e não ritmo de reporte.
+  - **NFR associado:** o mesmo cálculo vive no `Mapeia nós` do Node-RED — são dois relógios independentes sobre os mesmos dados, e divergir faz o nó aparecer ONLINE de um lado e perdido do outro. Ver `src/DRY/horta/nodered/funcionalidades_nodered.md` §9.
+
 ---
 
 ## Epic 2: [Atores Físicos] Controle Hídrico e Fluxo (Atuadores)

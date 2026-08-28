@@ -322,6 +322,20 @@ Comportamentos:
 > Consequência: `timeoutSec` passa a se autoajustar à cadência real. Um nó que
 > começa a falar mais devagar alarga a própria janela — o que **atrasa** a detecção
 > de queda real. O piso de ΔT (120 s) e o TTL de 48 h continuam sendo o limite.
+>
+> **O gateway aplica a mesma fórmula** desde 28/08/2026 (`NodeRegistry::recalcTimeout()`).
+> Enquanto ele derivava o limiar só do intervalo declarado, o Nó 99 ficava com 180 s
+> contra uma cadência real de 206–430 s: gravar o gateway com o timeout dinâmico
+> *apertou* uma janela que antes era um valor fixo de 900 s, acidentalmente seguro.
+> São dois relógios independentes sobre os mesmos dados — se divergirem, o nó
+> aparece ONLINE de um lado e perdido do outro.
+>
+> O firmware descarta duas classes de amostra que o `Mapeia nós` também descarta:
+> gaps abaixo de 15 s (rajada de apresentação, eco de atuador) e — só no firmware —
+> o gap medido a partir de um nó **inativo**, que é tempo de queda e não ritmo de
+> reporte. Sem essa segunda guarda, um nó que volta de horas fora esticaria a
+> própria janela na proporção do tempo em que esteve ausente. O teto de 2 h
+> (`MAX_TIMEOUT_MS`) fecha o caso patológico em que a cadência cresce sozinha.
 
 > **Por que a tabela de childs é zerada na apresentação (corrigido em 28/08/2026).**
 > O comentário do código prometia esse reset desde sempre, mas ele nunca existiu:
@@ -760,7 +774,7 @@ Alterar qualquer linha abaixo exige mudança **simultânea** nos dois lados.
 | Child 255 = bateria | `Filtro Bateria SolarMini` | `M360_CHILD_ID_BATTERY` |
 | Child 253 = debug | `getChildDesc()` | `M360Node::sendDebug()` |
 | `ack == 1` = ACK de transporte | `Decodificador Nativo` | `publishTransportAck()` |
-| Fórmula Intervalo + ΔT | `Watchdog da rede`, `Mapeia nós`, `Monitor de Falhas` | `NodeRegistry::registerInterval()` |
+| Fórmula do timeout: `base = max(intervalo declarado, cadência observada)`, `timeout = base + max(2 min, 50 %)` | `Watchdog da rede`, `Mapeia nós` (`cycleMs`), `Monitor de Falhas` | `NodeRegistry::recalcTimeout()` — média móvel 0,7/0,3 em `NodeStatus.cycleMs`, alimentada por `update()` |
 | Silêncio legítimo de nó `ALWAYS_ON` | `max(intervalMin, cycleMs)` no `Mapeia nós` (§5.4) | `staleForced = _nNoUpdates[i] >= 10` em `M360Node::_readAndSendAll()` — mexer no `10` muda o pior caso de silêncio |
 | `rssi` no evento do gateway | `Monitor de Falhas` rotula "Wi-Fi do gateway" | `publishTransportEvent()` passa **`WiFi.RSSI()` do gateway** — é o enlace Wi-Fi do ESP8266, **não** o do rádio RF24 do nó. Até 28/08/2026 o alerta dizia "Último RSSI"/"Sinal RSSI", o que se lia como qualidade do enlace do nó e sustentou um diagnóstico inteiro de "link budget saudável". O nRF24L01+ não tem RSSI (só RPD de 1 bit); RSSI de rádio exigiria `MY_SIGNAL_REPORT_ENABLED` |
 | Faixa de intervalo 1–1440 | widget `Intervalo (min)` | `M360_MIN_INTERVAL` / `M360_MAX_INTERVAL` |

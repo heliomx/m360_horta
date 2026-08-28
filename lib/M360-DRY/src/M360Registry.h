@@ -28,7 +28,8 @@ namespace M360 {
 		char      sketchName[MAX_NAME_LEN]; // "Central de Relés"
 		unsigned long lastSeen;
 		uint16_t  intervalMin;              // Intervalo configurado em minutos
-		unsigned long timeoutMs;            // Limiar dinâmico: (intervalMin * 60000UL) + deltaTMs
+		unsigned long cycleMs;              // Cadência observada (média móvel dos gaps)
+		unsigned long timeoutMs;            // Limiar dinâmico: base + deltaTMs, base = max(intervalMin, cycleMs)
 		bool      active;
 		uint8_t   childCount;
 		ChildInfo children[MAX_CHILDREN_PER_NODE];
@@ -38,6 +39,13 @@ namespace M360 {
 	public:
 		static const int MAX_NODES = MAX_REGISTRY_NODES;
 		static const unsigned long DEFAULT_TIMEOUT_MS = 900000; // 15 minutos (900 s)
+
+		// Gaps menores que isto são rajada (apresentação, eco de atuador), não ciclo.
+		static const unsigned long MIN_CYCLE_SAMPLE_MS = 15000;   // 15 s
+		// Teto do limiar. A cadência observada só cresce enquanto o nó chega dentro
+		// da janela vigente, o que em tese permite crescimento geométrico; o teto
+		// garante que um nó calado seja declarado perdido em algum momento.
+		static const unsigned long MAX_TIMEOUT_MS      = 7200000; // 2 h
 
 		NodeRegistry(unsigned long timeoutMs = DEFAULT_TIMEOUT_MS);
 
@@ -78,6 +86,9 @@ namespace M360 {
 
 		int findNodeIndex(uint8_t nodeId) const;
 		int getOrAddNodeIndex(uint8_t nodeId);
+
+		// Ponto único do cálculo do limiar — chamado por update() e registerInterval()
+		void recalcTimeout(int idx);
 	};
 
 } // namespace M360
