@@ -221,9 +221,25 @@ Ações disponíveis:
 | Assinatura | Destino |
 |---|---|
 | `m360/+/+/out/#` | `Decodificador Nativo` + logger |
-| `m360/+/+/out/events` | `Monitor de Falhas` + logger |
+| `m360/+/+/out/events` | `Monitor de Falhas` — **não** vai ao logger |
 | `m360/+/+/in/#` | logger (marca direção OUT) |
 | `m360/+/+/gateway/status` | `Gateway Status + Watchdog` + logger |
+
+> **Por que `out/events` não alimenta o logger (corrigido em 28/08/2026).**
+> `m360/+/+/out/#` **também** casa `m360/+/+/out/events` — as duas assinaturas se
+> sobrepõem. Com as duas ligadas ao `Tag MQTT IN`, todo evento do gateway entrava
+> duas vezes em `global.mqtt_logs`. O sintoma era `node_lost`, `node_reconnected` e
+> `child_presentation` repetidos no log com o mesmo `timestamp` interno, e a
+> auditoria diária da aba IA Repórter contando `nodeLostEvents` em dobro.
+>
+> Não era duplicação do firmware: `gateway/status`, publicado pelo mesmo gateway a
+> cada 60 s e casado por **uma** assinatura só, aparece uma única vez no log — e
+> `publishTransportEvent()` tem ponto de chamada único por evento.
+> O `Decodificador Nativo` continua recebendo `/events` pelo `out/#` e o descarta
+> sozinho (payload de evento não tem `command`), então o log via `out/#` basta.
+>
+> Ao mexer nas assinaturas, lembre que `#` casa o nível pai: qualquer nova
+> assinatura sob `.../out/` vai colidir com `out/#` do mesmo jeito.
 
 ### 5.2 `Decodificador Nativo MySensors`
 
@@ -276,12 +292,32 @@ Por nó guarda: `childs` (tipo + rótulo vindos de `present()`), `values`,
 `lastAck`, `categoria`.
 
 Comportamentos:
-- **Cadência observada** — média móvel `0,7·anterior + 0,3·gap` para gaps > 15 s;
-- **Child 254** — grava `intervalMin` e recalcula `timeoutSec`;
+- **Cadência observada** — média móvel `0,7·anterior + 0,3·gap` para gaps > 15 s, em `cycleMs`;
+- **Child 254** — grava `intervalMin` (só o valor; o timeout é calculado em ponto único);
+- **`timeoutSec`** — ponto único, ao fim da função:
+  `base = max(intervalMin × 60, cycleMs / 1000)` e `timeoutSec = base + max(120 s, 50 % de base)`;
 - **Re-apresentação** (`command 0` ou `"REPRESENT"`) limpa dados antigos e atualiza o dashboard;
 - **`ack == 1` é ignorado** ao gravar `values[]` — senão o dashboard mostraria estado de relé que nó nenhum confirmou;
 - **TTL** — nó sem contato há 48 h sai do registro;
 - **Categoria derivada** dos tipos de child: Solo, Clima, Atuação, Reservatório ou Gateway.
+
+> **Por que `timeoutSec` usa o maior dos dois (corrigido em 28/08/2026).**
+> Antes o intervalo declarado no child 254 tinha precedência absoluta, e a cadência
+> observada só era usada quando o nó nunca havia anunciado intervalo. Isso quebra em
+> nó `M360_ALWAYS_ON`: `M360Node::_readAndSendAll()` só transmite um sensor quando o
+> valor muda **ou a cada 10 ciclos** (`staleForced = _nNoUpdates[i] >= 10`,
+> `M360Node.cpp`). Com `intervalMin = 1`, o Nó 99 pode ficar ~11 min em silêncio
+> perfeitamente legítimo — e o `timeoutSec` de 180 s o marcava OFFLINE em toda
+> janela sem mudança de leitura, com alerta de Telegram junto.
+>
+> Nó `M360_LOW_POWER` não tem esse problema: o `smartSleep()` emite
+> `I_PRE_SLEEP_NOTIFICATION` (32) e `I_POST_SLEEP_NOTIFICATION` (33) a cada ciclo,
+> então há tráfego garantido por intervalo e os dois valores coincidem — o `max()`
+> não muda nada para eles (Nó 4: `intervalMin` 27 → `timeoutSec` 2430 s, igual a antes).
+>
+> Consequência: `timeoutSec` passa a se autoajustar à cadência real. Um nó que
+> começa a falar mais devagar alarga a própria janela — o que **atrasa** a detecção
+> de queda real. O piso de ΔT (120 s) e o TTL de 48 h continuam sendo o limite.
 
 ### 5.5 `Sincronizador ACK / Timeout` + Caixa Postal
 
@@ -501,6 +537,7 @@ Alertas emitidos:
 | Origem | Gatilho | Mensagem |
 |---|---|---|
 | Eventos | `node_lost` | Nó inativo, com motivo, timeout aplicado e RSSI |
+| | | O motivo cita o `timeoutSec` que o `Mapeia nós` aplicou, mais o intervalo declarado **e** a cadência observada. Antes recalculava a janela a partir de `intervalMin` sozinho, o que passou a contradizer o total desde a mudança de §5.4 (`> 620 s (Intervalo: 1 min + ΔT: 2 min)`) |
 | Eventos | `node_reconnected` | Comunicação restabelecida |
 | Eventos | `node_sketch_name` | Nó identificado na rede |
 | Telemetria | child 254, `command 1`, `ack != 1` | **Parâmetro confirmado: intervalo aplicado na EEPROM do nó** |
@@ -689,6 +726,8 @@ Alterar qualquer linha abaixo exige mudança **simultânea** nos dois lados.
 | Child 253 = debug | `getChildDesc()` | `M360Node::sendDebug()` |
 | `ack == 1` = ACK de transporte | `Decodificador Nativo` | `publishTransportAck()` |
 | Fórmula Intervalo + ΔT | `Watchdog da rede`, `Mapeia nós`, `Monitor de Falhas` | `NodeRegistry::registerInterval()` |
+| Silêncio legítimo de nó `ALWAYS_ON` | `max(intervalMin, cycleMs)` no `Mapeia nós` (§5.4) | `staleForced = _nNoUpdates[i] >= 10` em `M360Node::_readAndSendAll()` — mexer no `10` muda o pior caso de silêncio |
+| `rssi` no evento do gateway | `Monitor de Falhas` exibe como "Último RSSI" | `publishTransportEvent()` passa **`WiFi.RSSI()` do gateway** — é o enlace Wi-Fi do ESP8266, **não** o do rádio RF24 do nó. O nRF24L01+ não tem RSSI (só RPD de 1 bit); RSSI de rádio exigiria `MY_SIGNAL_REPORT_ENABLED` |
 | Faixa de intervalo 1–1440 | widget `Intervalo (min)` | `M360_MIN_INTERVAL` / `M360_MAX_INTERVAL` |
 | Comandos `V_CUSTOM` | `Processador do Comando UI` | `CMD_REPRESENT`, `CMD_FORCE_UPDATE`, `CMD_DEBUG_NET` |
 | Sufixo `[LP]` no sketch name | detecção de nó LP na Caixa Postal | `M360Node::begin()` — sufixo por `M360PowerProfile` |

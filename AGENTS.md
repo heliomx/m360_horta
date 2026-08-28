@@ -155,8 +155,8 @@ src/DRY/
 │   ├── inventario.md            Nós e child IDs — contrato com o Node-RED
 │   └── nos/
 │       ├── shared/              Motor legado (node_engine.h) — não usar em novos nós
-│       ├── 01nodeSolo3dNano/    Solo resistivo — 6 canais nativos (Nó 1, LP)
-│       ├── 02nodeSolo3dNano/    Solo resistivo — 6 canais nativos (Nó 2, LP)
+│       ├── 01nodeSolo3dNano/    Solo resistivo — 6 canais nativos (Nó 1, ON)
+│       ├── 02nodeSolo3dNano/    Solo resistivo — 6 canais nativos (Nó 2, ON)
 │       ├── 04noodeSolarMini/    DHT11 + DS18B20, alimentação solar (Nó 4, LP)
 │       └── 99nodeReles/         9 atuadores (7 MUX + 2 nativos) + DHT11 + vazão YF-S201 (Nó 99, ON)
 └── kit-helio/                   Sub-projeto Kit Hélio (platformio.ini próprio)

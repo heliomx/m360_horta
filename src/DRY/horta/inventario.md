@@ -19,8 +19,8 @@ Relação de todos os nós da rede MySensors e de seus child IDs, um a um.
 | Nó | Env PlatformIO | Placa | Perfil | Children | Consumido pelo Node-RED |
 |---:|---|---|---|---|---|
 | **0** | `d1_mini_gateway` | ESP8266 D1 Mini | — | — | Gateway MQTT (não tem children) |
-| **1** | `nano_01nodeSolo3d` · `ProMini_01nodeSolo3d` | Nano 5V · Pro Mini 16MHz | `LOW_POWER` | 1–6 | Sim — Filtro Umidade Solo Canteiro A |
-| **2** | `nano_02nodeSolo3d` | Nano 5V | `LOW_POWER` | 1–6 | Sim — Filtro Canteiro B + Motor de Regras |
+| **1** | `nano_01nodeSolo3d` · `ProMini_01nodeSolo3d` | Nano 5V · Pro Mini 16MHz | `ALWAYS_ON` | 1–6 | Sim — Filtro Umidade Solo Canteiro A |
+| **2** | `nano_02nodeSolo3d` | Nano 5V | `ALWAYS_ON` | 1–6 | Sim — Filtro Canteiro B + Motor de Regras |
 | **4** | `ProMini_04noodeSolarMini` | Pro Mini 16MHz | `LOW_POWER` | 1, 11, 12 | Sim — Filtro Clima SolarMini |
 | **99** | `nano_99reles` · `nano_99reles_rep` | Nano 5V | `ALWAYS_ON` | 11, 12, 21, 31–39 | Sim — comandos, clima e vazão |
 
@@ -95,7 +95,9 @@ Definidas em [`lib/M360-DRY/src/M360Constants.h`](../../../lib/M360-DRY/src/M360
 ## 4. Nó 1 — `01nodeSolo3dNano` (Canteiro A)
 
 **Env:** `nano_01nodeSolo3d` (Nano 5V) · `ProMini_01nodeSolo3d` (Pro Mini 16MHz)
-**Perfil:** `M360_LOW_POWER` — `smartSleep()` entre ciclos
+**Perfil:** `M360_ALWAYS_ON` — timer por `millis()`, sem sleep. O pino D3
+(`PIN_POWER_SENSORS`) é desligado entre leituras para mitigar eletrólise dos
+eletrodos, mas o nó não dorme.
 **Hardware:** 6 eletrodos resistivos ligados direto às portas analógicas nativas
 
 | Child | Label | `kind` | `S_*` | `V_*` | Payload | Pino | `reportIntervalMin` | `wakeOnRadio` | `flags` |
@@ -115,7 +117,7 @@ Convenção do label: `<canteiro>_<distância>_<profundidade>`.
 ## 5. Nó 2 — `02nodeSolo3dNano` (Canteiro B)
 
 **Env:** `nano_02nodeSolo3d` (Nano 5V)
-**Perfil:** `M360_LOW_POWER`
+**Perfil:** `M360_ALWAYS_ON` — igual ao nó 1
 **Hardware:** idêntico ao nó 1, instalado no canteiro B. Alimenta o **Motor de Regras Canteiro B**.
 
 | Child | Label | `kind` | `S_*` | `V_*` | Payload | Pino | `reportIntervalMin` | `wakeOnRadio` | `flags` |
