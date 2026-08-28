@@ -296,7 +296,11 @@ Comportamentos:
 - **Child 254** — grava `intervalMin` (só o valor; o timeout é calculado em ponto único);
 - **`timeoutSec`** — ponto único, ao fim da função:
   `base = max(intervalMin × 60, cycleMs / 1000)` e `timeoutSec = base + max(120 s, 50 % de base)`;
-- **Re-apresentação** (`command 0` ou `"REPRESENT"`) limpa dados antigos e atualiza o dashboard;
+- **Apresentação de nó** (`command 0`, `sensorId 255`, tipo `S_ARDUINO_NODE` 17 ou
+  `S_ARDUINO_REPEATER_NODE` 18) e **`"REPRESENT"`** zeram `childs` e marcam
+  `prunePending`;
+- **Poda de valores órfãos** — na primeira telemetria (`command 1`) após a rajada de
+  apresentação, remove de `values` as chaves sem child declarado, exceto 253/254/255;
 - **`ack == 1` é ignorado** ao gravar `values[]` — senão o dashboard mostraria estado de relé que nó nenhum confirmou;
 - **TTL** — nó sem contato há 48 h sai do registro;
 - **Categoria derivada** dos tipos de child: Solo, Clima, Atuação, Reservatório ou Gateway.
@@ -318,6 +322,28 @@ Comportamentos:
 > Consequência: `timeoutSec` passa a se autoajustar à cadência real. Um nó que
 > começa a falar mais devagar alarga a própria janela — o que **atrasa** a detecção
 > de queda real. O piso de ΔT (120 s) e o TTL de 48 h continuam sendo o limite.
+
+> **Por que a tabela de childs é zerada na apresentação (corrigido em 28/08/2026).**
+> O comentário do código prometia esse reset desde sempre, mas ele nunca existiu:
+> o registro só acrescentava childs. Resultado — o Nó 99 acumulou **28** childs, os
+> canônicos (11, 12, 21, 31–39) convivendo com a numeração de firmwares antigos
+> (0–6 e 16–23), e o Nó 2 ficou com um child 0 duplicando o child 1.
+>
+> O reset é feito **apenas** na apresentação de nó tipo 17/18, que é a primeira
+> mensagem do boot, ~2 s antes das apresentações de child. Não ampliar a condição
+> para "qualquer `sensorId 255` com `command 0`": o nó também envia tipo 30 (versão
+> da lib) **depois** dos childs, e zerar ali apagaria o que acabou de ser apresentado.
+>
+> **`values` não é zerado junto**, e isso é deliberado: atuador não responde `C_REQ`
+> (`M360Node::handleMessage()` só atende `kind == M360_SENSOR`), então o estado dos
+> 9 relés do Nó 99 não voltaria sozinho — o dashboard ficaria sem indicação de
+> solenóide até a próxima rega. Por isso a poda é adiada para a primeira telemetria
+> depois da rajada, quando `childs` já está completo.
+>
+> Nó offline não se cura sozinho: a limpeza acontece no boot seguinte dele. Para
+> forçar agora, mande **Re-apresentar** pelo dashboard — o ACK de transporte do
+> gateway carrega o payload `REPRESENT` de volta pelo `out/`, e é ele que dispara
+> o reset aqui.
 
 ### 5.5 `Sincronizador ACK / Timeout` + Caixa Postal
 
@@ -518,6 +544,15 @@ deploy, a partir das séries em `flow` e de uma semente embutida no próprio nó
 
 `Tag MQTT IN` / `Tag MQTT OUT` marcam a direção e convergem em `Central Logger MQTT`:
 
+> **Cada publicação é registrada uma vez só (corrigido em 28/08/2026).**
+> `Pub MQTT ACK out` alimentava o `mqtt out` **e** o `Tag MQTT OUT`. A mesma
+> publicação virava duas linhas: uma na saída da função e outra ~200 ms depois,
+> quando o comando voltava do broker pela assinatura `in/#`. Parecia comando
+> duplicado no log — e não era. Os outros três publicadores (`Solenóides`,
+> `Bombas`, `Injects`) nunca fizeram isso: dependem só da assinatura, que é a
+> fonte mais fiel porque registra o que de fato chegou ao broker.
+> Ao criar um novo publicador, **não** ligue a função ao `Tag MQTT OUT`.
+
 - buffer circular de **6000** entradas em `global.mqtt_logs`;
 - tabela do dashboard mostra as **100 mais recentes**, com *throttle* de **800 ms**
   para não travar a UI;
@@ -536,7 +571,7 @@ Alertas emitidos:
 
 | Origem | Gatilho | Mensagem |
 |---|---|---|
-| Eventos | `node_lost` | Nó inativo, com motivo, timeout aplicado e RSSI |
+| Eventos | `node_lost` | Nó inativo, com motivo e timeout aplicado |
 | | | O motivo cita o `timeoutSec` que o `Mapeia nós` aplicou, mais o intervalo declarado **e** a cadência observada. Antes recalculava a janela a partir de `intervalMin` sozinho, o que passou a contradizer o total desde a mudança de §5.4 (`> 620 s (Intervalo: 1 min + ΔT: 2 min)`) |
 | Eventos | `node_reconnected` | Comunicação restabelecida |
 | Eventos | `node_sketch_name` | Nó identificado na rede |
@@ -727,7 +762,7 @@ Alterar qualquer linha abaixo exige mudança **simultânea** nos dois lados.
 | `ack == 1` = ACK de transporte | `Decodificador Nativo` | `publishTransportAck()` |
 | Fórmula Intervalo + ΔT | `Watchdog da rede`, `Mapeia nós`, `Monitor de Falhas` | `NodeRegistry::registerInterval()` |
 | Silêncio legítimo de nó `ALWAYS_ON` | `max(intervalMin, cycleMs)` no `Mapeia nós` (§5.4) | `staleForced = _nNoUpdates[i] >= 10` em `M360Node::_readAndSendAll()` — mexer no `10` muda o pior caso de silêncio |
-| `rssi` no evento do gateway | `Monitor de Falhas` exibe como "Último RSSI" | `publishTransportEvent()` passa **`WiFi.RSSI()` do gateway** — é o enlace Wi-Fi do ESP8266, **não** o do rádio RF24 do nó. O nRF24L01+ não tem RSSI (só RPD de 1 bit); RSSI de rádio exigiria `MY_SIGNAL_REPORT_ENABLED` |
+| `rssi` no evento do gateway | `Monitor de Falhas` rotula "Wi-Fi do gateway" | `publishTransportEvent()` passa **`WiFi.RSSI()` do gateway** — é o enlace Wi-Fi do ESP8266, **não** o do rádio RF24 do nó. Até 28/08/2026 o alerta dizia "Último RSSI"/"Sinal RSSI", o que se lia como qualidade do enlace do nó e sustentou um diagnóstico inteiro de "link budget saudável". O nRF24L01+ não tem RSSI (só RPD de 1 bit); RSSI de rádio exigiria `MY_SIGNAL_REPORT_ENABLED` |
 | Faixa de intervalo 1–1440 | widget `Intervalo (min)` | `M360_MIN_INTERVAL` / `M360_MAX_INTERVAL` |
 | Comandos `V_CUSTOM` | `Processador do Comando UI` | `CMD_REPRESENT`, `CMD_FORCE_UPDATE`, `CMD_DEBUG_NET` |
 | Sufixo `[LP]` no sketch name | detecção de nó LP na Caixa Postal | `M360Node::begin()` — sufixo por `M360PowerProfile` |
