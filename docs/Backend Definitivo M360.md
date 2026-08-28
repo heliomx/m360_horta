@@ -12,6 +12,7 @@
 | Child IDs, labels, `S_*`/`V_*`, pinos, escalas por nó | [`src/DRY/horta/inventario.md`](../src/DRY/horta/inventario.md) |
 | Regras de firmware e armadilhas de integração | [`CLAUDE.md`](../CLAUDE.md) |
 | Implementação de referência (a ser substituída) | [`src/DRY/horta/nodered/flows.json`](../src/DRY/horta/nodered/flows.json) |
+| O que cada nó do Node-RED faz, e os contratos com o firmware | [`src/DRY/horta/nodered/funcionalidades_nodered.md`](../src/DRY/horta/nodered/funcionalidades_nodered.md) |
 | Contrato de tradução MQTT ↔ MySensors | [`lib/M360-DRY/src/M360Translator.*`](../lib/M360-DRY/src) |
 
 Quando este guia e o `inventario.md` divergirem sobre um child ID, **o
@@ -23,8 +24,8 @@ Quando este guia e o `inventario.md` divergirem sobre um child ID, **o
 
 ```
 Nós MySensors (RF24 2.4 GHz, 250 kbps)
-    │  Nó 1  Solo Canteiro A      (Nano,      LOW_POWER)
-    │  Nó 2  Solo Canteiro B      (Nano,      LOW_POWER)
+    │  Nó 1  Solo Canteiro A      (Nano,      ALWAYS_ON)
+    │  Nó 2  Solo Canteiro B      (Nano,      ALWAYS_ON)
     │  Nó 4  SolarMini            (Pro Mini,  LOW_POWER)
     │  Nó 99 Central de Atuação    (Nano,      ALWAYS_ON / REPEATER)
     ▼
@@ -137,12 +138,27 @@ Publicado periodicamente pelo gateway em `{prefix}/out`:
 `uptime` reiniciando é o sinal mais confiável de que o gateway **rebootou** —
 útil para invalidar estado que o backend tenha cacheado sobre a rede de rádio.
 
+> ⚠️ **`rssi` e `wifiRssi` carregam o mesmo número, e ele é do Wi-Fi.** Ambos vêm
+> de `WiFi.RSSI()` do ESP8266 — é a qualidade do enlace **gateway ↔ roteador**,
+> nunca do rádio RF24 de um nó. O nRF24L01+ não expõe RSSI (só o RPD de 1 bit);
+> intensidade de sinal por nó exigiria `MY_SIGNAL_REPORT_ENABLED` no firmware,
+> que hoje não está ligado. Ver a mesma armadilha em §2.5.
+
 ### 2.5 Eventos de transporte (`{prefix}/out/events`)
 
 ```json
-{"event":"node_lost","nodeId":4,"timestamp":51231,"rssi":-62,
- "details":"Inactivity detected: timeout"}
+{"event":"node_lost","nodeId":99,"timestamp":51231,"rssi":-62,
+ "details":"Inactivity detected: timeout 900 s (Int 1 min, obs 224 s)"}
 ```
+
+> O `rssi` aqui é o do gateway, como em §2.4 — **não** é o enlace do nó que se
+> perdeu. Um `node_lost` com "RSSI ótimo" não diz nada sobre o rádio daquele nó.
+
+Em `details` do `node_lost`, `Int` é o intervalo que o nó declarou pelo child 254
+e `obs` é a cadência que o gateway mediu. As duas parcelas aparecem porque a
+janela pode nascer de qualquer uma das duas (ver a regra no catálogo abaixo); sem
+elas não dá para saber se o limiar veio da configuração ou da observação. Quando
+o gateway ainda não conhece uma das parcelas, o texto traz só a que tem.
 
 Catálogo:
 
@@ -151,7 +167,7 @@ Catálogo:
 | `gateway_presented` | boot | Gateway subiu e apresentou-se |
 | `node_discovered` | `I_DISCOVER_RESPONSE` | Nó respondeu à descoberta; `details` traz o parent |
 | `node_reconnected` | primeira mensagem após timeout | Nó voltou |
-| `node_lost` | registry timeout | Nó silencioso além do limite |
+| `node_lost` | registry timeout | Nó silencioso além do limite — ver a regra logo abaixo |
 | `node_presentation` | `I_PRESENTATION` | Nó apresentou-se ao gateway |
 | `child_presentation` | `C_PRESENTATION` | Child apresentado; `details` traz ID, tipo e label |
 | `node_sketch_name` / `node_sketch_version` | `I_SKETCH_*` | Firmware do nó |
@@ -161,10 +177,43 @@ Catálogo:
 | **`command_rejected`** | validação do gateway | Comando malformado; `details` traz o motivo |
 | **`command_send_failed`** | `send()` retornou false | O rádio não conseguiu transmitir |
 
-> **Lacuna a fechar:** o Node-RED **descarta todos esses eventos**. O
-> `Decodificador Nativo` exige `nodeId` **e** `command` no payload, e eventos não
-> têm `command`. Os dois eventos de comando existem justamente para dar
-> diagnóstico imediato — o backend definitivo **deve** consumi-los.
+> **Lacuna a fechar:** o `Decodificador Nativo` do Node-RED descarta os eventos —
+> ele exige `nodeId` **e** `command` no payload, e evento não tem `command`. Só o
+> `Monitor de Falhas`, que assina `{prefix}/out/events` por conta própria, aproveita
+> três deles (`node_lost`, `node_reconnected`, `node_sketch_name`) para o Telegram.
+> **`command_rejected` e `command_send_failed` não são consumidos por ninguém**, e
+> existem justamente para dar diagnóstico imediato — o backend definitivo **deve**
+> consumi-los.
+
+### Quando o gateway declara `node_lost`
+
+O limiar é por nó e aprendido, não uma constante. Vale a fórmula
+(`NodeRegistry::recalcTimeout()`, espelhada no `Mapeia nós` do Node-RED):
+
+```
+base    = max(intervalo declarado, cadência observada)
+          — se o sketch name traz [ON] ou [REP], o intervalo entra multiplicado por 10
+timeout = base + max(2 min, 50 % da base)          (teto de 2 h)
+```
+
+Três coisas que o backend precisa saber para não repetir os erros já cometidos aqui:
+
+- **O intervalo declarado sozinho não descreve o silêncio legítimo.**
+  `M360Node::_readAndSendAll()` só transmite um sensor quando o valor muda ou a cada
+  **10 ciclos**. Um nó `[ON]` com intervalo de 1 min pode ficar ~11 min calado sem
+  nenhum defeito — daí o multiplicador. Nó `[LP]` não precisa dele: o `smartSleep()`
+  emite `I_PRE/POST_SLEEP_NOTIFICATION` todo ciclo, então há tráfego garantido.
+- **Cadência observada é média móvel `0,7·anterior + 0,3·amostra`**, alimentada só
+  por gaps acima de 15 s (abaixo disso é rajada de apresentação ou eco de atuador) e
+  só com o nó **ativo** — o intervalo desde um `node_lost` é tempo de queda, não
+  ritmo de reporte, e usá-lo faria o nó que volta esticar a própria janela.
+- **O gateway pede a apresentação quando não conhece o nó.** Sketch name e intervalo
+  só são enviados no boot **do nó**, então após um reboot do gateway ele mandaria
+  `I_PRESENTATION` (`C_INTERNAL`, tipo 19) a quem não reconhece, repetindo a cada
+  5 min enquanto faltar. A resposta é uma rajada completa: `node_presentation`,
+  `node_sketch_name`, `node_sketch_version`, todos os `child_presentation` e o valor
+  do child 254. **O backend deve tratar essa rajada como reconstrução**, não como
+  descoberta de nó novo.
 
 ---
 
@@ -219,12 +268,31 @@ estática. Ao subir, cada nó envia:
 com children diferentes precisa ser refletido sem alteração de código.
 
 **Children fantasma:** ao renumerar children e regravar um nó, os IDs antigos
-permanecem no registro. Limpar exige um comando **REPRESENT** (§5.5), que deve
-zerar a tabela de children daquele nó antes de reconstruí-la.
+permanecem no registro se o consumidor só acrescentar. Foi o que aconteceu aqui: o
+Nó 99 acumulou **28** children, os canônicos (11, 12, 21, 31–39) convivendo com a
+numeração de firmwares antigos (0–6 e 16–23), e o Nó 2 ficou com um child 0
+duplicando o child 1.
 
-**TTL:** o Node-RED usa 48 h (`172800000 ms`) para remover nós inativos. Nós
-`LOW_POWER` podem ficar horas em silêncio — TTL curto demais os apaga
-indevidamente.
+A regra correta é **zerar a tabela daquele nó na apresentação de nó** — `command 0`,
+`sensorId 255`, tipo `S_ARDUINO_NODE` (17) ou `S_ARDUINO_REPEATER_NODE` (18) — que é
+a primeira mensagem do boot, ~2 s antes das apresentações de child. **Não** vale
+zerar em qualquer `sensorId 255` com `command 0`: o nó também envia tipo 30 (versão
+da lib) **depois** dos children, e zerar ali apagaria o que acabou de chegar.
+
+Como o gateway agora pede `I_PRESENTATION` a nó que não reconhece (§2.5), essa
+reconstrução acontece sozinha depois de um reboot do gateway — foi assim que o child
+0 do Nó 2 desapareceu, sem `REPRESENT` manual. O comando `REPRESENT` (§5.5) continua
+válido para forçar a limpeza a qualquer momento.
+
+**Não zere `values` junto com `children`.** Atuador não responde `C_REQ`
+(`M360Node::handleMessage()` só atende `kind == M360_SENSOR`), então o estado dos 9
+relés do Nó 99 não voltaria sozinho — a interface ficaria sem indicação de solenóide
+até a próxima rega. Pode um valor órfão, na primeira telemetria após a rajada de
+apresentação, quando a tabela de children já está completa.
+
+**TTL:** o Node-RED usa 48 h (`172800000 ms`) para remover nós inativos. O Nó 4
+(`LOW_POWER`, ciclo de 27 min) pode ficar horas em silêncio — TTL curto demais o
+apaga indevidamente.
 
 ---
 
@@ -232,16 +300,26 @@ indevidamente.
 
 | Perfil | Nós | Comportamento | Latência de comando |
 |---|---|---|---|
-| `M360_ALWAYS_ON` | 99 | `wait(50)` no loop, nunca dorme | **< 50 ms** |
+| `M360_ALWAYS_ON` | 1, 2, 99 | `wait(50)` no loop, nunca dorme | **< 50 ms** |
 | `M360_REPEATER` | 99 (variante) | Igual ao acima + encaminha mensagens de terceiros | < 50 ms |
-| `M360_LOW_POWER` | 1, 2, 4 | `smartSleep()` entre ciclos | **até 1 intervalo inteiro** |
+| `M360_LOW_POWER` | 4 | `smartSleep()` entre ciclos | **até 1 intervalo inteiro** |
 | `M360_PASSIVE` | — | Acorda só para check-in; lê sob comando | até 1 intervalo |
 
 **Consequência de projeto:** comandos para nós `LOW_POWER` **não são
 interativos**. O `smartSleep()` entrega mensagens enfileiradas quando o nó
 acorda — o backend precisa enfileirar e comunicar "pendente até o próximo
-despertar", nunca esperar resposta em segundos. Só o Nó 99 responde na hora, e
-por isso ele é o único que carrega atuadores.
+despertar", nunca esperar resposta em segundos. Hoje só o Nó 4 está nessa
+categoria; os nós 1, 2 e 99 respondem na hora.
+
+Os nós 1 e 2 são `ALWAYS_ON` apesar de serem sensores: alimentação fixa, ciclo de
+1 min, e o pino de alimentação dos eletrodos é desligado entre leituras para
+mitigar eletrólise — o nó não dorme. **Não confie no papel do nó para deduzir o
+perfil**; o sufixo do sketch name (` [LP]`, ` [ON]`, ` [PAS]`, ` [REP]`) é a fonte,
+e é ele que o gateway usa para o piso do timeout (§2.5) e o Node-RED para decidir
+se enfileira o comando na Caixa Postal.
+
+O Nó 99 é o único com atuadores por decisão de hardware (MUX + relés), não por ser
+o único always-on.
 
 O intervalo é ajustável em runtime pelo child **254** (`V_VAR1` ou `V_VAR5`),
 aceito entre **1 e 1440 minutos**, e persistido na EEPROM do nó. O nó **sempre
@@ -655,8 +733,12 @@ O backend definitivo só substitui o Node-RED quando cobre:
 
 **Registro**
 - [ ] Descoberta pela apresentação do nó, sem lista fixa (§3.3)
-- [ ] `REPRESENT` limpa children fantasma
-- [ ] TTL de 48 h compatível com nós `LOW_POWER`
+- [ ] Apresentação de nó (tipo 17/18) **zera** a tabela de children; tipo 30 não (§3.3)
+- [ ] Valor órfão podado só na primeira telemetria após a rajada, nunca junto (§3.3)
+- [ ] Perfil de energia lido do sufixo do sketch name, não do papel do nó (§4)
+- [ ] Timeout por nó com `max(intervalo × 10 se `[ON]`, cadência observada) + ΔT` (§2.5)
+- [ ] Pedir `I_PRESENTATION` a nó de sketch name desconhecido, com reenvio (§2.5)
+- [ ] TTL de 48 h compatível com o Nó 4 (`LOW_POWER`, ciclo de 27 min)
 
 **Comandos**
 - [ ] Payload de `V_STATUS` tipado e validado como `"0"`/`"1"` (§5.2)
@@ -701,6 +783,9 @@ Condensado, para revisão rápida antes de tocar no caminho de comando.
 | `atoi()` em segmento de tópico | `childId 0`, comando descartado em silêncio pelo nó | §5.1 |
 | Payload acima de 25 bytes | Truncado em silêncio pelo `MyMessage::set()` | §5.1 |
 | Child renumerado sem atualizar o consumidor | Comando ignorado em silêncio; timeout sem causa | §3.3 |
+| `rssi` do evento lido como sinal do nó | Diagnóstico de rádio inventado em cima do Wi-Fi do gateway | §2.4 |
+| Timeout derivado só do intervalo declarado | `node_lost` falso em toda janela sem mudança de leitura | §2.5 |
+| Tabela de children só cresce | Children fantasma de firmware antigo convivendo com os atuais | §3.3 |
 
 ---
 
