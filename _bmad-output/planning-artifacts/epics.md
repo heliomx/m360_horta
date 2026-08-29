@@ -1,6 +1,7 @@
 ---
 stepsCompleted: ["engenharia-reversa-autonoma"]
-inputDocuments: ["docs/prd.md", "docs/epics.md", "docs/architecture.md", "codebase"]
+inputDocuments: ["docs/architecture.md", "codebase"]
+inputDocumentsRemovidos: "docs/prd.md e docs/epics.md também foram entrada deste artefato. Removidos em 28/08/2026 (commit b612c0c) por serem cópias divergentes e defasadas destes mesmos arquivos — descreviam nodePump, nodeSelenoieVazao, nodeZTS_UmidadeHall, main_lumi_10 e o diretório ngm/, todos inexistentes, e davam a escala de solo como 0-100% quando é ADC bruto 0-1023. Conteúdo recuperável no histórico do Git."
 workflowType: 'epics-and-stories'
 ---
 
