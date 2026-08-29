@@ -13,9 +13,9 @@
 // ===== DEFINIÇÃO DOS ITENS DO NÓ =====
 // childId | kind | presentType | valueType | pin | intervalMin | samples | label | wakeOnRadio | flags
 static const M360::M360ItemDef NODE_ITEMS[] = {
-	{ CHILD_ID_TEMP,      M360::M360_SENSOR, S_TEMP, V_TEMP, -1, 1, 3, "Temperatura Ar",   false, 0 },
-	{ CHILD_ID_HUM,       M360::M360_SENSOR, S_HUM,  V_HUM,  -1, 1, 3, "Umidade Ar",       false, 0 },
-	{ CHILD_ID_SOIL_TEMP, M360::M360_SENSOR, S_TEMP, V_TEMP, -1, 1, 3, "Temperatura Solo", false, 0 }
+	{ CHILD_ID_TEMP,      M360::M360_SENSOR, S_TEMP, V_TEMP, -1, 60, 3, "Temperatura Ar",   false, 0 },
+	{ CHILD_ID_HUM,       M360::M360_SENSOR, S_HUM,  V_HUM,  -1, 60, 3, "Umidade Ar",       false, 0 },
+	{ CHILD_ID_SOIL_TEMP, M360::M360_SENSOR, S_TEMP, V_TEMP, -1, 60, 3, "Temperatura Solo", false, 0 }
 };
 static const uint8_t NODE_ITEMS_COUNT = sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
 

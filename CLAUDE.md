@@ -70,11 +70,83 @@ O arquivo `include/M360Credentials.h` define AP SSID/senha, WiFi STA, MQTT serve
 
 ---
 
+## Regra Obrigatória — Sincronismo entre `AGENTS.md` e `CLAUDE.md`
+
+`AGENTS.md` (utilizado por Codex / Antigravity / Gemini) e `CLAUDE.md` (utilizado por Claude Code) compartilham as mesmas regras operacionais, contratos de arquitetura e diretrizes de governança do repositório.
+
+- **Paridade Obrigatória:** Qualquer alteração, inclusão de nova regra, atualização de ambiente, credencial, padrão de codificação ou convenção realizada em `CLAUDE.md` **deve ser replicada imediatamente** em `AGENTS.md` (e vice-versa) na **mesma entrega e no mesmo commit**.
+- **Consistência Multiferramenta:** O comportamento e restrições esperados dos agentes de IA no projeto devem ser idênticos, independentemente da CLI ou LLM em uso.
+
+---
+
 ## Skill Obrigatória — MySensors Node Coding & Gateway
 
 Ao trabalhar em qualquer arquivo dentro de `src/DRY/` (nós **ou** gateway), aplicar **obrigatoriamente** os padrões definidos em:
 
 - **Referência consolidada (SSoT):** `.agent/skills/bmad-mysensors-node-coding/SKILL.md`
+
+---
+
+## Regra Obrigatória — Gestão de Fluxos Node-RED e Backup
+
+1. **Servidor em Produção é a Fonte Primária (SSoT Ativa):**
+   - Qualquer alteração em fluxos, nós, configurações ou lógica do Node-RED **deve ser executada diretamente no servidor via ferramentas MCP Node-RED** (`update-flow`, `update-flows`, etc.).
+   - **NUNCA** editar manualmente o arquivo [`src/DRY/horta/nodered/flows.json`](src/DRY/horta/nodered/flows.json) como fonte de desenvolvimento ou aplicação primária.
+
+2. **Arquivo `flows.json` é Estritamente Cópia de Backup Versionada:**
+   - O arquivo [`src/DRY/horta/nodered/flows.json`](src/DRY/horta/nodered/flows.json) serve como backup versionado no repositório Git.
+   - **Após qualquer alteração realizada no servidor via MCP**, o arquivo `flows.json` deve ser imediatamente atualizado para refletir o estado exato de produção no Git.
+
+3. **Documentação Funcional Obrigatória — `funcionalidades_nodered.md`:**
+   - **Toda** alteração no Node-RED exige atualizar
+     [`src/DRY/horta/nodered/funcionalidades_nodered.md`](src/DRY/horta/nodered/funcionalidades_nodered.md)
+     **na mesma entrega e no mesmo commit** que atualiza o `flows.json`.
+   - A entrega só está completa com os três passos: alterar no servidor via MCP →
+     atualizar `flows.json` → atualizar `funcionalidades_nodered.md`.
+   - A §11 desse arquivo lista os gatilhos (qual mudança exige rever qual seção) e a
+     verificação final. Consultá-la antes de dar a tarefa por concluída.
+   - **Por que isso não é burocracia:** as regras de irrigação, os critérios de
+     matching de ACK e os limiares do watchdog são invisíveis no JSON — só existem em
+     forma legível nesse arquivo. Defasado, ele faz a próxima sessão de debug partir
+     de premissa errada.
+   - A §9 desse arquivo lista os **contratos com o firmware**. Mudar um lado sem o
+     outro quebra o sistema em silêncio, sem erro de compilação nem de log.
+
+4. **Autenticação Node-RED (HTTP 401 Unauthorized):**
+   - As credenciais vivem em [`src/DRY/horta/nodered/.env`](src/DRY/horta/nodered/.env), um arquivo **`chave=valor`** com `NODERED_USER`, `NODERED_PASS`, `TELEGRAM_BOT_TOKEN` e `TELEGRAM_CHAT_ID` — **não** é "linha 1 = usuário, linha 2 = senha". Gitignored; nunca versionar nem ecoar o conteúdo.
+   - **Cada CLI lê um config diferente.** Confirmar qual está em uso antes de mexer em token:
+
+     | CLI | Arquivo | Caminho da chave |
+     |---|---|---|
+     | Claude Code | `~/.claude.json` | `mcpServers/node-red/env/NODE_RED_TOKEN` |
+     | Gemini CLI | `~/.gemini/config/mcp_config.json` | `mcpServers/node-red/env/NODE_RED_TOKEN` |
+
+   - **Diagnosticar antes de renovar.** Testar o token vigente direto na Admin API: `GET https://nr.viridiotech.com.br/flows` com `Authorization: Bearer <token>`. Se responder 200, o token é válido e o 401 vem do **processo MCP com valor obsoleto em memória** — editar o config não resolve sozinho, é preciso reiniciar a conexão MCP, e isso é ação do usuário.
+   - Renovação (só quando o token estiver de fato inválido): `POST https://nr.viridiotech.com.br/auth/token`, form-urlencoded, `client_id=node-red-admin&grant_type=password&scope=*&username=…&password=…`.
+   - ⚠️ Em 26/08/2026 esse POST devolveu `403 invalid_grant` com as credenciais do `.env` — elas estão defasadas em relação ao servidor. Diante de 403, **parar e avisar o usuário**; não retentar em laço (risco de lockout).
+   - Com o MCP bloqueado e a alteração urgente, a Admin API (`PUT /flow/{id}` com header `Node-RED-Deployment-Type: nodes`) é o mesmo endpoint que o MCP encapsula — mas **confirmar com o usuário antes**, por ser escrita em produção.
+   - **Não montar esse request à mão.** Usar [`src/DRY/horta/nodered/deploy_flows.sh`](src/DRY/horta/nodered/deploy_flows.sh):
+
+     ```bash
+     bash src/DRY/horta/nodered/deploy_flows.sh                       # dry run: só GET, mostra o diff por aba
+     bash src/DRY/horta/nodered/deploy_flows.sh --apply --all-changed  # publica as abas divergentes
+     ```
+
+     Sem `--apply` ele nunca escreve. Com `--apply`, grava backup do `GET /flows` em `backups/` (gitignored), publica **por aba** com a aba `ACK Handling` primeiro (ela define os `link out` que as outras consomem), e aborta no primeiro HTTP ≠ 200. Nós de **configuração** (broker MQTT, bot Telegram) ficam de fora de propósito: mudá-los exigiria `PUT /flows` completo, que arrisca as credenciais. Depois do deploy, rodar o dry run de novo — tem que dizer `Abas divergentes: nenhuma`.
+   - Este script é o **caminho de exceção**, para alteração autorada fora do editor (revisão em lote, payload grande demais para parâmetro MCP). O caminho normal continua sendo alterar no servidor e espelhar em `flows.json`.
+
+---
+
+## Regra Obrigatória — Sincronismo entre Firmware (`src/DRY/` e `lib/M360-DRY`) e Artefatos de Planejamento (`_bmad-output/planning-artifacts/`)
+
+1. **Paridade entre Código e Especificação:**
+   - Toda alteração estrutural, comportamental ou de arquitetura em `src/DRY/` (nós e gateways) e `lib/M360-DRY/` (biblioteca central) **deve** ser refletida nos artefatos de planejamento em [`_bmad-output/planning-artifacts/`](_bmad-output/planning-artifacts/) (`prd.md`, `epics.md`, `stories`) na **mesma entrega**.
+   - Da mesma forma, alterações iniciadas nos requisitos ou épicos do BMAD devem ter sua implementação correspondente validada e alinhada no código C++.
+
+2. **Gatilhos que exigem atualização em `_bmad-output/planning-artifacts/`:**
+   - **Novo Nó ou Sensor/Atuador:** Atualizar o PRD (Seção de Atores/Frota), Épicos de Hardware e Histórias específicas.
+   - **Refatoração no Core `lib/M360-DRY`:** Atualizar o Épico 1 (Core Infrastructure) e NFRs correspondentes.
+   - **Mudanças em Regras de Gateway ou Mensageria:** Atualizar requisitos funcionais de orquestração e roteamento MQTT.
 
 ---
 
@@ -200,8 +272,8 @@ void receive(const MyMessage& msg) { node.handleMessage(msg); }
 
 | Perfil | Modo | Uso |
 |---|---|---|
-| `M360_LOW_POWER` | `smartSleep()` — acorda por watchdog | Sensores de campo a bateria (Nós 01, 04, 13) |
-| `M360_ALWAYS_ON` | Timer por `millis()`, sem sleep | Atuadores em fonte fixa (Nós 80, 99) |
+| `M360_LOW_POWER` | `smartSleep()` — acorda por watchdog | Sensores de campo a bateria (Nó 04) |
+| `M360_ALWAYS_ON` | Timer por `millis()`, sem sleep | Nós em fonte fixa (Nós 01, 02, 99) |
 | `M360_PASSIVE` | `smartSleep()` — lê só sob comando | Sensores pesados (Modbus RS485) |
 
 ---
@@ -237,8 +309,8 @@ src/DRY/
 │   ├── inventario.md            Nós e child IDs — contrato com o Node-RED
 │   └── nos/
 │       ├── shared/              Motor legado (node_engine.h) — não usar em novos nós
-│       ├── 01nodeSolo3dNano/    Solo resistivo — 6 canais nativos (Nó 1, LP)
-│       ├── 02nodeSolo3dNano/    Solo resistivo — 6 canais nativos (Nó 2, LP)
+│       ├── 01nodeSolo3dNano/    Solo resistivo — 6 canais nativos (Nó 1, ON)
+│       ├── 02nodeSolo3dNano/    Solo resistivo — 6 canais nativos (Nó 2, ON)
 │       ├── 04noodeSolarMini/    DHT11 + DS18B20, alimentação solar (Nó 4, LP)
 │       └── 99nodeReles/         9 atuadores (7 MUX + 2 nativos) + DHT11 + vazão YF-S201 (Nó 99, ON)
 └── kit-helio/                   Sub-projeto Kit Hélio (platformio.ini próprio)
@@ -256,7 +328,7 @@ include/
 
 ---
 
-## Convenções de Código
+## Convenções de Código e Formatação
 
 - **Linguagem dos comentários e logs Serial:** português
 - **IDs reservados:** 254 = Intervalo (`V_VAR1`), 255 = Bateria (`V_VOLTAGE`), 253 = Debug remoto (`V_TEXT`, apenas lib M360-DRY — ver `M360Node::sendDebug()` / `CMD_DEBUG_NET`)
@@ -264,10 +336,14 @@ include/
 - **EEPROM gateway (ESP):** região 0–511 = MySensors (reservado), 512–520 = M360NodeConfig, 521+ = `DeviceConfig`/`M360DeviceConfig` com CRC
 - **Perfil de energia:** definir exatamente um dos dois — nunca ambos simultaneamente
 - **Precisão float:** 1 casa decimal (`set(val, 1)`)
-- **Solo:** escala 0 (seco) → 100 (água)
+- **Solo (nós 1 e 2):** **ADC bruto 0–1023, valor alto = solo SECO** — não é
+  percentual e não é 0→100. `readNodeItem()` devolve `(float)analogRead(pin)`
+  sem conversão. Ver `inventario.md` §9, que é a referência desta escala; o
+  motor de irrigação do Node-RED opera nela (<350 úmido, ≥700 estresse crítico).
 - **JSON gateway:** `DynamicJsonDocument(512)` para mensagens, `(384)` para heartbeat, `(256)` para eventos
 - **Macros MY_\*:** definidas exclusivamente no `platformio.ini` — nunca no `.cpp` após `#include <MySensors.h>`
 - **Pinos virtuais MUX (Nó 99):** `pin = MUX_CHANNEL_OFFSET + canal` (100–115) — `setupPins()` deve ser omitido; pinos gerenciados em `initSensors()`
+- **Formatação de Texto e Equações nas Respostas:** PROIBIDO utilizar código LaTeX cru ou delimitadores matemáticos (`$...$`, `$$...$$`, `\le`, `\text{}`, `\mu`, `\approx`, etc.). Sempre formatar grandezas, fórmulas e unidades de forma limpa em Markdown/Unicode simples (ex: `<= 20 mA`, `100 µs`, `10 kΩ`, `Q = ∫ I dt`, `R_solo`).
 
 ---
 
@@ -369,11 +445,21 @@ inicialização e não falha de enlace.
 Não defina `MY_RF24_CHANNEL` sem uma medição que justifique. A configuração
 validada é a do `[common]`: canal padrão, `RF24_250KBPS`, `RF24_PA_HIGH`.
 
-### `V_LEVEL` (37) nos Nós 01 e 13 significa umidade de solo
+### `V_LEVEL` (37) nos Nós 01 e 02 significa umidade de solo
 
-Esses nós usam `V_LEVEL` para solo por decisão histórica. No Node-RED, o
-`Translator Json` remapeia `V_LEVEL → V_PERCENTAGE` por `nodeId`. Não mudar sem
-atualizar simultaneamente o firmware dos nós.
+Esses nós usam `V_LEVEL` para solo por decisão histórica, e o valor é **ADC
+bruto 0–1023** (alto = seco), não percentual. Quem consome esse child no
+Node-RED — os filtros de gráfico e o `Coletor Telemetria Canteiro B` — casa por
+`type === 37` e/ou pelo tipo apresentado `S_MOISTURE`. Não mudar sem atualizar
+simultaneamente o firmware dos nós.
+
+> Este parágrafo já afirmou que o `Translator Json` remapeava
+> `V_LEVEL → V_PERCENTAGE` **por `nodeId`**. Eram duas imprecisões: o remap era
+> pelo **tipo apresentado** (`S_MOISTURE`), não por `nodeId`; e o nó foi
+> **removido** em 26/08/2026 — estava com `wires: [[]]`, rodava em toda mensagem
+> MQTT sem destino, e seu `avaliarManejo()` julgava a escala 0–100 sobre valores
+> 0–1023, invertendo o diagnóstico (640 ADC, solo seco, saía como "possível
+> excesso de água").
 
 ### Sincronizador ACK — critério de matching
 

@@ -1,6 +1,7 @@
 ---
 stepsCompleted: ["engenharia-reversa-autonoma"]
-inputDocuments: ["docs/prd.md", "docs/epics.md", "docs/architecture.md", "codebase"]
+inputDocuments: ["docs/architecture.md", "codebase"]
+inputDocumentsRemovidos: "docs/prd.md e docs/epics.md também foram entrada deste artefato. Removidos em 28/08/2026 (commit b612c0c) por serem cópias divergentes e defasadas destes mesmos arquivos — descreviam nodePump, nodeSelenoieVazao, nodeZTS_UmidadeHall, main_lumi_10 e o diretório ngm/, todos inexistentes, e davam a escala de solo como 0-100% quando é ADC bruto 0-1023. Conteúdo recuperável no histórico do Git."
 workflowType: 'epics-and-stories'
 ---
 
@@ -29,6 +30,14 @@ Este documento lista os épicos e histórias do projeto M360 Horta, gerados a pa
   - **Contexto:** Transformar o ecossistema fechado (rádio MySensors) em uma infraestrutura global consumível por sistemas modernos via IP e MQTT.
   - **Implementação Base:** `src/DRY/gateway/newGatewayMqtt.cpp` / `libDryGatewayMqtt.cpp`
   - **Cenário de Aceitação:** Dado um payload de sensor na malha local, Quando o gateway recebê-lo e estiver online via WiFi, Então deve converter para JSON (tamanho máximo 512 bytes) e publicar no tópico específico `m360/{uf}/{carNumber}/out`.
+
+- **Story 1.4:** Rastreamento de Nós e Detecção de Inatividade (`M360Registry`)
+  - **Contexto:** O gateway precisa saber quais nós estão vivos sem exigir heartbeat dedicado, e um limiar fixo não serve: o motor do nó só transmite um sensor quando o valor muda ou a cada 10 ciclos, então o silêncio legítimo de um nó `ALWAYS_ON` chega a ~11 × o intervalo declarado.
+  - **Implementação Base:** `lib/M360-DRY/src/M360Registry.{h,cpp}`
+  - **Cenário de Aceitação:** Dado um nó já conhecido e ativo, Quando chegar uma mensagem dele após um intervalo maior que 15 s, Então o registro deve atualizar a cadência observada por média móvel (0,7 anterior / 0,3 amostra) e recalcular o limiar como `max(intervalo declarado, cadência observada) + max(2 min, 50 % da base)`, limitado a 2 h; e Quando o nó estiver inativo, Então o intervalo desde a última mensagem **não** deve alimentar a cadência, por ser tempo de queda e não ritmo de reporte.
+  - **Cenário de Aceitação (perfil sem sleep):** Dado um nó cujo sketch name traz o sufixo `[ON]` ou `[REP]`, Quando o limiar for calculado, Então a base deve ser o intervalo declarado multiplicado por `STALE_FORCE_CYCLES` (10), que é o pior caso de silêncio legítimo imposto por `M360Node::_readAndSendAll()`.
+  - **Cenário de Aceitação (descoberta de perfil):** Dado que o gateway reiniciou e não conhece o sketch name de um nó, Quando chegar qualquer mensagem desse nó, Então o gateway deve enviar `I_PRESENTATION` (`C_INTERNAL`, tipo 19) para que o nó execute `presentNode()`, repetindo o pedido a cada 5 min enquanto o nome faltar — o primeiro envio pode receber NACK.
+  - **NFR associado:** o mesmo cálculo vive no `Mapeia nós` do Node-RED — são dois relógios independentes sobre os mesmos dados, e divergir faz o nó aparecer ONLINE de um lado e perdido do outro. Ver `src/DRY/horta/nodered/funcionalidades_nodered.md` §9.
 
 ---
 

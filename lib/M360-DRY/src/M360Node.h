@@ -147,5 +147,8 @@ namespace M360
 		void _processBattery();
 		void _printNetDiag();
 		void _rePresent();
+		// Publica o intervalo vigente no child 254 — o gateway aprende a cadência
+		// do nó sem depender de alguém ter mandado um C_SET antes.
+		void _announceInterval();
 	};
 } // namespace M360
