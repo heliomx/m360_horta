@@ -171,6 +171,7 @@ Compilação do exemplo `BasicReadings` — biblioteca + `Adafruit ADS1X15` +
 
 | Alvo | RAM | Flash |
 |---|---|---|
+| `pro8MHzatmega328` — **Pro Mini 3,3 V, alvo de campo** | 784 B / 2048 (38,3 %) | 14.626 B / 30.720 (47,6 %) |
 | `nanoatmega328` | 784 B / 2048 (38,3 %) | 14.644 B / 30.720 (47,7 %) |
 | `d1_mini` (ESP8266) | 28.076 B (34,3 %) | 277.320 B (26,6 %) |
 | `esp32dev` | 20.616 B (6,3 %) | 345.616 B (26,4 %) |

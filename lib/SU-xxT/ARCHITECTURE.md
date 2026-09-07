@@ -103,7 +103,9 @@ registrador, barata, e torna a leitura independente do histórico de alimentaç�
 
 ## 5. Ganho (PGA) por canal, não global
 
-**A escolha:** tabela `const` em PROGMEM com `gain` e `dataRate` de cada canal.
+**A escolha:** tabela `const` indexada pelo canal físico do MUX, com `gain` e
+`dataRate`. Ambos `uint16_t` — os valores de `adsGain_t` são campos de bits do
+registrador de configuração (`GAIN_TWO` = `0x0200` = 512), não índices pequenos.
 
 **Por quê:** as faixas são incompatíveis. Umidade e nível varrem 0 a 3,3 V e
 exigem fundo de escala `±4,096 V`. O pH oscila em torno de um offset de ~1,65 V,
@@ -112,6 +114,25 @@ dobra a resolução ali. Com ganho único, ou se satura a umidade, ou se joga fo
 resolução do pH.
 
 Não é calibração de campo, é característica de projeto — daí ser `const`.
+
+### O trilho de 3,3 V não muda a tabela, mas restringe o front-end de pH
+
+O alvo de campo é **Pro Mini 3,3 V / 8 MHz** (`pro8MHzatmega328`), a bateria.
+Duas consequências:
+
+- **`GAIN_ONE` (±4,096 V) continua certo para umidade, nível e EC.** Num trilho de
+  3,3 V esse fundo de escala desperdiça ~20 % da faixa positiva, mas `GAIN_TWO`
+  (±2,048 V) **ceifaria** qualquer sinal acima de 2,048 V. Perder resolução é
+  aceitável; saturar em silêncio não é.
+- **O offset do módulo de pH tem que ser Vcc/2 ≈ 1,65 V, não 2,5 V.** O §4.1 do
+  README de hardware admite os dois. Com 2,5 V de offset, pH 4 cairia em
+  `2,5 + 3 × 0,05916 = 2,68 V` e **satura** no `GAIN_TWO` do canal 4 — a leitura
+  travaria no fundo de escala e todo o ramo ácido sairia errado, sem qualquer
+  sinal de erro. Com 1,65 V a faixa útil é 1,47 a 1,83 V, com folga. Os defaults
+  de calibração já assumem 1,65 V.
+
+> Se a PCB for populada com offset de 2,5 V, o canal 4 precisa passar a
+> `GAIN_ONE` — ao custo de metade da resolução onde ela mais importa.
 
 ---
 
