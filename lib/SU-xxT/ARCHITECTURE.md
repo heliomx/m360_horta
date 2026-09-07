@@ -333,61 +333,59 @@ diferença em vez de resolvê-la.
 
 ---
 
-## Pendência — pinagem de referência e construtor
+## 13. A pinagem pertence ao nó, não à biblioteca
 
-**O construtor exige seis pinos explícitos, e não deveria.**
+**A escolha:** o construtor recebe os pinos. A lib não tem `SU_Board.h`, não tem
+pinagem default e não sabe em que MCU está.
 
-A PCB da família SU é **universal**: um único layout, diferenciado só por
-população seletiva de componentes. Se a topologia é fixa pelo cobre, então os
-pinos de MUX, excitação AC e MOSFET são **constantes da placa**, não parâmetros
-de instância. Obrigar cada nó a soletrar a fiação é cerimônia — e convida
-justamente a divergência de layout que a PCB universal existe para evitar.
+**Por quê:** a PCB SU é **agnóstica quanto ao microcontrolador**. Ela expõe
+sinais — três linhas de endereço do MUX, excitação AC, comando do MOSFET,
+1-Wire — e o hospedeiro pode ser Pro Mini, D1 Mini ou ESP32 devkit. Não existe
+mapeamento MCU↔placa a ser codificado: qual pino aciona qual sinal é escolha de
+quem monta o nó.
 
-O desenho correto:
+É o mesmo princípio da §11 aplicado a outro contrato. Assim como child IDs
+pertencem ao `NODE_ITEMS[]`, a pinagem pertence ao `sensorDrivers.h` — e é o que
+todos os nós do projeto já fazem:
+
+| Nó | Onde declara |
+|---|---|
+| 01 | `01nodeSolo3dNano.cpp:18,21` |
+| 04 | `sensorDrivers.h:9-12` |
+| 99 | `sensorDrivers.h:39,74,79` |
+
+Uma pinagem default dentro da lib faria da SU o único caso divergente do
+projeto, e codificaria uma suposição de hospedeiro que a placa deliberadamente
+não faz.
+
+> **Registro de uma volta atrás.** Cheguei a propor um `SU_Board.h` com pinagem
+> de referência e construtor delegante (`SU_Device su(SU_MODEL_30T);`), sob a
+> premissa de que "PCB universal" implicaria pinagem fixa. Implica população de
+> componentes fixa, não hospedeiro fixo. A proposta era baseada em premissa
+> errada e foi descartada.
+
+### O que continua valendo de melhoria
+
+O problema real do construtor não é a explicitude — é a **aridade posicional**:
+seis pinos em sequência, quatro `uint8_t` e dois `int8_t`. Trocar `muxB` com
+`muxC` endereça canais errados em silêncio; trocar `acExcite` com `mosfetPwr`
+manda trem de pulsos no gate e mantém o trilho ligado. Mesmos tipos, sem nome —
+o compilador não ajuda em nenhum dos dois.
+
+Um agregado nomeado resolve sem tirar o pino do nó:
 
 ```cpp
-static SU_Device su(SU_MODEL_30T);   // usa a pinagem da PCB de referência
+// sensorDrivers.h do nó
+static const SU_Pinout SU_PINS = {
+    .muxA = 4, .muxB = 5, .muxC = 6,
+    .acExcite  = 3,
+    .mosfetPwr = 7,
+    .oneWire   = 8,
+};
+static SU_Device su(SU_PINS, SU_MODEL_30T);
 ```
 
-- `SU_Board.h` com a pinagem por arquitetura (`#ifdef` AVR / ESP8266 / ESP32 —
-  mesma placa, módulo de MCU diferente, numeração diferente).
-- Construtor delegante com defaults vindos desse header.
-- O construtor completo permanece, para protótipo em protoboard.
-
-**Por que não está implementado:** `hardware/SU-xxT/` **não define pinagem
-alguma**. O diagrama do §4 tem nomes de rede, não atribuição de pinos do MCU. Os
-números que aparecem no `BasicReadings.ino` e no guia rápido do README foram
-escolhidos para o exemplo compilar — são ilustrativos e estão marcados como tal.
-
-Inventar uma pinagem aqui a transformaria de fato em especificação da PCB, pela
-porta dos fundos. A decisão fica com o esquema elétrico; quando ele existir, esta
-refatoração é pequena e mecânica.
-
-**Restrições que a pinagem tem que respeitar.** As reservas de barramento são
-conhecidas do projeto; as duas decisões abaixo foram tomadas e estão detalhadas
-no §4.2 do [README de hardware](../../hardware/SU-xxT/README.md).
-
-| Recurso | Reserva |
-|---|---|
-| `D9` / `D10` | nRF24 CE / CSN — fixos no Nano, não remapeáveis |
-| `D11`–`D13` | SPI do rádio |
-| `A4` / `A5` | I2C do ADS1115 |
-| `D0` / `D1` | Serial |
-
-Restam `D2`–`D8` e `A0`–`A3` para os seis pinos necessários, mais a bateria.
-
-- **`D2` fica preservado.** É o INT0, e o único pino de interrupção externa que
-  sobra. Gastá-lo com uma linha de endereço de MUX — escrita lenta e previsível —
-  trocaria o recurso escasso pelo abundante.
-- **A excitação AC vai em `D3`, e isso é determinado, não escolhido.** Exigir PWM
-  por hardware (para migrar do bit-bang atual sem mudar o layout) elimina tudo o
-  mais: Timer0 (`D5`/`D6`) é a base de tempo do `millis()`, Timer1 (`D9`/`D10`)
-  está inteiro sob o nRF24, e do Timer2 o `D11` é o MOSI do rádio. Sobra o `OC2B`,
-  que é o `D3`. Custo aceito: perde-se o INT1.
-
-Isso vale para o **ATmega328P**. ESP8266 e ESP32 não têm a restrição — PWM por
-software ou por matriz de roteamento —, e é por isso que o `SU_Board.h` precisa
-ser condicionado por arquitetura.
+Uma troca de pinos passa a ser nome errado, não posição errada.
 
 ---
 

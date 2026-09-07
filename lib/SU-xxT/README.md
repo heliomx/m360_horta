@@ -106,11 +106,13 @@ static SU_Device su(/* MUX A/B/C */ 5, 6, 7,
                     SU_MODEL_30T);
 ```
 
-> ⚠️ **Os números acima são ilustrativos, não especificação.** `hardware/SU-xxT/`
-> ainda não define a ligação entre o MCU e o MUX / excitação / MOSFET. Como a PCB
-> é universal, essa pinagem é constante da placa e deveria vir de um `SU_Board.h`,
-> com o construtor reduzido a `SU_Device su(SU_MODEL_30T);`. Fica pendente até o
-> esquema elétrico existir — ver [ARCHITECTURE.md](ARCHITECTURE.md).
+> ⚠️ **Os números acima são ilustrativos.** A PCB SU é **agnóstica quanto ao
+> microcontrolador**: ela expõe sinais, e qual pino do MCU aciona cada um é
+> escolha de quem monta o nó. Por isso a pinagem vive no `sensorDrivers.h` do nó,
+> como nos nós 01, 04 e 99 — a biblioteca a recebe e não a declara. Restrições
+> que aparecem ao escolher cada hospedeiro estão no §4.2 do
+> [README de hardware](../../hardware/SU-xxT/README.md); o porquê da decisão, em
+> [ARCHITECTURE.md §13](ARCHITECTURE.md).
 
 ### 2. Aquisição no `powerUp()`, leitura no `onRead()`
 

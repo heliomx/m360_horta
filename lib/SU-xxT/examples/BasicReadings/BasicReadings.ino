@@ -5,14 +5,15 @@
  * Não é compilado por nenhum env do projeto: o PlatformIO ignora exemplos de
  * biblioteca. A prova de compilação que vale é o env do nó real.
  *
- * ATENÇÃO — A PINAGEM ABAIXO É ILUSTRATIVA, NÃO ESPECIFICAÇÃO.
+ * ATENÇÃO — A PINAGEM ABAIXO É ILUSTRATIVA.
  *
- * Estes números foram escolhidos para o exemplo compilar. Não vieram de nenhum
- * esquema elétrico: hardware/SU-xxT/ ainda não define a ligação entre o MCU e o
- * MUX / excitação AC / MOSFET. Não usar como referência de layout.
+ * A PCB SU é agnóstica quanto ao microcontrolador: ela expõe sinais (endereço do
+ * MUX, excitação AC, comando do MOSFET, 1-Wire), e qual pino do MCU aciona cada
+ * um é escolha de quem monta o nó. Não existe pinagem "da placa" a ser copiada
+ * daqui.
  *
- * Quando o esquema existir, a pinagem passa a viver num SU_Board.h e o
- * construtor ganha defaults — ver "Pendência" no ARCHITECTURE.md.
+ * Num nó de produção, estes valores vivem no sensorDrivers.h do nó — convenção
+ * de todos os nós do projeto. Ver ARCHITECTURE.md §13.
  */
 
 #include <Arduino.h>

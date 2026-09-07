@@ -243,8 +243,8 @@ indicador agronômico de secagem do solo.
 
 ```mermaid
 flowchart TD
-    subgraph Core ["Núcleo de Controle & Rádio"]
-        MCU["Microcontrolador (ATmega328P / ESP32 / ESP8266)"]
+    subgraph Core ["Hospedeiro — FORA do escopo da PCB SU"]
+        MCU["Microcontrolador (ATmega328P / ESP8266 / ESP32)<br/>pinagem definida pelo NÓ, não pela placa"]
         RF24["Rádio nRF24L01+ (com desacoplamento)"]
         MOSFET_SW["Chave de Alimentação (MOSFET Canal P)<br/>só os front-ends"]
     end
@@ -351,57 +351,56 @@ Multiplexador **`74HC4051`** (8:1 single-ended, endereçado por três linhas
 > do `ADS1115` — sondas de alta impedância (pH) exigem mais. **A definir por
 > medição.**
 
-### 4.2. Restrições de pinagem do MCU (ATmega328P)
+### 4.2. A PCB é agnóstica quanto ao microcontrolador
 
-O esquema elétrico ainda não atribui pinos. Estas restrições são **decisões de
-projeto já tomadas** e balizam essa atribuição.
+**A placa SU não define pinagem de MCU, e isso é decisão de projeto, não lacuna.**
+Ela expõe sinais — três linhas de endereço do MUX, excitação AC, comando do
+MOSFET, 1-Wire — e qualquer hospedeiro os aciona: Pro Mini, D1 Mini, ESP32
+devkit. Qual pino do MCU vai em qual sinal é escolha de **quem monta o nó**.
 
-#### Pinos indisponíveis
+Consequência para o firmware: a pinagem pertence ao `sensorDrivers.h` do nó,
+como em todos os outros nós do projeto (Nó 01, Nó 04, Nó 99). A `lib/SU-xxT`
+recebe os pinos no construtor e **não** os declara — pelo mesmo motivo que não
+declara child IDs.
 
-| Pino | Ocupado por | Observação |
-|---|---|---|
-| `D9` / `D10` | nRF24 CE / CSN | **Não remapeáveis** no Nano / Pro Mini |
-| `D11`–`D13` | SPI do rádio (MOSI / MISO / SCK) | |
-| `A4` / `A5` | I2C do ADS1115 | |
-| `D0` / `D1` | Serial | |
+#### Restrições que aparecem AO ESCOLHER o hospedeiro
 
-Restam **`D2`–`D8`** e **`A0`–`A3`** para: 3 linhas de MUX, excitação AC, MOSFET
-dos front-ends, 1-Wire e a medição de bateria.
+Não são propriedades da placa; são consequências de cada MCU somadas ao que o
+resto do nó já ocupa. Registradas aqui para poupar a redescoberta.
 
-#### Decisão 1 — `D2` fica preservado
+**ATmega328P (Pro Mini / Nano), com o rádio padrão do projeto:**
 
-`D2` é o **INT0** do ATmega328P. É o único pino de interrupção externa que resta
-depois das reservas acima, e a família SU tende a ganhar eventos assíncronos
-(sensor de nível óptico com saída digital, contagem de pulsos numa expansão).
-Consumi-lo com uma linha de endereço de MUX — que é escrita lenta e previsível —
-seria trocar o recurso escasso pelo abundante.
+| Pino | Ocupado por |
+|---|---|
+| `D9` / `D10` | nRF24 CE / CSN — **não remapeáveis** |
+| `D11`–`D13` | SPI do rádio |
+| `A4` / `A5` | I2C do ADS1115 |
+| `D0` / `D1` | Serial |
 
-#### Decisão 2 — excitação AC num pino com PWM por hardware
+Restam `D2`–`D8` e `A0`–`A3` para os seis sinais mais a medição de bateria.
 
-A excitação hoje é bit-bang (`digitalWrite` + `delayMicroseconds`). Isso funciona
-a 1 kHz, mas amarra o timing ao laço de CPU. Alocar a excitação num pino com
-saída de comparador de timer permite migrar para PWM por hardware **sem tocar no
-layout** — a frequência passa a ser exata e a rajada deixa de bloquear o MCU.
+- **Preservar `D2`.** É o INT0, único pino de interrupção externa que sobra.
+  Gastá-lo com uma linha de endereço de MUX — escrita lenta e previsível —
+  trocaria o recurso escasso pelo abundante.
+- **Excitação AC em `D3`, se quiser PWM por hardware.** A excitação hoje é
+  bit-bang; migrar para timer exige uma saída de comparador. Verificado em
+  `framework-arduino-avr/variants/standard/pins_arduino.h`:
 
-**Essa restrição não deixa escolha: é `D3`.** Verificado em
-`framework-arduino-avr/variants/standard/pins_arduino.h`:
+  | Timer | Saídas | Situação |
+  |---|---|---|
+  | Timer0 | `D5`, `D6` | Base de tempo do `millis()` / `delay()` |
+  | Timer1 | `D9`, `D10` | Ambos sob o CE/CSN do nRF24 |
+  | Timer2 | `D11` (OC2A) | MOSI do rádio |
+  | | **`D3` (OC2B)** | **único livre** |
 
-| Timer | Saídas | Situação |
-|---|---|---|
-| Timer0 | `D5` (OC0B), `D6` (OC0A) | **Base de tempo do sistema** — mexer no prescaler quebra `millis()` e `delay()` |
-| Timer1 | `D9` (OC1A), `D10` (OC1B) | **Ambos consumidos** pelo CE/CSN do nRF24 |
-| Timer2 | `D11` (OC2A), **`D3` (OC2B)** | `D11` é o MOSI do rádio. Sobra `D3` |
+  Nesse hospedeiro a restrição não deixa escolha. Custo: perde-se o INT1 —
+  aceitável, já que o INT0 fica preservado. Atenção: `tone()` também usa o
+  Timer2 no core Arduino.
 
-`D3` é o **único** pino do ATmega328P capaz de carregar PWM por hardware neste
-projeto. Consequência aceita: `D3` também é o INT1, que se perde — mas a
-Decisão 1 já preserva o INT0, que é o que importa.
+**ESP8266 / ESP32:** nenhuma dessas restrições se aplica. O PWM é por software
+(ESP8266) ou roteável por matriz (ESP32), e não há competição por timer. A
+pinagem é livre dentro dos GPIOs utilizáveis do módulo.
 
-> Cuidado ao usar Timer2: no core Arduino, `tone()` também o utiliza. Nós SU não
-> devem chamar `tone()`.
-
-> **ESP8266 / ESP32 não têm essa restrição** — o PWM é por software (ESP8266) ou
-> roteável por matriz (ESP32), então qualquer GPIO serve. A pinagem do
-> `SU_Board.h` será, por isso, diferente por arquitetura.
 
 ---
 
