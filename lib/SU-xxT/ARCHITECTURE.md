@@ -290,6 +290,49 @@ Duas sutilezas que a faixa esconde:
 
 ---
 
+## 12. Umidade em percentual, e por que ela diverge dos nós 1 e 2
+
+**A escolha:** `_computeMoisture()` devolve **percentual 0–100 %, alto = úmido**,
+interpolado entre os pontos de calibração `airAdc` (seco) e `waterAdc` (saturado).
+
+**Por quê:** a SU lê por ADS1115 de 16 bits, não pelo ADC de 10 bits do AVR —
+"ADC bruto" nem sequer é o mesmo espaço numérico. E a sonda tem pontos de
+calibração ar/água, o que torna o percentual comparável entre sondas. Emitir um
+número cru jogaria fora exatamente o que a calibração produz.
+
+**A consequência, que é o ponto perigoso.** Os nós 1 e 2 da Horta publicam a
+mesma grandeza, com o mesmo par de tipos (`S_MOISTURE` / `V_LEVEL`), em escala
+**oposta**:
+
+| | Nós 1 e 2 | SU-xxT |
+|---|---|---|
+| Escala | ADC bruto 0–1023 | percentual 0–100 % |
+| Direção | alto = **seco** | alto = **úmido** |
+| Calibração | nenhuma (eletrodo nu) | pontos ar/água por sonda |
+
+Um valor da SU lido na escala dos nós 1 e 2 faz o solo parecer mais úmido quanto
+mais seco estiver — 8 % lidos como 8 ADC caem em `< 350`, "capacidade de campo",
+e a irrigação nunca dispara justamente na seca.
+
+**O que separa os dois é o `nodeId`, não o tipo.** Os filtros de canteiro do
+Node-RED gateiam por `Number(m.nodeId) === 1` / `=== 2`; o tipo entra só como
+fallback. Por isso compartilhar `S_MOISTURE`/`V_LEVEL` é seguro — e é a escolha
+semanticamente correta, já que `V_HUM` pertence à umidade do ar (nó 4 child 12,
+nó 99 child 12).
+
+**Por que não unificar a escala.** Os nós 1 e 2 não têm calibração, e converter
+ADC bruto em percentual sobre eletrodo resistivo já foi reprovado em revisão
+neste projeto — "assume linearidade em sensores que são notavelmente
+não-lineares" (`deferred-work.md`). Os limiares de irrigação também foram
+sintonizados empiricamente em 0–1023, e como o mapeamento bruto→% é não-linear,
+converter invalidaria a sintonia em vez de reescalá-la.
+
+Duas escalas para uma grandeza é desconfortável, mas honesto: são sensores com
+estados de calibração diferentes, e fingir uma escala comum esconderia a
+diferença em vez de resolvê-la.
+
+---
+
 ## Armadilha de portabilidade — ESP
 
 A biblioteca declara `espressif8266` e `espressif32`. Nessas plataformas a EEPROM é

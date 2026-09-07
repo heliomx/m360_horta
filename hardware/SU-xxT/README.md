@@ -361,8 +361,8 @@ itens declarados em `NODE_ITEMS[]` — a faixa válida de child ID é **1 a 252*
 
 | Child ID | Label | Tipo MySensors (`S_*`) | Tipo Variável (`V_*`) | Unidade | Variantes Ativas |
 |:---:|---|---|---|:---:|---|
-| `1` | `umidade_10cm` | `S_HUM` | `V_HUM` | `%` | Todos |
-| `2` | `umidade_30cm` | `S_HUM` | `V_HUM` | `%` | Todos |
+| `1` | `umidade_10cm` | `S_MOISTURE` | `V_LEVEL` | `%` | Todos |
+| `2` | `umidade_30cm` | `S_MOISTURE` | `V_LEVEL` | `%` | Todos |
 | `3` | `temp_solo` | `S_TEMP` | `V_TEMP` | `°C` | Modelos **'T'** (`SU-10T`, `SU-20T`, `SU-30T`) |
 | `4` | `ec_solucao` | `S_WATER_QUALITY` | `V_EC` | `µS/cm` | `SU-20`, `SU-20T`, `SU-30`, `SU-30T` |
 | `5` | `ph_solucao` | `S_WATER_QUALITY` | `V_PH` | `pH` | `SU-30`, `SU-30T` |
@@ -384,6 +384,43 @@ itens declarados em `NODE_ITEMS[]` — a faixa válida de child ID é **1 a 252*
 > de cor. A unidade nativa do MySensors para `V_EC` é **µS/cm** — a conversão a
 > partir de mS/cm é responsabilidade do firmware, não do Node-RED.
 >
+> ⚠️ **Umidade de solo usa `S_MOISTURE` / `V_LEVEL` (37) — o mesmo par dos nós 1
+> e 2 — mas em ESCALA DIFERENTE E INVERTIDA.** É a armadilha central deste
+> contrato:
+>
+> | | Nós 1 e 2 | SU-xxT |
+> |---|---|---|
+> | Escala | ADC bruto 0–1023 | percentual 0–100 % |
+> | Direção | alto = **seco** | alto = **úmido** |
+> | Calibração | nenhuma (eletrodo nu) | pontos ar/água por sonda |
+>
+> Um valor da SU interpretado na escala dos nós 1 e 2 faz o solo parecer mais
+> úmido quanto mais seco estiver: 8 % lidos como 8 ADC caem em `< 350` —
+> "capacidade de campo, standby" — e a irrigação **nunca** dispara justamente na
+> seca.
+>
+> O que impede isso hoje é o roteamento do Node-RED ser **por `nodeId`**
+> (`Number(m.nodeId) === 1` nos filtros de canteiro), não por tipo. Portanto: **o
+> nó SU nunca pode ser ligado aos filtros de Canteiro A/B nem ao Motor de Regras
+> existente.** Ele exige consumidores próprios, com limiares percentuais e sentido
+> invertido.
+>
+> **Por que o tipo é `S_MOISTURE`/`V_LEVEL` e não `S_HUM`/`V_HUM`:** `S_MOISTURE`
+> é o tipo nativo do MySensors para solo, e `V_HUM` já é usado por umidade **do
+> ar** (nó 4 child 12, nó 99 child 12) — pôr solo ali criaria uma colisão de tipo
+> que hoje não existe. Como o roteamento é por nó, compartilhar o tipo com os nós
+> 1 e 2 é seguro e semanticamente correto.
+>
+> **Por que as escalas não são unificadas:** os nós 1 e 2 não têm ponto de
+> calibração algum, e converter ADC bruto em percentual sobre eletrodo resistivo
+> já foi reprovado em revisão neste projeto
+> (`_bmad-output/implementation-artifacts/deferred-work.md` — "assume linearidade
+> em sensores que são notavelmente não-lineares"). Além disso, os limiares de
+> irrigação foram sintonizados empiricamente na escala 0–1023, e o mapeamento
+> bruto→% é não-linear: converter não reescalaria a sintonia, a invalidaria. Duas
+> escalas são desconfortáveis, mas verdadeiras — são sensores com estados de
+> calibração diferentes.
+
 > **Ainda não é contrato vigente.** Nenhum nó SU existe na rede. Ao gravar o
 > primeiro, estas linhas têm que ser replicadas em `src/DRY/horta/inventario.md`,
 > e os consumidores em `flows.json` / `funcionalidades_nodered.md` atualizados na

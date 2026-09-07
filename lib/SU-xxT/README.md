@@ -53,6 +53,13 @@ Disso decorre quase tudo que é peculiar nesta biblioteca:
 
 O sufixo **'T'** indica a presença do DS18B20.
 
+> ⚠️ **Umidade sai em percentual (0–100 %, alto = úmido), calibrado por sonda.**
+> Os nós 1 e 2 da Horta publicam a mesma grandeza com o mesmo par de tipos
+> (`S_MOISTURE`/`V_LEVEL`) em **ADC bruto 0–1023, alto = seco** — escala oposta.
+> Os dois só não se misturam porque o Node-RED roteia por `nodeId`. Um nó SU
+> **nunca** deve ser ligado aos filtros de Canteiro A/B nem ao Motor de Regras
+> existente. Ver [ARCHITECTURE.md §12](ARCHITECTURE.md).
+
 > ⚠️ **EC sem termometria é indicativa, não quantitativa.** A condutividade tem
 > coeficiente térmico de 1,91 %/°C. Sem `T_solo` real a compensação cai numa
 > temperatura assumida, o que dá **~19 % de erro a cada 10 °C de desvio** — e solo
