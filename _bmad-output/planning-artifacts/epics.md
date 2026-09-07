@@ -89,5 +89,44 @@ Este documento lista os épicos e histórias do projeto M360 Horta, gerados a pa
   - **Implementação Base:** Gateway + `lib/M360-DRY/src/M360Node.cpp`
   - **Cenário de Aceitação:** Dado o recebimento do JSON `{"action": "CMD_FORCE_UPDATE"}` pela nuvem, Quando o Gateway decodificar, Então deve rotear a string apropriada `CMD_FORCE_UPDATE` no payload nativo à criança designada, desencadeando a sub-rotina de update bypass em M360Node.
 
+## Epic 5: [Manutenção Remota] Atualização de Firmware OTA
+**Descrição:** Elimina a necessidade de acesso físico com cabo USB para atualizar firmware, no gateway e nos nós. É pré-requisito da expansão para RFM95W/LoRa: alcance maior significa nós mais distantes, e sem OTA cada correção de regra embarcada passa a custar um deslocamento. Estudo de viabilidade com medições em `_bmad-output/planning-artifacts/research/ota-firmware-m360.md`.
+
+- **Story 5.1:** OTA do Gateway ESP8266
+  - **Contexto:** O gateway é o alvo sem pré-requisito — ~346 KB de folga sobre o exigido pelo OTA em 2 passos, e `ESP8266httpUpdate` / `ESP8266HTTPUpdateServer` já vêm no core. A infraestrutura precisa nascer em `lib/M360-DRY` porque os dois `libDryGatewayMqtt.cpp` (Horta e Kit Hélio) são cópias independentes que divergiriam na primeira correção.
+  - **Implementação Base:** `lib/M360-DRY/src/M360OTA.{h,cpp}` (novo, sob `#ifdef ESP8266`), hook em `lib/M360-DRY/src/M360Gateway.cpp`, envs em `src/DRY/horta/platformio.ini` e `src/DRY/kit-helio/platformio.ini`
+  - **Cenário de Aceitação:** Dado um gateway em modo STA com MQTT conectado, Quando chegar o comando de atualização com a URL do binário, Então ele deve baixar, validar e gravar a imagem, publicando `ota_start`, `ota_progress` e `ota_end` em `.../out/events` via `publishTransportEvent()`, e reiniciar na versão nova.
+  - **Cenário de Aceitação (recuperação):** Dado um gateway caído em modo AP por config inválida, Quando o operador acessar a rota `/update` autenticada do portal, Então o upload manual do `.bin` deve funcionar — o hook de OTA roda fora do `if (!isAPMode())`, como já fazem `_webHandler` e `_ledUpdate`.
+  - **NFR associado:** A rota `/update` exige autenticação por senha distinta das credenciais de AP e WiFi. O estado de OTA persistido usa os bytes de EEPROM 516–520; acrescentar campo a `M360DeviceConfig` invalida o CRC e derruba toda a frota para modo AP.
+
+- **Story 5.2:** Passagem de `C_STREAM` no Gateway (transporte do FOTA)
+  - **Contexto:** Mesmo com bootloader e memória de staging resolvidos nos nós, o FOTA não passa pelo gateway como ele está escrito: `Translator::validate()` e `Translator::fromNative()` aceitam apenas `C_SET`, `C_REQ` e `C_INTERNAL`, e o payload trafega como `const char*` — blocos binários de 16 B contêm `0x00` e não sobrevivem a um caminho de string.
+  - **Implementação Base:** `lib/M360-DRY/src/M360Translator.cpp:95-153`, `src/DRY/horta/nodered/funcionalidades_nodered.md` §9
+  - **Cenário de Aceitação:** Dado um bloco de firmware de 16 bytes contendo `0x00`, Quando trafegar pelo gateway em qualquer sentido, Então deve chegar íntegro ao destino, transportado em codificação hexadecimal no payload MQTT — padrão que `MyMessage.h:316-317` já prevê.
+  - **Cenário de Aceitação (não-regressão):** Dado um comando `C_SET`/`V_STATUS` com payload diferente de `"0"` ou `"1"`, Quando o `Translator` validar, Então deve continuar rejeitando — a passagem de `C_STREAM` é um caminho separado e não afrouxa a validação de atuação, que existe porque `getBool()` faz `atoi()` e qualquer lixo desliga o relé.
+  - **NFR associado:** Altera o contrato com o Node-RED. A §9 de `funcionalidades_nodered.md` e o `Decodificador Nativo` devem ser atualizados na mesma entrega — mudar um lado sem o outro quebra o sistema em silêncio.
+
+- **Story 5.3:** Bootloader e Memória de Staging nos Nós `ALWAYS_ON`
+  - **Contexto:** Todos os nós rodam o `ATmegaBOOT` legado de 2 KB e nenhuma placa tem memória não-volátil externa. A escolha é `DualOptiboot` + flash SPI, e não `MYSBootloader`: este último embute um driver nRF24 e só funciona com esse rádio, exigindo uma segunda visita com gravador ISP a cada nó na migração para RFM95/RFM69. O `DualOptiboot` nunca toca no transceptor e atravessa a migração — com ele, trocar de rádio vira plugar o adaptador no soquete.
+  - **Implementação Base:** Bootloader gravado por ISP, `board_bootloader.*` e `MY_OTA_FIRMWARE_FEATURE` nos envs de `src/DRY/horta/platformio.ini` e `src/DRY/kit-helio/platformio.ini`, `esquema_eletrico.md` de cada nó
+  - **Cenário de Aceitação:** Dado um nó com `DualOptiboot` gravado e flash SPI soldada, Quando o controlador anunciar uma versão diferente da que ele roda, Então o nó deve baixar a imagem bloco a bloco para a memória de staging, validar o CRC e reiniciar já na versão nova.
+  - **NFR associado:** O orçamento de flash e RAM do Nó 99 (8.888 B e 547 B livres) deve ser medido com a feature ligada antes de qualquer compromisso — a RAM é o risco maior que a flash. Nos Nós 01 e 02 o caminho I2C está barrado: A4/A5 são canais de umidade de solo, logo o staging é obrigatoriamente SPI. `MY_OTA_FLASH_JDECID` deve casar com o chip usado — o padrão `0x1F65` não reconhece um W25Q80.
+  - **Cenário de Aceitação (Pro Mini):** Dado um nó Pro Mini, Quando o bootloader for gravado por ISP pelos headers laterais (D11/D12/D13 + RST), Então o módulo de rádio deve ter sido desplugado do soquete antes da gravação, e o `upload_speed` do env deve ser atualizado para a velocidade do novo bootloader — os 57600 atuais são do ATmegaBOOT.
+  - **NFR associado (Pro Mini):** Confirmar a placa física do Nó 04 antes de gravar. O código-fonte e o `esquema_eletrico.md` declaram 3.3V/8MHz, mas `platformio.ini:201` usa `board = pro16MHzatmega328`. Os fuses das duas placas são idênticos (0xFF/0xDA/0xFD), mas o binário do bootloader carrega o divisor de UART — gravar o errado quebra a via serial de recuperação em silêncio. Não desabilitar o BOD (`efuse = 0xFD`, 2,7 V): ele é o que impede brick por queda de tensão durante a cópia do staging no boot.
+
+- **Story 5.4:** Janela Acordada para OTA em Nó `LOW_POWER`
+  - **Contexto:** O Nó 04 é onde OTA mais vale a pena — é solar e tende a ficar mais distante — e é o único estruturalmente incapaz de recebê-lo: acorda ~3 s por hora, e uma campanha de 20 KB são 1.280 blocos com ida e volta cada.
+  - **Implementação Base:** `lib/M360-DRY/src/M360Node.cpp:200-233` (dispatch de `V_CUSTOM`), `M360Node.cpp:108-143` (`process()`), `lib/M360-DRY/src/M360Constants.h:47-49`
+  - **Cenário de Aceitação:** Dado um nó `M360_LOW_POWER` em sono, Quando receber o comando `V_CUSTOM` de abrir janela de OTA na sua janela de escuta, Então deve substituir o `smartSleep()` por `wait()` e permanecer acordado até concluir a campanha.
+  - **Cenário de Aceitação (failsafe):** Dado que a campanha falhou ou o controlador sumiu, Quando o prazo máximo absoluto da janela expirar, Então o nó deve voltar a dormir sozinho, sem depender de nenhuma mensagem — a mesma lógica do failsafe de tempo máximo ligado do Nó 99.
+  - **NFR associado:** Não iniciar campanha abaixo de um limiar de tensão de bateria, já reportada pelo child 255.
+
+- **Story 5.5:** Servidor de Firmware no Controlador — Requisito
+  - **Contexto:** Story de requisito, não de implementação. FOTA não funciona só com firmware: alguém precisa indexar firmwares por `type`/`version`, fazer o parse do Intel HEX do PlatformIO e servir blocos de 16 B respondendo a `ST_FIRMWARE_CONFIG_REQUEST` e `ST_FIRMWARE_REQUEST`. Hoje não existe nenhum `ST_FIRMWARE_*` no `flows.json`.
+  - **Implementação Base:** A definir — aba dedicada em `src/DRY/horta/nodered/flows.json` ou MYSController externo
+  - **Cenário de Aceitação:** Dado o PoC da Story 5.3, Quando a pilha for validada, Então a decisão entre aba Node-RED e MYSController deve estar registrada com a estimativa de esforço de cada uma — a recomendação do estudo é usar MYSController no PoC, para isolar a validação de bootloader, staging e rádio do risco de software de controlador.
+  - **NFR associado:** A latência de resposta do servidor precisa caber na janela de desistência do nó: `(MY_OTA_RETRY + 1) x MY_OTA_RETRY_DELAY` = 3 s. Em RFM95 com spreading factor alto, o tempo de ar sozinho já estoura essa janela e `MY_OTA_RETRY_DELAY` terá de ser elevado por env.
+
+---
 ---
 *Artefato finalizado via engenharia reversa e análise de codebase.*
