@@ -363,7 +363,9 @@ Inventar uma pinagem aqui a transformaria de fato em especificação da PCB, pel
 porta dos fundos. A decisão fica com o esquema elétrico; quando ele existir, esta
 refatoração é pequena e mecânica.
 
-**Restrições que a pinagem terá que respeitar**, já conhecidas do projeto:
+**Restrições que a pinagem tem que respeitar.** As reservas de barramento são
+conhecidas do projeto; as duas decisões abaixo foram tomadas e estão detalhadas
+no §4.2 do [README de hardware](../../hardware/SU-xxT/README.md).
 
 | Recurso | Reserva |
 |---|---|
@@ -372,10 +374,20 @@ refatoração é pequena e mecânica.
 | `A4` / `A5` | I2C do ADS1115 |
 | `D0` / `D1` | Serial |
 
-Restam `D2`–`D8` e `A0`–`A3` para os seis pinos necessários, mais a medição de
-bateria. Vale preservar `D2` (INT0) e considerar um pino com PWM para a
-excitação AC, de modo que ela possa migrar de bit-bang para timer por hardware
-sem mudar o layout.
+Restam `D2`–`D8` e `A0`–`A3` para os seis pinos necessários, mais a bateria.
+
+- **`D2` fica preservado.** É o INT0, e o único pino de interrupção externa que
+  sobra. Gastá-lo com uma linha de endereço de MUX — escrita lenta e previsível —
+  trocaria o recurso escasso pelo abundante.
+- **A excitação AC vai em `D3`, e isso é determinado, não escolhido.** Exigir PWM
+  por hardware (para migrar do bit-bang atual sem mudar o layout) elimina tudo o
+  mais: Timer0 (`D5`/`D6`) é a base de tempo do `millis()`, Timer1 (`D9`/`D10`)
+  está inteiro sob o nRF24, e do Timer2 o `D11` é o MOSI do rádio. Sobra o `OC2B`,
+  que é o `D3`. Custo aceito: perde-se o INT1.
+
+Isso vale para o **ATmega328P**. ESP8266 e ESP32 não têm a restrição — PWM por
+software ou por matriz de roteamento —, e é por isso que o `SU_Board.h` precisa
+ser condicionado por arquitetura.
 
 ---
 

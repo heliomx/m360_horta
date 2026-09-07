@@ -3,6 +3,8 @@
 
 Este diretório contém a documentação técnica, especificações de hardware, esquema elétrico e diretrizes construtivas da família de sensores de solo modulares **SU-xxT** para integração ao ecossistema **Manejo360** (comunicação MySensors RF24 · Gateway MQTT · Node-RED).
 
+> 📘 **Para técnicos e instaladores:** Consulte o [**Manual de Implantação e Operação em Campo**](MANUAL_CAMPO.md) para o guia prático passo a passo de montagem da cerâmica, abertura da cova com lama de contato, instalação das sondas e resolução de problemas.
+
 ---
 
 ## 1. Visão Geral e Conceito da Família SU
@@ -348,6 +350,58 @@ Multiplexador **`74HC4051`** (8:1 single-ended, endereçado por três linhas
 > **Acomodação:** prever tempo de estabilização entre a troca de canal e a conversão
 > do `ADS1115` — sondas de alta impedância (pH) exigem mais. **A definir por
 > medição.**
+
+### 4.2. Restrições de pinagem do MCU (ATmega328P)
+
+O esquema elétrico ainda não atribui pinos. Estas restrições são **decisões de
+projeto já tomadas** e balizam essa atribuição.
+
+#### Pinos indisponíveis
+
+| Pino | Ocupado por | Observação |
+|---|---|---|
+| `D9` / `D10` | nRF24 CE / CSN | **Não remapeáveis** no Nano / Pro Mini |
+| `D11`–`D13` | SPI do rádio (MOSI / MISO / SCK) | |
+| `A4` / `A5` | I2C do ADS1115 | |
+| `D0` / `D1` | Serial | |
+
+Restam **`D2`–`D8`** e **`A0`–`A3`** para: 3 linhas de MUX, excitação AC, MOSFET
+dos front-ends, 1-Wire e a medição de bateria.
+
+#### Decisão 1 — `D2` fica preservado
+
+`D2` é o **INT0** do ATmega328P. É o único pino de interrupção externa que resta
+depois das reservas acima, e a família SU tende a ganhar eventos assíncronos
+(sensor de nível óptico com saída digital, contagem de pulsos numa expansão).
+Consumi-lo com uma linha de endereço de MUX — que é escrita lenta e previsível —
+seria trocar o recurso escasso pelo abundante.
+
+#### Decisão 2 — excitação AC num pino com PWM por hardware
+
+A excitação hoje é bit-bang (`digitalWrite` + `delayMicroseconds`). Isso funciona
+a 1 kHz, mas amarra o timing ao laço de CPU. Alocar a excitação num pino com
+saída de comparador de timer permite migrar para PWM por hardware **sem tocar no
+layout** — a frequência passa a ser exata e a rajada deixa de bloquear o MCU.
+
+**Essa restrição não deixa escolha: é `D3`.** Verificado em
+`framework-arduino-avr/variants/standard/pins_arduino.h`:
+
+| Timer | Saídas | Situação |
+|---|---|---|
+| Timer0 | `D5` (OC0B), `D6` (OC0A) | **Base de tempo do sistema** — mexer no prescaler quebra `millis()` e `delay()` |
+| Timer1 | `D9` (OC1A), `D10` (OC1B) | **Ambos consumidos** pelo CE/CSN do nRF24 |
+| Timer2 | `D11` (OC2A), **`D3` (OC2B)** | `D11` é o MOSI do rádio. Sobra `D3` |
+
+`D3` é o **único** pino do ATmega328P capaz de carregar PWM por hardware neste
+projeto. Consequência aceita: `D3` também é o INT1, que se perde — mas a
+Decisão 1 já preserva o INT0, que é o que importa.
+
+> Cuidado ao usar Timer2: no core Arduino, `tone()` também o utiliza. Nós SU não
+> devem chamar `tone()`.
+
+> **ESP8266 / ESP32 não têm essa restrição** — o PWM é por software (ESP8266) ou
+> roteável por matriz (ESP32), então qualquer GPIO serve. A pinagem do
+> `SU_Board.h` será, por isso, diferente por arquitetura.
 
 ---
 
