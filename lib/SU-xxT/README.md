@@ -106,6 +106,12 @@ static SU_Device su(/* MUX A/B/C */ 5, 6, 7,
                     SU_MODEL_30T);
 ```
 
+> ⚠️ **Os números acima são ilustrativos, não especificação.** `hardware/SU-xxT/`
+> ainda não define a ligação entre o MCU e o MUX / excitação / MOSFET. Como a PCB
+> é universal, essa pinagem é constante da placa e deveria vir de um `SU_Board.h`,
+> com o construtor reduzido a `SU_Device su(SU_MODEL_30T);`. Fica pendente até o
+> esquema elétrico existir — ver [ARCHITECTURE.md](ARCHITECTURE.md).
+
 ### 2. Aquisição no `powerUp()`, leitura no `onRead()`
 
 A `M360Node` chama o callback de leitura **um item por vez** e não tem gancho
@@ -225,6 +231,7 @@ A escada completa de contenção está em [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## 📚 Documentação Detalhada
 
+- [**Manual de implantação em campo**](../../hardware/SU-xxT/MANUAL_CAMPO.md) — guia prático, instalação no solo e diagnóstico para técnicos
 - [**Arquitetura e decisões de projeto**](ARCHITECTURE.md) — o porquê de cada
   escolha, e as armadilhas que elas evitam
 - [**Referência da API**](API_REFERENCE.md) — assinaturas, structs e contratos

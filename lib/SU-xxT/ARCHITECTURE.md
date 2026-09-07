@@ -333,6 +333,52 @@ diferença em vez de resolvê-la.
 
 ---
 
+## Pendência — pinagem de referência e construtor
+
+**O construtor exige seis pinos explícitos, e não deveria.**
+
+A PCB da família SU é **universal**: um único layout, diferenciado só por
+população seletiva de componentes. Se a topologia é fixa pelo cobre, então os
+pinos de MUX, excitação AC e MOSFET são **constantes da placa**, não parâmetros
+de instância. Obrigar cada nó a soletrar a fiação é cerimônia — e convida
+justamente a divergência de layout que a PCB universal existe para evitar.
+
+O desenho correto:
+
+```cpp
+static SU_Device su(SU_MODEL_30T);   // usa a pinagem da PCB de referência
+```
+
+- `SU_Board.h` com a pinagem por arquitetura (`#ifdef` AVR / ESP8266 / ESP32 —
+  mesma placa, módulo de MCU diferente, numeração diferente).
+- Construtor delegante com defaults vindos desse header.
+- O construtor completo permanece, para protótipo em protoboard.
+
+**Por que não está implementado:** `hardware/SU-xxT/` **não define pinagem
+alguma**. O diagrama do §4 tem nomes de rede, não atribuição de pinos do MCU. Os
+números que aparecem no `BasicReadings.ino` e no guia rápido do README foram
+escolhidos para o exemplo compilar — são ilustrativos e estão marcados como tal.
+
+Inventar uma pinagem aqui a transformaria de fato em especificação da PCB, pela
+porta dos fundos. A decisão fica com o esquema elétrico; quando ele existir, esta
+refatoração é pequena e mecânica.
+
+**Restrições que a pinagem terá que respeitar**, já conhecidas do projeto:
+
+| Recurso | Reserva |
+|---|---|
+| `D9` / `D10` | nRF24 CE / CSN — fixos no Nano, não remapeáveis |
+| `D11`–`D13` | SPI do rádio |
+| `A4` / `A5` | I2C do ADS1115 |
+| `D0` / `D1` | Serial |
+
+Restam `D2`–`D8` e `A0`–`A3` para os seis pinos necessários, mais a medição de
+bateria. Vale preservar `D2` (INT0) e considerar um pino com PWM para a
+excitação AC, de modo que ela possa migrar de bit-bang para timer por hardware
+sem mudar o layout.
+
+---
+
 ## Armadilha de portabilidade — ESP
 
 A biblioteca declara `espressif8266` e `espressif32`. Nessas plataformas a EEPROM é
