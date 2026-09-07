@@ -332,8 +332,9 @@ include/
 
 - **Linguagem dos comentários e logs Serial:** português
 - **IDs reservados:** 254 = Intervalo (`V_VAR1`), 255 = Bateria (`V_VOLTAGE`), 253 = Debug remoto (`V_TEXT`, apenas lib M360-DRY — ver `M360Node::sendDebug()` / `CMD_DEBUG_NET`)
-- **EEPROM nós (AVR):** endereços 512–515 via `M360Config` / `nodeEngine_saveInterval()` — nunca `EEPROM.put()` direto
-- **EEPROM gateway (ESP):** região 0–511 = MySensors (reservado), 512–520 = M360NodeConfig, 521+ = `DeviceConfig`/`M360DeviceConfig` com CRC
+- **EEPROM nós (AVR):** endereços 512–515 via `M360Config` / `nodeEngine_saveInterval()` — nunca `EEPROM.put()` direto. A região **768–1023** (`M360_EEPROM_APP_BASE`) é livre para libs de sensor persistirem calibração; quem ocupar declara base e tamanho na própria lib e registra a fatia no mapa de `M360Config.h`. Persistência de aplicação exige magic + versão de layout + CRC — sem versão, bytes de um layout antigo passam por calibração válida
+- **EEPROM gateway (ESP):** região 0–511 = MySensors (reservado), 512–520 = M360NodeConfig, 521–767 = `DeviceConfig`/`M360DeviceConfig` com CRC. Na ESP a EEPROM é emulada e o MySensors a abre com `EEPROM.begin(512)`: escrever acima de 511 exige reabrir com o tamanho necessário e `commit()`, como `Config::save()` faz
+- **Mapa de EEPROM é SSoT em `lib/M360-DRY/src/M360Config.h`.** Alterar faixa ali obriga replicar aqui, em `AGENTS.md` e em `_bmad-output/planning-artifacts/research/ota-firmware-m360.md` §4.7, na mesma entrega
 - **Perfil de energia:** definir exatamente um dos dois — nunca ambos simultaneamente
 - **Precisão float:** 1 casa decimal (`set(val, 1)`)
 - **Solo (nós 1 e 2):** **ADC bruto 0–1023, valor alto = solo SECO** — não é

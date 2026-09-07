@@ -11,16 +11,33 @@
 // ===== EEPROM — MAPA DE MEMÓRIA UNIFICADO =====
 //
 //   0   – 511  : MySensors Core          (reservado pela lib — nunca escrever)
+//                A lib usa até 412 (EEPROM_LOCAL_CONFIG_ADDRESS, soma dos SIZE_*
+//                em MyEepromAddresses.h); 413–511 é folga deliberada do projeto.
 //   512 – 515  : M360NodeConfig          magic (2 B) + interval (2 B) [M360_EEPROM_INTERVAL_ADDRESS]
 //   516 – 520  : M360NodeConfig          Reservado para expansão futura
-//   521+       : M360DeviceConfig        WiFi / MQTT / UF / CAR + CRC [M360_EEPROM_DEVICE_CONFIG_ADDRESS]
+//   521 – 767  : M360DeviceConfig        WiFi / MQTT / UF / CAR + CRC [M360_EEPROM_DEVICE_CONFIG_ADDRESS]
+//                Exclusivo ESP8266 (a struct é #ifdef ESP8266).
+//   768 – 1023 : Aplicação do nó (AVR)   [M360_EEPROM_APP_BASE]
+//                Livre para libs de sensor persistirem calibração. Quem ocupar
+//                DEVE declarar base e tamanho na sua própria lib — este header
+//                não conhece as libs de aplicação — e registrar a fatia aqui.
+//                Fatias em uso:
+//                  768 – 831  lib/SU-xxT  SU_CalibrationData (SU_EEPROM_CALIB_ADDRESS)
 //
-// Nós AVR usam apenas 512–515. O gateway ESP8266 usa apenas 521+.
+// Nós AVR usam 512–515 e 768+. O gateway ESP8266 usa 512–515 e 521+.
 // Não há sobreposição.
+//
+// ATENÇÃO — ESP: a EEPROM é emulada e o MySensors a abre com EEPROM.begin(512).
+// Escrever acima de 511 exige reabrir com o tamanho necessário e chamar commit(),
+// como Config::save() faz em M360Config.cpp:110-113. No AVR o acesso é direto.
+//
+// ATENÇÃO — o mapa pressupõe 1024 B de EEPROM (ATmega328P). Não vale para MCUs
+// AVR de 512 B.
 
 #define M360_EEPROM_MAGIC            0x36D1  // Identificador da lib M360-DRY
 #define M360_EEPROM_INTERVAL_ADDRESS 512
 #define M360_EEPROM_DEVICE_BASE      521
+#define M360_EEPROM_APP_BASE         768     // Início da região de aplicação (AVR)
 
 namespace M360 {
 

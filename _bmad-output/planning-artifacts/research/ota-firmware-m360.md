@@ -272,11 +272,18 @@ Requisitos mínimos:
 
 ### 4.7 EEPROM — sem colisão, com uma armadilha
 
-Mapa atual (`lib/M360-DRY/src/M360Config.h:11-23`): 0–511 MySensors (reservado), 512–515
-`M360NodeConfig`, 516–520 reservados para expansão, 521+ `M360DeviceConfig` com CRC.
+Mapa atual (`lib/M360-DRY/src/M360Config.h`, SSoT):
+
+| Faixa | Conteúdo | Dispositivo |
+|---|---|---|
+| 0 – 511 | MySensors Core — usa até **412** (`EEPROM_LOCAL_CONFIG_ADDRESS`); 413–511 é folga do projeto | Ambos |
+| 512 – 515 | `M360NodeConfig` — magic + interval | Ambos |
+| 516 – 520 | Reservado para expansão | Ambos |
+| 521 – 767 | `M360DeviceConfig` — WiFi / MQTT / UF / CAR + CRC | Só ESP8266 |
+| 768 – 1023 | Aplicação do nó (`M360_EEPROM_APP_BASE`) — 768–831 já alocados à `lib/SU-xxT` | Só AVR |
 
 Não há colisão estrutural: no ESP8266 a EEPROM emulada vive em setor próprio e o `Update.h`
-nunca a toca. Mas duas cautelas:
+nunca a toca. Mas três cautelas:
 
 1. **Acrescentar campo a `M360DeviceConfig` invalida o CRC.** Todo gateway já em campo cairia
    em `Config::reset()` e subiria em **modo AP** no boot seguinte — uma "atualização" que
@@ -284,6 +291,10 @@ nunca a toca. Mas duas cautelas:
 2. `Config::save()` re-chama `EEPROM.begin(...)` internamente (`M360Config.cpp:113`) porque o
    MySensors chama `EEPROM.begin(512)`. Qualquer caminho de OTA que toque EEPROM precisa
    respeitar a mesma dança.
+3. **A região de aplicação (768+) não é backup-and-restore automático.** Um OTA de nó AVR que
+   reescreva a EEPROM inteira apagaria a calibração de campo persistida ali — no caso da
+   `SU-xxT`, os pontos de pH medidos com solução tampão, que só se recuperam com nova visita
+   ao campo. Qualquer fluxo de OTA de nó precisa preservar 768–1023 explicitamente.
 
 ---
 

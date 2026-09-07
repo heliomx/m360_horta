@@ -39,6 +39,15 @@ Este documento lista os épicos e histórias do projeto M360 Horta, gerados a pa
   - **Cenário de Aceitação (descoberta de perfil):** Dado que o gateway reiniciou e não conhece o sketch name de um nó, Quando chegar qualquer mensagem desse nó, Então o gateway deve enviar `I_PRESENTATION` (`C_INTERNAL`, tipo 19) para que o nó execute `presentNode()`, repetindo o pedido a cada 5 min enquanto o nome faltar — o primeiro envio pode receber NACK.
   - **NFR associado:** o mesmo cálculo vive no `Mapeia nós` do Node-RED — são dois relógios independentes sobre os mesmos dados, e divergir faz o nó aparecer ONLINE de um lado e perdido do outro. Ver `src/DRY/horta/nodered/funcionalidades_nodered.md` §9.
 
+- **Story 1.5:** Região de EEPROM para Persistência de Aplicação
+  - **Contexto:** Libs de sensor precisam persistir calibração de campo (pontos de pH medidos com solução tampão, constante de célula da EC), mas o mapa de EEPROM não tinha faixa declarada para isso. Sem reserva explícita, a primeira lib a gravar escolhe um endereço por conta própria e a segunda colide — em silêncio, porque EEPROM não acusa sobreposição.
+  - **Implementação Base:** `lib/M360-DRY/src/M360Config.h` (`M360_EEPROM_APP_BASE`)
+  - **Cenário de Aceitação:** Dado o mapa unificado de EEPROM, Quando uma lib de aplicação precisar persistir dados no nó AVR, Então deve usar a região **768–1023**, declarar base e tamanho na própria lib — nunca no `M360Config.h`, que não conhece libs de aplicação — e registrar a fatia ocupada no comentário do mapa.
+  - **Cenário de Aceitação (integridade):** Dado um bloco de aplicação gravado, Quando o layout da struct mudar entre versões de firmware, Então a leitura deve falhar por versão ou CRC e carregar defaults de fábrica sinalizando o evento — nunca interpretar bytes do layout antigo como calibração válida, que produziria leituras plausíveis e erradas.
+  - **NFR associado (portabilidade):** na ESP a EEPROM é emulada e o MySensors a abre com `EEPROM.begin(512)`; escrever acima de 511 exige reabrir com o tamanho necessário e `commit()`, como `Config::save()` faz em `M360Config.cpp:110-113`. No AVR o acesso é direto.
+  - **NFR associado (OTA):** a região 768–1023 guarda dado que só se recupera com visita a campo. Qualquer fluxo de OTA de nó AVR deve preservá-la explicitamente — ver `research/ota-firmware-m360.md` §4.7.
+  - **Fatias alocadas:** 768–831 → `lib/SU-xxT` (`SU_CalibrationData`).
+
 ---
 
 ## Epic 2: [Atores Físicos] Controle Hídrico e Fluxo (Atuadores)
