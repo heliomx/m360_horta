@@ -226,7 +226,60 @@ Cadência **a definir por medição**.
 
 ---
 
-## 10. Onde a biblioteca deliberadamente não vai
+## 10. Rede final: saturação e plausibilidade física
+
+**A escolha:** duas barreiras independentes antes de qualquer valor entrar no
+cache — saturação do conversor e faixa fisicamente possível.
+
+**Por quê:** as sentinelas da §1 cobrem *ausência* de dado (câmara seca, cache
+frio, sensor desconectado). Não cobrem o caso mais traiçoeiro: hardware que
+responde, o cálculo conclui, e o número resultante é **finito, estável e errado**.
+
+O caso que motivou a barreira. O canal de pH usa `GAIN_TWO` (±2,048 V) assumindo
+offset de Vcc/2 ≈ 1,65 V. Se a PCB for populada com o módulo comercial de offset
+2,5 V, **a escala inteira satura** — não só o ramo ácido, porque 2,5 V já excede
+o fundo de escala. O ADS1115 devolve `0x7FFF`, `computeVolts()` devolve 2,048 V,
+e a conta dá:
+
+```
+pH = 7 + (1,65 − 2,048) / 0,05916 = 0,27
+```
+
+Um pH 0,27 travado, publicado como leitura válida, imune a qualquer mudança na
+solução. Nenhuma sentinela dispararia.
+
+**Barreira 1 — saturação, em `_readRaw()`.** `raw == 32767` ou `raw == -32768`
+marca a leitura como falha. Num trilho de 3,3 V nenhum canal alcança
+legitimamente o extremo do conversor em ±4,096 V: o extremo só ocorre por PGA
+errado para o sinal, entrada em curto ou front-end saturado.
+
+**Barreira 2 — plausibilidade física, por grandeza:**
+
+| Grandeza | Faixa aceita | Fora dela |
+|---|---|---|
+| pH | 0 a 14 | `SU_ERR_ADC_FAULT` |
+| EC25 | 0 a 100 mS/cm | `SU_ERR_ADC_FAULT` |
+| Umidade | −20 a 120 % | `SU_ERR_ADC_FAULT` |
+| Temperatura | ≠ exatamente 85,0 °C | `SU_DEVICE_DISCONNECTED` |
+
+Cobrem de uma vez saturação de PGA, cabo partido, eletrodo ressecado e
+calibração corrompida — todos produzem número finito e silencioso.
+
+Duas sutilezas que a faixa esconde:
+
+- **Umidade tolera excursão moderada.** Solo mais seco que o ponto de calibração
+  de ar, ou mais úmido que o de água, é legítimo e só precisa de grampo em
+  0–100 %. Por isso a faixa de *falha* é −20 a 120 %, e não 0 a 100: grampear
+  tudo fabricaria um extremo plausível a partir de hardware quebrado.
+- **O 85,0 °C do DS18B20** é o valor de reset do scratchpad, devolvido quando o
+  chip reinicia mas o CRC ainda confere — típico de cabo longo enterrado com
+  ruído, que é exatamente a instalação deste sensor. Descartá-lo é seguro
+  **neste domínio**: 85 °C na rizosfera a 30 cm é termodinamicamente impossível.
+  Em outro domínio, seria descartar dado legítimo.
+
+---
+
+## 11. Onde a biblioteca deliberadamente não vai
 
 | Não faz | Quem faz | Por quê |
 |---|---|---|

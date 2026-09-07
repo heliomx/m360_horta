@@ -53,8 +53,8 @@ Todas **abaixo de −32767**, para serem descartadas por
 |---|---:|---|
 | `SU_ERR_LEVEL_LOW` | `-32767.0f` | Câmara seca |
 | `SU_ERR_STALE_RECHARGE` | `-32768.0f` | Reserva ainda não trocada |
-| `SU_ERR_ADC_FAULT` | `-32769.0f` | Falha do ADS1115 ou índice inválido |
-| `SU_DEVICE_DISCONNECTED` | `-32770.0f` | DS18B20 ausente ou mudo |
+| `SU_ERR_ADC_FAULT` | `-32769.0f` | Falha do ADS1115, saturação de fundo de escala, grandeza fisicamente impossível, ou índice inválido |
+| `SU_DEVICE_DISCONNECTED` | `-32770.0f` | DS18B20 ausente, mudo, ou devolvendo o 85,0 °C de reset do scratchpad |
 | `SU_ERR_NOT_SAMPLED` | `-32771.0f` | Cache frio |
 
 ```cpp
@@ -152,6 +152,13 @@ ser chamado de `M360::powerUp()` — ver o guia rápido no [README](README.md).
 | `bool isChamberValid() const` | — | — |
 | `bool isRechargeSettled() const` | — | — |
 | `uint16_t getCyclesSinceRecharge() const` | ciclos | — |
+| `void resetRechargeState()` | — | Zera a contagem e invalida a acomodação |
+
+> ⚠️ **O nó deve chamar `resetRechargeState()` ao alterar o intervalo de reporte
+> (`V_VAR1`).** O tempo físico de troca da reserva é `minRechargeCycles × intervalo`;
+> baixar o intervalo de 30 para 2 min encolhe a acomodação 15 vezes e liberaria
+> solução estagnada como se fosse nova. A biblioteca não conhece MySensors e não
+> tem como detectar a mudança sozinha.
 
 ### Calibração e Configuração
 

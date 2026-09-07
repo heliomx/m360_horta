@@ -138,7 +138,7 @@ Toda leitura inválida devolve uma sentinela **abaixo de −32767**, que é o pi
 |---|---|
 | `SU_ERR_LEVEL_LOW` | Câmara seca — pH e EC não existem no momento |
 | `SU_ERR_STALE_RECHARGE` | Câmara cheia, mas a reserva antiga ainda não foi trocada |
-| `SU_ERR_ADC_FAULT` | Falha do ADS1115, ou índice fora de faixa |
+| `SU_ERR_ADC_FAULT` | Falha do ADS1115, saturação de fundo de escala, grandeza fisicamente impossível, ou índice fora de faixa |
 | `SU_ERR_NOT_SAMPLED` | Cache frio: nenhum `requestReadings()` desde o `powerUp()` |
 | `SU_DEVICE_DISCONNECTED` | DS18B20 ausente ou mudo |
 
@@ -171,8 +171,8 @@ Compilação do exemplo `BasicReadings` — biblioteca + `Adafruit ADS1X15` +
 
 | Alvo | RAM | Flash |
 |---|---|---|
-| `pro8MHzatmega328` — **Pro Mini 3,3 V, alvo de campo** | 784 B / 2048 (38,3 %) | 14.626 B / 30.720 (47,6 %) |
-| `nanoatmega328` | 784 B / 2048 (38,3 %) | 14.644 B / 30.720 (47,7 %) |
+| `pro8MHzatmega328` — **Pro Mini 3,3 V, alvo de campo** | 784 B / 2048 (38,3 %) | 14.850 B / 30.720 (48,3 %) |
+| `nanoatmega328` | 784 B / 2048 (38,3 %) | 14.868 B / 30.720 (48,4 %) |
 | `d1_mini` (ESP8266) | 28.076 B (34,3 %) | 277.320 B (26,6 %) |
 | `esp32dev` | 20.616 B (6,3 %) | 345.616 B (26,4 %) |
 
@@ -184,8 +184,35 @@ Compilação do exemplo `BasicReadings` — biblioteca + `Adafruit ADS1X15` +
 >
 > O número acima serve como **linha de base**: 784 B já comprometidos deixam
 > ~616 B para MySensors, RF24 e o motor do nó, dentro do teto de 1400 B. É
-> apertado, e é o dado que justifica medir cedo. A escada de contenção está em
-> [ARCHITECTURE.md](ARCHITECTURE.md).
+> apertado, e é o dado que justifica medir cedo.
+
+### Onde os 784 B estão — medido com `avr-nm`
+
+| Símbolo | Bytes |
+|---|---:|
+| `Serial` | 157 |
+| objeto `SU_Device` | 150 |
+| buffers `twi_*` (3 × 32) | 96 |
+| `TwoWire::rx/txBuffer` (2 × 32) | 64 |
+| literais de string | ~93 |
+| `SU_CATALOG` | 36 |
+| `SU_ADC_CFG` | 32 |
+| `SU_MODEL_MAPS` + mapas por modelo | ~43 |
+
+Duas leituras contra-intuitivas:
+
+- **A pilha I2C custa 160 B — mais que todas as tabelas da biblioteca juntas.**
+  As transações do ADS1115 têm no máximo 3 bytes; buffers de 32 são desperdício
+  puro. `TWI_BUFFER_LENGTH` tem guarda `#ifndef` no core AVR, então
+  **`-D TWI_BUFFER_LENGTH=8` no env do nó devolve 72 B a custo zero de código**.
+  Os 64 B do `TwoWire` não saem por flag: `BUFFER_LENGTH` não tem guarda.
+- **PROGMEM recupera ~204 B** (`SU_CATALOG` + `SU_ADC_CFG` + mapas + strings),
+  mas é mudança de código com custo de legibilidade. Fica como degrau seguinte,
+  **depois** de medir o binário do nó — não antes. `Serial`, `OneWire` e
+  `DallasTemperature` são compartilhados com o nó, então somar 784 + 894 do Nó 4
+  superestima o total.
+
+A escada completa de contenção está em [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ---
 

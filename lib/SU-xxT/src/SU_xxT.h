@@ -99,6 +99,16 @@ public:
 	// acúmulo de KCl, não salinização do solo. Ver ARCHITECTURE.md §9.
 	uint16_t getCyclesSinceRecharge() const { return _cyclesSinceRecharge; }
 
+	// Zera a contagem e invalida a acomodação, forçando pH e EC a esperarem
+	// minRechargeCycles de novo.
+	//
+	// O NÓ deve chamar isto ao alterar o intervalo de reporte (V_VAR1): o tempo
+	// físico de troca da reserva é `minRechargeCycles x intervalo`, então baixar
+	// o intervalo de 30 para 2 min encolheria a acomodação 15 vezes e liberaria
+	// solução estagnada como se fosse nova. Esta lib não conhece MySensors e não
+	// tem como detectar a mudança sozinha — daí ser explícito.
+	void resetRechargeState();
+
 	// ----- Calibração -----
 
 	SU_CalibrationData& getCalibration() { return _cal; }

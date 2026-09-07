@@ -108,8 +108,8 @@ typedef struct {
 // estreita em torno de ~1,65 V, onde a resolução decide o resultado.
 // Com ganho único, ou se satura a umidade, ou se joga fora a resolução do pH.
 //
-// Os valores de `gain` correspondem ao enum adsGain_t da Adafruit_ADS1X15;
-// mantidos como uint8_t para não arrastar o header aqui.
+// Os valores de `gain` correspondem ao enum adsGain_t da Adafruit_ADS1X15,
+// replicados aqui para não arrastar o header da Adafruit para dentro deste.
 
 // uint16_t, não uint8_t: os valores de adsGain_t e das taxas são campos de bits
 // do registrador de configuração do ADS1115 (GAIN_TWO = 0x0200 = 512), não
@@ -118,6 +118,36 @@ typedef struct {
 	uint16_t gain;      // adsGain_t
 	uint16_t dataRate;  // RATE_ADS1115_*
 } SU_ChannelAdcCfg;
+
+// ===== FAIXAS DE PLAUSIBILIDADE FÍSICA =====
+//
+// Grandeza fora destes limites não é medição ruim: é impossível. Serve de rede
+// final contra saturação de PGA, cabo partido, eletrodo ressecado e calibração
+// corrompida — todos produzem números finitos e silenciosos, que sem esta
+// checagem seriam publicados como leitura válida.
+//
+// O caso que motivou: com o módulo de pH montado em offset de 2,5 V em vez de
+// Vcc/2, TODA a escala satura o canal 4 em ±2,048 V e o cálculo devolve pH 0,27
+// — travado, sem sinal de erro algum.
+
+#define SU_PH_MIN               0.0f
+#define SU_PH_MAX              14.0f
+
+#define SU_EC_MIN               0.0f       // condutividade negativa não existe
+#define SU_EC_MAX          100000.0f       // 100 mS/cm — muito acima de solução
+                                           // de fertirrigação saturada (~20)
+
+// Umidade: excursão MODERADA além da calibração é legítima (solo mais seco que
+// o ponto de ar, ou mais úmido que o de água) e é apenas grampeada em 0–100 %.
+// Excursão grosseira indica sonda desconectada ou calibração degenerada.
+#define SU_MOIST_GROSS_MIN    (-20.0f)
+#define SU_MOIST_GROSS_MAX     120.0f
+
+// Valor de reset do scratchpad do DS18B20. Aparece quando o chip reinicia com
+// CRC ainda válido — típico de cabo longo enterrado com ruído. Na rizosfera a
+// 30 cm, 85 °C é termodinamicamente impossível, então descartá-lo é seguro
+// NESTE domínio (em outro, seria descartar dado legítimo).
+#define SU_DS18B20_RESET_VALUE 85.0f
 
 // ===== HELPERS DE MODELO =====
 

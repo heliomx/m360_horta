@@ -294,6 +294,16 @@ void SU_Device::setCalibration(const SU_CalibrationData& cal)
 	_cal.crc           = SU_calibrationCRC(_cal);
 }
 
+void SU_Device::resetRechargeState()
+{
+	_cyclesSinceRecharge = 0;
+
+	if (_cal.rechargeSettled) {
+		_cal.rechargeSettled = false;
+		saveCalibration();
+	}
+}
+
 void SU_Device::resetCalibration()
 {
 	SU_calibrationDefaults(_cal);
@@ -399,6 +409,18 @@ int16_t SU_Device::_readRaw(uint8_t muxChannel, bool* ok)
 	delayMicroseconds(SU_MUX_SETTLE_US);
 
 	const int16_t raw = _ads.readADC_SingleEnded(SU_ADS_INPUT);
+
+	// Saturação de fundo de escala é FALHA, não medição. Num trilho de 3,3 V
+	// nenhum canal alcança legitimamente o extremo do conversor em ±4,096 V,
+	// então o extremo só ocorre por PGA errado para o sinal, entrada em curto
+	// ou front-end saturado. Sem esta checagem o valor travado atravessa todo o
+	// cálculo e vira leitura publicada — foi assim que um módulo de pH com
+	// offset de 2,5 V produziria um pH fixo sem sinal de erro.
+	if (raw == 32767 || raw == -32768) {
+		if (ok) *ok = false;
+		return raw;
+	}
+
 	if (ok) *ok = true;
 	return raw;
 }
@@ -440,6 +462,15 @@ float SU_Device::_measureTemperature()
 	if (t <= DEVICE_DISCONNECTED_C) {
 		return SU_DEVICE_DISCONNECTED;
 	}
+
+	// +85,0 °C é o valor de reset do scratchpad do DS18B20. Aparece quando o
+	// chip reinicia mas o CRC ainda confere — típico de cabo longo enterrado com
+	// ruído, exatamente a instalação deste sensor. A rejeição é segura NESTE
+	// domínio: 85 °C na rizosfera a 30 cm é termodinamicamente impossível.
+	if (fabsf(t - SU_DS18B20_RESET_VALUE) < 0.01f) {
+		return SU_DEVICE_DISCONNECTED;
+	}
+
 	return t;
 }
 
@@ -482,6 +513,15 @@ float SU_Device::_computeMoisture(int16_t raw, int16_t airAdc, int16_t waterAdc)
 
 	float pct = 100.0f * (float)((int32_t)airAdc - (int32_t)raw) / (float)span;
 
+	// Excursão GROSSEIRA não é solo fora da calibração: é sonda desconectada,
+	// curto, ou calibração degenerada. Grampear isso em 0/100 % fabricaria um
+	// extremo plausível a partir de hardware quebrado.
+	if (pct < SU_MOIST_GROSS_MIN || pct > SU_MOIST_GROSS_MAX) {
+		return SU_ERR_ADC_FAULT;
+	}
+
+	// Excursão moderada é legítima — solo mais seco que o ponto de ar, ou mais
+	// úmido que o de água — e só precisa de grampo.
 	if (pct < 0.0f)   pct = 0.0f;
 	if (pct > 100.0f) pct = 100.0f;
 	return pct;
@@ -493,7 +533,16 @@ float SU_Device::_computeEC25(float ecRaw, float tempC)
 	if (fabsf(denom) < 0.001f) {
 		return SU_ERR_ADC_FAULT;
 	}
-	return ecRaw / denom;
+
+	const float ec25 = ecRaw / denom;
+
+	// Condutividade negativa não existe, e 100 mS/cm está muito acima de
+	// qualquer solução de fertirrigação (~20). Fora disso é falha de hardware
+	// ou calibração, não medição.
+	if (ec25 < SU_EC_MIN || ec25 > SU_EC_MAX) {
+		return SU_ERR_ADC_FAULT;
+	}
+	return ec25;
 }
 
 float SU_Device::_nernstSlope(float tempC) const
@@ -529,5 +578,13 @@ float SU_Device::_computePH(float voltage, float tempC)
 	}
 
 	// Premissa: voltagePH7 é o ponto isopotencial e independe da temperatura.
-	return 7.0f + (_cal.voltagePH7 - voltage) / slope;
+	const float ph = 7.0f + (_cal.voltagePH7 - voltage) / slope;
+
+	// Rede final: pH fora de 0–14 é impossível. Cobre de uma vez saturação de
+	// PGA, eletrodo ressecado, cabo partido e calibração corrompida — todos
+	// produzem um número finito e silencioso que, sem isto, seria publicado.
+	if (ph < SU_PH_MIN || ph > SU_PH_MAX) {
+		return SU_ERR_ADC_FAULT;
+	}
+	return ph;
 }
