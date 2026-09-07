@@ -10,10 +10,11 @@ I2C **ADS1115**, o multiplexador **74HC4051**, o barramento 1-Wire do **DS18B20*
 a excitação AC das células de EC e nível, e as compensações agronômicas.
 
 > [!IMPORTANT]
-> **Status: especificação de projeto, código ainda não implementado.**
-> Este diretório contém a documentação que precede a implementação. A API descrita
-> é contrato acordado, não código existente. Ao implementar, esta documentação e o
-> código passam a caminhar juntos — divergência aqui é defeito, não defasagem.
+> **Status: implementada, nunca executada em hardware.**
+> O código existe e compila nas três plataformas declaradas. **Nenhuma leitura
+> real foi feita** — os defaults de calibração são valores teóricos de partida,
+> não medições, e nenhum tempo de acomodação foi caracterizado. Tudo que está
+> marcado *a definir por medição* segue por definir.
 >
 > O hardware está especificado em [`hardware/SU-xxT/README.md`](../../hardware/SU-xxT/README.md).
 
@@ -162,16 +163,28 @@ errados, que é o pior modo de falha possível aqui.
 
 ---
 
-## 📏 Orçamentos (ATmega328P)
+## 📏 Custo medido
 
-Restrições de projeto, não conferência final. Medidos sobre o **binário do nó
-real** — `M360Node` + MySensors + RF24 + `SU-xxT` —, nunca sobre exemplo isolado.
+Compilação do exemplo `BasicReadings` — biblioteca + `Adafruit ADS1X15` +
+`BusIO` + `OneWire` + `DallasTemperature`, **sem** MySensors, RF24 nem
+`M360Node`:
 
-| Recurso | Teto | Total |
-|---|---:|---:|
-| RAM estática | 1400 B (68 %) | 2048 B |
-| Flash | 27600 B (90 %) | 30720 B |
-| Tempo acordado | 1,5 s / ciclo | — |
+| Alvo | RAM | Flash |
+|---|---|---|
+| `nanoatmega328` | 784 B / 2048 (38,3 %) | 14.644 B / 30.720 (47,7 %) |
+| `d1_mini` (ESP8266) | 28.076 B (34,3 %) | 277.320 B (26,6 %) |
+| `esp32dev` | 20.616 B (6,3 %) | 345.616 B (26,4 %) |
+
+> **Isto não é o orçamento do nó.** O teto que importa — 1400 B de RAM e 27.600 B
+> de flash no ATmega328P — só pode ser aferido no binário do nó real, com
+> MySensors e RF24 linkados junto. Essa medição, como o tempo acordado por ciclo,
+> pertence à construção do nó (workflow `m360-node-factory`), não a esta
+> biblioteca.
+>
+> O número acima serve como **linha de base**: 784 B já comprometidos deixam
+> ~616 B para MySensors, RF24 e o motor do nó, dentro do teto de 1400 B. É
+> apertado, e é o dado que justifica medir cedo. A escada de contenção está em
+> [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ---
 

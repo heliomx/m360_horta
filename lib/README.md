@@ -16,8 +16,8 @@ Camada física da família de sensores SU-xxT: umidade em duas profundidades,
 temperatura da rizosfera, e pH / EC / nível da solução extraída por lisímetro
 cerâmico. Orquestra ADS1115, MUX 74HC4051, DS18B20 e as compensações agronômicas.
 
-> **Status:** especificação de projeto — o código ainda não foi implementado.
-> A API documentada é contrato acordado, não código existente.
+> **Status:** implementada e compilando em AVR, ESP8266 e ESP32 — ainda **não
+> executada em hardware**. Os defaults de calibração são teóricos, não medidos.
 
 - [**README da SU-xxT**](SU-xxT/README.md)
 - [Arquitetura e decisões de projeto](SU-xxT/ARCHITECTURE.md)

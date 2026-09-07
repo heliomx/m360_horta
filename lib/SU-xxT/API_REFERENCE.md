@@ -1,8 +1,8 @@
 # 📖 Referência da API — SU-xxT
 
-> **Status:** contrato de projeto. O código ainda não existe; esta referência é o
-> que ele deve implementar. Ver [ARCHITECTURE.md](ARCHITECTURE.md) para o porquê de
-> cada decisão.
+> **Status:** implementada e compilando em AVR, ESP8266 e ESP32 — nunca executada
+> em hardware. Ver [ARCHITECTURE.md](ARCHITECTURE.md) para o porquê de cada
+> decisão.
 
 ---
 
@@ -76,14 +76,23 @@ Use sempre o predicado — nunca compare float por igualdade.
 
 ### `SU_ChannelAdcCfg`
 
-Tabela `const` em PROGMEM, com `gain` (PGA) e `dataRate` por canal.
+Tabela `const` indexada pelo canal físico do MUX, com `gain` (PGA) e `dataRate`.
+Não é calibração de campo, é característica de projeto.
 
 | Canal | PGA | Motivo |
 |---|---|---|
-| 0, 1 umidade | `±4,096 V` | Menor FS que comporte 3,3 V |
-| 2 nível | `±4,096 V` | Decisão por limiar; resolução não é crítica |
-| 3 EC | `±4,096 V` inicial | Faixa real só se conhece caracterizando |
-| 4 pH | `±2,048 V` | Dobra a resolução onde ela decide o resultado |
+| 0, 1 umidade | `GAIN_ONE` (±4,096 V) | Menor FS que comporte 3,3 V |
+| 2 nível | `GAIN_ONE` (±4,096 V) | Decisão por limiar; resolução não é crítica |
+| 3 EC | `GAIN_ONE` (±4,096 V) inicial | Faixa real só se conhece caracterizando |
+| 4 pH | `GAIN_TWO` (±2,048 V) | Dobra a resolução onde ela decide o resultado |
+
+> Ambos os campos são **`uint16_t`**, não `uint8_t`: os valores de `adsGain_t` são
+> campos de bits do registrador de configuração (`GAIN_TWO` = `0x0200` = 512).
+> Truncar para 8 bits selecionaria o ganho errado em silêncio — o compilador pegou
+> isso como `-Wnarrowing` na primeira compilação.
+>
+> A tabela vive em RAM, não em PROGMEM. Movê-la para PROGMEM é degrau da escada de
+> contenção de memória, não o estado atual.
 
 ---
 

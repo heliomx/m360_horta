@@ -1,0 +1,44 @@
+{
+  "name": "SU-xxT",
+  "version": "0.1.0",
+  "description": "Camada fisica da familia de sensores de solo e lisimetro ceramico SU-xxT (Manejo360): umidade em duas profundidades, temperatura da rizosfera, pH, EC e nivel da solucao. Orquestra ADS1115, MUX 74HC4051, DS18B20 e as compensacoes agronomicas (EC25 e Nernst).",
+  "keywords": "soil, moisture, ph, ec, lysimeter, ads1115, mysensors, agriculture",
+  "authors": [
+    {
+      "name": "Marcelo Miranda",
+      "maintainer": true
+    }
+  ],
+  "license": "MIT",
+  "frameworks": "arduino",
+  "platforms": [
+    "atmelavr",
+    "espressif8266",
+    "espressif32"
+  ],
+  "dependencies": [
+    {
+      "owner": "adafruit",
+      "name": "Adafruit ADS1X15",
+      "version": "^2.4.0"
+    },
+    {
+      "owner": "adafruit",
+      "name": "Adafruit BusIO",
+      "version": "^1.14.0"
+    },
+    {
+      "owner": "paulstoffregen",
+      "name": "OneWire",
+      "version": "^2.3.7"
+    },
+    {
+      "owner": "milesburton",
+      "name": "DallasTemperature",
+      "version": "^3.11.0"
+    }
+  ],
+  "build": {
+    "srcDir": "src"
+  }
+}
