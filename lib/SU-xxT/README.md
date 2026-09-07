@@ -231,6 +231,35 @@ A escada completa de contenção está em [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ---
 
+## 🔌 Uso fora do M360 — biblioteca Arduino comum
+
+A SU-xxT é uma biblioteca Arduino convencional e não depende do ecossistema
+M360: não inclui MySensors, não conhece child IDs e não fala MQTT. Serve tanto à
+Arduino IDE quanto ao PlatformIO.
+
+```
+lib/SU-xxT/
+├── library.properties   Arduino IDE / Library Manager
+├── library.json         PlatformIO
+├── keywords.txt         realce de sintaxe na IDE
+├── src/                 SU_xxT.h é o header público
+└── examples/BasicReadings/
+```
+
+**O construtor recebe os pinos posicionalmente, de propósito.** É o idioma do
+ecossistema — `LiquidCrystal lcd(rs, en, d4, d5, d6, d7)` tem exatamente a mesma
+forma, e `OneWire ds(10)`, `DHT dht(pin, tipo)` seguem o mesmo padrão. A PCB SU é
+agnóstica quanto ao microcontrolador, então não há pinagem default a assumir:
+quem monta o nó informa a fiação. Ver [ARCHITECTURE.md §13](ARCHITECTURE.md).
+
+**Detecção de erro é portátil.** Use sempre `SU_isError(v)`. Os valores
+específicos das sentinelas (abaixo de −32767) foram escolhidos para que o motor
+do M360-DRY as descarte automaticamente, mas o predicado funciona em qualquer
+projeto e é a única forma suportada de testar — nunca compare float por
+igualdade.
+
+---
+
 ## 📚 Documentação Detalhada
 
 - [**Manual de implantação em campo**](../../hardware/SU-xxT/MANUAL_CAMPO.md) — guia prático, instalação no solo e diagnóstico para técnicos

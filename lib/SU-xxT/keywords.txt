@@ -1,0 +1,82 @@
+#######################################
+# Syntax Coloring Map — SU-xxT
+# Separadores entre nome e tipo sao TAB, nao espaco.
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+SU_Device	KEYWORD1
+SU_Model	KEYWORD1
+SU_Channel	KEYWORD1
+SU_LevelState	KEYWORD1
+SU_LevelProbeType	KEYWORD1
+SU_SensorInfo	KEYWORD1
+SU_ChannelAdcCfg	KEYWORD1
+SU_CalibrationData	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+powerUp	KEYWORD2
+powerDown	KEYWORD2
+requestReadings	KEYWORD2
+getDeviceCount	KEYWORD2
+getReadingByIndex	KEYWORD2
+getLabelByIndex	KEYWORD2
+getUnitByIndex	KEYWORD2
+getChannelByIndex	KEYWORD2
+getReading	KEYWORD2
+getMoisture10	KEYWORD2
+getMoisture30	KEYWORD2
+getSoilTemperature	KEYWORD2
+getEC25	KEYWORD2
+getECRaw	KEYWORD2
+getPH	KEYWORD2
+getLevel	KEYWORD2
+isChamberValid	KEYWORD2
+isRechargeSettled	KEYWORD2
+getCyclesSinceRecharge	KEYWORD2
+resetRechargeState	KEYWORD2
+getCalibration	KEYWORD2
+setCalibration	KEYWORD2
+saveCalibration	KEYWORD2
+loadCalibration	KEYWORD2
+resetCalibration	KEYWORD2
+SU_isError	KEYWORD2
+SU_modelDeviceCount	KEYWORD2
+SU_modelSensorAt	KEYWORD2
+SU_modelHasSoilTemp	KEYWORD2
+SU_modelHasChamber	KEYWORD2
+SU_calibrationDefaults	KEYWORD2
+SU_calibrationCRC	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+SU_MODEL_10	LITERAL1
+SU_MODEL_10T	LITERAL1
+SU_MODEL_20	LITERAL1
+SU_MODEL_20T	LITERAL1
+SU_MODEL_30	LITERAL1
+SU_MODEL_30T	LITERAL1
+SU_CH_MOISTURE_10CM	LITERAL1
+SU_CH_MOISTURE_30CM	LITERAL1
+SU_CH_LEVEL_CHAMBER	LITERAL1
+SU_CH_EC_SOLUTION	LITERAL1
+SU_CH_PH_SOLUTION	LITERAL1
+SU_CH_TEMP_SOIL	LITERAL1
+SU_LEVEL_FAULT	LITERAL1
+SU_LEVEL_DRY	LITERAL1
+SU_LEVEL_FILLED	LITERAL1
+SU_LEVEL_OPTICAL	LITERAL1
+SU_LEVEL_CONDUCTIVE	LITERAL1
+SU_ERR_LEVEL_LOW	LITERAL1
+SU_ERR_STALE_RECHARGE	LITERAL1
+SU_ERR_ADC_FAULT	LITERAL1
+SU_DEVICE_DISCONNECTED	LITERAL1
+SU_ERR_NOT_SAMPLED	LITERAL1
