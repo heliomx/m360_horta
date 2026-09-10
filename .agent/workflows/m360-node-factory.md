@@ -46,7 +46,7 @@ Proibido em qualquer `.h` ou `.cpp`:
 | Função | Responsabilidade |
 |--------|-----------------|
 | `before()` | `Serial.begin()`, `initSensors()` — antes do rádio iniciar |
-| `presentation()` | `node.begin("Nome", "Versão")` |
+| `presentation()` | `node.begin(F("Nome"), F("Versão"))` — sem `F()` não compila |
 | `setup()` | `node.onRead(cb)`, `node.onWrite(cb)` — após rádio ativo |
 | `loop()` | `node.process()` + lógica de timing própria do nó |
 | `receive()` | `node.handleMessage(msg)` — trata intervalo, atuadores, FORCE_UPDATE e REPRESENT |
@@ -56,12 +56,12 @@ Proibido em qualquer `.h` ou `.cpp`:
 ## R4 — Declarações de variáveis globais
 
 ```cpp
-static const M360::M360ItemDef NODE_ITEMS[] = { ... };  // static const
+static const char L_X[] PROGMEM = "Label";               // um array PROGMEM por rótulo
+static const M360::M360ItemDef NODE_ITEMS[] = { ... };  // static const; label = M360_LABEL(L_X)
 static const uint8_t NODE_ITEMS_COUNT = sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
-static MyMessage messages[NODE_ITEMS_COUNT + 3];  // +3 obrigatório (intervalo + bateria + debug)
-static float     lastValues[NODE_ITEMS_COUNT];
+static float     lastValues[NODE_ITEMS_COUNT];           // sem messages[] (M360-DRY 2.0.0)
 static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
-static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, messages, lastValues, nNoUpdates, PERFIL);
+static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, lastValues, nNoUpdates, PERFIL);
 ```
 
 ## R5 — Contrato de callbacks `onRead` / `onWrite`
@@ -441,22 +441,26 @@ Basear estritamente no template `lib/M360-DRY/examples/NodeTemplate/NodeTemplate
 // ===== CHILD IDs =====
 // (importados de sensorDrivers.h ou definidos aqui)
 
+// ===== RÓTULOS (na Flash) =====
+// label é const __FlashStringHelper*: literal "..." direto no NODE_ITEMS[] não compila.
+static const char L_X[] PROGMEM = "Label";
+static const char L_Y[] PROGMEM = "Rele";
+
 // ===== DEFINIÇÃO DOS ITENS DO NÓ =====
 // childId | kind | presentType | valueType | pin | intervalMin | samples | label | wakeOnRadio | flags
 static const M360::M360ItemDef NODE_ITEMS[] = {
-    { CHILD_ID_X, M360::M360_SENSOR,   S_TEMP,   V_TEMP,   -1, 1, 3, "Label", false, 0 },
-    { CHILD_ID_Y, M360::M360_ACTUATOR, S_BINARY, V_STATUS,  5, 0, 1, "Rele",  true,  0 },
+    { CHILD_ID_X, M360::M360_SENSOR,   S_TEMP,   V_TEMP,   -1, 1, 3, M360_LABEL(L_X), false, 0 },
+    { CHILD_ID_Y, M360::M360_ACTUATOR, S_BINARY, V_STATUS,  5, 0, 1, M360_LABEL(L_Y), true,  0 },
 };
 static const uint8_t NODE_ITEMS_COUNT = sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
 
-// ===== BUFFERS (alocação estática — sem heap) =====
-static MyMessage messages[NODE_ITEMS_COUNT + 3];  // +3: intervalo (254), bateria (255), debug (253)
+// ===== BUFFERS (alocação estática — sem heap; sem messages[] desde a M360-DRY 2.0.0) =====
 static float     lastValues[NODE_ITEMS_COUNT];
 static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
 
 // ===== INSTÂNCIA DO MOTOR =====
-static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, messages, lastValues,
-                           nNoUpdates, M360::<PERFIL>);
+static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, lastValues, nNoUpdates,
+                           M360::<PERFIL>);
 
 // ===== CALLBACKS DE ENERGIA (apenas se houver PIN_POWER_SENSORS) =====
 namespace M360 {
@@ -472,7 +476,7 @@ void before() {
 }
 
 void presentation() {
-    node.begin("<NomeAmigavel>", "1.0");
+    node.begin(F("<NomeAmigavel>"), F("1.0"));
 }
 
 void setup() {
@@ -566,9 +570,9 @@ Verificar cada item antes de entregar o código:
 | # | Anti-padrão | Verificação |
 |---|-------------|-------------|
 | 1 | `#define MY_*` em `.cpp` ou `.h` | Buscar `MY_` fora do `platformio.ini` |
-| 2 | `messages[N]` com N fixo, ou `+ 2` em vez de `NODE_ITEMS_COUNT + 3` | `M360Node::begin()` escreve em `[_count+2]`; `+2` estoura o array |
+| 2 | Rótulo literal `"..."` no `NODE_ITEMS[]`, ou `M360_LABEL()` sobre string em RAM | `label` é `const __FlashStringHelper*`: o literal não compila; `M360_LABEL()` sobre RAM compila e envia lixo — usar array `PROGMEM` |
 | 3 | `NODE_ITEMS[]` sem `static const` | Confirmar declaração |
-| 4 | Buffers sem `static` | `messages`, `lastValues`, `nNoUpdates` |
+| 4 | Buffers sem `static` | `lastValues`, `nNoUpdates` (sem `messages[]` desde a M360-DRY 2.0.0) |
 | 5 | `Serial.begin()` em `setup()` | Deve estar em `before()` |
 | 6 | `initSensors()` em `setup()` | Deve estar em `before()` |
 | 7 | `delay()` dentro de `readNodeItem()` ou `writeNodeItem()` | Substituir por `wait()` |

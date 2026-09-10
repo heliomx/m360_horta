@@ -18,9 +18,21 @@ Define as propriedades de um sensor ou atuador no nó.
 | `pin` | `int` | Pino físico associado (-1 se não usado). |
 | `reportIntervalMin` | `uint16_t` | Intervalo mínimo de reporte em minutos (0 = sempre reporta). |
 | `readSamples` | `uint8_t` | Amostras para média aritmética antes do envio. |
-| `label` | `const char*` | Nome exibido no Controller (ex: "Bomba 1"). |
+| `label` | `const __FlashStringHelper*` | Nome exibido no Controller (ex: "Bomba 1"). Fica na **Flash**: declare um array `PROGMEM` e passe-o com `M360_LABEL()` (ver abaixo). |
 | `wakeOnRadio` | `bool` | Se `true`, solicita estado ao gateway logo após acordar. |
 | `flags` | `uint8_t` | Bit 0: Multiplica valor por 100 antes de enviar (Útil p/ Volts). |
+
+#### Rótulos na Flash (2.0.0+)
+
+```cpp
+static const char L_BOMBA[] PROGMEM = "Bomba 1";
+static const M360::M360ItemDef NODE_ITEMS[] = {
+	{ 31, M360::M360_ACTUATOR, S_BINARY, V_STATUS, 5, 0, 1, M360_LABEL(L_BOMBA), false, 0 },
+};
+```
+
+- Um literal `"Bomba 1"` direto no campo **não compila** — de propósito: até a 1.x cada rótulo ocupava SRAM.
+- `M360_LABEL()` só pode receber um array `PROGMEM`. Aplicado a uma string em RAM, compila e envia lixo como rótulo.
 
 ---
 
@@ -30,10 +42,10 @@ A peça central que coordena a vida do nó.
 
 ### Construtor
 ```cpp
-M360Node(const M360ItemDef* items, uint8_t count, MyMessage* messages, float* lastValues, uint8_t* nNoUpdates, M360PowerProfile profile = M360_LOW_POWER);
+M360Node(const M360ItemDef* items, uint8_t count, float* lastValues, uint8_t* nNoUpdates, M360PowerProfile profile = M360_LOW_POWER);
 ```
 - **Frequência de Uso:** No início do arquivo do nó antes do `setup()`.
-- **Dica:** O buffer `messages` deve ter tamanho `count + 3` para acomodar bateria, intervalo e debug remoto.
+- **Buffers:** `lastValues` e `nNoUpdates` com tamanho `count`. Não há buffer de mensagens: desde a 2.0.0 a lib monta cada envio — inclusive intervalo (254), bateria (255) e debug (253) — num único `MyMessage` interno.
 
 ### `M360_PASSIVE` (O Sentinela Reativo)
 - **Comportamento:** Acorda no intervalo -> Faz Check-in -> Volta a Dormir.
@@ -45,7 +57,7 @@ M360Node(const M360ItemDef* items, uint8_t count, MyMessage* messages, float* la
 - `setupPins()`: Configura automaticamente os pinos definidos na struct `M360ItemDef` como INPUT ou OUTPUT.
 
 ### Métodos Principais
-- `begin(name, version)`: Registra o nó no MySensors. Adiciona sufixo ao nome (`[LP]`, `[ON]`, `[PAS]`). Inicializa `lastValues[]` com `NAN` e `nNoUpdates[]` com `0`.
+- `begin(F(name), F(version))`: Registra o nó no MySensors. Nome e versão ficam na Flash — um literal sem `F()` não compila. Adiciona sufixo ao nome (`[LP]`, `[ON]`, `[PAS]`, `[REP]`). Inicializa `lastValues[]` com `NAN` e `nNoUpdates[]` com `0`.
 - `process()`: Executa no `loop()`. Cuida de leituras, envios e gerenciamento de sono/millis.
 - `handleMessage(msg)`: Executa no `receive()`. Processa: intervalo (`V_VAR1`/`V_VAR5` em childId 254), atuadores (`V_STATUS`), e comandos `V_CUSTOM` (ver tabela abaixo).
 - `onRead(callback)`: Registra sua função de leitura.
@@ -53,6 +65,7 @@ M360Node(const M360ItemDef* items, uint8_t count, MyMessage* messages, float* la
 - `setupPins()`: Configura automaticamente os pinos definidos na struct `M360ItemDef` como INPUT ou OUTPUT.
 - `getInterval()`: Retorna o intervalo atual em minutos.
 - `sendDebug(text)`: Envia string arbitrária pelo child `CHILD_ID_DEBUG` (253, `V_TEXT`). Chega ao MQTT/Node-RED via gateway sem precisar de acesso Serial ao nó — canal de debug remoto. Payload truncado em 24 chars (limite `MAX_PAYLOAD_SIZE`).
+- `sendItemState(index, state)`: Envia o estado (`bool`) do item `NODE_ITEMS[index]`, com o child e o tipo dele. Para uso do nó fora do fluxo da lib — ex.: o failsafe que desliga um relé sozinho, ou o eco do canal MUX preemptado (Nó 99).
 
 ### Comandos `V_CUSTOM` processados por `handleMessage()`
 

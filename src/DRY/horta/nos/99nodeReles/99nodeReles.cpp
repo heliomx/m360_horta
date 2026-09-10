@@ -64,6 +64,23 @@ static int freeRam() {
 }
 #endif
 
+// ===== RÓTULOS (na Flash) =====
+// `label` é const __FlashStringHelper*: um literal "..." direto no NODE_ITEMS[]
+// não compila. M360_LABEL() só aceita arrays PROGMEM. O texto é o que o
+// Node-RED exibe (inventario.md §7) — mudar aqui muda o nome no dashboard.
+static const char L_SOL_A[]    PROGMEM = "Sol.CanteiroA";
+static const char L_SOL_B[]    PROGMEM = "Sol.CanteiroB";
+static const char L_SOL_C[]    PROGMEM = "Sol.CanteiroC";
+static const char L_PERIST_A[] PROGMEM = "Perist.SuplA";
+static const char L_PERIST_B[] PROGMEM = "Perist.SuplB";
+static const char L_PH_PLUS[]  PROGMEM = "Perist.pH+";
+static const char L_PH_MINUS[] PROGMEM = "Perist.pH-";
+static const char L_NFT_PUMP[] PROGMEM = "BombaNFT";
+static const char L_NFT_OXI[]  PROGMEM = "BombaOxi";
+static const char L_DHT_TEMP[] PROGMEM = "Temperatura do Ar";
+static const char L_DHT_HUM[]  PROGMEM = "Umidade do Ar";
+static const char L_FLOW[]     PROGMEM = "Vazao.Irrig";
+
 // ===== DEFINIÇÃO DOS ITENS DO NÓ =====
 // Colunas: childId | kind | presentType | valueType | pin | intMin | smp |
 // label | wakeOnRadio | flags
@@ -73,43 +90,41 @@ static int freeRam() {
 static const M360::M360ItemDef NODE_ITEMS[] = {
     // --- Canais MUX (concorrência restrita: 1 ativo por vez) ---
     {CHILD_ID_SOL_A, M360::M360_ACTUATOR, S_BINARY, V_STATUS,
-     MUX_CHANNEL_OFFSET + 0, 0, 1, "Sol.CanteiroA", false, 0},
+     MUX_CHANNEL_OFFSET + 0, 0, 1, M360_LABEL(L_SOL_A), false, 0},
     {CHILD_ID_SOL_B, M360::M360_ACTUATOR, S_BINARY, V_STATUS,
-     MUX_CHANNEL_OFFSET + 1, 0, 1, "Sol.CanteiroB", false, 0},
+     MUX_CHANNEL_OFFSET + 1, 0, 1, M360_LABEL(L_SOL_B), false, 0},
     {CHILD_ID_SOL_C, M360::M360_ACTUATOR, S_BINARY, V_STATUS,
-     MUX_CHANNEL_OFFSET + 2, 0, 1, "Sol.CanteiroC", false, 0},
+     MUX_CHANNEL_OFFSET + 2, 0, 1, M360_LABEL(L_SOL_C), false, 0},
     {CHILD_ID_PERIST_A, M360::M360_ACTUATOR, S_BINARY, V_STATUS,
-     MUX_CHANNEL_OFFSET + 3, 0, 1, "Perist.SuplA", false, 0},
+     MUX_CHANNEL_OFFSET + 3, 0, 1, M360_LABEL(L_PERIST_A), false, 0},
     {CHILD_ID_PERIST_B, M360::M360_ACTUATOR, S_BINARY, V_STATUS,
-     MUX_CHANNEL_OFFSET + 4, 0, 1, "Perist.SuplB", false, 0},
+     MUX_CHANNEL_OFFSET + 4, 0, 1, M360_LABEL(L_PERIST_B), false, 0},
     {CHILD_ID_PH_PLUS, M360::M360_ACTUATOR, S_BINARY, V_STATUS,
-     MUX_CHANNEL_OFFSET + 5, 0, 1, "Perist.pH+", false, 0},
+     MUX_CHANNEL_OFFSET + 5, 0, 1, M360_LABEL(L_PH_PLUS), false, 0},
     {CHILD_ID_PH_MINUS, M360::M360_ACTUATOR, S_BINARY, V_STATUS,
-     MUX_CHANNEL_OFFSET + 6, 0, 1, "Perist.pH-", false, 0},
+     MUX_CHANNEL_OFFSET + 6, 0, 1, M360_LABEL(L_PH_MINUS), false, 0},
     // --- Pinos Nativos (concorrência livre com MUX e entre si) ---
     {CHILD_ID_NFT_PUMP, M360::M360_ACTUATOR, S_BINARY, V_STATUS, PIN_NFT_PUMP,
-     0, 1, "BombaNFT", false, 0},
+     0, 1, M360_LABEL(L_NFT_PUMP), false, 0},
     {CHILD_ID_NFT_OXI, M360::M360_ACTUATOR, S_BINARY, V_STATUS, PIN_NFT_OXI, 0,
-     1, "BombaOxi", false, 0},
+     1, M360_LABEL(L_NFT_OXI), false, 0},
     // --- Sensores Nativos (DHT11 - Concorrência livre) ---
     {CHILD_ID_DHT_TEMP, M360::M360_SENSOR, S_TEMP, V_TEMP, PIN_DHT, 0, 1,
-     "Temperatura do Ar", false, 0},
+     M360_LABEL(L_DHT_TEMP), false, 0},
     {CHILD_ID_DHT_HUM, M360::M360_SENSOR, S_HUM, V_HUM, PIN_DHT, 0, 1,
-     "Umidade do Ar", false, 0},
+     M360_LABEL(L_DHT_HUM), false, 0},
     // --- Vazão de irrigação (YF-S201 em D3/INT1) ---
     // pin = -1: a leitura não passa por readNodeItem(), é despachada por
     // childId em readItem() abaixo.
     {CHILD_ID_FLOW, M360::M360_SENSOR, S_WATER, V_FLOW, -1, 0, 1,
-     "Vazao.Irrig", false, 0},
+     M360_LABEL(L_FLOW), false, 0},
 };
 static const uint8_t NODE_ITEMS_COUNT =
     sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
 
 // ===== BUFFERS =====
-// +3 OBRIGATÓRIO: M360Node::begin() escreve _messages[_count], [_count+1] e
-// [_count+2] — intervalo (254), bateria (255) e debug remoto (253).
-// Dimensionar com +2 causa escrita fora do array (corrupção de RAM adjacente).
-static MyMessage messages[NODE_ITEMS_COUNT + 3];
+// Sem messages[]: a M360-DRY 2.0.0 monta cada envio num único MyMessage
+// interno. Para reportar estado fora do fluxo da lib, use node.sendItemState().
 static float lastValues[NODE_ITEMS_COUNT];
 static uint8_t nNoUpdates[NODE_ITEMS_COUNT];
 
@@ -117,11 +132,11 @@ static uint8_t nNoUpdates[NODE_ITEMS_COUNT];
 // MY_REPEATER_FEATURE (via build_flags) ativa encaminhamento de mensagens de
 // outros nós. Use: pio run -e nano_99reles_rep -t upload
 #ifdef MY_REPEATER_FEATURE
-static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, messages, lastValues,
-                           nNoUpdates, M360::M360_REPEATER);
+static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, lastValues, nNoUpdates,
+                           M360::M360_REPEATER);
 #else
-static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, messages, lastValues,
-                           nNoUpdates, M360::M360_ALWAYS_ON);
+static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, lastValues, nNoUpdates,
+                           M360::M360_ALWAYS_ON);
 #endif
 
 // ===== FAILSAFE DE ATUAÇÃO =====
@@ -207,7 +222,7 @@ static void checkActuatorFailsafe() {
 
     actuatorDeadlineMs[i] = 0;
     writeNodeItem(NODE_ITEMS[i].pin, false);
-    send(messages[i].set(false)); // reconcilia o estado no gateway/Node-RED
+    node.sendItemState(i, false); // reconcilia o estado no gateway/Node-RED
 
     Serial.print(F("FAILSAFE OFF child "));
     Serial.println(NODE_ITEMS[i].childId);
@@ -237,7 +252,7 @@ static float readItem(uint8_t index) {
 static void reportPreemptedMuxChannel(int8_t channel) {
   for (uint8_t i = 0; i < NODE_ITEMS_COUNT; i++) {
     if (NODE_ITEMS[i].pin == MUX_CHANNEL_OFFSET + channel) {
-      send(messages[i].set(false));
+      node.sendItemState(i, false);
       Serial.print(F("MUX preempcao OFF child "));
       Serial.println(NODE_ITEMS[i].childId);
       return;
@@ -266,7 +281,7 @@ void powerDown() {
 
 // ===== MYSENSORS HOOKS =====
 
-void presentation() { node.begin("NodeReles", "2.0.0"); }
+void presentation() { node.begin(F("NodeReles"), F("2.0.0")); }
 
 
 void before() {

@@ -44,12 +44,19 @@ graph TD
 
 ### 1. Defina o DNA do seu Nó
 Crie um array `NODE_ITEMS` com os sensores e atuadores. Isso é o que o gateway verá.
+Os rótulos ficam na Flash: declare-os como `PROGMEM` e passe-os com `M360_LABEL()`.
 
 ```cpp
+static const char L_UMIDADE[] PROGMEM = "Umidade";
+
 static const M360::M360ItemDef NODE_ITEMS[] = {
-    // ID | Tipo            | Present | Value   | Pin | Smp | Label   | Wake | Flags
-    { 0, M360_SENSOR,   S_HUM,    V_HUM,    A0,   5,  "Umidade", false, 0 }
+    // ID | Tipo            | Present | Value | Pin | Int | Smp | Label                 | Wake  | Flags
+    { 1, M360::M360_SENSOR, S_HUM,    V_HUM,  A0,   0,    5,   M360_LABEL(L_UMIDADE), false, 0 }
 };
+
+static float   lastValues[1];
+static uint8_t nNoUpdates[1];
+static M360::M360Node node(NODE_ITEMS, 1, lastValues, nNoUpdates, M360::M360_LOW_POWER);
 ```
 
 ### 2. Conecte os Cabos (Callbacks)
@@ -61,9 +68,12 @@ float meuLeitor(uint8_t index) {
     return NAN;
 }
 
+void presentation() {
+    node.begin(F("Meu No"), F("1.0"));   // nome e versão na Flash
+}
+
 void setup() {
     node.onRead(meuLeitor);
-    node.begin("Meu No", "1.0");
 }
 ```
 

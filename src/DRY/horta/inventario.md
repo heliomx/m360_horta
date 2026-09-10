@@ -76,8 +76,10 @@ por `begin()`. Nunca declarar em `NODE_ITEMS[]`.
 | **254** | `V_VAR1` (24) | uint16 (minutos) | bidirecional | Intervalo de reporte; aceita `C_SET` e confirma reenviando o valor vigente |
 | **255** | `V_VOLTAGE` (38) | float, 1 casa | nó → gateway | Tensão da bateria |
 
-> Por isso `messages[]` exige **`NODE_ITEMS_COUNT + 3`**: `begin()` escreve
-> incondicionalmente nas três posições reservadas.
+> O nó **não** declara buffer para eles: desde a M360-DRY 2.0.0 a lib monta a
+> mensagem de cada envio — destes três e dos itens de `NODE_ITEMS[]` — num único
+> `MyMessage` interno. Os rótulos (`label`) ficam na Flash (`PROGMEM` +
+> `M360_LABEL()`); o texto enviado no `present()` é o mesmo de antes.
 
 ### Faixas normativas
 

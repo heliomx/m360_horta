@@ -35,19 +35,31 @@ src/DRY/
 
 ## 2. Padrões de Implementação (Nós)
 
-### 2.1 Buffers dos nós
+### 2.1 Buffers e rótulos dos nós
 
-O tamanho de `messages[]` **difere entre os dois motores**. Errar aqui provoca
-escrita fora dos limites do array, sem erro de compilação.
+Os dois motores **diferem**. No motor legado, errar o tamanho de `messages[]`
+escreve fora do array sem erro de compilação; na M360-DRY 2.0.0 o nó nem declara
+`messages[]`.
 
-**Nós da lib M360-DRY (`M360::M360Node`) — SEMPRE `+3`:**
+**Nós da lib M360-DRY (`M360::M360Node`, 2.0.0+) — sem `messages[]`, rótulos na Flash:**
 ```cpp
+static const char L_TEMP[] PROGMEM = "Temperatura Ar";
+static const M360::M360ItemDef NODE_ITEMS[] = {
+    { CHILD_ID_TEMP, M360::M360_SENSOR, S_TEMP, V_TEMP, -1, 1, 3, M360_LABEL(L_TEMP), false, 0 },
+};
 static float     lastValues[NODE_ITEMS_COUNT];
 static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
-static MyMessage messages[NODE_ITEMS_COUNT + 3]; // intervalo (254) + bateria (255) + debug (253)
+static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, lastValues, nNoUpdates, PERFIL);
+// presentation(): node.begin(F("Nome"), F("1.0"));
 ```
-> `M360Node::begin()` escreve incondicionalmente em `_messages[_count]`,
-> `[_count+1]` **e `[_count+2]`**. Com `+2` a terceira escrita estoura o array.
+> - A lib monta cada envio — inclusive intervalo (254), bateria (255) e debug (253) —
+>   num **único `MyMessage` interno**. Para enviar o estado de um item fora do fluxo
+>   da lib (failsafe, preempção de MUX), use `node.sendItemState(i, estado)`.
+> - `label` é `const __FlashStringHelper*`: um literal `"..."` no `NODE_ITEMS[]` **não
+>   compila**, e `begin()` sem `F()` também não — de propósito. `M360_LABEL()` só aceita
+>   array `PROGMEM`; sobre uma string em RAM, compila e envia lixo como rótulo.
+> - Motivo: ~710 B de SRAM a menos no Nó 99 (medido), espaço que a assinatura
+>   MySensors exige.
 
 **Nós legados (`node_engine.h`) — `+2`:**
 ```cpp
@@ -132,7 +144,7 @@ pinagem.
 - [ ] ❌ **EEPROM.put() direto no nó** → Use `nodeEngine_saveInterval()`.
 - [ ] ❌ **Hardcoding de strings de comando** → Use `CMD_FORCE_UPDATE` de `config.h`.
 - [ ] ❌ **Dois perfis de energia** → Escolha apenas `POWER_PROFILE_LOW_POWER` ou `ALWAYS_ON`.
-- [ ] ❌ **Mensagens sem dimensionamento correto** → `+3` na lib M360-DRY, `+2` no motor legado (ver §2.1).
+- [ ] ❌ **`messages[]` num nó M360-DRY ou rótulo em RAM** → a lib 2.0.0 não recebe buffer; rótulo em `PROGMEM` + `M360_LABEL()`. No motor legado, `+2` (ver §2.1).
 - [ ] ❌ **`src/DRY/horta/` alterado sem atualizar `inventario.md`** → Ver §4.1.
 
 ---

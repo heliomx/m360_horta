@@ -175,22 +175,26 @@ Estrutura mínima de um nó:
 #include <M360.h>
 #include "sensorDrivers.h"
 
+// Rótulos na Flash: `label` é const __FlashStringHelper*, então um literal "..."
+// direto no NODE_ITEMS[] não compila. M360_LABEL() só aceita array PROGMEM.
+static const char L_LABEL[] PROGMEM = "Label";
+
 static const M360::M360ItemDef NODE_ITEMS[] = {
-    { CHILD_ID, M360::M360_SENSOR, S_TEMP, V_TEMP, -1, 1, 3, "Label", false, 0 },
+    { CHILD_ID, M360::M360_SENSOR, S_TEMP, V_TEMP, -1, 1, 3, M360_LABEL(L_LABEL), false, 0 },
 };
 static const uint8_t NODE_ITEMS_COUNT = sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
 
-static MyMessage messages[NODE_ITEMS_COUNT + 3];  // SEMPRE +3 (intervalo, bateria, debug)
+// Sem messages[]: a lib monta cada envio num único MyMessage interno (M360-DRY 2.0.0).
 static float     lastValues[NODE_ITEMS_COUNT];
 static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
 
-static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, messages, lastValues,
-                           nNoUpdates, M360::M360_LOW_POWER);
+static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, lastValues, nNoUpdates,
+                           M360::M360_LOW_POWER);
 
 namespace M360 { void powerUp() { ... } void powerDown() { ... } }
 
 void before()       { initSensors(); }
-void presentation() { node.begin("Nome", "1.0"); }
+void presentation() { node.begin(F("Nome"), F("1.0")); }
 void setup()        { node.onRead(readNodeItem); node.onWrite(writeNodeItem); }
 void loop()         { node.process(); }
 void receive(const MyMessage& msg) { node.handleMessage(msg); }

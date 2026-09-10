@@ -16,7 +16,8 @@
  * REGRAS CRÍTICAS:
  *   - MY_* macros definidas EXCLUSIVAMENTE no platformio.ini
  *   - Serial.begin() e initSensors() SEMPRE em before(), nunca em setup()
- *   - messages[] SEMPRE com tamanho NODE_ITEMS_COUNT + 2
+ *   - Rótulos em PROGMEM, passados com M360_LABEL(); nome e versão com F()
+ *   - Sem messages[]: a lib (2.0.0+) monta cada envio num único MyMessage interno
  *   - Todas as variáveis globais são static
  */
 
@@ -31,6 +32,13 @@
 #define CHILD_HUM    1
 // #define CHILD_RELAY  2  // descomente se o nó tiver atuador
 
+// ===== RÓTULOS (na Flash) =====
+// label é const __FlashStringHelper*: um literal "..." direto no NODE_ITEMS[] não compila.
+// M360_LABEL() só aceita arrays PROGMEM — sobre uma string em RAM, envia lixo como rótulo.
+static const char L_TEMP[] PROGMEM = "Temperatura";
+static const char L_HUM[]  PROGMEM = "Umidade";
+// static const char L_RELAY[] PROGMEM = "Rele";
+
 // ===== DEFINIÇÃO DOS ITENS DO NÓ =====
 // Colunas: childId | kind | presentType | valueType | pin | intervalMin | samples | label | wakeOnRadio | flags
 //
@@ -40,15 +48,14 @@
 // wakeOnRadio: true → solicita estado ao gateway após acordar (útil para atuadores)
 // flags    : bit0=1 → multiplica valor × 100 antes de enviar (ex: para tensão em cV)
 static const M360::M360ItemDef NODE_ITEMS[] = {
-	{ CHILD_TEMP, M360::M360_SENSOR,   S_TEMP,   V_TEMP,   -1, 1, 3, "Temperatura", false, 0 },
-	{ CHILD_HUM,  M360::M360_SENSOR,   S_HUM,    V_HUM,    -1, 1, 3, "Umidade",     false, 0 },
-	// { CHILD_RELAY, M360::M360_ACTUATOR, S_BINARY, V_STATUS, 5, 0, 1, "Rele", true, 0 },
+	{ CHILD_TEMP, M360::M360_SENSOR,   S_TEMP,   V_TEMP,   -1, 1, 3, M360_LABEL(L_TEMP), false, 0 },
+	{ CHILD_HUM,  M360::M360_SENSOR,   S_HUM,    V_HUM,    -1, 1, 3, M360_LABEL(L_HUM),  false, 0 },
+	// { CHILD_RELAY, M360::M360_ACTUATOR, S_BINARY, V_STATUS, 5, 0, 1, M360_LABEL(L_RELAY), true, 0 },
 };
 static const uint8_t NODE_ITEMS_COUNT = sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
 
 // ===== BUFFERS ESTÁTICOS (gerenciados pelo M360Node — nunca acessar diretamente) =====
-// messages: +2 obrigatório para os canais reservados intervalo (254) e bateria (255)
-static MyMessage messages[NODE_ITEMS_COUNT + 2];
+// Sem messages[]: a lib monta cada envio num único MyMessage interno.
 static float     lastValues[NODE_ITEMS_COUNT];
 static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
 
@@ -57,8 +64,8 @@ static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
 //   M360::M360_LOW_POWER  — bateria/solar: smartSleep periódico (acorda → lê → envia → dorme)
 //   M360::M360_ALWAYS_ON  — fonte fixa 5V/12V: timer por millis(), nunca dorme
 //   M360::M360_PASSIVE    — bateria + sensor pesado (Modbus/RS485): dorme e lê só sob FORCE_UPDATE
-static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, messages, lastValues,
-                           nNoUpdates, M360::M360_LOW_POWER);
+static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, lastValues, nNoUpdates,
+                           M360::M360_LOW_POWER);
 
 // ===== CALLBACKS DE ENERGIA =====
 // Implemente APENAS se o nó tem um pino que corta a alimentação dos sensores (ex: PIN_POWER_SENSORS).
@@ -89,9 +96,9 @@ void before()
 
 void presentation()
 {
-	// begin() apresenta todos os sensores do NODE_ITEMS[] e inicializa messages[].
+	// begin() apresenta todos os sensores do NODE_ITEMS[] e zera lastValues[]/nNoUpdates[].
 	// Adiciona sufixo ao nome: [LP], [ON] ou [PAS] conforme o perfil.
-	node.begin("M360 Template", "1.0");
+	node.begin(F("M360 Template"), F("1.0"));
 }
 
 void setup()

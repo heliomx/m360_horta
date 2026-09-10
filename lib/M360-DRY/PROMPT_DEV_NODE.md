@@ -16,7 +16,8 @@ Divida o código estritamente em duas camadas:
     -   Local: `src/DRY/nos/NOME_DO_NO/withLibDRY/`.
     -   Responsabilidade: **Declarativa**. Define Child IDs, Labels, Configurações de Rádio e Perfil de Energia (`M360_LOW_POWER`, `M360_ALWAYS_ON` ou `M360_PASSIVE`).
     -   Biblioteca: Utilize sempre `#include <M360.h>`.
-    -   Buffers: Aloque os buffers `messages[]`, `lastValues[]` e `nNoUpdates[]` conforme o template.
+    -   Buffers: Aloque os buffers `lastValues[]` e `nNoUpdates[]` conforme o template. **Não** declare `messages[]`: desde a 2.0.0 a lib usa um único `MyMessage` interno.
+    -   Rótulos: declare cada label como array `PROGMEM` e passe-o com `M360_LABEL()`. Um literal `"..."` direto no `NODE_ITEMS[]` não compila.
 
 2.  **Camada de Driver (`sensorDrivers.h/cpp`)**:
     -   Responsabilidade: **Executiva**. Implementa a leitura física dos sensores (Analog, Modbus, 1-Wire, I2C), calibração e inicialização do hardware.
@@ -30,7 +31,7 @@ Divida o código estritamente em duas camadas:
 
 ### 🏷️ Identificação e Apresentação
 
--   Utilize `node.begin("Nome do Sketch", "Versão")`.
+-   Utilize `node.begin(F("Nome do Sketch"), F("Versão"))` — nome e versão ficam na Flash; sem `F()` não compila.
 -   A biblioteca adicionará automaticamente sufixos de perfil:
     -   `[LP]` para Low Power.
     -   `[ON]` para Always On.

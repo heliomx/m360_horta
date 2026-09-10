@@ -10,21 +10,17 @@
 uint8_t getDistanceGW(void);
 bool isTransportReady(void);
 
-// ===== CONSTRUCTOR =====
-
 namespace M360
 {
 	// ===== CONSTRUCTOR =====
 
 	M360Node::M360Node(const M360ItemDef* items,
 	                   uint8_t            count,
-	                   MyMessage*         messages,
 	                   float*             lastValues,
 	                   uint8_t*           nNoUpdates,
 	                   M360PowerProfile   profile)
 	    : _items(items),
 	      _count(count),
-	      _messages(messages),
 	      _lastValues(lastValues),
 	      _nNoUpdates(nNoUpdates),
 	      _interval(M360_DEFAULT_INTERVAL),
@@ -33,6 +29,22 @@ namespace M360
 	      _profile(profile),
 	      _readCb(nullptr),
 	      _writeCb(nullptr) {}
+
+	// ===== BUFFER DE ENVIO =====
+
+	// Remonta o cabeçalho no único buffer de envio — o mesmo MyMessage(child, tipo)
+	// que begin() construía uma vez por item quando havia messages[count + 3].
+	MyMessage& M360Node::_msgFor(uint8_t childId, uint8_t valueType) {
+		_txMsg = MyMessage(childId, (mysensors_data_t)valueType);
+		return _txMsg;
+	}
+
+	void M360Node::sendItemState(uint8_t index, bool state) {
+		if (index >= _count) {
+			return;
+		}
+		send(_msgFor(_items[index].childId, _items[index].valueType).set(state));
+	}
 
 	// ===== CALLBACKS =====
 
@@ -45,7 +57,7 @@ namespace M360
 	}
 
 	void M360Node::sendDebug(const char* text) {
-		send(_messages[_count + 2].set(text));
+		send(_msgFor(M360_CHILD_ID_DEBUG, V_TEXT).set(text));
 	}
 
 	// ===== SETUP DE PINOS =====
@@ -66,26 +78,31 @@ namespace M360
 
 	// ===== LIFECYCLE =====
 
-	void M360Node::begin(const char* name, const char* version) {
-		// Adiciona sufixo do perfil ao nome do sketch para fácil identificação no gateway
+	void M360Node::begin(const __FlashStringHelper* name, const __FlashStringHelper* version) {
+		// Adiciona sufixo do perfil ao nome do sketch para fácil identificação no gateway.
+		// Nome, versão e sufixo vêm da Flash e só existem em RAM aqui, na pilha.
 		char nameBuf[50];
-		const char* suffix = "";
+		char verBuf[MAX_PAYLOAD_SIZE + 1];
+		PGM_P suffix = PSTR("");
 		switch (_profile) {
-			case M360_LOW_POWER: suffix = " [LP]";  break;
-			case M360_ALWAYS_ON: suffix = " [ON]";  break;
-			case M360_PASSIVE:   suffix = " [PAS]"; break;
-			case M360_REPEATER:  suffix = " [REP]"; break;
+			case M360_LOW_POWER: suffix = PSTR(" [LP]");  break;
+			case M360_ALWAYS_ON: suffix = PSTR(" [ON]");  break;
+			case M360_PASSIVE:   suffix = PSTR(" [PAS]"); break;
+			case M360_REPEATER:  suffix = PSTR(" [REP]"); break;
 		}
-		snprintf(nameBuf, sizeof(nameBuf), "%s%s", name, suffix);
+		// Reserva lugar para o maior sufixo (6 caracteres) e o terminador.
+		strncpy_P(nameBuf, reinterpret_cast<PGM_P>(name), sizeof(nameBuf) - 7);
+		nameBuf[sizeof(nameBuf) - 7] = '\0';
+		strcat_P(nameBuf, suffix);
+		strncpy_P(verBuf, reinterpret_cast<PGM_P>(version), sizeof(verBuf) - 1);
+		verBuf[sizeof(verBuf) - 1] = '\0';
 
-		sendSketchInfo(nameBuf, version);
+		sendSketchInfo(nameBuf, verBuf);
 
 		for (uint8_t i = 0; i < _count; i++) {
 			present(_items[i].childId,
 			        (mysensors_sensor_t)_items[i].presentationType,
 			        _items[i].label);
-			_messages[i] = MyMessage(_items[i].childId,
-			                         (mysensors_data_t)_items[i].valueType);
 			_lastValues[i] = NAN;
 			_nNoUpdates[i] = 0;
 		}
@@ -93,9 +110,6 @@ namespace M360
 		present(M360_CHILD_ID_INTERVAL, S_CUSTOM,     F("Intervalo"));
 		present(M360_CHILD_ID_BATTERY,  S_MULTIMETER, F("Bateria"));
 		present(M360_CHILD_ID_DEBUG,    S_INFO,       F("Debug"));
-		_messages[_count]     = MyMessage(M360_CHILD_ID_INTERVAL, V_VAR1);
-		_messages[_count + 1] = MyMessage(M360_CHILD_ID_BATTERY,  V_VOLTAGE);
-		_messages[_count + 2] = MyMessage(M360_CHILD_ID_DEBUG,    V_TEXT);
 
 		_interval = loadInterval();
 
@@ -174,7 +188,7 @@ namespace M360
 				saveInterval(_interval);
 			}
 			// Sempre confirma o valor vigente (gateway sabe se a mudança foi aceita ou rejeitada)
-			send(_messages[_count].set(_interval));
+			send(_msgFor(M360_CHILD_ID_INTERVAL, V_VAR1).set(_interval));
 			Serial.print(F("INT:"));
 			Serial.println(_interval);
 			return;
@@ -189,7 +203,7 @@ namespace M360
 					if (_writeCb) {
 						_writeCb(i, state);
 					}
-					send(_messages[i].set(state));
+					sendItemState(i, state);
 					break;
 				}
 			}
@@ -203,11 +217,11 @@ namespace M360
 			}
 			char buf[25];
 			msg.getString(buf);
-			if (strcmp(buf, CMD_REPRESENT) == 0) {
+			if (strcmp_P(buf, PSTR(M360_TXT_REPRESENT)) == 0) {
 				_rePresent();
 				return;
 			}
-			if (strcmp(buf, CMD_FORCE_UPDATE) == 0) {
+			if (strcmp_P(buf, PSTR(M360_TXT_FORCE_UPDATE)) == 0) {
 				// No modo passivo, precisamos ligar e desligar periféricos explicitamente
 				if (_profile == M360_PASSIVE) {
 					powerUp();
@@ -219,13 +233,13 @@ namespace M360
 				}
 				return;
 			}
-			if (strcmp(buf, CMD_DEBUG_NET) == 0) {
+			if (strcmp_P(buf, PSTR(M360_TXT_DEBUG_NET)) == 0) {
 				// Envia o mesmo diagnóstico de _printNetDiag(), mas pela rede em
 				// vez do Serial — permite consultar parent/dist/ready remotamente.
 				char diag[25];
-				snprintf(diag, sizeof(diag), "P:%u D:%u R:%c",
-				         getParentNodeId(), getDistanceGW(),
-				         isTransportReady() ? 'S' : 'N');
+				snprintf_P(diag, sizeof(diag), PSTR("P:%u D:%u R:%c"),
+				           getParentNodeId(), getDistanceGW(),
+				           isTransportReady() ? 'S' : 'N');
 				sendDebug(diag);
 				return;
 			}
@@ -266,11 +280,12 @@ namespace M360
 		if (isnan(_lastValues[i])) {
 			return;
 		}
+		MyMessage& msg = _msgFor(_items[i].childId, _items[i].valueType);
 		if (_items[i].flags & 0x01) {
 			// Usa int32_t para evitar overflow em valores > 327 (ex: tensões)
-			send(_messages[i].set((int32_t)(_lastValues[i] * 100)));
+			send(msg.set((int32_t)(_lastValues[i] * 100)));
 		} else {
-			send(_messages[i].set(_lastValues[i], 1));
+			send(msg.set(_lastValues[i], 1));
 		}
 	}
 
@@ -282,7 +297,7 @@ namespace M360
 			if (voltage > 0.0f &&
 			    (isnan(_lastBattVoltage) || fabsf(voltage - _lastBattVoltage) >= 0.1f)) {
 				_lastBattVoltage = voltage;
-				send(_messages[_count + 1].set(voltage, 1));
+				send(_msgFor(M360_CHILD_ID_BATTERY, V_VOLTAGE).set(voltage, 1));
 				// Percentual padrão MySensors (I_BATTERY_LEVEL) — usado pela UI nativa
 				// de bateria dos controladores, além do V_VOLTAGE bruto acima.
 				sendBatteryLevel(voltageToPercent(voltage));

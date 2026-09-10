@@ -5,11 +5,16 @@
  * presentation / begin / process / handleMessage.
  *
  * USO:
- *   1. Defina NODE_ITEMS[] e NODE_ITEMS_COUNT no arquivo do nó.
- *   2. Declare os buffers (messages, lastValues, nNoUpdates).
+ *   1. Declare cada rótulo como array PROGMEM e defina NODE_ITEMS[] e
+ *      NODE_ITEMS_COUNT, passando os rótulos com M360_LABEL().
+ *   2. Declare os buffers lastValues[] e nNoUpdates[] (tamanho NODE_ITEMS_COUNT).
  *   3. Instancie M360Node e registre os callbacks onRead/onWrite.
- *   4. Chame begin() em presentation(), process() em loop(),
+ *   4. Chame begin(F(nome), F(versão)) em presentation(), process() em loop(),
  *      e handleMessage() em receive().
+ *
+ * MEMÓRIA (2.0.0): o nó não declara messages[] — a lib monta cada envio num
+ * único MyMessage interno — e rótulos, nome e versão ficam na Flash. Medido no
+ * Nó 99 com a assinatura MySensors ligada: 1945 → 1235 B de RAM estática.
  *
  * IMPORTANTE: Não usa std::vector nem String — compatível com ATmega328P.
  */
@@ -19,6 +24,12 @@
 #include <core/MySensorsCore.h>
 #include "M360Config.h"
 #include "M360Power.h"
+
+// Converte um array PROGMEM no tipo do campo `label` de M360ItemDef.
+// SÓ para arrays declarados com PROGMEM: aplicado a uma string em RAM, compila
+// e o nó envia lixo como rótulo. Um literal "..." direto no campo não compila —
+// é essa a proteção que o tipo do campo dá.
+#define M360_LABEL(progmemStr) (reinterpret_cast<const __FlashStringHelper*>(progmemStr))
 
 namespace M360
 {
@@ -67,7 +78,7 @@ namespace M360
 		int          pin;               // -1 se não aplicável
 		uint16_t     reportIntervalMin; // 0 = sempre reporta
 		uint8_t      readSamples;       // número de amostras para média
-		const char*  label;
+		const __FlashStringHelper* label; // na Flash — ver M360_LABEL()
 		bool         wakeOnRadio;
 		uint8_t      flags;             // bit 0: multiplica por 100 antes de enviar
 	} M360ItemDef;
@@ -81,22 +92,23 @@ namespace M360
 		 *
 		 * @param items       Array const de M360ItemDef definido pelo nó.
 		 * @param count       Número de itens em `items` (NODE_ITEMS_COUNT).
-		 * @param messages    Buffer de MyMessage alocado pelo nó: MyMessage[count + 3]
-		 *                    (+1 intervalo, +1 bateria, +1 debug remoto).
 		 * @param lastValues  Buffer float alocado pelo nó: float[count].
 		 * @param nNoUpdates  Buffer uint8_t alocado pelo nó: uint8_t[count].
+		 *
+		 * Não há buffer de mensagens: a lib monta cada envio — dos itens e dos
+		 * children reservados 253/254/255 — num único MyMessage interno.
 		 */
 		M360Node(const M360ItemDef* items,
 		         uint8_t            count,
-		         MyMessage*         messages,
 		         float*             lastValues,
 		         uint8_t*           nNoUpdates,
 		         M360PowerProfile   profile = M360_LOW_POWER);
 
 		// ----- Lifecycle (chamados pelos hooks MySensors) -----
 
-		// Chame dentro de presentation() — apresenta sensores e inicializa messages[]
-		void begin(const char* name, const char* version);
+		// Chame dentro de presentation() — apresenta sensores e zera lastValues/nNoUpdates.
+		// Nome e versão na Flash: node.begin(F("Nome"), F("1.0")).
+		void begin(const __FlashStringHelper* name, const __FlashStringHelper* version);
 
 		// Chame dentro de loop() — lê sensores, envia dados, gerencia sleep
 		void process();
@@ -117,6 +129,11 @@ namespace M360
 		// Payload truncado em 24 chars (limite MAX_PAYLOAD_SIZE do MySensors).
 		void sendDebug(const char* text);
 
+		// Envia o estado do item `index` com o child e o tipo dele. Para o nó
+		// reportar mudanças que acontecem fora do fluxo da lib — ex.: o failsafe
+		// que desliga um relé sozinho, ou o canal MUX preemptado (Nó 99).
+		void sendItemState(uint8_t index, bool state);
+
 		// ----- Configuração de pinos (opcional, baseado em items[].pin) -----
 		void setupPins();
 
@@ -128,7 +145,9 @@ namespace M360
 	private:
 		const M360ItemDef* _items;
 		uint8_t            _count;
-		MyMessage*         _messages;
+		// Único buffer de envio. A lib nunca relê a mensagem — o valor sempre vem
+		// de _lastValues —, então basta remontar o cabeçalho (child + tipo) a cada send.
+		MyMessage          _txMsg;
 		float*             _lastValues;
 		uint8_t*           _nNoUpdates;
 		uint16_t           _interval;
@@ -139,6 +158,8 @@ namespace M360
 		float (*_readCb)(uint8_t);
 		void  (*_writeCb)(uint8_t, bool);
 
+		// Prepara _txMsg para o child/tipo informados e o devolve para o send().
+		MyMessage& _msgFor(uint8_t childId, uint8_t valueType);
 		// forceAll=true ignora o filtro de "mudou o suficiente" (usado por CMD_FORCE_UPDATE)
 		void _readAndSendAll(bool forceAll = false);
 		// Envia _lastValues[i] já em cache (sem reler o hardware), usada tanto por

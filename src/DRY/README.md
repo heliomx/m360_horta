@@ -187,7 +187,7 @@ Para manter a integridade conceitual do modelo DRY, todos os firmwares devem ser
 *   [ ] ❌ **Evite declarar macros do MySensors após incluir `<MySensors.h>`.** Definições como `MY_NODE_ID`, `MY_RADIO_RF24` e outras macros de configuração devem ser declaradas obrigatoriamente antes do include da biblioteca.
 *   [ ] ❌ **Não misture ou use dois perfis de energia simultâneos.** Escolha unicamente entre `POWER_PROFILE_LOW_POWER` ou `ALWAYS_ON`.
 *   [ ] ❌ **Nunca instancie strings de comando estáticas nos nós.** Sempre faça referência às constantes globais definidas em **[config.h](file:///c:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/src/DRY/nos/shared/config.h)** (como `CMD_FORCE_UPDATE`).
-*   [ ] ❌ **Garanta o dimensionamento correto do array de mensagens.** O array de mensagens deve ter tamanho equivalente à quantidade de itens mais os canais especiais, por exemplo: `MyMessage messages[NODE_ITEMS_COUNT + 1]`.
+*   [ ] ❌ **Não declare `messages[]` em nós M360-DRY.** Desde a 2.0.0 a lib usa um único `MyMessage` interno; os rótulos vão em `PROGMEM` com `M360_LABEL()` e o nome em `node.begin(F(...), F(...))`. Só o motor legado (`node_engine.h`) ainda usa `messages[NODE_ITEMS_COUNT + 2]`.
 
 ---
 > [!IMPORTANT]

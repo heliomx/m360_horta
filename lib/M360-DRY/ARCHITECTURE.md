@@ -23,9 +23,14 @@ O ATmega328P tem apenas 2KB de SRAM. O uso de `std::vector` ou `malloc` causaria
 
 **A LibDRY resolve isso exigindo buffers estáticos:**
 Quando você instancia o `M360Node`, você deve passar arrays pré-alocados para:
-- `MyMessage messages[]`: Buffer estático para mensagens de rádio.
 - `float lastValues[]`: Armazena a última leitura para comparação de mudança significativa.
 - `uint8_t nNoUpdates[]`: Contador para forçar reporte em caso de valor estagnado.
+
+**E ocupa o mínimo possível da SRAM (2.0.0):**
+- **Um único `MyMessage` de envio**, montado (child + tipo) a cada `send()`. O valor sempre vem de `lastValues[]` e a mensagem nunca é lida de volta — um buffer por item era só cabeçalho repetido: 33 B × (itens + 3).
+- **Rótulos e textos na Flash:** `label` é `const __FlashStringHelper*` (array `PROGMEM` + `M360_LABEL()`), e `begin()` recebe `F()`.
+
+Medido no Nó 99 com a assinatura MySensors ligada: 1945 → 1235 B de RAM estática, e a pilha livre sobe de 103 para 813 B. É o que permite ligar a assinatura, que sozinha custa ~370 B mais a pilha do HMAC.
 
 ---
 

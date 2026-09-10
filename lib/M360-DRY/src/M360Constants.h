@@ -43,10 +43,15 @@ namespace M360 {
 	static const char* const CMD_PUMP_OFF     = "PUMP_OFF";
 	static const char* const CMD_PUMP_TOGGLE  = "PUMP_TOGGLE";
 
-	// Tratados por M360Node::handleMessage
-	static const char* const CMD_FORCE_UPDATE = "FORCE_UPDATE";
-	static const char* const CMD_REPRESENT    = "REPRESENT";
-	static const char* const CMD_DEBUG_NET    = "DEBUG_NET"; // solicita diagnóstico de rede via CHILD_ID_DEBUG
+	// Tratados por M360Node::handleMessage.
+	// O texto vive UMA vez, na macro: o gateway usa a constante e o nó compara com
+	// PSTR(M360_TXT_*) direto da Flash, sem ocupar SRAM no AVR.
+	#define M360_TXT_FORCE_UPDATE "FORCE_UPDATE"
+	#define M360_TXT_REPRESENT    "REPRESENT"
+	#define M360_TXT_DEBUG_NET    "DEBUG_NET"
+	static const char* const CMD_FORCE_UPDATE = M360_TXT_FORCE_UPDATE;
+	static const char* const CMD_REPRESENT    = M360_TXT_REPRESENT;
+	static const char* const CMD_DEBUG_NET    = M360_TXT_DEBUG_NET; // solicita diagnóstico de rede via CHILD_ID_DEBUG
 
 	// Tipos de Eventos de Transporte
 	static const char* const EVT_GATEWAY_READY = "gateway_ready";
