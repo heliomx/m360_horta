@@ -67,11 +67,30 @@ Frequência LoRa: provisionada por software na instalação (sem chave DIP) — 
 
 | Pino | Sinal | Pino | Sinal |
 |---:|---|---:|---|
-| 1 | 3V3 | 2 | GND |
-| 3 | SCK | 4 | GND |
-| 5 | MOSI | 6 | MISO |
-| 7 | NSS | 8 | DIO0 |
-| 9 | DIO1 | 10 | RESET |
+| 1 | MISO | 2 | DIO1 |
+| 3 | MOSI | 4 | DIO0 |
+| 5 | SCK | 6 | 3V3 |
+| 7 | NSS | 8 | GND |
+| 9 | RESET | 10 | GND |
+
+**Por que esta ordem:** a coluna ímpar fica junto ao módulo e segue a ordem dos pinos 2–6 do
+RFM95W (MISO, MOSI, SCK, NSS, RESET), então o SPI sai em linha reta. DIO1, DIO0 e 3V3 estão na
+coluna direita do módulo; contornam o rádio por cima e descem na coluna par na única ordem que não
+cruza — tudo em F.Cu, com o plano de terra da face de baixo inteiro sob o rádio. A primeira
+pinagem (3V3 no pino 1, SPI entre GNDs) obrigava cruzamentos.
+
+**Layout e interface mecânica** (vista de cima, origem no canto superior esquerdo da placa):
+
+| Item | Valor |
+|---|---|
+| Placa | 34,2 × 23,0 mm, 2 camadas, 1,6 mm |
+| J1 (face de baixo) | Pino 1 (MISO) em (7,00; 6,42) mm; coluna par em x = 4,46 mm; linhas a cada 2,54 mm até y = 16,58 mm |
+| SMA | Eixo em y = 18,50 mm; o conector avança ~10 mm além da borda direita |
+| Trilha de RF | Coplanar com terra: 1,25 mm de largura, gap de 0,2 mm, ~5 mm de comprimento |
+| Planos | GND nas duas faces, clearance de 0,2 mm; 17 vias de costura, **nenhuma sob o RFM95W** (via sob módulo soldado à mão só é segura se tampada) |
+| Serigrafia | Referências de C1, C2 e J2 ocultas — não cabem no canto do SMA, e a PCBA usa o arquivo de posição |
+
+O carrier vê o mezanino por baixo e, portanto, espelha as coordenadas do J1 no eixo X.
 
 > ⛔ **Sem pull-up no NSS dentro do mezanino.** No gateway o NSS vai ao GPIO15, que tem de estar
 > em LOW no boot do ESP8266. Quando o carrier precisa de pull-up no NSS (nós AVR, para o rádio não

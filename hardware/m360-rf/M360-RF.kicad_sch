@@ -1309,15 +1309,33 @@
 				)
 			)
 		)
-    (property "MPN" "RFM95W-915S2" (at 110.49 90.17 0)
-      (effects (font (size 1.27 1.27)) (hide yes))
-    )
-    (property "Manufacturer" "HopeRF" (at 110.49 90.17 0)
-      (effects (font (size 1.27 1.27)) (hide yes))
-    )
-    (property "Montagem" "Manual: modulo HopeRF do estoque proprio, nao montar na PCBA" (at 110.49 90.17 0)
-      (effects (font (size 1.27 1.27)) (hide yes))
-    )
+		(property "MPN" "RFM95W-915S2"
+			(at 110.49 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HopeRF"
+			(at 110.49 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Montagem" "Manual: modulo HopeRF do estoque proprio, nao montar na PCBA"
+			(at 110.49 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "7fca9863-12c6-4f3a-9f1e-7d619f14d222")
 		)
@@ -1439,12 +1457,24 @@
 				)
 			)
 		)
-    (property "LCSC" "C492422" (at 175.26 90.17 0)
-      (effects (font (size 1.27 1.27)) (hide yes))
-    )
-    (property "Montagem" "Manual: header THT soldado apos a PCBA" (at 175.26 90.17 0)
-      (effects (font (size 1.27 1.27)) (hide yes))
-    )
+		(property "LCSC" "C492422"
+			(at 175.26 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Montagem" "Manual: header THT soldado apos a PCBA"
+			(at 175.26 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "b2c24a63-ae9d-4325-bad4-8e4326e3b204")
 		)
@@ -1548,15 +1578,33 @@
 				)
 			)
 		)
-    (property "LCSC" "C5199907" (at 59.69 85.09 0)
-      (effects (font (size 1.27 1.27)) (hide yes))
-    )
-    (property "MPN" "SMA-J-P-H-ST-EM1" (at 59.69 85.09 0)
-      (effects (font (size 1.27 1.27)) (hide yes))
-    )
-    (property "Manufacturer" "Samtec" (at 59.69 85.09 0)
-      (effects (font (size 1.27 1.27)) (hide yes))
-    )
+		(property "LCSC" "C5199907"
+			(at 59.69 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "SMA-J-P-H-ST-EM1"
+			(at 59.69 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samtec"
+			(at 59.69 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "f8ab0314-cd5f-4367-96a5-bf29336b25fc")
 		)
@@ -1638,9 +1686,15 @@
 				)
 			)
 		)
-    (property "LCSC" "C14663" (at 134.62 129.54 0)
-      (effects (font (size 1.27 1.27)) (hide yes))
-    )
+		(property "LCSC" "C14663"
+			(at 134.62 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "031af909-7766-423f-bcab-fd0a3c327eda")
 		)
@@ -1722,9 +1776,15 @@
 				)
 			)
 		)
-    (property "LCSC" "C45783" (at 149.86 129.54 0)
-      (effects (font (size 1.27 1.27)) (hide yes))
-    )
+		(property "LCSC" "C45783"
+			(at 149.86 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "0c288913-d547-4674-b4c9-650481899d27")
 		)
@@ -2012,106 +2072,6 @@
 		)
 		(uuid "7dc66662-baa0-4d59-bbe9-82e75f84453a")
 	)
-	(label "3V3"
-		(at 170.17999999999998 85.09 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "473c00dc-5066-4800-b377-e3251720ba6e")
-	)
-	(label "GND"
-		(at 182.88 85.09 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "bae39ade-7ce1-453d-9f53-ae2d4eb1ff22")
-	)
-	(label "SCK"
-		(at 170.17999999999998 87.63 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "de32608b-2832-41e9-ae3a-01695cde527e")
-	)
-	(label "GND"
-		(at 182.88 87.63 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "d9d7e145-36a7-47d6-b322-81611c2852ce")
-	)
-	(label "MOSI"
-		(at 170.17999999999998 90.17 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "fe3035a1-2828-4a00-a7fa-25bfe6186160")
-	)
-	(label "MISO"
-		(at 182.88 90.17 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "aadf2fb4-854d-4c20-a2fd-2c8f2394be04")
-	)
-	(label "NSS"
-		(at 170.17999999999998 92.71000000000001 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "e0991146-4c0c-45d3-b531-7a2b53fbf208")
-	)
-	(label "DIO0"
-		(at 182.88 92.71000000000001 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "171112c2-6601-4ea6-ae3e-e031fda8ace6")
-	)
-	(label "DIO1"
-		(at 170.17999999999998 95.25 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "02df823a-dece-40fd-bc07-1136b63cc774")
-	)
-	(label "RESET"
-		(at 182.88 95.25 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "3d44db89-7289-4f73-b0cb-70df112a2b71")
-	)
 	(label "RF_ANT"
 		(at 54.61 85.09 0)
 		(effects
@@ -2207,6 +2167,106 @@
 	(no_connect
 		(at 123.19 95.25)
 		(uuid "91513a04-2347-4c3f-b5f8-64e61f6e4153")
+	)
+	(label "DIO1"
+		(at 182.88 85.09 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "1e332659-068e-457f-a8ae-dd1dbe92b8db")
+	)
+	(label "MOSI"
+		(at 170.17999999999998 87.63 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "32d0ed46-5736-4636-90f5-0baebbf0f921")
+	)
+	(label "DIO0"
+		(at 182.88 87.63 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "24921239-af4e-4baf-934f-f90bac8a1c30")
+	)
+	(label "SCK"
+		(at 170.17999999999998 90.17 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ab49c635-e2e5-45c5-b721-2cc5b2af269d")
+	)
+	(label "NSS"
+		(at 170.17999999999998 92.71000000000001 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d33a7e7e-06bd-4103-a146-e3572dfd310d")
+	)
+	(label "GND"
+		(at 182.88 92.71000000000001 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "c5c2e14d-20c7-4da1-a060-8522bcc1a0fc")
+	)
+	(label "GND"
+		(at 182.88 95.25 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "e2591b45-65f4-4ab3-a55b-7b8c277e094c")
+	)
+	(label "MISO"
+		(at 170.17999999999998 85.09 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "69881fff-fee9-4c85-90e7-629c8a2abce9")
+	)
+	(label "3V3"
+		(at 182.88 90.17 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ec304935-48d9-4b5d-a940-2a61d952ab44")
+	)
+	(label "RESET"
+		(at 170.17999999999998 95.25 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "273f8bcc-4369-4184-9aa7-76fb294570f7")
 	)
 	(sheet_instances
 		(path "/"
