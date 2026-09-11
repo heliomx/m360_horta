@@ -38,3 +38,9 @@ desktop.ini
 *.lck
 fp-info-cache
 
+# Artefatos do MCP do KiCad — saídas de verificação e de visualização gravadas ao
+# lado da placa. Regeneráveis a cada execução; não fazem parte do projeto. (As
+# cópias automáticas em .mcp-backups/ já caem na regra *-backups/ acima.)
+*_drc_violations.json
+*_2d_view.*
+
