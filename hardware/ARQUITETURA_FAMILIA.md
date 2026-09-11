@@ -1,6 +1,7 @@
 # Família de PCBs M360 Horta — Arquitetura
 
-**Status:** arquitetura fechada; esquemáticos ainda não iniciados.
+**Status:** arquitetura fechada; M360-RF roteada (DRC 0); esquemático da M360-LP desenhado (ERC 0),
+com footprints pendentes (§9).
 **Data:** 2026-09-10 · **Branch:** `feat/hardware-familia-pcb`
 **Ferramentas:** KiCad 10.0.4 (esquemático e footprints) → EasyEDA (roteamento) → PCBA JLCPCB.
 
@@ -114,6 +115,8 @@ Fonte 5 V (variante fixa, Nós 01/02) ─────────┘            
 | LDO 3,3 V | Iq ≤ 5 µA; dropout ≤ ~150 mV @ 100 mA; Vin máx ≥ 6 V. Candidato: MCP1700-3302 (confirmar estoque no JLC) | Sono do nó; rádio a +17 dBm com a bateria em 3,4 V; fonte de 5 V na variante fixa |
 | Divisor de bateria | **2 MΩ / 1 MΩ permanente, 100 nF no A6** | A6 nunca passa de 2 V, nem com 6 V na entrada. Drena ~1,4 µA com a bateria a 4,2 V. O capacitor fornece a carga do sample-and-hold (a fonte de 667 kΩ sozinha seria alta demais para o ADC). Um divisor comutado pela perna de baixo deixaria o A6 na tensão da bateria — acima do VCC — quando desligado |
 | Bateria no VCC? | **Não** | O Nó 04 atual (nRF24) roda o MCU direto na bateria; com RFM95W isso não pode: o SPI do MCU chegaria ao rádio a 4,2 V, e o máximo absoluto do SX1276 é 3,9 V |
+| Inversão de polaridade | **P-MOSFET AO3401A (Q1) em série no positivo**, gate no GND | Queda de ~5 mV a 100 mA; um Schottky perderia ~0,3 V, que faltam com a bateria em 3,4 V e o rádio transmitindo. Com a entrada invertida o FET não conduz e o LDO fica protegido. Vgs máx. ±12 V; a entrada nunca passa de 6 V |
+| Capacitores do LDO | 1 µF na entrada; 1 µF + 10 µF na saída | O mezanino ainda soma 22 µF + 100 nF junto ao rádio |
 
 A leitura de bateria pelo bandgap interno (padrão de `M360Power.cpp`) **não serve** nesta placa: com
 VCC regulado ela mede 3,3 V. O nó sobrescreve `readBatteryVoltage()` lendo o A6.
@@ -123,13 +126,22 @@ VCC regulado ela mede 3,3 V. O nó sobrescreve `readBatteryVoltage()` lendo o A6
 | Bloco | Conteúdo |
 |---|---|
 | MCU | Pro Mini 3,3 V / 8 MHz, LED de power removido |
-| Trilho chaveado (VSW) | P-MOSFET high-side no 3,3 V, gate com pull-up (desligado no boot), comandado por D4. Alimenta sensores, pull-ups e o par marrom das portas |
+| Trilho chaveado (VSW) | P-MOSFET AO3401A (Q2) high-side no 3,3 V, comandado por D4 (LOW = liga). Gate com 100 kΩ para o 3,3 V (desligado no boot) e partida suave de ~100 µs: 10 kΩ em série a partir do D4 e 10 nF entre gate e source. 1 µF no VSW. Alimenta sensores, pull-ups e o par marrom das portas |
 | Multiplexador | 74HC4051 no VSW. **Regra de firmware:** levar S0–S2 a LOW antes de cortar o VSW, senão os pinos alimentam o CI pelos diodos de proteção |
 | Sondas de solo | Pull-up de 10 kΩ para o VSW por canal (sonda resistiva, como os Nós 01/02); **DNI** para sonda capacitiva. RC 1 kΩ / 100 nF por canal |
 | Digitais de campo | 1-Wire com 4,7 kΩ para o VSW; DHT com 10 kΩ para o VSW; I2C com 3,3 kΩ para o VSW |
 | Reed switch | D3 (INT1) com pull-up interno; contato aberto em repouso, zero corrente no sono |
-| Proteção | TVS em todas as linhas de campo e no VSW das portas |
+| Proteção | 3× **SRV05-4** (U3–U5, ≤ 1 pF por linha): U3 = solo ch0–3, U4 = ch4–7, U5 = 1-Wire, DHT, SDA, SCL. O pino VP de cada um vai ao VSW, então o zener interno protege também o par marrom das portas |
 | Programação | Header FTDI do próprio Pro Mini |
+| Mezanino (J4) | Soquete 2×5. **A numeração dos pinos no esquemático é a do mezanino (§3)**; o footprint é que é espelhado — com o J1 do mezanino na face de baixo, a coluna par fica à esquerda na vista de cima. NSS com 10 kΩ para o 3,3 V (R3) |
+
+**Por que a partida suave do VSW:** ao ligar o trilho, a capacitância dos sensores é carregada a partir
+do 3,3 V. Sem limitar a subida, a divisão de carga derruba o 3,3 V: com ~45 µF no 3,3 V e uma sonda
+capacitiva de 10 µF no VSW, o trilho cairia a 3,3 × 45/55 ≈ 2,7 V — o brown-out do ATmega a 8 MHz.
+
+**Regras de firmware que o hardware impõe:** com o VSW desligado, nenhum pino do MCU ligado ao campo
+pode ficar em HIGH — S0–S2 do 4051, A1 (1-Wire), A2 (DHT) e A4/A5 (o TWI tem de estar desligado, sem
+os pull-ups internos). Um pino alto alimenta os sensores pelos diodos de proteção.
 
 ### 4.3 Pinos (Pro Mini)
 
@@ -254,7 +266,9 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 | Item | O que falta |
 |---|---|
 | Banda do RFM95W | Validar em bancada (RTL-SDR em 916,8 MHz ou RSSI contra referência) antes de comprar em quantidade |
-| Seleção de peças | Candidatas em §9.1. Faltam: TVS de baixa capacitância para 1-Wire/I2C e a decisão do rádio do mezanino |
+| Seleção de peças | Candidatas em §9.1. O 10 kΩ basic (C25804) não aparece no snapshot local do catálogo: confirmar no site antes do pedido |
+| Footprints da LP | Pro Mini (**medir** com paquímetro a posição dos furos A4/A5 e A6/A7/GND no clone DeeK-Robot — muda entre fabricantes), soquete 2×5 espelhado (§4.2), RJ45 C385834 e reed C315909 (importar do LCSC com easyeda2kicad) |
+| Regulador do Pro Mini | Com 3,3 V no VCC e RAW solto, o regulador da própria placa pode ser alimentado de volta pelo diodo interno e consumir a corrente quiescente dele. Medir a corrente de sono na primeira placa; se passar de poucos µA, retirar o regulador, como o LED |
 | DHT11 no atuador | Alimentado a 5 V pelo RJ45, com pull-up para 3,3 V: confirmar que a saída é dreno aberto |
 | Firmware das placas novas | Envs `pro8MHzatmega328`; pinos novos; `readBatteryVoltage()` pelo A6 na LP; LED verde ativo em LOW no gateway. Atualizar `inventario.md` e os `esquema_eletrico.md` na mesma entrega |
 | Caixa | Modelo IP e dimensões internas; posição do SMA |
@@ -280,7 +294,13 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 | ACT: MUX 16:1 | CD74HC4067M96 (SOIC-24) | C496123 | ext | 12 982 | |
 | ACT: buck 12 → 5 V | XL1509-5.0E1 (SOIC-8) | C61063 | **basic** | 708 804 | 150 kHz pede indutor grande; TPS54202 (C191884) é menor, mas extended |
 | TVS de linhas analógicas | ESD5Z3.3T1G (SOD-523) | C2827729 | ext | 639 857 | 110 pF: **não** serve para 1-Wire/I2C em cabo |
-| TVS de 1-Wire / I2C | a escolher (≤ 5 pF) | — | — | — | PESD3V3Y1BSFYL tem 0,24 pF, mas é DSN0603 |
+| LP: TVS das linhas de campo | SRV05-4 (TECH PUBLIC, SOT-23-6) | C558418 | ext | 461 674 | 4 linhas, 0,3–0,8 pF: serve para solo, 1-Wire e I2C. Substitui o ESD5Z na LP |
+| LP: entrada `J_VIN` | JST B2B-XH-A (2 vias) | C158012 | ext | 203 889 | J3 |
+| LP: RJ45 | R-RJ45R08P-A004 (sem blindagem, sem LED) | C385834 | ext | 159 683 | J1 e J2; solda manual |
+| LP: reed | Littelfuse 59170-1-S-00-D (SMD) | C315909 | ext | 35 144 | SW1 |
+| LP: soquete do mezanino | PM254V-12-10P-H85 (fêmea 2×5, 8,5 mm) | C492399 | ext | 37 436 | J4; solda manual |
+| 1 µF 0603 · 10 µF 0805 · 10 nF 0603 | CL10A105KB8NNNC · CL21A106KAYNNNE · 0603B103K500NT | C15849 · C15850 · C57112 | **basic** | milhões | |
+| Resistores 0603 1 % | 1 k · 3,3 k · 4,7 k · 10 k · 100 k · 1 M · 2 M | C21190 · C22978 · C23162 · C25804 · C25803 · C22935 · C22976 | **basic** | | 10 k: ver §9 |
 
 ---
 
