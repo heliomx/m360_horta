@@ -30,3 +30,11 @@ desktop.ini
 .bmad-loop/runs/
 .bmad-loop/cache/
 
+# KiCad — arquivos locais, regenerados pelo próprio KiCad. O .kicad_prl guarda o
+# estado da interface (zoom, camadas visíveis, janela); os backups, os locks e o
+# cache de footprints são por máquina. Versioná-los só produz diff sem conteúdo.
+*.kicad_prl
+*-backups/
+*.lck
+fp-info-cache
+
