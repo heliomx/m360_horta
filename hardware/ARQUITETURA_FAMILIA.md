@@ -58,7 +58,8 @@ Frequência LoRa: provisionada por software na instalação (sem chave DIP) — 
 |---|---|
 | Rádio | RFM95W-915S2. Footprint **stock do KiCad** `RF_Module:HOPERF_RFM9XW_SMD` (confere com o contorno do datasheet p. 120; pads avançam 1 mm além da borda, bom para solda manual). Símbolo `RF_Module:RFM95W-915S2` |
 | Desacoplamento | 100 nF + 22 µF cerâmico nos pinos 13 (3.3V) e 10 (GND). O datasheet pede só 100 nF; o reservatório é para o pico de 87–120 mA sobre bateria e LDO |
-| Antena | Trilha de RF curta do pino 9 (ANA) até um **SMA fêmea de borda**. A trilha é bem menor que λ/20 em 915 MHz, mas é desenhada como coplanar aterrada no stackup do JLC |
+| Antena | Trilha de RF curta do pino 9 (ANA) até um **SMA fêmea de borda** Samtec SMA-J-P-H-ST-EM1 (SMD, montado na PCBA). A trilha é bem menor que λ/20 em 915 MHz, mas é desenhada como coplanar aterrada no stackup do JLC |
+| Espessura da placa | **1,6 mm (padrão do JLC) — nunca mais fina.** O Samtec abraça a borda com terra nas duas faces e é feito para 1,57 mm (0,062"); numa placa de 0,8 ou 1,0 mm ele fica frouxo e o terra não encosta |
 | Terra | Plano sólido, costura de vias em volta da trilha de RF e sob o módulo |
 | Interface | Header 2×5, 2,54 mm |
 
@@ -223,8 +224,8 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 
 | Item | Como entra |
 |---|---|
-| SMD (LDO, MOSFETs, 74HC4051, 74HCT244, CD74HC4067, buck, passivos, TVS) | PCBA JLCPCB, com peças escolhidas pela disponibilidade no LCSC |
-| Pro Mini, mezanino RF, RJ45, SMA, bornes | Solda manual após a PCBA |
+| SMD (LDO, MOSFETs, 74HC4051, 74HCT244, CD74HC4067, buck, passivos, TVS, SMA de borda Samtec) | PCBA JLCPCB, com peças escolhidas pela disponibilidade no LCSC |
+| Pro Mini, módulo RFM95W (HopeRF, no mezanino), headers 2×5, RJ45, bornes | Solda manual após a PCBA |
 | Antena | SMA de borda no mezanino: ou o conector atravessa a parede da caixa (furo e vedação), ou a antena fica dentro dela — funciona em 915 MHz se a caixa for plástica |
 
 ---
@@ -234,10 +235,33 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 | Item | O que falta |
 |---|---|
 | Banda do RFM95W | Validar em bancada (RTL-SDR em 916,8 MHz ou RSSI contra referência) antes de comprar em quantidade |
-| Seleção de peças | LDO, P-MOSFET do VSW, TVS, buck, SMA de borda — pelo estoque no JLC |
+| Seleção de peças | Candidatas em §9.1. Faltam: TVS de baixa capacitância para 1-Wire/I2C e a decisão do rádio do mezanino |
 | DHT11 no atuador | Alimentado a 5 V pelo RJ45, com pull-up para 3,3 V: confirmar que a saída é dreno aberto |
 | Firmware das placas novas | Envs `pro8MHzatmega328`; pinos novos; `readBatteryVoltage()` pelo A6 na LP; LED verde ativo em LOW no gateway. Atualizar `inventario.md` e os `esquema_eletrico.md` na mesma entrega |
 | Caixa | Modelo IP e dimensões internas; posição do SMA |
+
+### 9.1 Peças candidatas (LCSC — catálogo de 2026-09-09)
+
+"Basic" é montada pelo JLC sem taxa; cada peça "extended" diferente cobra uma taxa de setup por pedido.
+
+| Função | Peça | LCSC | Tipo | Estoque | Nota |
+|---|---|---|---|---:|---|
+| RF: rádio | RFM95W-915S2 (HopeRF) | — | manual | — | **Decidido:** soldar à mão os módulos HopeRF que já existem. O LCSC só tem o clone DL-RFM95-915M (C2844473), que exigiria refazer a validação de banda |
+| RF: SMA de borda | SMA-J-P-H-ST-EM1 (Samtec, SMD) | C5199907 | ext | 1 125 | **Decidido.** Footprint stock do KiCad `Connector_Coaxial:SMA_Samtec_SMA-J-P-H-ST-EM1_EdgeMount`, com terra nas duas faces. ~US$ 5,4 |
+| (descartado) | BWSMA-KE-P001 | C496550 | — | — | **Não é de borda:** é SMA vertical, 13,5 mm de altura (datasheet, p. 6). "Board Side" no LCSC quer dizer "lado da placa" (oposto de lado do cabo), não montagem na borda |
+| RF: header 2×5 | PZ254V-12-10P | C492422 | ext | 114 152 | |
+| 100 nF 0603 X7R | CC0603KRX7R9BB104 | C14663 | **basic** | 12,6 M | |
+| 22 µF 0805 X5R 25 V | CL21A226MAQNNNE | C45783 | **basic** | 1,7 M | |
+| LP: LDO 3,3 V | MCP1700T-3302E/TT (SOT-23) | C39051 | ext | 39 220 | Iq 1,6 µA; 178 mV @ 250 mA; Vin máx 6 V |
+| LP: LDO alternativo | HT7333-A (SOT-89) | C347191 | ext | 162 436 | Iq 3 µA; entrada até 12 V; dropout maior com corrente alta |
+| ACT: LDO 3,3 V | AMS1117-3.3 | C6186 | **basic** | 2,0 M | Iq de 5 mA irrelevante em fonte fixa |
+| VSW: P-MOSFET | AO3401A | C15127 | **basic** | 715 902 | 85 mΩ @ −2,5 V |
+| LP: MUX 8:1 | 74HC4051D,653 (SOIC-16) | C9386 | ext | 24 931 | |
+| ACT: buffer | 74HCT244D,653 (SOIC-20) | C5978 | ext | 16 211 | |
+| ACT: MUX 16:1 | CD74HC4067M96 (SOIC-24) | C496123 | ext | 12 982 | |
+| ACT: buck 12 → 5 V | XL1509-5.0E1 (SOIC-8) | C61063 | **basic** | 708 804 | 150 kHz pede indutor grande; TPS54202 (C191884) é menor, mas extended |
+| TVS de linhas analógicas | ESD5Z3.3T1G (SOD-523) | C2827729 | ext | 639 857 | 110 pF: **não** serve para 1-Wire/I2C em cabo |
+| TVS de 1-Wire / I2C | a escolher (≤ 5 pF) | — | — | — | PESD3V3Y1BSFYL tem 0,24 pF, mas é DSN0603 |
 
 ---
 
