@@ -474,7 +474,7 @@
 		(embedded_fonts no)
 		(model "${KIPRJMOD}/../lib/M360.3dshapes/RJ45-TH_L15.9-W15.1-H12.6.step"
 			(offset
-				(xyz 0 0 0)
+				(xyz 0 0 6.3)
 			)
 			(scale
 				(xyz 1 1 1)
@@ -1671,7 +1671,7 @@
 		(embedded_fonts no)
 		(model "${KIPRJMOD}/../lib/M360.3dshapes/RJ45-TH_L15.9-W15.1-H12.6.step"
 			(offset
-				(xyz 0 0 0)
+				(xyz 0 0 6.3)
 			)
 			(scale
 				(xyz 1 1 1)
@@ -3908,7 +3908,7 @@
 		(embedded_fonts no)
 		(model "${KIPRJMOD}/../lib/M360.3dshapes/RJ45-TH_L15.9-W15.1-H12.6.step"
 			(offset
-				(xyz 0 0 0)
+				(xyz 0 0 6.3)
 			)
 			(scale
 				(xyz 1 1 1)
