@@ -107,12 +107,12 @@
 			)
 		)
 		(property "Value" "RJ45 RELES-B"
-			(at 0 4.89 0)
-			(layer "F.Fab")
+			(at 0 -15.34 0)
+			(layer "F.SilkS")
 			(uuid "930a3781-2a24-4ecf-b486-74089227133c")
 			(effects
 				(font
-					(size 1 1)
+					(size 0.9 0.9)
 					(thickness 0.15)
 				)
 			)
@@ -1303,12 +1303,12 @@
 			)
 		)
 		(property "Value" "RJ45 RELES-A"
-			(at 0 4.89 0)
-			(layer "F.Fab")
+			(at 0 -15.34 0)
+			(layer "F.SilkS")
 			(uuid "b49b9710-6e44-4fbf-9e58-490e2cee0fc8")
 			(effects
 				(font
-					(size 1 1)
+					(size 0.9 0.9)
 					(thickness 0.15)
 				)
 			)
@@ -2793,8 +2793,8 @@
 			)
 		)
 		(property "Value" "M360-RF"
-			(at -1.27 12.93 0)
-			(layer "F.Fab")
+			(at 3.2 19.58 0)
+			(layer "F.SilkS")
 			(uuid "ac39eda9-4458-473a-acf8-7695b24fe121")
 			(effects
 				(font
@@ -3242,12 +3242,12 @@
 			)
 		)
 		(property "Value" "5V do quadro"
-			(at 0 4 90)
-			(layer "F.Fab")
+			(at -7.2 0 0)
+			(layer "F.SilkS")
 			(uuid "0a7ee0ef-a16a-42a0-b96c-2f009fbc379d")
 			(effects
 				(font
-					(size 1 1)
+					(size 0.8 0.8)
 					(thickness 0.15)
 				)
 			)
@@ -3545,12 +3545,12 @@
 			)
 		)
 		(property "Value" "RJ45 SENSORES"
-			(at 0 4.89 0)
-			(layer "F.Fab")
+			(at 0 -15.34 0)
+			(layer "F.SilkS")
 			(uuid "ebded844-e12b-4a3b-9f6a-eb3d8123d0f7")
 			(effects
 				(font
-					(size 1 1)
+					(size 0.9 0.9)
 					(thickness 0.15)
 				)
 			)
@@ -7674,6 +7674,17 @@
 		(at 176 149 0)
 		(layer "F.SilkS")
 		(uuid "36d0cd6a-b32b-4784-a849-a9dc419b59d5")
+		(effects
+			(font
+				(size 1.5 1.5)
+				(thickness 0.25)
+			)
+		)
+	)
+	(gr_text "M360-ACT"
+		(at 176 152 0)
+		(layer "F.SilkS")
+		(uuid "e1f48a4d-d5d2-44e2-8157-c5a9cd1ae73c")
 		(effects
 			(font
 				(size 1.5 1.5)
