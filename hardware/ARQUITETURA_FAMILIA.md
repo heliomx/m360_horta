@@ -3,7 +3,7 @@
 **Status:** arquitetura fechada; M360-RF roteada (DRC 0); esquemático da M360-LP desenhado (ERC 0),
 com footprints pendentes (§9).
 **Data:** 2026-09-10 · **Branch:** `feat/hardware-familia-pcb`
-**Ferramentas:** KiCad 10.0.4 (esquemático e footprints) → EasyEDA (roteamento) → PCBA JLCPCB.
+**Ferramentas:** KiCad 10.0.4 (esquemático, footprints e placa) → Freerouting 1.9.0 (roteamento, §11) → PCBA JLCPCB.
 
 > As análises de rádio que fundamentam este documento estão na branch
 > `feat/firmware-generico-autoconfig` (commit `6a9eb54`):
@@ -44,7 +44,7 @@ em que a falha de enlace era o rádio do gateway). O header carrega DIO1 e RESET
 | 8 | Placas novas a **8 MHz** | Envs novos `pro8MHzatmega328`; os envs atuais servem o hardware atual |
 | 9 | **SMA de borda** no mezanino | Mezanino na borda do carrier; ver §8 |
 | 10 | RS485 fora | — |
-| 11 | KiCad 10 → EasyEDA | Símbolos e footprints com código LCSC |
+| 11 | **KiCad 10 do início ao fim** | Footprints do LCSC importados por `easyeda2kicad`, já com o código da peça; roteamento pelo Freerouting (§11). O EasyEDA saiu do fluxo |
 | 12 | **PCBA** (placas montadas) | SMD do LCSC; Pro Mini, mezanino, RJ45 e SMA soldados à mão |
 | 13 | Repareamento por **reed switch** | 1 pino por nó; na LP, em INT1, acorda o nó dormindo |
 
@@ -279,7 +279,7 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 | Seleção de peças | Candidatas em §9.1. O 10 kΩ basic (C25804) não aparece no snapshot local do catálogo: confirmar no site antes do pedido |
 | Footprints da LP | Feitos em `hardware/lib/M360.pretty`: Pro Mini, soquete do mezanino, RJ45 C385834 e reed C315909 (os dois do LCSC via easyeda2kicad, com os pinos-guia do RJ45 corrigidos para furo não metalizado e o modelo 3D do RJ45 subido 6,3 mm, que vinha atravessando a placa) |
 | Furos livres do Pro Mini | **Medidos por foto** (`docs/prominiFront.jpg`): homografia a partir dos 4 pinos de canto das fileiras, cuja posição é conhecida (passo 2,54 mm, fileiras a 15,24 mm). Escala consistente em 2% nas quatro bordas. **A4/A5** ficam uma coluna para dentro da fileira direita e a meio passo das linhas: (12,70; 11,43) e (12,70; 8,89). **GND/A6/A7** ficam na borda de baixo em 7,62 / 10,16 / 12,70, com y = 28,3 ± 0,3. Os espaçamentos medidos (2,57 e 2,59 mm) confirmam a grade de 2,54; o viés comum de −0,25 mm em x é erro de leitura dos pinos de canto. Esses cinco furos levam **1,2 mm** (os das fileiras, 1,0 mm) para absorver a incerteza. Confirmar com paquímetro antes de fabricar |
-| Placa da LP | Caixa de 100 × 100 × 50 mm → interior de ~92 mm. O plugue RJ45 crimpado é montado dentro da caixa e precisa de ~25–30 mm livres à frente dos conectores (corpo do plugue e capa), com os prensa-cabos na parede em frente a eles. Isso limita a placa a **86 × 62 mm**, formato em que o posicionamento foi refeito: RJ45 e reed na borda de baixo; TVS logo atrás deles; matriz RC dos 8 canais na faixa do meio; Pro Mini deitado no alto à esquerda (FTDI para fora da borda esquerda) com o 74HC4051 ao lado; mezanino no alto à direita com o SMA pela borda; alimentação e trilho VSW **embaixo do mezanino** (só SMD baixo: o mezanino fica a ~11 mm, o MCP1700 é linear e o P-MOSFET do VSW chaveia devagar); `J_VIN` na borda direita; 4 furos M3. Sem sobreposição de courtyard no DRC; faltam o roteamento e um acerto de serigrafia (textos de U2, U4 e U5) |
+| Placa da LP | Caixa de 100 × 100 × 50 mm → interior de ~92 mm. O plugue RJ45 crimpado é montado dentro da caixa e precisa de ~25–30 mm livres à frente dos conectores (corpo do plugue e capa), com os prensa-cabos na parede em frente a eles. Isso limita a placa a **86 × 62 mm**, formato em que o posicionamento foi refeito: RJ45 e reed na borda de baixo; TVS logo atrás deles; matriz RC dos 8 canais na faixa do meio; Pro Mini deitado no alto à esquerda (FTDI para fora da borda esquerda) com o 74HC4051 ao lado; mezanino no alto à direita com o SMA pela borda; alimentação e trilho VSW **embaixo do mezanino** (só SMD baixo: o mezanino fica a ~11 mm, o MCP1700 é linear e o P-MOSFET do VSW chaveia devagar); `J_VIN` na borda direita; 4 furos M3. Sem sobreposição de courtyard no DRC. Roteada (§11), com planos de terra nas duas faces e serigrafia acertada — DRC com 0 erros e 0 ligações pendentes. Falta gerar os arquivos de fabricação |
 | Gravação do Pro Mini | Com 86 mm de placa dentro de ~92 mm de interior sobram ~3 mm de cada lado, e o espaço livre restante fica à frente dos RJ45. **Não cabe o adaptador FTDI com a placa montada:** gravar na bancada, com a placa fora da caixa, ou prever cabo FTDI angulado. O nó é gravado antes da instalação; em campo, a atualização depende de retirar a placa |
 | Regulador do Pro Mini | Com 3,3 V no VCC e RAW solto, o regulador da própria placa pode ser alimentado de volta pelo diodo interno e consumir a corrente quiescente dele. Medir a corrente de sono na primeira placa; se passar de poucos µA, retirar o regulador, como o LED |
 | DHT11 no atuador | Alimentado a 5 V pelo RJ45, com pull-up para 3,3 V: confirmar que a saída é dreno aberto |
@@ -319,7 +319,89 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 
 ## 10. Ordem de trabalho
 
-1. **M360-RF** — a menor placa e a única comum às outras três.
-2. **M360-LP** — cobre quatro nós.
-3. **M360-ACT**.
+1. **M360-RF** — a menor placa e a única comum às outras três. ✔ esquemático e placa prontos.
+2. **M360-LP** — cobre quatro nós. ✔ esquemático, posicionamento, roteamento, planos e serigrafia.
+3. **M360-ACT**. ✔ esquemático, posicionamento, roteamento, planos e serigrafia.
 4. **M360-GW** — o mais simples: D1 mini + mezanino + LEDs.
+
+Falta, nas três prontas: arquivos de fabricação (Gerbers, furação, BOM e arquivo de posição).
+
+---
+
+## 11. Roteamento com o Freerouting
+
+O KiCad não tem autoroteador. O roteamento desta família é feito pelo **Freerouting 1.9.0**,
+chamado direto na linha de comando, com ida e volta em Specctra (DSN → SES).
+
+É a única etapa sem script próprio: as demais (layout do esquemático, posicionamento, furos,
+serigrafia, footprints) estão em [`tools/`](tools/README.md).
+
+### 11.1 Por que na linha de comando, e não pelo MCP
+
+A ferramenta `autoroute` do MCP do KiCad exige **Java 21** ou o Docker em execução; esta máquina
+tem Java 17. O Freerouting **1.9.0** roda em Java 11+ — quem exige Java 21 é a série 2.x —,
+então basta invocá-lo direto. O `.jar` (5 MB) fica em `~/.kicad-mcp/freerouting.jar` — fora do
+repositório, mas nesse caminho de propósito: é onde o próprio MCP o procura, caso um dia o Java
+seja atualizado. Para reproduzir em outra máquina, baixar da release do projeto:
+
+```
+https://github.com/freerouting/freerouting/releases/download/v1.9.0/freerouting-1.9.0.jar
+```
+
+### 11.2 Os três passos
+
+1. **Exportar o DSN** — MCP `export_dsn`, ou *File → Export → Specctra DSN* no KiCad.
+   As regras da placa precisam estar **salvas antes**: o DSN carrega isolamento e largura de
+   trilha, e o MCP não persiste as regras sem um `save_project`.
+2. **Rotear:**
+
+   ```
+   java -jar ~/.kicad-mcp/freerouting.jar -de placa.dsn -do placa.ses -mp 20
+   ```
+
+   `-de` é a entrada, `-do` a saída e `-mp` o máximo de passes. Com os dois arquivos informados
+   ele roda em lote e encerra sozinho, sem abrir janela.
+3. **Importar o SES** — MCP `import_ses`, ou *File → Import → Specctra Session*.
+
+### 11.3 Conferência obrigatória depois de importar
+
+O MCP **recusa a gravação automática** sempre que o arquivo da placa mudou em disco desde que
+ele o carregou — e isso acontece o tempo todo neste fluxo, porque o `kicad-cli` e os scripts
+escrevem por fora. Conferir sempre no arquivo, nunca pelo retorno da ferramenta:
+
+| O quê | Como |
+|---|---|
+| Trilhas gravadas | contar `(segment` no `.kicad_pcb` |
+| Roteamento completo | DRC com **0 não conectados** |
+| Nada mais quebrou | DRC sem erros |
+
+> ⛔ **Não recarregar o projeto no MCP antes dessa conferência.** Se o roteamento estiver apenas
+> na memória, o recarregamento o apaga. Quando a gravação for recusada, o caminho seguro é
+> recarregar **e refazer** a alteração — nunca `save_project --force`, que sobrescreve o disco
+> a partir da memória.
+
+### 11.4 O que esperar
+
+| Placa | Ligações | Resultado | Tempo |
+|---|---|---|---|
+| M360-LP | 135 | 552 trilhas, 48 vias, 0 pendências | ~5,5 min |
+| M360-ACT | 104 | 463 trilhas, 23 vias, 0 pendências | ~2,5 min |
+
+Quase todo o tempo é de otimização, que melhorou os dois desenhos em ~50%. O traçado sai com
+cara de autoroteador — diagonais longas na face de baixo —, aceitável nestas placas, de sinais
+lentos e sem requisito de impedância.
+
+Os planos de terra entram **depois** do roteamento, porque o DSN não leva zonas; o roteador
+trata o GND como qualquer outra net e o plano preenche por cima. É o preenchimento que costuma
+revelar hastes térmicas insuficientes (`starved_thermal`) nos pads THT dos conectores. A
+correção adotada nas duas placas, nesta ordem:
+
+1. hastes de **0,35 mm** com folga de **0,3 mm** (o padrão, 0,5/0,5, não cabe no anel dos pads
+   THT). Vale a pena insistir na haste antes de partir para o passo 2: é o alívio térmico que
+   torna a solda manual do conector viável;
+2. onde nem a haste fina cabe — pino 8 dos RJ45, cujo campo de pinos escalonado de 1,02 mm não
+   comporta duas hastes —, ligação **sólida** (`zone_connect 2`) só naquele pad. Dá o melhor
+   retorno de massa do chicote, ao custo de mais calor para soldar esse pino.
+
+O passo 2 é o `tools/pad_zone_connect.py`, que age só no footprint pedido — um `sed` global
+pelo pad "8" atingiria todo conector da placa.
