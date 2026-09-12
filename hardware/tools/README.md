@@ -28,11 +28,23 @@ dentro desta pasta, ou com ela no `PYTHONPATH`.
 | `fix_layout.py <sch> [--lp\|--act]` | Põe cada label na ponta de um fio curto e os campos Reference/Value fora do corpo, no padrão que o usuário definiu à mão no R6. As opções `--lp` e `--act` aplicam os casos particulares de cada placa — **não troque uma pela outra**: as referências repetem entre as placas com significados diferentes |
 | `add_lcsc.py <sch>` | Grava o código LCSC de cada peça (mapa da LP) |
 | `schlib.py <sch>` | Sem argumento de escrita: imprime símbolos, pinos, labels e fios — útil para conferir o que o `fix_layout.py` vai encontrar |
+| `netdiff.py <antes.net> <depois.net>` | Compara duas netlists e acusa qualquer mudança de conectividade. Sai com código 1 se divergirem |
 
 > ⚠️ O `fix_layout.py` desenha fios. Um fio que encoste no pino de outra net **funde as duas
 > nets em silêncio** — foi assim que GND e +5 V viraram uma só na ACT. O script tem a checagem
-> `livre()` para isso, mas a garantia é externa: **gere a netlist antes e depois e compare a
-> contagem de nets e de nós**. A ERC sozinha não acusa: o curto é eletricamente válido.
+> `livre()` para isso, mas a garantia é externa: **gere a netlist antes e depois e compare com o
+> `netdiff.py`**. A ERC sozinha não acusa: o curto é eletricamente válido.
+
+```
+kicad-cli sch export netlist --format kicadxml -o antes.net  placa.kicad_sch
+python fix_layout.py placa.kicad_sch
+kicad-cli sch export netlist --format kicadxml -o depois.net placa.kicad_sch
+python netdiff.py antes.net depois.net
+```
+
+O `netdiff.py` recusa netlist vazia de propósito: comparar dois conjuntos vazios "passa" sem
+provar nada — foi o que aconteceu quando essa comparação era feita à mão, com uma expressão
+regular que não casava com o formato e aprovava em silêncio.
 
 ### Biblioteca
 | Script | O que faz |
