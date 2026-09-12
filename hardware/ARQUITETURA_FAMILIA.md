@@ -1,8 +1,8 @@
 # Família de PCBs M360 Horta — Arquitetura
 
-**Status:** arquitetura fechada; M360-RF roteada (DRC 0); esquemático da M360-LP desenhado (ERC 0),
-com footprints pendentes (§9).
-**Data:** 2026-09-10 · **Branch:** `feat/hardware-familia-pcb`
+**Status:** arquitetura fechada; M360-RF, M360-LP e M360-ACT roteadas (DRC 0, sem ligações pendentes);
+esquemático da M360-GW desenhado (ERC 0), placa por fazer. Fabricação não gerada em nenhuma (§9).
+**Data:** 2026-09-12 · **Branch:** `feat/hardware-familia-pcb`
 **Ferramentas:** KiCad 10.0.4 (esquemático, footprints e placa) → Freerouting 1.9.0 (roteamento, §11) → PCBA JLCPCB.
 
 > As análises de rádio que fundamentam este documento estão na branch
@@ -235,6 +235,57 @@ PC817, jumper JD-VCC/VCC/GND, entrada ativa em LOW.
 | LED verde | **D4 (GPIO2), ativo em LOW** | Sai do D1, que agora é o DIO0. GPIO2 é pino de boot: o LED liga do 3,3 V ao pino, para não puxá-lo para baixo na partida. **Exige inverter a polaridade em `M360Leds.cpp`** |
 | Botão AP / reset | A0 | Sem mudança |
 
+### 6.1 Blocos
+
+| Bloco | Conteúdo |
+|---|---|
+| MCU | D1 mini (ESP8266), símbolo e footprint **stock**: `RF_Module:WEMOS_D1_mini` e `RF_Module:WEMOS_D1_mini_light`. O footprint traz uma zona de **keep-out sobre a antena** — nenhum cobre do carrier pode entrar ali |
+| Mezanino (J1) | Soquete 2×5, `M360:M360-RF_Soquete_2x05`, numeração do mezanino (§3). **Sem pull-up no NSS** — ao contrário da LP; aqui o NSS é o GPIO15, que tem de estar em LOW no boot |
+| Alimentação | 5 V externo no borne J2 → pino 5V do módulo; o 3,3 V do regulador do próprio D1 mini alimenta o mezanino. 100 nF no 5 V, 10 µF + 100 nF no 3,3 V, somados aos 22 µF + 100 nF que o mezanino já tem junto ao rádio |
+| LEDs | Vermelho (D2) e amarelo (D0) do pino ao GND, 1 kΩ cada. **Verde do 3,3 V para o D4**, 1 kΩ: o pino afunda a corrente (ativo em LOW) e, no boot, o GPIO2 é mantido alto pelo próprio LED |
+| Botão AP | SW1 (tátil 6 mm) do A0 ao GND, com 10 kΩ para o 3,3 V e 100 nF |
+| Sem ligação | DIO1 e RESET no mezanino; RST, D3, RX e TX no D1 mini |
+
+### 6.2 Montagem 100% THT — só nesta placa
+
+A GW é a **única das quatro que fecha sem nenhum SMD**, e por isso é montada assim: 4 resistores
+axiais de 1/4 W (DIN0207, passo 10,16 mm), 3 cerâmicos de disco de 100 nF (passo 5 mm), 1
+eletrolítico radial de 10 µF (D5 mm) e 3 LEDs de 3 mm. Todo o resto já era de inserção: o D1
+mini, o soquete do mezanino, o borne e o botão.
+
+Uma consequência a não esquecer: **em THT o 10 µF é eletrolítico, logo polarizado.** Por isso o C1
+usa o símbolo `Device:C_Polarized`, com a ilha 1 no positivo, ligada ao +3,3 V. Mantido o
+`Device:C` genérico, o esquemático não mostraria polaridade alguma e uma reedição futura poderia
+inverter os pinos sem nenhum aviso — a serigrafia do footprint sozinha não protege contra isso.
+
+Isso não se estende às demais, e a razão é peça, não preferência:
+
+| Placa | Impedimento |
+|---|---|
+| **LP** | O **SRV05-4 não existe em THT** (em inserção só há TVS de surto tipo 5KP, com capacitância na casa dos nF — inútil para 1-Wire/I2C); o **AO3401A** também não, e o único P-MOSFET TO-92 do catálogo (BS250P) tem Rds(on) de ~14 Ω contra 85 mΩ, o que derrubaria ~1,7 V no pico de TX. Além disso os 40 passivos passariam de ~200 mm² para ~1500 mm², e a placa tem 5332 mm² fixos pela caixa |
+| **ACT** | Mesmos TVS; e o **CD74HC4067 não tem equivalente THT** (contornável com dois 74HC4051 DIP-16) |
+| **RF** | Rádio e SMA de borda não existem em inserção — e capacitor com perna longa ao lado do rádio piora o desacoplamento |
+
+> Custo: a conversão **não** economiza na JLCPCB. Lá o THT custa US$ 3,50 de mão de obra manual
+> mais US$ 0,0173 por junta, contra um mínimo de US$ 0,48 por placa na montagem SMT. E todo
+> substituto THT encontrado é **extended**, enquanto o AO3401A e o AMS1117 de hoje são **basic**,
+> sem taxa de setup. Na GW isso não pesa, porque são poucas peças e nenhuma era basic.
+
+**Por que o pull-up no A0:** sem ele o A0 flutua e o gateway entra em modo AP sozinho. O D1 mini já
+traz um divisor 220 k/100 k entre o pino A0 e o ADC de 1,0 V do ESP; com 10 kΩ para o 3,3 V o pino
+em repouso fica em ~3,2 V e a leitura satura em 1023 — inofensivo, porque `isA0Low()` só compara
+com o limiar 400. Com o botão apertado o pino vai a 0 V e drena 0,33 mA.
+
+> ⛔ **Pendência de firmware, não de hardware.** `M360Leds.h` ainda define `LED_GREEN D1` — que nesta
+> placa é o DIO0 — e `M360Leds.cpp` acende os três LEDs com `digitalWrite(pin, HIGH)`. A placa exige
+> o verde no **D4 e invertido** (LOW acende). A inversão toca `initLEDs`, `setLedState`, `updateLEDs`
+> e `ledFlicker`: não é uma linha. Enquanto não for feita, o LED verde funciona ao contrário.
+>
+> Sem efeito, mas vale corrigir junto: em `libDryGatewayMqtt.cpp` a chamada é
+> `initLEDs(LED_RED, LED_GREEN, LED_YELLOW)` e o protótipo é `(redPin, yellowPin, greenPin)`. Os
+> argumentos estão trocados; o pino acionado sai certo porque `setLedState` despacha pelo número do
+> pino, mas o nome da variável interna fica invertido.
+
 ---
 
 ## 7. Portas RJ45 (chicote PCB → sensores e atuadores)
@@ -322,7 +373,7 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 1. **M360-RF** — a menor placa e a única comum às outras três. ✔ esquemático e placa prontos.
 2. **M360-LP** — cobre quatro nós. ✔ esquemático, posicionamento, roteamento, planos e serigrafia.
 3. **M360-ACT**. ✔ esquemático, posicionamento, roteamento, planos e serigrafia.
-4. **M360-GW** — o mais simples: D1 mini + mezanino + LEDs.
+4. **M360-GW** — o mais simples: D1 mini + mezanino + LEDs. ✔ esquemático (ERC 0); falta a placa.
 
 Falta, nas três prontas: arquivos de fabricação (Gerbers, furação, BOM e arquivo de posição).
 
