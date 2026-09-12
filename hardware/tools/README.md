@@ -59,9 +59,11 @@ regular que não casava com o formato e aprovava em silêncio.
 |---|---|
 | `place_lp.py <pcb>` | Posiciona a M360-LP (86 × 62 mm, formato imposto pela caixa) e desenha o contorno |
 | `place_act.py <pcb>` | Posiciona a M360-ACT (100 × 80 mm) |
+| `place_gw.py <pcb>` | Posiciona a M360-GW (80 × 60 mm). **Atenção ao girar peça em 90°:** o courtyard não fica centrado na origem — ver o comentário no script, que custou quatro violações de DRC |
+| `zone_thermals.py <pcb> [haste] [folga]` | Afina o alívio térmico das zonas (padrão 0,35 / 0,3). É o **primeiro** recurso contra `starved_thermal`; só se não bastar vem a ligação sólida abaixo |
 | `del_fp.py <pcb> <REF>...` | Apaga o bloco de um footprint, para a sincronização com o esquemático recriá-lo da biblioteca. É o caminho para trocar um footprint sem o segfault do SWIG |
 | `pad_zone_connect.py <pcb> <REF> <PAD> <MODO>` | Ligação do pad às zonas: 0 nenhuma, 1 alívio térmico, 2 sólida. Age só no footprint pedido |
-| `silk_lp.py`, `silk_act.py` | Tiram os textos de referência de cima de ilhas e põem a marca da placa |
+| `silk_lp.py`, `silk_act.py`, `silk_gw.py` | Tiram os textos de referência de cima de ilhas e põem a marca da placa. Na GW não há texto a mover: os furos M3 já saem sem serigrafia pelo `place_gw.py` |
 | `pcb_info.py <pcb>` | Lista footprints com courtyard e posição — conferência do posicionamento |
 | `crop.py <pdf> <prefixo>` | Recorta regiões do PDF do esquemático para inspeção visual |
 
