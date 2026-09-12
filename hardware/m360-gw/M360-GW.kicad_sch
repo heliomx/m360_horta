@@ -2102,9 +2102,9 @@
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
-		(in_pos_files yes)
+		(in_pos_files no)
 		(dnp no)
 		(uuid "d1b1dc7d-adef-4d63-aa7b-3c77cdd03134")
 		(property "Reference" "J1"
@@ -2930,9 +2930,9 @@
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
-		(in_pos_files yes)
+		(in_pos_files no)
 		(dnp no)
 		(uuid "c253f4a8-727f-415f-917d-f99c0db12712")
 		(property "Reference" "SW1"

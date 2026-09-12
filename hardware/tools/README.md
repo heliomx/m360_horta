@@ -74,6 +74,7 @@ regular que não casava com o formato e aprovava em silêncio.
 > então afastar um rótulo de uma ilha empurrando-o para a borda troca um problema por outro.
 > O DRC também não pega tudo: legenda sobre o *corpo* de um conector passa no DRC e fica
 > ilegível na placa. Conferir na imagem, não só no relatório.
+| `solda_manual.py <pasta> <REF>...` | Tira do BOM e do arquivo de posição as peças soldadas à mão depois da PCBA. Marca **as duas pontas**: `in_bom`/`in_pos_files` no símbolo e `exclude_from_bom`/`exclude_from_pos_files` no footprint — o BOM sai do esquemático e a posição sai da placa, e marcar só um lado faria a paridade divergir. Conferir exportando BOM e posição antes e depois |
 | `pcb_info.py <pcb>` | Lista footprints com courtyard e posição — conferência do posicionamento |
 | `crop.py <pdf> <prefixo>` | Recorta regiões do PDF do esquemático para inspeção visual |
 

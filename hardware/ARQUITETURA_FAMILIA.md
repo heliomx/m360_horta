@@ -318,7 +318,7 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 | Item | Como entra |
 |---|---|
 | SMD (LDO, MOSFETs, 74HC4051, 74HCT244, CD74HC4067, buck, passivos, TVS, SMA de borda Samtec) | PCBA JLCPCB, com peças escolhidas pela disponibilidade no LCSC |
-| Pro Mini, módulo RFM95W (HopeRF, no mezanino), headers 2×5, RJ45, bornes, botão tátil SW1 | Solda manual após a PCBA. A propriedade `LCSC` desses símbolos serve à compra, não à montagem: **tirá-los do BOM e do arquivo de posição da JLCPCB** ao gerar a fabricação |
+| Pro Mini, módulo RFM95W (HopeRF, no mezanino), headers 2×5, RJ45, bornes, botão tátil SW1 | Solda manual após a PCBA. **Já estão fora do BOM e do arquivo de posição** (`tools/solda_manual.py`, 2026-09-12): LP — SW1, J1, J2, A1, J4; ACT — SW1, J3, J4, J5, A1, J2; GW — SW1, J1. A propriedade `LCSC` continua nos símbolos, para a compra; a lista de compra dessas peças é a §9.1, não o BOM exportado. Os bornes (J1 da ACT, J2 da GW) e os JST (J3 da LP, J3 da GW) **continuam no BOM** — não foram incluídos nesta decisão |
 | Antena | SMA de borda no mezanino: ou o conector atravessa a parede da caixa (furo e vedação), ou a antena fica dentro dela — funciona em 915 MHz se a caixa for plástica |
 
 ---
@@ -338,6 +338,7 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 | DHT11 no atuador | Alimentado a 5 V pelo RJ45, com pull-up para 3,3 V: confirmar que a saída é dreno aberto |
 | Firmware das placas novas | Envs `pro8MHzatmega328`; pinos novos; `readBatteryVoltage()` pelo A6 na LP; LED verde ativo em LOW no gateway. Atualizar `inventario.md` e os `esquema_eletrico.md` na mesma entrega |
 | Caixa | Modelo IP e dimensões internas; posição do SMA |
+| BOM da JLCPCB | Exportado em 2026-09-12: **a ACT e a GW não têm código LCSC em peça nenhuma** — o `add_lcsc.py` só conhece o mapa da LP. Na GW, os `PWR_FLAG` (FLG1, FLG2) saem no BOM e acusam `missing_footprint` na paridade. E o C13 da LP carregava o código do reed (C315909) desde `bc651ca`, o que faria a JLCPCB montar um reed no lugar de um capacitor de 100 nF — corrigido para C14663 |
 
 ### 9.1 Peças candidatas (LCSC — catálogo de 2026-09-09)
 
@@ -363,7 +364,7 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 | LP: TVS das linhas de campo | SRV05-4 (TECH PUBLIC, SOT-23-6) | C558418 | ext | 461 674 | 4 linhas, 0,3–0,8 pF: serve para solo, 1-Wire e I2C. Substitui o ESD5Z na LP |
 | LP: entrada `J_VIN` | JST B2B-XH-A (2 vias) | C158012 | ext | 203 889 | J3 |
 | LP: RJ45 | R-RJ45R08P-A004 (sem blindagem, sem LED) | C385834 | ext | 159 683 | J1 e J2; solda manual |
-| Botão (repareamento na LP e na ACT; AP na GW) | SHOU HAN TS665CJ, tátil 6 × 6 mm THT, haste de 5 mm | C393938 | manual | 184 275 | **Decidido (2026-09-12):** SW1 nas três placas, footprint `Button_Switch_THT:SW_PUSH_6mm`; **solda manual, fora do PCBA**, para não pagar a taxa de peça extended. Substitui o reed Littelfuse 59170 (C315909). Não há tátil 6 × 6 THT *basic* no catálogo; o único *basic* que serviria é SMD (C318884, 5,1 × 5,1 mm), e trocá-lo obrigaria a rerrotear |
+| Botão (repareamento na LP e na ACT; AP na GW) | SHOU HAN TS665CJ, tátil 6 × 6 mm THT, haste de 5 mm | C393938 | manual | 184 275 | **Decidido (2026-09-12):** SW1 nas três placas, footprint `Button_Switch_THT:SW_PUSH_6mm` (terminais a 6,5 × 4,5 mm, confirmados contra o datasheet do TS665CJ); **solda manual, fora do PCBA**, para não pagar a taxa de peça extended. Substitui o reed Littelfuse 59170 (C315909). Não há tátil 6 × 6 THT *basic* no catálogo; o único *basic* que serviria é SMD (C318884, 5,1 × 5,1 mm), e trocá-lo obrigaria a rerrotear |
 | LP: soquete do mezanino | PM254V-12-10P-H85 (fêmea 2×5, 8,5 mm) | C492399 | ext | 37 436 | J4; solda manual |
 | 1 µF 0603 · 10 µF 0805 · 10 nF 0603 | CL10A105KB8NNNC · CL21A106KAYNNNE · 0603B103K500NT | C15849 · C15850 · C57112 | **basic** | milhões | |
 | Resistores 0603 1 % | 1 k · 3,3 k · 4,7 k · 10 k · 100 k · 1 M · 2 M | C21190 · C22978 · C23162 · C25804 · C25803 · C22935 · C22976 | **basic** | | 10 k: ver §9 |

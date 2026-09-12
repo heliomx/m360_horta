@@ -5731,6 +5731,15 @@
 				)
 			)
 		)
+		(property "LCSC" "C14663"
+			(at 311.15 167.64 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Datasheet" ""
 			(at 311.15 167.64 0)
 			(hide yes)
@@ -5743,17 +5752,6 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 311.15 167.64 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "LCSC" "C315909"
 			(at 311.15 167.64 0)
 			(hide yes)
 			(show_name no)
@@ -6459,9 +6457,9 @@
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
-		(in_pos_files yes)
+		(in_pos_files no)
 		(dnp no)
 		(uuid "1a13f37c-0998-49d7-9804-8826e76525c5")
 		(property "Reference" "J4"
@@ -7762,9 +7760,9 @@
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
-		(in_pos_files yes)
+		(in_pos_files no)
 		(dnp no)
 		(uuid "5d8a1a9c-02ab-441e-b708-58e3c327af02")
 		(property "Reference" "J1"
@@ -8140,9 +8138,9 @@
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
-		(in_pos_files yes)
+		(in_pos_files no)
 		(dnp no)
 		(uuid "799941f6-8f45-40e6-9f77-81b14d595f94")
 		(property "Reference" "J2"
@@ -8968,9 +8966,9 @@
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
-		(in_pos_files yes)
+		(in_pos_files no)
 		(dnp no)
 		(uuid "a5a5f961-e633-43ff-bca0-8ad03ea6e725")
 		(property "Reference" "A1"
@@ -12624,9 +12622,9 @@
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
-		(in_pos_files yes)
+		(in_pos_files no)
 		(dnp no)
 		(uuid "acb2777b-42d0-482f-8f3c-f06121f9bc21")
 		(property "Reference" "SW1"
