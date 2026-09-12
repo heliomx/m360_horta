@@ -46,7 +46,7 @@ em que a falha de enlace era o rádio do gateway). O header carrega DIO1 e RESET
 | 10 | RS485 fora | — |
 | 11 | **KiCad 10 do início ao fim** | Footprints do LCSC importados por `easyeda2kicad`, já com o código da peça; roteamento pelo Freerouting (§11). O EasyEDA saiu do fluxo |
 | 12 | **PCBA** (placas montadas) | SMD do LCSC; Pro Mini, mezanino, RJ45 e SMA soldados à mão |
-| 13 | Repareamento por **botão tátil** (SW1, 6 × 6 mm THT, solda manual) — substituiu o reed em 2026-09-12 | 1 pino por nó; na LP, em INT1, acorda o nó dormindo. O reed era acionado por ímã através da parede; o botão pede acesso a ele (§9) |
+| 13 | Repareamento por **botão tátil** (SW1, 6 × 6 mm THT, solda manual) — substituiu o reed em 2026-09-12 | 1 pino por nó; na LP, em INT1, acorda o nó dormindo. O reed era acionado por ímã através da parede; o botão se aperta **com a caixa aberta** — o usuário solta os parafusos da tampa |
 
 Frequência LoRa: provisionada por software na instalação (sem chave DIP) — ver
 `analise_radio_rfm95w_915.md` §5 e a decisão de um gateway por propriedade.
@@ -338,7 +338,6 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 | DHT11 no atuador | Alimentado a 5 V pelo RJ45, com pull-up para 3,3 V: confirmar que a saída é dreno aberto |
 | Firmware das placas novas | Envs `pro8MHzatmega328`; pinos novos; `readBatteryVoltage()` pelo A6 na LP; LED verde ativo em LOW no gateway. Atualizar `inventario.md` e os `esquema_eletrico.md` na mesma entrega |
 | Caixa | Modelo IP e dimensões internas; posição do SMA |
-| Acesso ao botão de repareamento | O reed era acionado por ímã **através da parede**, sem abrir a caixa; o botão tátil (SW1, haste de 5 mm) não. Definir como ele é alcançado na LP e na ACT — abrir a caixa, furo com haste, ou outro meio — antes de fechar o projeto mecânico |
 
 ### 9.1 Peças candidatas (LCSC — catálogo de 2026-09-09)
 
