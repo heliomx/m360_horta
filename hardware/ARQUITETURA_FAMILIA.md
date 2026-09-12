@@ -165,8 +165,16 @@ os pull-ups internos). Um pino alto alimenta os sensores pelos diodos de proteç
 
 ### 5.1 Alimentação
 
-12 V (borne) → buck 5 V (MUX, 74HCT244, opto dos relés, sensores) → LDO 3,3 V (Pro Mini e mezanino).
-O regulador do próprio Pro Mini (~150 mA) não sustenta o pico do rádio somado ao resto.
+O quadro já distribui energia (foto em `docs/quadro nó atuador.jpeg`): uma fonte slim 220 V → 12 V
+embaixo da placa perfurada alimenta dois conversores DC-DC ajustáveis, e quatro barramentos de
+latão levam **+12 V, GND, +5 V e +3,3 V** a todo o quadro. A placa entra apenas com **5 V**:
+
+| Decisão | Motivo |
+|---|---|
+| **Nenhum 12 V na placa** | Os 12 V só alimentam as cargas, pelos contatos dos relés, que ficam no quadro. Nem 12 V nem 220 V encostam na PCB |
+| **Sem buck a bordo** | O quadro já entrega 5 V; o conversor 12 → 5 V previsto antes deixa de existir |
+| **3,3 V gerado na placa**, não tirado do barramento | O pico de TX do rádio (87–120 mA) num trilho compartilhado, por fios longos e vindo de um DC-DC ajustável, chega com queda e ruído. Com LDO local e desacoplamento junto ao mezanino, o rádio ganha trilho próprio. O regulador do próprio Pro Mini não sustenta esse pico |
+| 5 V sai também pelo par marrom dos RJ45 | É o VCC do opto dos módulos de relé, e tem de ser **o mesmo 5 V** que alimenta o 74HCT244 (§5.3) |
 
 ### 5.2 Blocos
 
@@ -174,9 +182,11 @@ O regulador do próprio Pro Mini (~150 mA) não sustenta o pico do rádio somado
 |---|---|
 | MCU | Pro Mini 3,3 V / 8 MHz |
 | Fronteira 3,3 → 5 V | **74HCT244** (VIH 2,0 V aceita 3,3 V direto): S0–S3, SIG, NFT, OXI. **/OE com pull-up para 5 V**, liberado pelo A5 depois do boot |
-| MUX | CD74HC4067 a 5 V (EN no GND), 7 canais em uso e 9 de reserva |
+| MUX | CD74HC4067 a 5 V (EN no GND), **10 canais em uso** e 6 de reserva |
 | Vazão | Entrada D3 com divisor 10 kΩ / 20 kΩ + 1 nF + TVS |
-| Reed switch | A4 (o nó nunca dorme; lido por polling) |
+| Reed switch | A4 (o nó nunca dorme; lido por polling). Fica **na própria placa**: o ímã é aproximado por fora do quadro, que é plástico |
+| Antena | Fica **dentro do quadro**. A caixa é plástica, mas há metal por perto — barramentos, trilho DIN e disjuntores. Medir o alcance na instalação; se cair, levar o SMA para fora da parede |
+| Fora do escopo | DHT, pH e oxigênio saem deste nó. O único sensor é a **vazão**, que chega pela porta J5 |
 
 **Por que o /OE:** enquanto o Pro Mini inicia, os pinos dele ficam soltos. Sem o /OE, as saídas do
 74HCT244 ficariam indefinidas e um relé poderia bater na partida. Com o /OE em alto, as saídas ficam
@@ -206,7 +216,7 @@ PC817, jumper JD-VCC/VCC/GND, entrada ativa em LOW.
 | D3 | vazão (INT1) | A1 | Bomba Oxi (via 74HCT244) |
 | D4–D7 | S0–S3 do MUX (via 74HCT244) | A2 | DIO1 |
 | D8 | SIG do MUX (via 74HCT244) | A3 | RESET do rádio |
-| D9 | DHT | A4 | reed switch |
+| D9 | livre (era o DHT) | A4 | reed switch |
 | D10–D13 | NSS / MOSI / MISO / SCK | A5 | /OE do 74HCT244 |
 | | | A6 | livre (analógico) |
 | | | **A7** | **livre — semente da assinatura** |
@@ -244,7 +254,7 @@ Pares T568B: laranja 1/2, verde 3/6, azul 4/5, **marrom 7/8 = VCC/GND** em todas
 |---|---|---|---|
 | **J3 RELÉS-A** | Sol. A (ch0) / Sol. B (ch1) | Sol. C (ch2) / Perist. A (ch3) | Perist. B (ch4) / pH+ (ch5) |
 | **J4 RELÉS-B** | pH− (ch6) / Bomba NFT | Bomba Oxi / MUX ch7 | MUX ch8 / ch9 (reserva) |
-| **J5 SENSORES** | Vazão / DHT | A6 (analógico) / livre | livres |
+| **J5 SENSORES** | Vazão / livre (era o DHT) | A6 (analógico) / livre | livres |
 
 Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: aceitável até ~2 m a
 100 kHz; acima disso, reavaliar.
