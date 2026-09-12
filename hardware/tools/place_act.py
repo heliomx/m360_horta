@@ -35,7 +35,9 @@ put("R1", 150.0, 112.0, 270)                # pull-up do NSS
 put("R2", 150.0, 120.0, 270)                # pull-up do /OE do 74HCT244
 
 # --- coluna da esquerda: entrada de 5 V, LDO e capacitores ---------------------------------
-put("J1", 106.0, 150.0, 90)                 # borne: fio do barramento entra pela borda
+# O borne abre para −x (as guias de fio ficam em x ≈ −5,68 no footprint). Em rot=90 a abertura
+# apontava para baixo, para DENTRO da placa; em rot=0 ela fica voltada para a borda esquerda.
+put("J1", 106.0, 150.0, 0)                  # borne: fio do barramento entra pela borda
 put("U1", 106.0, 138.0)                     # AMS1117-3.3
 put("C1", 112.0, 138.0, 270)                # 10 uF na entrada de 5 V
 put("C2", 112.0, 142.0, 270)                # 100 nF em 5 V
@@ -61,7 +63,9 @@ put("J5", 160.0, Y0 + H - 8.66)             # SENSORES: vazão e A6
 put("R3", 176.0, 158.0, 270)
 put("R4", 176.0, 164.0, 270)
 put("C7", 182.0, 161.0, 270)
-put("SW1", 190.0, 145.0, 90)
+# Botão de repareamento (era reed). Sem rotação: o SW_PUSH_6mm é quase quadrado (9,6 x 7,6) e
+# em rot=0 cabe na faixa livre da borda direita, entre o mezanino e o divisor da vazão.
+put("SW1", 190.0, 145.0, 0)
 
 # H2 não fica no canto: ali ele cairia embaixo do mezanino, e a placa teria de ser parafusada
 # antes de encaixar o módulo. Desce para a faixa livre entre o mezanino e o reed.

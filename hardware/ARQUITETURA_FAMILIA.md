@@ -413,6 +413,15 @@ https://github.com/freerouting/freerouting/releases/download/v1.9.0/freerouting-
    > respondeu 0,25 e o DSN saiu com `(width 200)`. Quem o roteador lê é o DSN —
    > `(width 250)` = 0,25 mm, `(clearance 200)` = 0,2 mm. Se divergir, corrigir
    > `"track_width"` direto no `.kicad_pro` (é JSON) e reexportar.
+
+   > ⛔ **O `export_dsn` ignora o `boardPath`: ele exporta sempre o projeto aberto na sessão.**
+   > Com a ACT aberta, duas chamadas com `boardPath` apontando para LP e para ACT geraram
+   > **dois arquivos com a ACT** — 72 964 e 72 965 bytes, e os dois roteamentos saíram com
+   > exatamente 181 fios e 23 vias. Importar aquilo teria escrito a fiação da ACT dentro da LP.
+   > Por isso: **`open_project` na placa certa antes de exportar**, e conferir de quem é o DSN
+   > antes de rotear — contar `(place ` e procurar uma referência que só exista naquela placa
+   > (`R25` na LP, `U8` ou `J5` na ACT). Como a sessão só tem uma placa corrente, **não dá para
+   > trabalhar em duas placas em paralelo** pelo MCP.
 2. **Rotear:**
 
    ```
@@ -465,3 +474,59 @@ correção adotada nas duas placas, nesta ordem:
 
 O passo 2 é o `tools/pad_zone_connect.py`, que age só no footprint pedido — um `sed` global
 pelo pad "8" atingiria todo conector da placa.
+
+### 11.5 Trocar peça depois de roteado obriga a rerrotear a placa inteira
+
+Mudar o **footprint** ou a **posição** de uma peça já roteada invalida o roteamento: as trilhas
+antigas continuam onde estavam e passam a cruzar as ilhas novas.
+
+O sintoma é um amontoado de violações apontando todas para a mesma ilha — `clearance`,
+`hole_clearance`, `solder_mask_bridge` e até `shorting_items`. **Não é defeito de projeto, é
+cobre obsoleto.** Ao trocar o reed pelo botão, a M360-LP passou de 0 para 24 violações e a
+M360-ACT para 37, todas com essa assinatura.
+
+Remédio: `tools/clear_tracks.py` e rerrotear. **Rerrotear por cima não serve** — o DSN leva a
+fiação existente na seção `wiring` e o Freerouting a preserva.
+
+### 11.6 O GND não é roteado: ele é plano — e isso tem consequência
+
+O DSN declara `plane GND` nas duas faces, então o Freerouting **não desenha um fio de terra
+sequer**: medido, o SES da LP tem 0 ocorrências de GND e o da GW tem 1. A rede de terra existe
+só pelo preenchimento.
+
+A consequência aparece quando o posicionamento muda e o plano **se parte em ilhas**: cada
+pedaço solto vira `unconnected_items` com "Zona [GND]" nos **dois** lados do par, e a coordenada
+relatada é sempre o canto do polígono da zona (99,95; 99,95), nunca a posição da ilha — o que
+torna o relatório quase inútil para localizar o problema. Na LP, o plano de F.Cu chegou a 14
+ilhas e o de B.Cu a 6.
+
+> ⛔ **Ajuste de zona não substitui roteamento.** Na M360-LP tentei, em sequência: vias de
+> costura, refill, ligação sólida em 11 ilhas e remoção de ilhas mínimas. Os desconectados
+> ficaram em **15 o tempo todo**, e a remoção de ilhas ainda piorou as violações de 9 para 91,
+> porque apagou cobre que carregava ligação. O problema é topológico. Se o plano fragmentar,
+> **rerrotear** — não remendar.
+
+> ⚠️ O `tools/gnd_stitch.py` nasceu dessa tentativa e **não é confiável como está**: o critério
+> de "ilha já ligada" é conter uma ilha de componente ou uma via de GND, o que não prova ligação
+> ao plano principal. Depois das ligações sólidas ele passou a relatar "20 ilhas já ligadas, 0 a
+> costurar" enquanto o DRC acusava 13 zonas soltas. Serve para **colocar** vias com verificação
+> de colisão nas duas faces; não serve para **decidir** onde elas são necessárias.
+
+### 11.7 Riscos operacionais do MCP
+
+Além das duas armadilhas da §11.2 (`export_dsn` ignora o `boardPath`; `set_design_rules` não
+persiste a largura de trilha), há uma terceira, de outra natureza: **o servidor pode travar por
+inteiro.** Nesta sessão até o `get_board_info` passou a estourar os 30 s, e não há contorno — o
+`kicad-cli` **não exporta nem importa Specctra** (a lista de subcomandos vai de `3dpdf` a `xao`,
+sem DSN/SES). Com o MCP fora do ar, trabalho de roteamento simplesmente para.
+
+Mitigação: fazer a etapa de placa inteira numa sessão só, e tratar o esquemático — que depende
+bem menos do MCP — como trabalho separado.
+
+**Dois hábitos que se pagaram, e um que faltou.** Busca vazia não é prova: três vezes nesta
+sessão um `grep` meu voltou vazio por padrão errado (indentação, nome qualificado de símbolo,
+`(via ` com espaço) e quase virou conclusão sobre a placa. Conferir no arquivo em vez de confiar
+no retorno da ferramenta pegou erro real mais de uma vez. O que faltou: **número que não se move
+enquanto tudo em volta muda é sinal de modelo errado, não de remédio faltando** — os 15
+desconectados repetidos eram o aviso de que o diagnóstico estava furado, e insisti três
+tentativas além do que devia.

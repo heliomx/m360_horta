@@ -62,8 +62,17 @@ regular que não casava com o formato e aprovava em silêncio.
 | `place_gw.py <pcb>` | Posiciona a M360-GW (80 × 60 mm). **Atenção ao girar peça em 90°:** o courtyard não fica centrado na origem — ver o comentário no script, que custou quatro violações de DRC |
 | `zone_thermals.py <pcb> [haste] [folga]` | Afina o alívio térmico das zonas (padrão 0,35 / 0,3). É o **primeiro** recurso contra `starved_thermal`; só se não bastar vem a ligação sólida abaixo |
 | `del_fp.py <pcb> <REF>...` | Apaga o bloco de um footprint, para a sincronização com o esquemático recriá-lo da biblioteca. É o caminho para trocar um footprint sem o segfault do SWIG |
+| `clear_tracks.py <pcb>` | Apaga **todas** as trilhas e vias, para rerrotear do zero. Necessário sempre que uma peça muda de footprint ou de posição depois de roteada: as trilhas velhas cruzam as ilhas novas e o DRC enche de `clearance`, `hole_clearance` e até `shorting_items` apontando todos para a mesma ilha. As zonas ficam, e são refeitas no refill |
+| `gnd_stitch.py <pcb> [--dry]` | Põe via de GND dentro de ilha de plano solta, com verificação de colisão nas duas faces. **Use só para colocar a via, nunca para decidir se ela é necessária** — o critério interno de "já ligada" é falho (§11.6). Se o plano fragmentou por mudança de posicionamento, o certo é rerrotear |
 | `pad_zone_connect.py <pcb> <REF> <PAD> <MODO>` | Ligação do pad às zonas: 0 nenhuma, 1 alívio térmico, 2 sólida. Age só no footprint pedido |
-| `silk_lp.py`, `silk_act.py`, `silk_gw.py` | Tiram os textos de referência de cima de ilhas e põem a marca da placa. Na GW não há texto a mover: os furos M3 já saem sem serigrafia pelo `place_gw.py` |
+| `silk_lp.py`, `silk_act.py`, `silk_gw.py` | Serigrafia de cada placa: tiram textos de referência de cima de ilhas, põem a marca e o nome do modelo, e acrescentam legendas. Na ACT, o campo **Value dos conectores** vai para a serigrafia ("RJ45 RELES-A", "5V do quadro"…), para o instalador não depender de saber o que é J3 ou J5. Na LP, **VCC e GND do J3** — ligar a alimentação invertida queima o nó, então a legenda é proteção, não conforto. Na GW não há texto a mover: os furos M3 já saem sem serigrafia pelo `place_gw.py` |
+
+> Duas armadilhas de serigrafia que custaram rodada extra: **o campo Value herda a rotação do
+> footprint** — num conector em rot 90 o texto sai na vertical, atravessando a própria ilha, a
+> menos que se force o ângulo; e **texto fora do contorno da placa vira `silk_edge_clearance`**,
+> então afastar um rótulo de uma ilha empurrando-o para a borda troca um problema por outro.
+> O DRC também não pega tudo: legenda sobre o *corpo* de um conector passa no DRC e fica
+> ilegível na placa. Conferir na imagem, não só no relatório.
 | `pcb_info.py <pcb>` | Lista footprints com courtyard e posição — conferência do posicionamento |
 | `crop.py <pdf> <prefixo>` | Recorta regiões do PDF do esquemático para inspeção visual |
 

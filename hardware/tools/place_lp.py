@@ -69,7 +69,9 @@ put("C3", 165.0, 116.0, 270)
 
 # --- entrada e reed -------------------------------------------------------------------------
 put("J3", 178.0, 140.0)                    # J_VIN na borda direita
-put("SW1", 160.0, 158.0)                   # reed no canto de baixo à direita
+# Botão de repareamento (era reed). O SW_PUSH_6mm ocupa 9,6 x 7,6 mm contra 11,5 x 2,4 do
+# reed: em y = 158 ele avançaria até ~164, além da borda da placa em 162. Sobe para 153.
+put("SW1", 160.0, 153.0)                   # botão no canto de baixo à direita
 
 HOLES = {"H1": (103.5, 103.5), "H2": (182.5, 128.0), "H3": (103.5, 158.5), "H4": (182.5, 158.5)}
 KICAD_FP = os.environ.get("KICAD10_FOOTPRINT_DIR",
