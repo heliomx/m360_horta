@@ -10,7 +10,7 @@
 		(rev "0.1")
 		(company "M360 Horta")
 		(comment 1 "Arquitetura: hardware/ARQUITETURA_FAMILIA.md §4 e §7")
-		(comment 2 "Footprints pendentes: A1 Pro Mini, J1/J2 RJ45, J4 soquete espelhado, SW1 reed")
+		(comment 2 "Footprints em hardware/lib/M360.pretty; furos A4–A7 do Pro Mini a medir")
 	)
 	(lib_symbols
 		(symbol "74xx:74HC4051"
@@ -3619,7 +3619,7 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "MEZANINO M360-RF — numeração dos pinos = a do mezanino (ARQUITETURA §3); o footprint é espelhado"
+	(text "MEZANINO M360-RF — numeração dos pinos = a do mezanino (ARQUITETURA §3), PinSocket stock"
 		(exclude_from_sim no)
 		(at 30.48 185.42 0)
 		(effects
@@ -6320,7 +6320,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "M360:M360-RF_Soquete_2x05"
 			(at 76.2 200.66 0)
 			(hide yes)
 			(show_name no)
@@ -7623,7 +7623,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "M360:RJ45_R-RJ45R08P-A004"
 			(at 111.76 239.395 90)
 			(hide yes)
 			(show_name no)
@@ -8001,7 +8001,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "M360:RJ45_R-RJ45R08P-A004"
 			(at 157.48 239.395 90)
 			(hide yes)
 			(show_name no)
@@ -8829,7 +8829,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "M360:Arduino_ProMini_DeeKRobot"
 			(at 76.2 134.62 0)
 			(hide yes)
 			(show_name no)
@@ -10425,7 +10425,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "M360:Reed_Littelfuse_59170"
 			(at 127 190.5 0)
 			(hide yes)
 			(show_name no)
