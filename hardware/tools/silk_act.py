@@ -10,7 +10,7 @@
 As posições foram escolhidas sobre a geometria medida da placa:
   - os três RJ45 ocupam y 164,76-180 e os TVS terminam em y 162,25; sobra uma faixa de 2,5 mm
     entre eles, onde cabe texto de 1,0 mm de altura;
-  - o J1 (borne) vai de y 144,75 a 155,26 e os TVS começam em 158,75: a legenda fica embaixo;
+  - o J1 (borne, rot 0) vai de y 144,5 a 154,6 e os TVS começam em 158,75: a legenda fica embaixo;
   - o mezanino cobre y 102-125, então a legenda do J2 fica logo abaixo dele.
 
 Texto de serigrafia sobre trilha não é problema (a máscara cobre a trilha); o que o DRC cobra
@@ -25,12 +25,14 @@ import pcbnew
 
 # referência -> (x, y, ângulo) do texto de REFERÊNCIA
 REFS = {
-    "U1": (109.0, 144.0, 0),     # entre o corpo do U1 e o borne J1
+    # Em y = 144 o texto encostava na serigrafia do J1 depois que ele passou a rot 0 (topo em
+    # y 144,5). O courtyard do U1 termina em 141,6: y = 143 fica no meio da folga.
+    "U1": (109.0, 143.0, 0),     # entre o corpo do U1 e o borne J1
 }
 
 # referência -> (x, y, altura, ângulo) do campo VALUE, que vira legenda na serigrafia
 #
-# O ÂNGULO É OBRIGATÓRIO: o campo Value herda a rotação do footprint. O J1 está em rot 90, e
+# O ÂNGULO É OBRIGATÓRIO: o campo Value herda a rotação do footprint. O J1 esteve em rot 90, e
 # definir só a posição deixou "5V do quadro" na vertical, atravessando a própria ilha do borne
 # (silk_over_copper no DRC). Sempre zerar o ângulo em legenda que se quer horizontal.
 #
@@ -39,7 +41,7 @@ REFS = {
 VALORES = {
     # NÃO mover para x < 101: a placa começa em x = 100, e em x = 99 o texto saiu pela borda
     # (silk_edge_clearance) e ainda encostou na referência e no contorno do próprio borne.
-    # A faixa boa é ABAIXO do J1, que termina em y 155,26, antes dos TVS em y 158,75.
+    # A faixa boa é ABAIXO do J1, que termina em y 154,6, antes dos TVS em y 158,75.
     "J1": (106.0, 157.2, 0.8, 0),   # entre o borne e a fileira de TVS
     "J2": (176.0, 128.0, 1.0, 0),   # abaixo do contorno do mezanino
     # A faixa entre os TVS (terminam em y 162,25) e os RJ45 (começam em 164,76) tem 2,5 mm e
@@ -52,7 +54,7 @@ VALORES = {
 
 # textos livres: (conteúdo, x, y, altura)
 TEXTOS = [
-    ("Viridiotech.com.br", 176.0, 149.0, 1.5),   # entre o U3 e o reed
+    ("Viridiotech.com.br", 176.0, 149.0, 1.5),   # entre o U3 e o SW1
     ("M360-ACT", 176.0, 152.0, 1.5),             # logo abaixo da marca
 ]
 

@@ -9564,6 +9564,15 @@
 				)
 			)
 		)
+		(property "LCSC" "C393938"
+			(at 124.46 209.55 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Datasheet" ""
 			(at 124.46 214.63 0)
 			(hide yes)

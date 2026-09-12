@@ -67,7 +67,7 @@ put("R5", 175.5, 110.0, 270)
 put("C6", 178.5, 110.0, 270)
 put("C3", 165.0, 116.0, 270)
 
-# --- entrada e reed -------------------------------------------------------------------------
+# --- entrada e botão ------------------------------------------------------------------------
 put("J3", 178.0, 140.0)                    # J_VIN na borda direita
 # Botão de repareamento (era reed). O SW_PUSH_6mm ocupa 9,6 x 7,6 mm contra 11,5 x 2,4 do
 # reed: em y = 158 ele avançaria até ~164, além da borda da placa em 162. Sobe para 153.

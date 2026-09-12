@@ -23,13 +23,16 @@ REFS = {
     "U4": (129.5, 143.5, 0),     # vão entre U4 e U5
     "U5": (141.5, 143.5, 0),     # à direita do U5, antes dos pull-ups
     "R3": (147.0, 120.8, 0),     # abaixo do próprio corpo: em cima ele toca o contorno do U2
+    # O botão (SW_PUSH_6mm, origem no pad 1) traz a referência acima do corpo, em (163,25; 151):
+    # em cima do "M360-LP". Vai para a faixa livre entre o botão (x <= 168) e o H4 (x >= 179).
+    "SW1": (172.0, 155.0, 0),
 }
 
 # textos livres: (conteúdo, x, y, altura)
 # O J3 ocupa y 137,1-143,9; as legendas ficam acima, na faixa livre até os pull-ups (y 130).
 TEXTOS = [
     # A referência do SW1 fica em y ≈ 154: com "M360-LP" em 153,5 os dois se imprimiam um
-    # sobre o outro (silk_overlap). O par sobe para a faixa livre acima do reed.
+    # sobre o outro (silk_overlap). O par sobe para a faixa livre acima do SW1.
     ("Viridiotech.com.br", 158.0, 147.0, 1.5),   # acima do SW1
     ("M360-LP", 158.0, 150.5, 1.5),              # logo abaixo da marca
     ("VCC", 177.0, 135.0, 0.8),                  # sobre a ilha 1 do J3 (VIN_RAW)

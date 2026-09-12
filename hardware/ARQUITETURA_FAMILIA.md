@@ -46,7 +46,7 @@ em que a falha de enlace era o rádio do gateway). O header carrega DIO1 e RESET
 | 10 | RS485 fora | — |
 | 11 | **KiCad 10 do início ao fim** | Footprints do LCSC importados por `easyeda2kicad`, já com o código da peça; roteamento pelo Freerouting (§11). O EasyEDA saiu do fluxo |
 | 12 | **PCBA** (placas montadas) | SMD do LCSC; Pro Mini, mezanino, RJ45 e SMA soldados à mão |
-| 13 | Repareamento por **reed switch** | 1 pino por nó; na LP, em INT1, acorda o nó dormindo |
+| 13 | Repareamento por **botão tátil** (SW1, 6 × 6 mm THT, solda manual) — substituiu o reed em 2026-09-12 | 1 pino por nó; na LP, em INT1, acorda o nó dormindo. O reed era acionado por ímã através da parede; o botão pede acesso a ele (§9) |
 
 Frequência LoRa: provisionada por software na instalação (sem chave DIP) — ver
 `analise_radio_rfm95w_915.md` §5 e a decisão de um gateway por propriedade.
@@ -130,7 +130,7 @@ VCC regulado ela mede 3,3 V. O nó sobrescreve `readBatteryVoltage()` lendo o A6
 | Multiplexador | 74HC4051 no VSW. **Regra de firmware:** levar S0–S2 a LOW antes de cortar o VSW, senão os pinos alimentam o CI pelos diodos de proteção |
 | Sondas de solo | Pull-up de 10 kΩ para o VSW por canal (sonda resistiva, como os Nós 01/02); **DNI** para sonda capacitiva. RC 1 kΩ / 100 nF por canal |
 | Digitais de campo | 1-Wire com 4,7 kΩ para o VSW; DHT com 10 kΩ para o VSW; I2C com 3,3 kΩ para o VSW |
-| Reed switch | D3 (INT1) com pull-up interno; contato aberto em repouso, zero corrente no sono |
+| Botão de repareamento (SW1) | D3 (INT1) com pull-up interno; contato normalmente aberto, zero corrente no sono |
 | Proteção | 3× **SRV05-4** (U3–U5, ≤ 1 pF por linha): U3 = solo ch0–3, U4 = ch4–7, U5 = 1-Wire, DHT, SDA, SCL. O pino VP de cada um vai ao VSW, então o zener interno protege também o par marrom das portas |
 | Programação | Header FTDI do próprio Pro Mini |
 | Mezanino (J4) | Soquete 2×5. **A numeração dos pinos no esquemático é a do mezanino (§3).** O `PinSocket_2x05` stock já encaixa pino a pino: nele a coluna par fica em x negativo, o mesmo lado em que ela fica no J1 do mezanino (header na face de baixo, vista de cima). Footprint `M360:M360-RF_Soquete_2x05` = o stock + contorno do mezanino e do SMA na F.Fab. NSS com 10 kΩ para o 3,3 V (R3) |
@@ -148,7 +148,7 @@ os pull-ups internos). Um pino alto alimenta os sensores pelos diodos de proteç
 | Pino | Função | Pino | Função |
 |---|---|---|---|
 | D2 | DIO0 (INT0) | A0 | saída do 74HC4051 |
-| D3 | reed switch (INT1) | A1 | 1-Wire |
+| D3 | botão de repareamento (INT1) | A1 | 1-Wire |
 | D4 | habilita VSW | A2 | DHT |
 | D5 / D6 / D7 | S0 / S1 / S2 do 4051 | A3 | livre |
 | D8 | RESET do rádio | A4 / A5 | SDA / SCL |
@@ -184,7 +184,7 @@ latão levam **+12 V, GND, +5 V e +3,3 V** a todo o quadro. A placa entra apenas
 | Fronteira 3,3 → 5 V | **74HCT244** (VIH 2,0 V aceita 3,3 V direto): S0–S3, SIG, NFT, OXI. **/OE com pull-up para 5 V**, liberado pelo A5 depois do boot |
 | MUX | CD74HC4067 a 5 V (EN no GND), **10 canais em uso** e 6 de reserva |
 | Vazão | Entrada D3 com divisor 10 kΩ / 20 kΩ + 1 nF + TVS |
-| Reed switch | A4 (o nó nunca dorme; lido por polling). Fica **na própria placa**: o ímã é aproximado por fora do quadro, que é plástico |
+| Botão de repareamento (SW1) | A4 (o nó nunca dorme; lido por polling). Fica **na própria placa**, na borda direita |
 | Antena | Fica **dentro do quadro**. A caixa é plástica, mas há metal por perto — barramentos, trilho DIN e disjuntores. Medir o alcance na instalação; se cair, levar o SMA para fora da parede |
 | Fora do escopo | DHT, pH e oxigênio saem deste nó. O único sensor é a **vazão**, que chega pela porta J5 |
 
@@ -216,7 +216,7 @@ PC817, jumper JD-VCC/VCC/GND, entrada ativa em LOW.
 | D3 | vazão (INT1) | A1 | Bomba Oxi (via 74HCT244) |
 | D4–D7 | S0–S3 do MUX (via 74HCT244) | A2 | DIO1 |
 | D8 | SIG do MUX (via 74HCT244) | A3 | RESET do rádio |
-| D9 | livre (era o DHT) | A4 | reed switch |
+| D9 | livre (era o DHT) | A4 | botão de repareamento |
 | D10–D13 | NSS / MOSI / MISO / SCK | A5 | /OE do 74HCT244 |
 | | | A6 | livre (analógico) |
 | | | **A7** | **livre — semente da assinatura** |
@@ -318,7 +318,7 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 | Item | Como entra |
 |---|---|
 | SMD (LDO, MOSFETs, 74HC4051, 74HCT244, CD74HC4067, buck, passivos, TVS, SMA de borda Samtec) | PCBA JLCPCB, com peças escolhidas pela disponibilidade no LCSC |
-| Pro Mini, módulo RFM95W (HopeRF, no mezanino), headers 2×5, RJ45, bornes | Solda manual após a PCBA |
+| Pro Mini, módulo RFM95W (HopeRF, no mezanino), headers 2×5, RJ45, bornes, botão tátil SW1 | Solda manual após a PCBA. A propriedade `LCSC` desses símbolos serve à compra, não à montagem: **tirá-los do BOM e do arquivo de posição da JLCPCB** ao gerar a fabricação |
 | Antena | SMA de borda no mezanino: ou o conector atravessa a parede da caixa (furo e vedação), ou a antena fica dentro dela — funciona em 915 MHz se a caixa for plástica |
 
 ---
@@ -329,15 +329,16 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 |---|---|
 | Banda do RFM95W | Validar em bancada (RTL-SDR em 916,8 MHz ou RSSI contra referência) antes de comprar em quantidade |
 | Seleção de peças | Candidatas em §9.1. O 10 kΩ basic (C25804) não aparece no snapshot local do catálogo: confirmar no site antes do pedido |
-| Footprints da LP | Feitos em `hardware/lib/M360.pretty`: Pro Mini, soquete do mezanino, RJ45 C385834 e reed C315909 (os dois do LCSC via easyeda2kicad, com os pinos-guia do RJ45 corrigidos para furo não metalizado e o modelo 3D do RJ45 subido 6,3 mm, que vinha atravessando a placa) |
+| Footprints da LP | Feitos em `hardware/lib/M360.pretty`: Pro Mini, soquete do mezanino, RJ45 C385834 e reed C315909 (os dois do LCSC via easyeda2kicad, com os pinos-guia do RJ45 corrigidos para furo não metalizado e o modelo 3D do RJ45 subido 6,3 mm, que vinha atravessando a placa). O reed está fora de uso desde que o SW1 virou `Button_Switch_THT:SW_PUSH_6mm`, stock do KiCad; o footprint fica na biblioteca |
 | Furos livres do Pro Mini | **Medidos por foto** (`docs/prominiFront.jpg`): homografia a partir dos 4 pinos de canto das fileiras, cuja posição é conhecida (passo 2,54 mm, fileiras a 15,24 mm). Escala consistente em 2% nas quatro bordas. **A4/A5** ficam uma coluna para dentro da fileira direita e a meio passo das linhas: (12,70; 11,43) e (12,70; 8,89). **GND/A6/A7** ficam na borda de baixo em 7,62 / 10,16 / 12,70, com y = 28,3 ± 0,3. Os espaçamentos medidos (2,57 e 2,59 mm) confirmam a grade de 2,54; o viés comum de −0,25 mm em x é erro de leitura dos pinos de canto. Esses cinco furos levam **1,2 mm** (os das fileiras, 1,0 mm) para absorver a incerteza. Confirmar com paquímetro antes de fabricar |
-| Placa da LP | Caixa de 100 × 100 × 50 mm → interior de ~92 mm. O plugue RJ45 crimpado é montado dentro da caixa e precisa de ~25–30 mm livres à frente dos conectores (corpo do plugue e capa), com os prensa-cabos na parede em frente a eles. Isso limita a placa a **86 × 62 mm**, formato em que o posicionamento foi refeito: RJ45 e reed na borda de baixo; TVS logo atrás deles; matriz RC dos 8 canais na faixa do meio; Pro Mini deitado no alto à esquerda (FTDI para fora da borda esquerda) com o 74HC4051 ao lado; mezanino no alto à direita com o SMA pela borda; alimentação e trilho VSW **embaixo do mezanino** (só SMD baixo: o mezanino fica a ~11 mm, o MCP1700 é linear e o P-MOSFET do VSW chaveia devagar); `J_VIN` na borda direita; 4 furos M3. Sem sobreposição de courtyard no DRC. Roteada (§11), com planos de terra nas duas faces e serigrafia acertada — DRC com 0 erros e 0 ligações pendentes. Falta gerar os arquivos de fabricação |
+| Placa da LP | Caixa de 100 × 100 × 50 mm → interior de ~92 mm. O plugue RJ45 crimpado é montado dentro da caixa e precisa de ~25–30 mm livres à frente dos conectores (corpo do plugue e capa), com os prensa-cabos na parede em frente a eles. Isso limita a placa a **86 × 62 mm**, formato em que o posicionamento foi refeito: RJ45 e botão SW1 na borda de baixo; TVS logo atrás deles; matriz RC dos 8 canais na faixa do meio; Pro Mini deitado no alto à esquerda (FTDI para fora da borda esquerda) com o 74HC4051 ao lado; mezanino no alto à direita com o SMA pela borda; alimentação e trilho VSW **embaixo do mezanino** (só SMD baixo: o mezanino fica a ~11 mm, o MCP1700 é linear e o P-MOSFET do VSW chaveia devagar); `J_VIN` na borda direita; 4 furos M3. Sem sobreposição de courtyard no DRC. Roteada (§11), com planos de terra nas duas faces e serigrafia acertada — DRC com 0 erros e 0 ligações pendentes. Falta gerar os arquivos de fabricação |
 | Placa da GW | **80 × 60 mm**, montagem 100% THT (§6.2) — em inserção os passivos cobram área: cada resistor axial ocupa 12,4 × 3,1 mm contra 1,6 × 0,8 de um 0603. Arranjo: D1 mini no alto à esquerda, com a ponta da antena/USB **na borda de cima** (o footprint traz keep-out sobre a antena, e assim o cabo entra sem abrir a caixa); mezanino no alto à direita, com a borda direita dele coincidindo com a da placa, para o SMA sair pela lateral; desacoplamento logo abaixo do módulo; borne de 5 V na borda esquerda; o J3 dos LEDs na borda de baixo (os LEDs em si ficam no painel, §6.1), com os resistores em pé logo acima; botão de AP e pull-up do A0 na faixa livre sob o mezanino. Furos M3: H1 desvia do D1 mini e **H2 não fica no canto** — ali cairia sob o mezanino e a placa teria de ser parafusada antes de encaixar o módulo. Roteada pelo Freerouting (§11): 0,7 s de roteamento e 4 s de otimização, ~53% de melhoria, 133 segmentos e **1 via só** — numa placa toda THT cada ilha já atravessa as duas faces, então o roteador troca de camada nos próprios furos. Planos de GND nas duas faces. O preenchimento acusou `starved_thermal` na ilha 2 do J3 e **as hastes de 0,35 mm com folga de 0,3 bastaram**, sem precisar da ligação sólida que os RJ45 da LP e da ACT exigiram: nas ilhas do JST (1,7 × 1,95 mm a passo de 2,5) os raios verticais têm espaço assim que a folga cai de 0,5 para 0,3. Marca "Viridiotech.com.br" na faixa livre entre o mezanino e o C3/R4 — a 1,5 mm de altura ela mede ~20 mm, e na primeira posição encostava na ilha do C3. DRC final: 0 violações, 0 ligações pendentes. Faltam os arquivos de fabricação |
 | Gravação do Pro Mini | Com 86 mm de placa dentro de ~92 mm de interior sobram ~3 mm de cada lado, e o espaço livre restante fica à frente dos RJ45. **Não cabe o adaptador FTDI com a placa montada:** gravar na bancada, com a placa fora da caixa, ou prever cabo FTDI angulado. O nó é gravado antes da instalação; em campo, a atualização depende de retirar a placa |
 | Regulador do Pro Mini | Com 3,3 V no VCC e RAW solto, o regulador da própria placa pode ser alimentado de volta pelo diodo interno e consumir a corrente quiescente dele. Medir a corrente de sono na primeira placa; se passar de poucos µA, retirar o regulador, como o LED |
 | DHT11 no atuador | Alimentado a 5 V pelo RJ45, com pull-up para 3,3 V: confirmar que a saída é dreno aberto |
 | Firmware das placas novas | Envs `pro8MHzatmega328`; pinos novos; `readBatteryVoltage()` pelo A6 na LP; LED verde ativo em LOW no gateway. Atualizar `inventario.md` e os `esquema_eletrico.md` na mesma entrega |
 | Caixa | Modelo IP e dimensões internas; posição do SMA |
+| Acesso ao botão de repareamento | O reed era acionado por ímã **através da parede**, sem abrir a caixa; o botão tátil (SW1, haste de 5 mm) não. Definir como ele é alcançado na LP e na ACT — abrir a caixa, furo com haste, ou outro meio — antes de fechar o projeto mecânico |
 
 ### 9.1 Peças candidatas (LCSC — catálogo de 2026-09-09)
 
@@ -363,7 +364,7 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 | LP: TVS das linhas de campo | SRV05-4 (TECH PUBLIC, SOT-23-6) | C558418 | ext | 461 674 | 4 linhas, 0,3–0,8 pF: serve para solo, 1-Wire e I2C. Substitui o ESD5Z na LP |
 | LP: entrada `J_VIN` | JST B2B-XH-A (2 vias) | C158012 | ext | 203 889 | J3 |
 | LP: RJ45 | R-RJ45R08P-A004 (sem blindagem, sem LED) | C385834 | ext | 159 683 | J1 e J2; solda manual |
-| LP: reed | Littelfuse 59170-1-S-00-D (SMD) | C315909 | ext | 35 144 | SW1 |
+| Botão (repareamento na LP e na ACT; AP na GW) | SHOU HAN TS665CJ, tátil 6 × 6 mm THT, haste de 5 mm | C393938 | manual | 184 275 | **Decidido (2026-09-12):** SW1 nas três placas, footprint `Button_Switch_THT:SW_PUSH_6mm`; **solda manual, fora do PCBA**, para não pagar a taxa de peça extended. Substitui o reed Littelfuse 59170 (C315909). Não há tátil 6 × 6 THT *basic* no catálogo; o único *basic* que serviria é SMD (C318884, 5,1 × 5,1 mm), e trocá-lo obrigaria a rerrotear |
 | LP: soquete do mezanino | PM254V-12-10P-H85 (fêmea 2×5, 8,5 mm) | C492399 | ext | 37 436 | J4; solda manual |
 | 1 µF 0603 · 10 µF 0805 · 10 nF 0603 | CL10A105KB8NNNC · CL21A106KAYNNNE · 0603B103K500NT | C15849 · C15850 · C57112 | **basic** | milhões | |
 | Resistores 0603 1 % | 1 k · 3,3 k · 4,7 k · 10 k · 100 k · 1 M · 2 M | C21190 · C22978 · C23162 · C25804 · C25803 · C22935 · C22976 | **basic** | | 10 k: ver §9 |
@@ -422,14 +423,16 @@ https://github.com/freerouting/freerouting/releases/download/v1.9.0/freerouting-
    > antes de rotear — contar `(place ` e procurar uma referência que só exista naquela placa
    > (`R25` na LP, `U8` ou `J5` na ACT). Como a sessão só tem uma placa corrente, **não dá para
    > trabalhar em duas placas em paralelo** pelo MCP.
-2. **Rotear:**
+2. **Rotear** — se a placa já tem zona de GND, tirando antes os planos do DSN (§11.6):
 
    ```
-   java -jar ~/.kicad-mcp/freerouting.jar -de placa.dsn -do placa.ses -mp 20
+   python tools/dsn_sem_plano.py placa.dsn placa_sem_plano.dsn
+   java -jar ~/.kicad-mcp/freerouting.jar -de placa_sem_plano.dsn -do placa.ses -mp 20
    ```
 
    `-de` é a entrada, `-do` a saída e `-mp` o máximo de passes. Com os dois arquivos informados
-   ele roda em lote e encerra sozinho, sem abrir janela.
+   ele roda em lote e encerra sozinho, sem abrir janela. Conferir no SES que o GND veio:
+   `(net GND` precisa aparecer.
 3. **Importar o SES** — MCP `import_ses`, ou *File → Import → Specctra Session*.
 
 ### 11.3 Conferência obrigatória depois de importar
@@ -455,13 +458,17 @@ escrevem por fora. Conferir sempre no arquivo, nunca pelo retorno da ferramenta:
 |---|---|---|---|
 | M360-LP | 135 | 552 trilhas, 48 vias, 0 pendências | ~5,5 min |
 | M360-ACT | 104 | 463 trilhas, 23 vias, 0 pendências | ~2,5 min |
+| M360-LP, com botão (2026-09-12) | — | 572 trilhas, 44 vias, 0 pendências | ~2,5 min |
+| M360-ACT, com botão (2026-09-12) | — | 489 trilhas, 24 vias, 0 pendências | ~3 min |
 
-Quase todo o tempo é de otimização, que melhorou os dois desenhos em ~50%. O traçado sai com
+Quase todo o tempo é de otimização, que melhorou os desenhos em ~50%. O traçado sai com
 cara de autoroteador — diagonais longas na face de baixo —, aceitável nestas placas, de sinais
 lentos e sem requisito de impedância.
 
-Os planos de terra entram **depois** do roteamento, porque o DSN não leva zonas; o roteador
-trata o GND como qualquer outra net e o plano preenche por cima. É o preenchimento que costuma
+Os planos de terra entram **depois** do roteamento: o roteador trata o GND como qualquer outra
+net e o plano preenche por cima. Isso só vale se o DSN **não declarar o plano** — no primeiro
+roteamento as zonas ainda não existiam; num rerroteamento elas existem, e é preciso o
+`dsn_sem_plano.py` (§11.6). É o preenchimento que costuma
 revelar hastes térmicas insuficientes (`starved_thermal`) nos pads THT dos conectores. A
 correção adotada nas duas placas, nesta ordem:
 
@@ -486,15 +493,36 @@ cobre obsoleto.** Ao trocar o reed pelo botão, a M360-LP passou de 0 para 24 vi
 M360-ACT para 37, todas com essa assinatura.
 
 Remédio: `tools/clear_tracks.py` e rerrotear. **Rerrotear por cima não serve** — o DSN leva a
-fiação existente na seção `wiring` e o Freerouting a preserva.
+fiação existente na seção `wiring` e o Freerouting a preserva. E **rerrotear com o DSN como sai
+do KiCad também não serve**: a placa já tem zona, e o GND fica sem fio (§11.6).
+
+A sequência que funcionou na troca do reed pelo botão (2026-09-12), para cada placa:
+
+```
+del_fp.py <pcb> SW1                → sync_schematic_to_board (MCP) → place_*.py
+clear_tracks.py <pcb>              → open_project (a placa certa)  → export_dsn
+conferir o DSN: (place, referência exclusiva, (width 250), 0 (wire
+dsn_sem_plano.py                   → Freerouting                   → import_ses
+contar (segment no disco           → zone_thermals.py
+kicad-cli pcb drc --refill-zones --save-board → pad_zone_connect.py / silk_*.py se o DRC pedir
+```
+
+A sincronização grava o footprint novo **direto no disco** e depois acusa "Auto-save refused"
+sobre a cópia em memória — o aviso não significa que a troca se perdeu. Conferir no arquivo.
 
 ### 11.6 O GND não é roteado: ele é plano — e isso tem consequência
 
-O DSN declara `plane GND` nas duas faces, então o Freerouting **não desenha um fio de terra
-sequer**: medido, o SES da LP tem 0 ocorrências de GND e o da GW tem 1. A rede de terra existe
-só pelo preenchimento.
+Se a placa já tem zona de GND, o DSN declara `plane GND` nas duas faces, e o Freerouting **não
+desenha um fio de terra sequer**: medido, o SES da LP tem 0 ocorrências de GND e o da GW tem 1.
+A rede de terra fica existindo só pelo preenchimento.
 
-A consequência aparece quando o posicionamento muda e o plano **se parte em ilhas**: cada
+**Causa, confirmada em 2026-09-12.** O primeiro roteamento da LP (`bf701dc`) tem 88 segmentos
+de GND: foi feito antes de as zonas existirem, e o GND foi roteado como net comum. Todo
+rerroteamento posterior parte de uma placa **com** zonas, e perde esse GND. Rerroteada com o DSN
+como sai do KiCad, a LP com o botão deu 16 `unconnected_items`, todos "Zona [GND]"; com o
+`tools/dsn_sem_plano.py` antes do Freerouting, deu **0** — 100 segmentos de GND na LP, 95 na ACT.
+
+Sem o fio de terra, o plano **se parte em ilhas** — o posicionamento que mudou só decide onde: cada
 pedaço solto vira `unconnected_items` com "Zona [GND]" nos **dois** lados do par, e a coordenada
 relatada é sempre o canto do polígono da zona (99,95; 99,95), nunca a posição da ilha — o que
 torna o relatório quase inútil para localizar o problema. Na LP, o plano de F.Cu chegou a 14
@@ -504,7 +532,9 @@ ilhas e o de B.Cu a 6.
 > costura, refill, ligação sólida em 11 ilhas e remoção de ilhas mínimas. Os desconectados
 > ficaram em **15 o tempo todo**, e a remoção de ilhas ainda piorou as violações de 9 para 91,
 > porque apagou cobre que carregava ligação. O problema é topológico. Se o plano fragmentar,
-> **rerrotear** — não remendar.
+> **rerrotear com o GND roteado** (`dsn_sem_plano.py`) — não remendar. Os 15 imóveis eram
+> exatamente o aviso do fim da §11.7: o diagnóstico ("posicionamento") estava errado; a causa
+> era o GND sem fio.
 
 > ⚠️ O `tools/gnd_stitch.py` nasceu dessa tentativa e **não é confiável como está**: o critério
 > de "ilha já ligada" é conter uma ilha de componente ou uma via de GND, o que não prova ligação

@@ -9,7 +9,7 @@ Arranjo:
   - alto à esquerda: Pro Mini deitado, com o header FTDI apontando para fora da borda;
   - alto à direita: mezanino, com o SMA saindo pela borda (a antena fica dentro do quadro);
   - coluna da esquerda: entrada de 5 V no borne, LDO e capacitores;
-  - borda direita: reed (o ímã é aproximado pela parede) e o divisor da vazão.
+  - borda direita: botão de repareamento (SW1) e o divisor da vazão.
 
 Idempotente: reposiciona tudo e redesenha o contorno a cada execução.
 Uso: <KiCad>/bin/python.exe place_act.py <placa.kicad_pcb>
@@ -59,7 +59,7 @@ put("J3", 120.0, Y0 + H - 8.66)             # RELES-A: canais 0 a 5
 put("J4", 140.0, Y0 + H - 8.66)             # RELES-B: canal 6, NFT, OXI, canais 7 a 9
 put("J5", 160.0, Y0 + H - 8.66)             # SENSORES: vazão e A6
 
-# --- divisor da vazão, junto do J5, e reed na borda direita ---------------------------------
+# --- divisor da vazão, junto do J5, e botão na borda direita --------------------------------
 put("R3", 176.0, 158.0, 270)
 put("R4", 176.0, 164.0, 270)
 put("C7", 182.0, 161.0, 270)
@@ -68,7 +68,7 @@ put("C7", 182.0, 161.0, 270)
 put("SW1", 190.0, 145.0, 0)
 
 # H2 não fica no canto: ali ele cairia embaixo do mezanino, e a placa teria de ser parafusada
-# antes de encaixar o módulo. Desce para a faixa livre entre o mezanino e o reed.
+# antes de encaixar o módulo. Desce para a faixa livre entre o mezanino e o SW1.
 HOLES = {"H1": (104.0, 104.0), "H2": (X0 + W - 4.0, 131.0),
          "H3": (104.0, Y0 + H - 4.0), "H4": (X0 + W - 4.0, Y0 + H - 4.0)}
 KICAD_FP = os.environ.get("KICAD10_FOOTPRINT_DIR",

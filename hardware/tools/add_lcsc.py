@@ -4,6 +4,11 @@ O mapa abaixo é o da M360-LP. Ver as candidatas e o estado do catálogo em
 ARQUITETURA_FAMILIA.md §9.1.
 
 Uso: python add_lcsc.py <arquivo.kicad_sch>
+     python add_lcsc.py <arquivo.kicad_sch> --set SW1=C393938 [REF=CÓDIGO ...]
+
+Sem --set, aplica o mapa da LP inteiro — só serve na LP: as referências repetem entre as placas
+com significados diferentes (o J1 da LP é RJ45; o da ACT, borne). Com --set, grava apenas as
+referências pedidas, em qualquer placa.
 Idempotente: se o símbolo já tem LCSC, o valor é substituído.
 """
 import re
@@ -34,11 +39,11 @@ LCSC = {
     **{r: "C385834" for r in ("J1", "J2")},                 # RJ45 8P8C sem blindagem
     "J3": "C158012",                                        # JST B2B-XH-A
     "J4": "C492399",                                        # soquete fêmea 2x5 2,54 mm
-    "SW1": "C315909",                                       # reed SMD Littelfuse 59170
+    "SW1": "C393938",                                       # tátil 6x6 THT SHOU HAN TS665CJ (solda manual)
 }
 
 
-def main(path):
+def main(path, LCSC=LCSC):
     text = open(path, encoding="utf-8").read()
     lib = text.index("(lib_symbols")
     pos = block_end(text, lib)
@@ -77,4 +82,12 @@ def main(path):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    if len(sys.argv) < 2:
+        sys.exit(__doc__)
+    if "--set" in sys.argv:
+        pares = sys.argv[sys.argv.index("--set") + 1:]
+        if not pares or not all(re.fullmatch(r"[A-Z]+\d+=C\d+", p) for p in pares):
+            sys.exit("--set espera pares REF=CÓDIGO, p.ex. SW1=C393938")
+        main(sys.argv[1], dict(p.split("=") for p in pares))
+    else:
+        main(sys.argv[1])

@@ -26,7 +26,7 @@ dentro desta pasta, ou com ela no `PYTHONPATH`.
 | Script | O que faz |
 |---|---|
 | `fix_layout.py <sch> [--lp\|--act]` | Põe cada label na ponta de um fio curto e os campos Reference/Value fora do corpo, no padrão que o usuário definiu à mão no R6. As opções `--lp` e `--act` aplicam os casos particulares de cada placa — **não troque uma pela outra**: as referências repetem entre as placas com significados diferentes |
-| `add_lcsc.py <sch>` | Grava o código LCSC de cada peça (mapa da LP) |
+| `add_lcsc.py <sch> [--set REF=CÓDIGO ...]` | Grava o código LCSC de cada peça. Sem `--set` aplica o mapa da LP — **só na LP**, porque as referências repetem entre as placas com outro significado; com `--set`, grava só as referências pedidas, em qualquer placa |
 | `schlib.py <sch>` | Sem argumento de escrita: imprime símbolos, pinos, labels e fios — útil para conferir o que o `fix_layout.py` vai encontrar |
 | `netdiff.py <antes.net> <depois.net>` | Compara duas netlists e acusa qualquer mudança de conectividade. Sai com código 1 se divergirem |
 
@@ -63,7 +63,8 @@ regular que não casava com o formato e aprovava em silêncio.
 | `zone_thermals.py <pcb> [haste] [folga]` | Afina o alívio térmico das zonas (padrão 0,35 / 0,3). É o **primeiro** recurso contra `starved_thermal`; só se não bastar vem a ligação sólida abaixo |
 | `del_fp.py <pcb> <REF>...` | Apaga o bloco de um footprint, para a sincronização com o esquemático recriá-lo da biblioteca. É o caminho para trocar um footprint sem o segfault do SWIG |
 | `clear_tracks.py <pcb>` | Apaga **todas** as trilhas e vias, para rerrotear do zero. Necessário sempre que uma peça muda de footprint ou de posição depois de roteada: as trilhas velhas cruzam as ilhas novas e o DRC enche de `clearance`, `hole_clearance` e até `shorting_items` apontando todos para a mesma ilha. As zonas ficam, e são refeitas no refill |
-| `gnd_stitch.py <pcb> [--dry]` | Põe via de GND dentro de ilha de plano solta, com verificação de colisão nas duas faces. **Use só para colocar a via, nunca para decidir se ela é necessária** — o critério interno de "já ligada" é falho (§11.6). Se o plano fragmentou por mudança de posicionamento, o certo é rerrotear |
+| `dsn_sem_plano.py <in.dsn> <out.dsn>` | Tira as declarações `plane` do DSN antes do Freerouting. **Obrigatório ao rerrotear placa que já tem zona de GND**: com o plano declarado o roteador não desenha fio de terra, o plano se parte em ilhas e o DRC acusa `unconnected_items` "Zona [GND]" que nenhum ajuste de zona resolve (ARQUITETURA §11.6) |
+| `gnd_stitch.py <pcb> [--dry]` | Põe via de GND dentro de ilha de plano solta, com verificação de colisão nas duas faces. **Use só para colocar a via, nunca para decidir se ela é necessária** — o critério interno de "já ligada" é falho (§11.6). Se o plano fragmentou, o certo é rerrotear com o GND roteado (`dsn_sem_plano.py`) |
 | `pad_zone_connect.py <pcb> <REF> <PAD> <MODO>` | Ligação do pad às zonas: 0 nenhuma, 1 alívio térmico, 2 sólida. Age só no footprint pedido |
 | `silk_lp.py`, `silk_act.py`, `silk_gw.py` | Serigrafia de cada placa: tiram textos de referência de cima de ilhas, põem a marca e o nome do modelo, e acrescentam legendas. Na ACT, o campo **Value dos conectores** vai para a serigrafia ("RJ45 RELES-A", "5V do quadro"…), para o instalador não depender de saber o que é J3 ou J5. Na LP, **VCC e GND do J3** — ligar a alimentação invertida queima o nó, então a legenda é proteção, não conforto. Na GW não há texto a mover: os furos M3 já saem sem serigrafia pelo `place_gw.py` |
 
@@ -85,6 +86,10 @@ Ver **ARQUITETURA_FAMILIA.md §11**.
 esquemático (MCP) → fix_layout.py → ERC + netlist comparada → add_lcsc.py
                   → sincroniza com a placa → place_*.py → DRC
                   → Freerouting (§11) → planos de terra → pad_zone_connect.py → silk_*.py
+
+rerroteamento (peça trocada ou movida): del_fp.py → sincroniza → place_*.py → clear_tracks.py
+                  → export_dsn → dsn_sem_plano.py → Freerouting → import_ses
+                  → zone_thermals.py → DRC com refill → pad_zone_connect.py / silk_*.py
 ```
 
 ## O que conferir, sempre
