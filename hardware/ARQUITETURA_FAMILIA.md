@@ -611,5 +611,10 @@ Medido nas correções da análise adversarial (2026-09-13).
 > arrumação; peças novas recebem fio + label pelo padrão da folha (fio de `stub_len(nome)`, label na
 > ponta) sem rodá-lo sobre a folha inteira.
 
+> ⚠️ **`add_schematic_component` ignora o `angle`:** todas as peças entram em rot 0, seja qual for o
+> ângulo pedido. Com peças enfileiradas perto umas das outras, os fios desenhados a partir da
+> rotação suposta encostaram nos do vizinho e **fundiram redes** (medido em 2026-09-13). Conferir a
+> rotação real no arquivo antes de desenhar fios, e deixar fileiras com folga de pelo menos 7,62 mm.
+
 > ⚠️ **`batch_add_and_connect` estoura os 30 s do MCP** com uma dúzia de peças e continua gravando
 > depois do erro. Não repetir a chamada: esperar o arquivo parar de mudar e conferir o que entrou.
