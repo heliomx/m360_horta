@@ -75,6 +75,7 @@ regular que não casava com o formato e aprovava em silêncio.
 > O DRC também não pega tudo: legenda sobre o *corpo* de um conector passa no DRC e fica
 > ilegível na placa. Conferir na imagem, não só no relatório.
 | `solda_manual.py <pasta> <REF>...` | Tira do BOM e do arquivo de posição as peças soldadas à mão depois da PCBA. Marca **as duas pontas**: `in_bom`/`in_pos_files` no símbolo e `exclude_from_bom`/`exclude_from_pos_files` no footprint — o BOM sai do esquemático e a posição sai da placa, e marcar só um lado faria a paridade divergir. Conferir exportando BOM e posição antes e depois |
+| `paridade.py <pasta>` | Confere que a placa liga **exatamente** o que o esquemático liga, comparando o conjunto de pads de cada rede — não o nome. **Use este, não a paridade do DRC**: a sincronização pelo MCP grava nomes de rede diferentes e o DRC acusava 237 / 195 / 69 itens com as placas corretas. Sai com código 1 se divergir |
 | `pcb_info.py <pcb>` | Lista footprints com courtyard e posição — conferência do posicionamento |
 | `crop.py <pdf> <prefixo>` | Recorta regiões do PDF do esquemático para inspeção visual |
 
