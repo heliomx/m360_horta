@@ -20,15 +20,13 @@ import pcbnew
 # referência -> (x, y, ângulo) do texto de REFERÊNCIA
 REFS = {
     "U2": (152.5, 112.0, 90),    # folga entre o corpo do U2 e o soquete do mezanino
+    "U3": (117.5, 143.5, 0),     # vão entre U3 e U4: acima do corpo ele caía sobre o "C9"
     "U4": (129.5, 143.5, 0),     # vão entre U4 e U5
     "U5": (141.5, 143.5, 0),     # à direita do U5, antes dos pull-ups
     "R3": (147.0, 120.8, 0),     # abaixo do próprio corpo: em cima ele toca o contorno do U2
-    # O botão (SW_PUSH_6mm, origem no pad 1) traz a referência acima do corpo, em (163,25; 151):
-    # em cima do "M360-LP". Vai para a faixa livre entre o botão (x <= 168) e o H4 (x >= 179).
-    "SW1": (172.0, 155.0, 0),
 }
 
-# textos livres: (conteúdo, x, y, altura)
+# textos livres: (conteúdo, x, y, altura[, ângulo])
 # O J3 ocupa y 137,1-143,9; as legendas ficam acima, na faixa livre até os pull-ups (y 130).
 TEXTOS = [
     # A referência do SW1 fica em y ≈ 154: com "M360-LP" em 153,5 os dois se imprimiam um
@@ -37,6 +35,12 @@ TEXTOS = [
     ("M360-LP", 158.0, 150.5, 1.5),              # logo abaixo da marca
     ("VCC", 177.0, 135.0, 0.8),                  # sobre a ilha 1 do J3 (VIN_RAW)
     ("GND", 181.5, 135.0, 0.8),                  # sobre a ilha 2 do J3
+    # O header FTDI do Pro Mini liga direto no trilho de 3,3 V, que alimenta o rádio: um
+    # adaptador em 5 V queima o SX1276 (§4.2). Legenda na faixa entre a borda e o A1, abaixo do H1.
+    ("FTDI sem VCC", 105.5, 115.0, 0.9, 90),
+    # O mezanino encaixa girado 180° no soquete simétrico (§3): marca o pino 1 do J4, que fica
+    # na coluna da direita (pad 1 em 158,8; 107,42).
+    ("1", 161.6, 107.42, 1.0),
 ]
 
 ESPESSURA = 0.25
@@ -46,7 +50,7 @@ def v(x, y):
     return pcbnew.VECTOR2I(pcbnew.FromMM(x), pcbnew.FromMM(y))
 
 
-def texto_livre(board, conteudo, x, y, altura):
+def texto_livre(board, conteudo, x, y, altura, angulo=0):
     """Cria ou reposiciona um texto solto na serigrafia da face de cima."""
     alvo = None
     for d in board.GetDrawings():
@@ -65,6 +69,7 @@ def texto_livre(board, conteudo, x, y, altura):
     # textos pequenos pedem traço mais fino, senão as letras fecham
     alvo.SetTextThickness(pcbnew.FromMM(ESPESSURA if altura >= 1.2 else 0.15))
     alvo.SetHorizJustify(pcbnew.GR_TEXT_H_ALIGN_CENTER)
+    alvo.SetTextAngleDegrees(angulo)
     print(f'   "{conteudo}" {acao} em ({x}, {y}), altura {altura} mm')
 
 
@@ -84,8 +89,8 @@ def main(path):
         print(f"   {ref}: -> ({x}, {y}) ang={ang}")
 
     print("textos livres:")
-    for conteudo, x, y, altura in TEXTOS:
-        texto_livre(board, conteudo, x, y, altura)
+    for conteudo, x, y, altura, *ang in TEXTOS:
+        texto_livre(board, conteudo, x, y, altura, *ang)
 
     pcbnew.SaveBoard(path, board)
     print("placa salva")

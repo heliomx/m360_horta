@@ -52,6 +52,7 @@ regular que não casava com o formato e aprovava em silêncio.
 | `gen_fp.py` | Gera `M360-RF_Soquete_2x05` e `Arduino_ProMini_DeeKRobot` em `../lib/M360.pretty` |
 | `import_lcsc.py <dir> [--sch]` | Traz footprints e modelos 3D baixados pelo `easyeda2kicad` |
 | `fix_rj45_3d.py` | Sobe 6,3 mm o modelo 3D do RJ45, que vem centrado no plano da placa. **Rodar sempre depois do `import_lcsc.py`**, que traz o erro de volta |
+| `fix_rj45_silk.py` | Tira da serigrafia do RJ45 a linha frontal, o círculo e o fim das laterais, que encostam na borda da placa (`silk_edge_clearance`: 8 avisos na LP, 13 na ACT). Varre a biblioteca **e** as placas, como o `fix_rj45_3d.py`. **Rodar sempre depois do `import_lcsc.py`** |
 | `promini_medida.py`, `grade.py` | Medem por foto os furos livres do Pro Mini (A4/A5, GND/A6/A7). O `grade.py` dá as coordenadas em pixel; o `promini_medida.py` faz a homografia e devolve milímetros |
 
 ### Placa
@@ -66,7 +67,7 @@ regular que não casava com o formato e aprovava em silêncio.
 | `dsn_sem_plano.py <in.dsn> <out.dsn>` | Tira as declarações `plane` do DSN antes do Freerouting. **Obrigatório ao rerrotear placa que já tem zona de GND**: com o plano declarado o roteador não desenha fio de terra, o plano se parte em ilhas e o DRC acusa `unconnected_items` "Zona [GND]" que nenhum ajuste de zona resolve (ARQUITETURA §11.6) |
 | `gnd_stitch.py <pcb> [--dry]` | Põe via de GND dentro de ilha de plano solta, com verificação de colisão nas duas faces. **Use só para colocar a via, nunca para decidir se ela é necessária** — o critério interno de "já ligada" é falho (§11.6). Se o plano fragmentou, o certo é rerrotear com o GND roteado (`dsn_sem_plano.py`) |
 | `pad_zone_connect.py <pcb> <REF> <PAD> <MODO>` | Ligação do pad às zonas: 0 nenhuma, 1 alívio térmico, 2 sólida. Age só no footprint pedido |
-| `silk_lp.py`, `silk_act.py`, `silk_gw.py` | Serigrafia de cada placa: tiram textos de referência de cima de ilhas, põem a marca e o nome do modelo, e acrescentam legendas. Na ACT, o campo **Value dos conectores** vai para a serigrafia ("RJ45 RELES-A", "5V do quadro"…), para o instalador não depender de saber o que é J3 ou J5. Na LP, **VCC e GND do J3** — ligar a alimentação invertida queima o nó, então a legenda é proteção, não conforto. Na GW não há texto a mover: os furos M3 já saem sem serigrafia pelo `place_gw.py` |
+| `silk_lp.py`, `silk_act.py`, `silk_gw.py` | Serigrafia de cada placa: tiram textos de referência de cima de ilhas, põem a marca e o nome do modelo, e acrescentam legendas. Na ACT, o campo **Value dos conectores** vai para a serigrafia ("RJ45 RELES-A", "5V do quadro"…), para o instalador não depender de saber o que é J3 ou J5. Na LP, **VCC e GND do J3** — ligar a alimentação invertida queima o nó, então a legenda é proteção, não conforto —, **"FTDI sem VCC"** junto ao header do Pro Mini e a marca do **pino 1 do soquete** do mezanino. Na GW não há texto a mover: os furos M3 já saem sem serigrafia pelo `place_gw.py` |
 
 > Duas armadilhas de serigrafia que custaram rodada extra: **o campo Value herda a rotação do
 > footprint** — num conector em rot 90 o texto sai na vertical, atravessando a própria ilha, a
