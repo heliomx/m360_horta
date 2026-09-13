@@ -121,7 +121,7 @@ Fonte 5 V (variante fixa, Nós 01/02) ───────┘              │
 | Item | Especificação | Motivo |
 |---|---|---|
 | LDO 3,3 V | Iq ≤ 5 µA; dropout ≤ ~150 mV @ 100 mA; Vin máx ≥ 6 V. Candidato: MCP1700-3302 (confirmar estoque no JLC) | Sono do nó; rádio a +17 dBm com a bateria em 3,4 V; fonte de 5 V na variante fixa |
-| Divisor de bateria | **2 MΩ / 1 MΩ permanente, 100 nF no A6** | A6 nunca passa de 2 V, nem com 6 V na entrada. Drena ~1,4 µA com a bateria a 4,2 V. O capacitor fornece a carga do sample-and-hold (a fonte de 667 kΩ sozinha seria alta demais para o ADC). Um divisor comutado pela perna de baixo deixaria o A6 na tensão da bateria — acima do VCC — quando desligado. **Custo aceito:** a fuga de entrada do A6 contra os 667 kΩ desloca a leitura (típico dezenas de mV na bateria a 25 °C; 1 µA no pior caso do datasheet daria ~2 V) e deriva com a temperatura. O firmware calibra em dois pontos e usa `analogReference(DEFAULT)` — com a referência interna de 1,1 V o A6 satura para qualquer bateria acima de 3,3 V |
+| Divisor de bateria | **2 MΩ / 1 MΩ permanente, 100 nF no A6** | A6 nunca passa de 2 V, nem com 6 V na entrada. Drena ~1,4 µA com a bateria a 4,2 V. O capacitor fornece a carga do sample-and-hold (a fonte de 667 kΩ sozinha seria alta demais para o ADC). Um divisor comutado pela perna de baixo deixaria o A6 na tensão da bateria — acima do VCC — quando desligado. **Custo aceito:** a fuga de entrada do A6 contra os 667 kΩ desloca a leitura (típico dezenas de mV na bateria a 25 °C; 1 µA no pior caso do datasheet daria ~2 V) e deriva com a temperatura. O firmware calibra em dois pontos. **Referência:** `analogReference(DEFAULT)` — com a interna de 1,1 V o A6 satura acima de 3,3 V de bateria —, mas a referência DEFAULT é o próprio VCC, e **abaixo de ~3,31 V de bateria o MCP1700 sai de regulação e o VCC passa a acompanhar a célula**: a conta vira (VBAT/3)/VBAT e devolve sempre 341 contagens, "3,3 V", com a célula em 3,2, 3,0 ou 2,8 V. Por isso o firmware **mede o VCC pelo bandgap** (o `readADCInternal()` de `M360Power.cpp` já faz isso) e corrige: VBAT = 3 × ADC_A6 × VCC_medido / 1023. Sem essa correção, nenhum limiar de corte abaixo de 3,4 V dispara |
 | Proteção da célula | **Do módulo: TP4056 com DW01 + 8205 e saída OUT±** (6 terminais) | A LP não tem bloqueio de subtensão próprio. **Não servem:** o módulo de 4 terminais (IN±/BAT±) de `docs/tp4056.jpeg`, sem DW01 nem 8205 — a célula desceria até o MCU parar e continuaria drenando no sono —; e o "18650 Battery Shield V3" do BOM do Nó 04, cuja saída passa por boost, o que inviabiliza a leitura da bateria pelo A6. Além disso o firmware para de transmitir abaixo de um limiar de bateria |
 | Bateria no VCC? | **Não** | O Nó 04 atual (nRF24) roda o MCU direto na bateria; com RFM95W isso não pode: o SPI do MCU chegaria ao rádio a 4,2 V, e o máximo absoluto do SX1276 é 3,9 V |
 | Inversão de polaridade | **P-MOSFET AO3401A (Q1) em série no positivo**, gate no GND | Queda de ~5 mV a 100 mA; um Schottky perderia ~0,3 V, que faltam com a bateria em 3,4 V e o rádio transmitindo. Com a entrada invertida o FET não conduz e o LDO fica protegido. Vgs máx. ±12 V; a entrada nunca passa de 6 V |
@@ -193,10 +193,10 @@ latão levam **+12 V, GND, +5 V e +3,3 V** a todo o quadro. A placa entra apenas
 |---|---|
 | MCU | Pro Mini 3,3 V / 8 MHz |
 | Fronteira 3,3 → 5 V | **74HCT244** (VIH 2,0 V aceita 3,3 V direto): S0–S3, SIG, NFT, OXI. **/OE com pull-up de 10 kΩ (R2) para o 3,3 V**, liberado pelo A5 depois do boot. Não para 5 V: com o A5 em alta impedância (boot, reset, gravação) o diodo de clamp do pino conduziria e ele ficaria a ~3,8 V, acima do máximo absoluto |
-| Estado definido com o /OE alto | **7× 100 kΩ (R7–R13)**, do lado de 5 V do buffer: pull-down em MUX_S0–S3 e pull-up para 5 V em MUX_SIG, REL_NFT e REL_OXI. Sem eles, as entradas do CD74HC4067 flutuariam em meio nível durante boot, reset e gravação. Relé ativo em LOW: pull-up = desligado |
+| Estado definido no boot, reset e gravação | **Dos dois lados do 74HCT244, 14× 100 kΩ.** Lado de 5 V (R7–R13): pull-down em MUX_S0–S3 e pull-up para 5 V em MUX_SIG, REL_NFT e REL_OXI — com o /OE alto as saídas ficam soltas, e as entradas do CD74HC4067 flutuariam em meio nível. Lado de 3,3 V (R14–R20): pull-down em MUX_S0_3V3–S3_3V3 e pull-up para 3,3 V em MUX_SIG_3V3, NFT_3V3 e OXI_3V3 — com o Pro Mini em reset os pinos dele ficam soltos, e o /OE só cobre as saídas, não as entradas (corrente de passagem no estágio de entrada). Relé ativo em LOW: pull-up = desligado |
 | MUX | CD74HC4067 a 5 V (EN no GND), **10 canais em uso** e 6 de reserva |
-| Vazão | Entrada D3 com divisor 10 kΩ / 20 kΩ + 1 nF + TVS. **Firmware: `INPUT`, não `INPUT_PULLUP`** — o pull-up interno contra o divisor leva o nível baixo a 0,44–0,83 V, contra VIL de 0,99 V |
-| Entrada analógica (A6, porta J5) | **Divisor 10 kΩ (R5) / 20 kΩ (R6) + 100 nF (C8)**, igual ao da vazão; o TVS U8 fica do lado do conector (rede AUX_A6_IN). O par marrom da porta entrega 5 V, e um sensor alimentado por ela poria até 5 V no pino (máximo absoluto VCC + 0,5 V = 3,8 V). O divisor leva 0–5 V a 0–3,33 V |
+| Vazão | Entrada D3: **10 kΩ em série (R3), Schottky BAT54WS (D1) do D3 para o 3,3 V, 100 kΩ para o GND (R4) e 1 nF (C7)**, com o TVS U8 do lado do conector. O clamp aceita as duas saídas que o YF-S201 tem no mercado: push-pull de ~5 V (o grampo segura o D3 em ~3,6 V e limita a corrente a ≤ 0,2 mA) e coletor aberto com pull-up interno de 10 kΩ (o nível alto fica em ~3,6 V em vez dos 2,5 V que o divisor 10 k / 20 k anterior dava). O 100 kΩ mantém o pino em LOW com o sensor desligado — sem ele o D3 flutuaria e contaria pulsos falsos. **Firmware: `INPUT`, não `INPUT_PULLUP`** — o pull-up interno contra os 10 kΩ para um sensor em LOW deixa o nível baixo acima do VIL de 0,99 V |
+| Entrada analógica (A6, porta J5) | **Divisor 10 kΩ (R5) / 20 kΩ (R6) + 100 nF (C8)**, igual ao da vazão; o TVS U8 fica do lado do conector (rede AUX_A6_IN). O par marrom da porta entrega 5 V, e um sensor alimentado por ela poria até 5 V no pino (máximo absoluto VCC + 0,5 V = 3,8 V). O divisor leva 0–5 V a 0–3,33 V. **Carrega a fonte com 30 kΩ:** serve para sensor com saída de baixa impedância (op-amp, conversor); um potenciômetro ou divisor resistivo na saída lê errado |
 | Reed switch (SW1) | A4 (o nó nunca dorme; lido por polling). Fica **na própria placa**, na borda direita: o ímã é aproximado por fora do quadro, que é plástico |
 | Antena | Fica **dentro do quadro**. A caixa é plástica, mas há metal por perto — barramentos, trilho DIN e disjuntores. Medir o alcance na instalação; se cair, levar o SMA para fora da parede |
 | Fora do escopo | DHT, pH e oxigênio saem deste nó. O único sensor é a **vazão**, que chega pela porta J5 |
@@ -210,8 +210,9 @@ a mesma regra de segurança do Nó 99 atual.
 esse intervalo, desde que seja liberado por último.
 
 **YF-S201:** o datasheet do fabricante especifica nível alto > 4,5 V com 5 V de alimentação e borda de
-0,04 µs — o sensor põe ~5 V no fio. O divisor leva isso a 3,3 V; os pulsos (≤ ~225 Hz a 30 L/min) passam
-folgados pelo filtro de 1 nF.
+0,04 µs — mas é o valor em vazio, e há unidades de coletor aberto com pull-up interno de 10 kΩ. O
+grampo no 3,3 V serve para as duas; os pulsos (≤ ~225 Hz a 30 L/min) passam folgados pelo filtro de
+10 kΩ / 1 nF (τ = 10 µs).
 
 ### 5.3 Módulos de relé
 
@@ -248,7 +249,7 @@ PC817, jumper JD-VCC/VCC/GND, entrada ativa em LOW.
 | DIO0 | D1 (GPIO5) | Padrão da lib (`RFM95.h:96`) |
 | DIO1, RESET | **não ligados** | Não há GPIO livre seguro no boot (GPIO0/2/15 são pinos de boot). Um gateway LoRaWAN de verdade usa concentrador SX1302, não RFM95 — a opção LoRaWAN só importa nos nós |
 | LED vermelho / amarelo | D2 / D0 | Sem mudança |
-| LED verde | **D4 (GPIO2), ativo em LOW** | Sai do D1, que agora é o DIO0. GPIO2 é pino de boot: o LED liga do 3,3 V ao pino, para não puxá-lo para baixo na partida. **Exige inverter a polaridade em `M360Leds.cpp`** |
+| LED verde | **D4 (GPIO2), via 2N7002 (Q1), ativo em HIGH** | Sai do D1, que agora é o DIO0. GPIO2 é pino de boot e tem de estar em HIGH na partida: o pino só comanda o gate, e o LED fica do 3,3 V para o dreno. Um curto do chicote para o GND acende o LED em vez de travar o boot. Mesma polaridade dos outros dois LEDs |
 | Reed (AP / reset) | A0 | Mesmo pino do botão antigo; o firmware não muda |
 
 ### 6.1 Blocos
@@ -258,8 +259,8 @@ PC817, jumper JD-VCC/VCC/GND, entrada ativa em LOW.
 | MCU | D1 mini (ESP8266), símbolo e footprint **stock**: `RF_Module:WEMOS_D1_mini` e `RF_Module:WEMOS_D1_mini_light`. O footprint traz uma zona de **keep-out sobre a antena** — nenhum cobre do carrier pode entrar ali |
 | Mezanino (J1) | Soquete 2×5, `M360:M360-RF_Soquete_2x05`, numeração do mezanino (§3). **Sem pull-up no NSS** — ao contrário da LP; aqui o NSS é o GPIO15, que tem de estar em LOW no boot |
 | Alimentação | 5 V externo no borne J2 → **Schottky SS14 (D1)** → pino 5V do módulo; o 3,3 V do regulador do próprio D1 mini alimenta o mezanino. 100 nF no 5 V, 10 µF + 100 nF no 3,3 V, somados aos 22 µF + 100 nF que o mezanino já tem junto ao rádio. **Por que o diodo:** o pino 5V do D1 mini é o VBUS do USB, sem diodo no módulo (esquemático v4.0.0). Sem o D1, fonte externa e porta USB ficariam em paralelo, e a mais alta alimentaria a outra. O diodo deixa a fonte externa ~0,45 V abaixo do VBUS e bloqueia fio invertido no borne. Mesmo assim, **não alimentar pelos dois ao mesmo tempo** |
-| LEDs | **Fora da placa**, no painel da caixa. A bordo ficam só os resistores de 1 kΩ; o **J3** leva os três pares ao chicote. Vermelho (D2) e amarelo (D0) têm o cátodo no GND; o **verde vem do 3,3 V para o D4**, ativo em LOW — o pino afunda a corrente e, no boot, o GPIO2 é mantido alto pelo próprio LED |
-| J3 (LEDs) | JST XH de **6 vias, em pares ânodo/cátodo**: 1-2 vermelho, 3-4 amarelo, 5-6 verde. Não são 4 vias com terra comum porque **o verde não tem o cátodo no GND** — ele vai ao D4. Com pares dedicados, os três LEDs são ligados da mesma forma no chicote apesar dessa assimetria, e o conector é chaveado, o que impede inversão no campo |
+| LEDs | **Fora da placa**, no painel da caixa. A bordo ficam os resistores de 1 kΩ e o 2N7002 do verde; o **J3** leva os três pares ao chicote. Vermelho (D2) e amarelo (D0) têm o cátodo no GND; o **verde vai do 3,3 V ao dreno do Q1**, cujo gate é o D4 — assim o chicote nunca encosta no GPIO2 |
+| J3 (LEDs) | JST XH de **6 vias, em pares ânodo/cátodo**: 1-2 vermelho, 3-4 amarelo, 5-6 verde. Não são 4 vias com terra comum porque **o verde não tem o cátodo no GND** — ele vai ao dreno do Q1. Com pares dedicados, os três LEDs são ligados da mesma forma no chicote apesar dessa assimetria, e o conector é chaveado, o que impede inversão no campo |
 | Reed (AP / reset) | SW1, Littelfuse 59170, do A0 ao GND, com 10 kΩ para o 3,3 V e 100 nF. O ímã por fora da caixa aciona o modo AP; mantido por 3 s nos primeiros 30 s, o factory reset |
 | Sem ligação | DIO1 e RESET no mezanino; RST, D3, RX e TX no D1 mini |
 
@@ -273,7 +274,7 @@ US$ 0,0173 por junta.
 
 | Vai pela PCBA | Fica para solda manual |
 |---|---|
-| R1–R3 1 kΩ e R4 10 kΩ (0603), C1 10 µF (0805), C2–C4 100 nF (0603), D1 SS14 (SMA), SW1 reed | U1 (D1 mini — módulo, sem equivalente no catálogo), J1 (soquete do mezanino), J2 (borne), J3 (JST dos LEDs) |
+| R1–R3 1 kΩ e R4 10 kΩ (0603), C1 10 µF (0805), C2–C4 100 nF (0603), D1 SS14 (SMA), Q1 2N7002 (SOT-23), SW1 reed | U1 (D1 mini — módulo, sem equivalente no catálogo), J1 (soquete do mezanino), J2 (borne), J3 (JST dos LEDs) |
 
 O C1 deixou de ser eletrolítico: em cerâmico não há polaridade, e o símbolo voltou a `Device:C`.
 
@@ -283,9 +284,8 @@ em repouso fica em ~3,2 V e a leitura satura em 1023 — inofensivo, porque `isA
 com o limiar 400. Com o reed fechado o pino vai a 0 V e drena 0,33 mA.
 
 > ⛔ **Pendência de firmware, não de hardware.** `M360Leds.h` ainda define `LED_GREEN D1` — que nesta
-> placa é o DIO0 — e `M360Leds.cpp` acende os três LEDs com `digitalWrite(pin, HIGH)`. A placa exige
-> o verde no **D4 e invertido** (LOW acende). A inversão toca `initLEDs`, `setLedState`, `updateLEDs`
-> e `ledFlicker`: não é uma linha. Enquanto não for feita, o LED verde funciona ao contrário.
+> placa é o DIO0. A placa exige o verde no **D4**. A polaridade não muda: com o 2N7002, os três LEDs
+> acendem em HIGH, como o `M360Leds.cpp` já faz.
 >
 > Sem efeito, mas vale corrigir junto: em `libDryGatewayMqtt.cpp` a chamada é
 > `initLEDs(LED_RED, LED_GREEN, LED_YELLOW)` e o protótipo é `(redPin, yellowPin, greenPin)`. Os
@@ -311,7 +311,7 @@ Pares T568B: laranja 1/2, verde 3/6, azul 4/5, **marrom 7/8 = VCC/GND** em todas
 |---|---|---|---|
 | **J3 RELÉS-A** | Sol. A (ch0) / Sol. B (ch1) | Sol. C (ch2) / Perist. A (ch3) | Perist. B (ch4) / pH+ (ch5) |
 | **J4 RELÉS-B** | pH− (ch6) / Bomba NFT | Bomba Oxi / MUX ch7 | MUX ch8 / ch9 (reserva) |
-| **J5 SENSORES** | Vazão / livre (era o DHT) | A6 (analógico, 0–5 V pelo divisor) / livre | livres |
+| **J5 SENSORES** | Vazão / livre (era o DHT) | A6 (analógico, 0–5 V pelo divisor, carga de 30 kΩ) / livre | livres |
 
 Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: aceitável até ~2 m a
 100 kHz; acima disso, reavaliar.
@@ -343,8 +343,7 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 | Placa da GW (versão THT, **substituída pela SMD** — §6.2) | **80 × 60 mm**, montagem 100% THT — em inserção os passivos cobram área: cada resistor axial ocupa 12,4 × 3,1 mm contra 1,6 × 0,8 de um 0603. Arranjo: D1 mini no alto à esquerda, com a ponta da antena/USB **na borda de cima** (o footprint traz keep-out sobre a antena, e assim o cabo entra sem abrir a caixa); mezanino no alto à direita, com a borda direita dele coincidindo com a da placa, para o SMA sair pela lateral; desacoplamento logo abaixo do módulo; borne de 5 V na borda esquerda; o J3 dos LEDs na borda de baixo (os LEDs em si ficam no painel, §6.1), com os resistores em pé logo acima; botão de AP e pull-up do A0 na faixa livre sob o mezanino. Furos M3: H1 desvia do D1 mini e **H2 não fica no canto** — ali cairia sob o mezanino e a placa teria de ser parafusada antes de encaixar o módulo. Roteada pelo Freerouting (§11): 0,7 s de roteamento e 4 s de otimização, ~53% de melhoria, 133 segmentos e **1 via só** — numa placa toda THT cada ilha já atravessa as duas faces, então o roteador troca de camada nos próprios furos. Planos de GND nas duas faces. O preenchimento acusou `starved_thermal` na ilha 2 do J3 e **as hastes de 0,35 mm com folga de 0,3 bastaram**, sem precisar da ligação sólida que os RJ45 da LP e da ACT exigiram: nas ilhas do JST (1,7 × 1,95 mm a passo de 2,5) os raios verticais têm espaço assim que a folga cai de 0,5 para 0,3. Marca "Viridiotech.com.br" na faixa livre entre o mezanino e o C3/R4 — a 1,5 mm de altura ela mede ~20 mm, e na primeira posição encostava na ilha do C3. DRC final: 0 violações, 0 ligações pendentes. Faltam os arquivos de fabricação |
 | Gravação do Pro Mini | Com 86 mm de placa dentro de ~92 mm de interior sobram ~3 mm de cada lado, e o espaço livre restante fica à frente dos RJ45. **Não cabe o adaptador FTDI com a placa montada:** gravar na bancada, com a placa fora da caixa, ou prever cabo FTDI angulado. O nó é gravado antes da instalação; em campo, a atualização depende de retirar a placa |
 | Regulador do Pro Mini | Com 3,3 V no VCC e RAW solto, o regulador da própria placa pode ser alimentado de volta pelo diodo interno e consumir a corrente quiescente dele. Medir a corrente de sono na primeira placa; se passar de poucos µA, retirar o regulador, como o LED |
-| DHT11 no atuador | Alimentado a 5 V pelo RJ45, com pull-up para 3,3 V: confirmar que a saída é dreno aberto |
-| Firmware das placas novas | Envs `pro8MHzatmega328`; pinos novos; `readBatteryVoltage()` pelo A6 na LP, com `analogReference(DEFAULT)` e calibração em dois pontos, e corte de TX por bateria baixa; LED verde ativo em LOW no gateway; na ACT, vazão com `INPUT` (hoje `INPUT_PULLUP` em `sensorDrivers.cpp:141`) e o A5 (/OE) liberado por último. Atualizar `inventario.md` e os `esquema_eletrico.md` na mesma entrega |
+| Firmware das placas novas | Envs `pro8MHzatmega328`; pinos novos; `MY_RFM95_RST_PIN` = D8 na LP e A3 na ACT (DIO0 no D2 é o padrão da lib). **LP:** `readBatteryVoltage()` pelo A6 com `analogReference(DEFAULT)`, calibração em dois pontos e **correção pelo VCC medido no bandgap** (§4.1), e corte de TX por bateria baixa (sem a correção, limiar ≥ 3,4 V). **ACT:** vazão com `INPUT` (hoje `INPUT_PULLUP` em `sensorDrivers.cpp:141`) e o A5 (/OE) liberado por último. **GW:** LED verde no D4, ativo em HIGH. Atualizar `inventario.md` e os `esquema_eletrico.md` na mesma entrega |
 | Caixa | Modelo IP e dimensões internas; posição do SMA |
 | Trilho de 3,3 V da GW | O ME6211 do D1 mini (500 mA) alimenta ESP8266 e RFM95W. Pelos datasheets a soma fica em ~290 mA; com os picos de WiFi medidos em bancada (300–400 mA) encosta no limite. Medir a queda com WiFi e LoRa transmitindo ao mesmo tempo — primeira suspeita se houver reset do gateway em campo |
 | Fusível por porta RJ45 da ACT | Curto no chicote derruba o 5 V do quadro inteiro. Não há PTC *basic* no catálogo; avaliar PTC *extended* por porta |
@@ -369,7 +368,6 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 | LP: MUX 8:1 | 74HC4051D,653 (SOIC-16) | C9386 | ext | 24 931 | |
 | ACT: buffer | 74HCT244D,653 (SOIC-20) | C5978 | ext | 16 211 | |
 | ACT: MUX 16:1 | CD74HC4067M96 (SOIC-24) | C496123 | ext | 12 982 | |
-| ACT: buck 12 → 5 V | XL1509-5.0E1 (SOIC-8) | C61063 | **basic** | 708 804 | 150 kHz pede indutor grande; TPS54202 (C191884) é menor, mas extended |
 | TVS de linhas analógicas | ESD5Z3.3T1G (SOD-523) | C2827729 | ext | 639 857 | 110 pF: **não** serve para 1-Wire/I2C em cabo |
 | LP: TVS das linhas de campo | SRV05-4 (TECH PUBLIC, SOT-23-6) | C558418 | ext | 461 674 | 4 linhas, 0,3–0,8 pF: serve para solo, 1-Wire e I2C. Substitui o ESD5Z na LP |
 | LP: entrada `J_VIN` | JST B2B-XH-A (2 vias) | C158012 | ext | 203 889 | J3; solda manual |
@@ -377,10 +375,12 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 | Reed switch (SW1, as três placas) | Littelfuse 59170-1-S-00-D (SMD) | C315909 | ext | 35 144 | **Decidido (2026-09-13):** pela PCBA, nas três placas. O botão tátil TS665CJ (C393938), usado por um dia, saiu |
 | LP: soquete do mezanino | PM254V-12-10P-H85 (fêmea 2×5, 8,5 mm) | C492399 | ext | 37 436 | J4; solda manual |
 | 1 µF 0603 · 10 µF 0805 · 10 nF 0603 | CL10A105KB8NNNC · CL21A106KAYNNNE · 0603B103K500NT | C15849 · C15850 · C57112 | **basic** | milhões | |
-| Resistores 0603 1 % | 1 k · 3,3 k · 4,7 k · 10 k · 20 k · 100 k · 1 M · 2 M | C21190 · C22978 · C23162 · C25804 · C4184 · C25803 · C22935 · C22976 | **basic** | | 10 k: ver §9. 20 k só na ACT (R4 e R6, divisores da vazão e do A6). 100 k também nos pulls do MUX da ACT (R7–R13) |
+| Resistores 0603 1 % | 1 k · 3,3 k · 4,7 k · 10 k · 20 k · 100 k · 1 M · 2 M | C21190 · C22978 · C23162 · C25804 · C4184 · C25803 · C22935 · C22976 | **basic** | | 10 k: ver §9. 20 k só na ACT (R6, divisor do A6). 100 k na ACT: R4 (pull-down da vazão) e R7–R20 (estado do buffer e do MUX) |
 | ACT: 1 nF 0603 X7R | CL10B102KB8NNNC | C1588 | **basic** | 2 777 884 | C7, filtro da vazão |
 | Borne de 5 V (ACT J1, GW J2) | WJ500V-5.08-2P | C8465 | ext | 234 530 | Solda manual |
 | GW: diodo de entrada | SS14 (SMA) | C2480 | **basic** | 2 818 967 | D1 |
+| GW: buffer do LED verde | 2N7002 (SOT-23) | C8545 | **basic** | 432 340 | Q1 |
+| ACT: clamp da vazão | BAT54WS (SOD-323), fuga 2 µA | C7502694 | preferred | 423 347 | D1. Não há BAT54 *basic*; *preferred* não paga taxa de setup. Fuga baixa de propósito: um Schottky de 1 A (1N5819WS, basic) vaza centenas de µA e ergueria o nível baixo sobre os 100 kΩ |
 | GW: JST dos LEDs | B6B-XH-A (6 vias) | C144397 | ext | 47 935 | J3; solda manual |
 | GW: D1 mini | — | — | manual | — | Não existe no catálogo. Os passivos da GW são os mesmos 0603/0805 basic das outras placas |
 
