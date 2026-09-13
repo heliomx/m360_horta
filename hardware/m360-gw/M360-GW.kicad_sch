@@ -2138,6 +2138,15 @@
 				)
 			)
 		)
+		(property "LCSC" "C492399"
+			(at 175.26 110.49 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Datasheet" ""
 			(at 175.26 110.49 0)
 			(hide yes)
@@ -2241,6 +2250,15 @@
 				)
 			)
 		)
+		(property "LCSC" "C8465"
+			(at 39.37 69.85 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Datasheet" ""
 			(at 39.37 69.85 0)
 			(hide yes)
@@ -2314,6 +2332,15 @@
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C144397"
+			(at 95.25 175.26 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2411,6 +2438,15 @@
 				)
 			)
 		)
+		(property "LCSC" "C84772"
+			(at 59.69 69.85 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Datasheet" ""
 			(at 59.69 69.85 0)
 			(hide yes)
@@ -2486,6 +2522,15 @@
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C106654"
+			(at 74.93 91.44 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2571,6 +2616,15 @@
 				)
 			)
 		)
+		(property "LCSC" "C84772"
+			(at 90.17 91.44 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Datasheet" ""
 			(at 90.17 91.44 0)
 			(hide yes)
@@ -2644,6 +2698,15 @@
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C57435"
+			(at 39.37 134.62 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2729,6 +2792,15 @@
 				)
 			)
 		)
+		(property "LCSC" "C57435"
+			(at 39.37 154.94 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Datasheet" ""
 			(at 39.37 154.94 0)
 			(hide yes)
@@ -2808,6 +2880,15 @@
 				)
 			)
 		)
+		(property "LCSC" "C57435"
+			(at 39.37 175.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Datasheet" ""
 			(at 39.37 175.26 0)
 			(hide yes)
@@ -2881,6 +2962,15 @@
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C57436"
+			(at 139.7 148.59 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3048,6 +3138,15 @@
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C84772"
+			(at 157.48 148.59 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)

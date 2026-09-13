@@ -328,7 +328,7 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 | Item | O que falta |
 |---|---|
 | Banda do RFM95W | Validar em bancada (RTL-SDR em 916,8 MHz ou RSSI contra referência) antes de comprar em quantidade |
-| Seleção de peças | Candidatas em §9.1. O 10 kΩ basic (C25804) não aparece no snapshot local do catálogo: confirmar no site antes do pedido |
+| Seleção de peças | Candidatas em §9.1. O 10 kΩ basic (C25804) não aparece no catálogo local de peças **em estoque** (conferido de novo em 2026-09-12): confirmar no site antes do pedido. Está em 11 posições da LP e 3 da ACT; não há outro 10 kΩ 0603 basic em estoque — a alternativa é extended (FOJAN FRC0603F1002TS, C2906982) |
 | Footprints da LP | Feitos em `hardware/lib/M360.pretty`: Pro Mini, soquete do mezanino, RJ45 C385834 e reed C315909 (os dois do LCSC via easyeda2kicad, com os pinos-guia do RJ45 corrigidos para furo não metalizado e o modelo 3D do RJ45 subido 6,3 mm, que vinha atravessando a placa). O reed está fora de uso desde que o SW1 virou `Button_Switch_THT:SW_PUSH_6mm`, stock do KiCad; o footprint fica na biblioteca |
 | Furos livres do Pro Mini | **Medidos por foto** (`docs/prominiFront.jpg`): homografia a partir dos 4 pinos de canto das fileiras, cuja posição é conhecida (passo 2,54 mm, fileiras a 15,24 mm). Escala consistente em 2% nas quatro bordas. **A4/A5** ficam uma coluna para dentro da fileira direita e a meio passo das linhas: (12,70; 11,43) e (12,70; 8,89). **GND/A6/A7** ficam na borda de baixo em 7,62 / 10,16 / 12,70, com y = 28,3 ± 0,3. Os espaçamentos medidos (2,57 e 2,59 mm) confirmam a grade de 2,54; o viés comum de −0,25 mm em x é erro de leitura dos pinos de canto. Esses cinco furos levam **1,2 mm** (os das fileiras, 1,0 mm) para absorver a incerteza. Confirmar com paquímetro antes de fabricar |
 | Placa da LP | Caixa de 100 × 100 × 50 mm → interior de ~92 mm. O plugue RJ45 crimpado é montado dentro da caixa e precisa de ~25–30 mm livres à frente dos conectores (corpo do plugue e capa), com os prensa-cabos na parede em frente a eles. Isso limita a placa a **86 × 62 mm**, formato em que o posicionamento foi refeito: RJ45 e botão SW1 na borda de baixo; TVS logo atrás deles; matriz RC dos 8 canais na faixa do meio; Pro Mini deitado no alto à esquerda (FTDI para fora da borda esquerda) com o 74HC4051 ao lado; mezanino no alto à direita com o SMA pela borda; alimentação e trilho VSW **embaixo do mezanino** (só SMD baixo: o mezanino fica a ~11 mm, o MCP1700 é linear e o P-MOSFET do VSW chaveia devagar); `J_VIN` na borda direita; 4 furos M3. Sem sobreposição de courtyard no DRC. Roteada (§11), com planos de terra nas duas faces e serigrafia acertada — DRC com 0 erros e 0 ligações pendentes. Falta gerar os arquivos de fabricação |
@@ -338,7 +338,7 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 | DHT11 no atuador | Alimentado a 5 V pelo RJ45, com pull-up para 3,3 V: confirmar que a saída é dreno aberto |
 | Firmware das placas novas | Envs `pro8MHzatmega328`; pinos novos; `readBatteryVoltage()` pelo A6 na LP; LED verde ativo em LOW no gateway. Atualizar `inventario.md` e os `esquema_eletrico.md` na mesma entrega |
 | Caixa | Modelo IP e dimensões internas; posição do SMA |
-| BOM da JLCPCB | Exportado em 2026-09-12: **a ACT e a GW não têm código LCSC em peça nenhuma** — o `add_lcsc.py` só conhece o mapa da LP. Na GW, os `PWR_FLAG` (FLG1, FLG2) saem no BOM e acusam `missing_footprint` na paridade. E o C13 da LP carregava o código do reed (C315909) desde `bc651ca`, o que faria a JLCPCB montar um reed no lugar de um capacitor de 100 nF — corrigido para C14663 |
+| BOM da JLCPCB | Exportado em 2026-09-12. Códigos LCSC gravados nas três placas (ACT e GW com `add_lcsc.py --set`); só o **D1 mini** da GW fica sem código — não existe no catálogo. Na GW, os `PWR_FLAG` (FLG1, FLG2) saem no BOM e acusam `missing_footprint` na paridade. E o C13 da LP carregava o código do reed (C315909) desde `bc651ca`, o que faria a JLCPCB montar um reed no lugar de um capacitor de 100 nF — corrigido para C14663 |
 
 ### 9.1 Peças candidatas (LCSC — catálogo de 2026-09-09)
 
@@ -367,7 +367,14 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 | Botão (repareamento na LP e na ACT; AP na GW) | SHOU HAN TS665CJ, tátil 6 × 6 mm THT, haste de 5 mm | C393938 | manual | 184 275 | **Decidido (2026-09-12):** SW1 nas três placas, footprint `Button_Switch_THT:SW_PUSH_6mm` (terminais a 6,5 × 4,5 mm, confirmados contra o datasheet do TS665CJ); **solda manual, fora do PCBA**, para não pagar a taxa de peça extended. Substitui o reed Littelfuse 59170 (C315909). Não há tátil 6 × 6 THT *basic* no catálogo; o único *basic* que serviria é SMD (C318884, 5,1 × 5,1 mm), e trocá-lo obrigaria a rerrotear |
 | LP: soquete do mezanino | PM254V-12-10P-H85 (fêmea 2×5, 8,5 mm) | C492399 | ext | 37 436 | J4; solda manual |
 | 1 µF 0603 · 10 µF 0805 · 10 nF 0603 | CL10A105KB8NNNC · CL21A106KAYNNNE · 0603B103K500NT | C15849 · C15850 · C57112 | **basic** | milhões | |
-| Resistores 0603 1 % | 1 k · 3,3 k · 4,7 k · 10 k · 100 k · 1 M · 2 M | C21190 · C22978 · C23162 · C25804 · C25803 · C22935 · C22976 | **basic** | | 10 k: ver §9 |
+| Resistores 0603 1 % | 1 k · 3,3 k · 4,7 k · 10 k · 20 k · 100 k · 1 M · 2 M | C21190 · C22978 · C23162 · C25804 · C4184 · C25803 · C22935 · C22976 | **basic** | | 10 k: ver §9. 20 k só na ACT (R4, divisor da vazão) |
+| ACT: 1 nF 0603 X7R | CL10B102KB8NNNC | C1588 | **basic** | 2 777 884 | C7, filtro da vazão |
+| Borne de 5 V (ACT J1, GW J2) | WJ500V-5.08-2P | C8465 | ext | 234 530 | |
+| GW: 10 µF eletrolítico radial D5, passo 2 mm | AISHI ERS1HM100D11OT (50 V, 11 mm) | C106654 | ext | 64 217 | C1. Tensão folgada sobre o 3,3 V; o que importa é o passo e o diâmetro do footprint |
+| GW: 100 nF THT | Fenghua CT4-0805B104K500F3 (MLCC com terminais, X7R, passo 5,08 mm) | C84772 | ext | 168 974 | C2–C4. **X7R de propósito:** os cerâmicos de disco em estoque são Y5V, que perdem boa parte da capacitância com tensão e temperatura. Passo de 5,08 no footprint de 5,00 mm |
+| GW: resistores axiais 1/4 W 1 % | UNI-ROYAL MFR0W4F1001A50 (1 k) · MFR0W4F1002A50 (10 k) | C57435 · C57436 | ext | 52 033 · 244 612 | R1–R3 (LEDs) e R4 (pull-up do A0). Corpo D2,2 × 6,5 mm no footprint DIN0207 |
+| GW: JST dos LEDs | B6B-XH-A (6 vias) | C144397 | ext | 47 935 | J3 |
+| GW: D1 mini | — | — | manual | — | Não existe no catálogo |
 
 ---
 

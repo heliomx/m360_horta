@@ -4110,6 +4110,15 @@
 				)
 			)
 		)
+		(property "LCSC" "C8465"
+			(at 30.48 44.45 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Datasheet" ""
 			(at 30.48 44.45 0)
 			(hide yes)
@@ -4183,6 +4192,15 @@
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C15850"
+			(at 48.26 58.42 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4268,6 +4286,15 @@
 				)
 			)
 		)
+		(property "LCSC" "C14663"
+			(at 58.42 58.42 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Datasheet" ""
 			(at 58.42 58.42 0)
 			(hide yes)
@@ -4342,6 +4369,15 @@
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C6186"
+			(at 74.93 44.45 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4430,6 +4466,15 @@
 				)
 			)
 		)
+		(property "LCSC" "C15850"
+			(at 95.25 58.42 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Datasheet" ""
 			(at 95.25 58.42 0)
 			(hide yes)
@@ -4503,6 +4548,15 @@
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C14663"
+			(at 105.41 58.42 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4902,6 +4956,15 @@
 				)
 			)
 		)
+		(property "LCSC" "C25804"
+			(at 101.6 119.38 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Datasheet" ""
 			(at 101.6 119.38 0)
 			(hide yes)
@@ -4975,6 +5038,15 @@
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C492399"
+			(at 64.77 224.79 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5080,6 +5152,15 @@
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C5978"
+			(at 165.1 124.46 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5219,6 +5300,15 @@
 				)
 			)
 		)
+		(property "LCSC" "C25804"
+			(at 134.62 87.63 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Datasheet" ""
 			(at 134.62 87.63 0)
 			(hide yes)
@@ -5292,6 +5382,15 @@
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C14663"
+			(at 185.42 91.44 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5377,6 +5476,15 @@
 				(font
 					(size 1.27 1.27)
 					(italic yes)
+				)
+			)
+		)
+		(property "LCSC" "C496123"
+			(at 247.65 139.7 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
 		)
@@ -5525,6 +5633,15 @@
 				)
 			)
 		)
+		(property "LCSC" "C14663"
+			(at 267.97 100.33 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Datasheet" ""
 			(at 267.97 100.33 0)
 			(hide yes)
@@ -5598,6 +5715,15 @@
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C25804"
+			(at 284.48 237.49 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5683,6 +5809,15 @@
 				)
 			)
 		)
+		(property "LCSC" "C4184"
+			(at 284.48 252.73 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Datasheet" ""
 			(at 284.48 252.73 0)
 			(hide yes)
@@ -5756,6 +5891,15 @@
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C1588"
+			(at 298.45 247.65 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5837,6 +5981,15 @@
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C558418"
+			(at 314.96 49.53 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5936,6 +6089,15 @@
 				)
 			)
 		)
+		(property "LCSC" "C558418"
+			(at 314.96 90.17 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Datasheet" "http://www.onsemi.com/pub/Collateral/SRV05-4-D.PDF"
 			(at 314.96 90.17 0)
 			(hide yes)
@@ -6023,6 +6185,15 @@
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C558418"
+			(at 314.96 139.7 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6122,6 +6293,15 @@
 				)
 			)
 		)
+		(property "LCSC" "C558418"
+			(at 314.96 180.34 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Datasheet" "http://www.onsemi.com/pub/Collateral/SRV05-4-D.PDF"
 			(at 314.96 180.34 0)
 			(hide yes)
@@ -6215,6 +6395,15 @@
 				)
 			)
 		)
+		(property "LCSC" "C558418"
+			(at 314.96 234.95 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Datasheet" "http://www.onsemi.com/pub/Collateral/SRV05-4-D.PDF"
 			(at 314.96 234.95 0)
 			(hide yes)
@@ -6300,6 +6489,15 @@
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C385834"
+			(at 364.49 62.23 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6403,6 +6601,15 @@
 				)
 			)
 		)
+		(property "LCSC" "C385834"
+			(at 364.49 137.16 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Datasheet" ""
 			(at 364.49 137.795 90)
 			(hide yes)
@@ -6494,6 +6701,15 @@
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C385834"
+			(at 364.49 214.63 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
