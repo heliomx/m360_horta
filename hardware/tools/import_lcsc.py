@@ -35,8 +35,7 @@ FOOTPRINTS = {
     "J1": "M360:RJ45_R-RJ45R08P-A004",
     "J2": "M360:RJ45_R-RJ45R08P-A004",
     "J4": "M360:M360-RF_Soquete_2x05",
-    # SW1 saiu do mapa em 2026-09-12: virou botão tátil (Button_Switch_THT:SW_PUSH_6mm, stock do
-    # KiCad). Com ele aqui, o --sch devolveria o footprint do reed ao esquemático da LP.
+    "SW1": "M360:Reed_Littelfuse_59170",   # reed de volta em 2026-09-13 (o botão durou um dia)
 }
 
 

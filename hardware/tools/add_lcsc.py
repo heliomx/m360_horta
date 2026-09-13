@@ -39,7 +39,7 @@ LCSC = {
     **{r: "C385834" for r in ("J1", "J2")},                 # RJ45 8P8C sem blindagem
     "J3": "C158012",                                        # JST B2B-XH-A
     "J4": "C492399",                                        # soquete fêmea 2x5 2,54 mm
-    "SW1": "C393938",                                       # tátil 6x6 THT SHOU HAN TS665CJ (solda manual)
+    "SW1": "C315909",                                       # reed SMD Littelfuse 59170 (PCBA)
 }
 
 

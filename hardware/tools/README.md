@@ -25,7 +25,7 @@ dentro desta pasta, ou com ela no `PYTHONPATH`.
 ### Esquemático
 | Script | O que faz |
 |---|---|
-| `fix_layout.py <sch> [--lp\|--act]` | Põe cada label na ponta de um fio curto e os campos Reference/Value fora do corpo, no padrão que o usuário definiu à mão no R6. As opções `--lp` e `--act` aplicam os casos particulares de cada placa — **não troque uma pela outra**: as referências repetem entre as placas com significados diferentes |
+| `fix_layout.py <sch> [--lp\|--act]` | Põe cada label na ponta de um fio curto e os campos Reference/Value fora do corpo, no padrão que o usuário definiu à mão no R6. As opções `--lp` e `--act` aplicam os casos particulares de cada placa — **não troque uma pela outra**: as referências repetem entre as placas com significados diferentes. **Não é idempotente:** rodado de novo sobre um esquemático já arrumado, solta pads (medido em 2026-09-13 na LP e na ACT). Só na primeira arrumação — ver ARQUITETURA §12 |
 | `add_lcsc.py <sch> [--set REF=CÓDIGO ...]` | Grava o código LCSC de cada peça. Sem `--set` aplica o mapa da LP — **só na LP**, porque as referências repetem entre as placas com outro significado; com `--set`, grava só as referências pedidas, em qualquer placa |
 | `schlib.py <sch>` | Sem argumento de escrita: imprime símbolos, pinos, labels e fios — útil para conferir o que o `fix_layout.py` vai encontrar |
 | `netdiff.py <antes.net> <depois.net>` | Compara duas netlists e acusa qualquer mudança de conectividade. Sai com código 1 se divergirem |
@@ -74,7 +74,7 @@ regular que não casava com o formato e aprovava em silêncio.
 > então afastar um rótulo de uma ilha empurrando-o para a borda troca um problema por outro.
 > O DRC também não pega tudo: legenda sobre o *corpo* de um conector passa no DRC e fica
 > ilegível na placa. Conferir na imagem, não só no relatório.
-| `solda_manual.py <pasta> <REF>...` | Tira do BOM e do arquivo de posição as peças soldadas à mão depois da PCBA. Marca **as duas pontas**: `in_bom`/`in_pos_files` no símbolo e `exclude_from_bom`/`exclude_from_pos_files` no footprint — o BOM sai do esquemático e a posição sai da placa, e marcar só um lado faria a paridade divergir. Conferir exportando BOM e posição antes e depois |
+| `solda_manual.py <pasta> [--desfazer] [--so-esquematico] <REF>...` | Tira do BOM e do arquivo de posição as peças soldadas à mão depois da PCBA (`--desfazer` devolve). Marca **as duas pontas**: `in_bom`/`in_pos_files` no símbolo e `exclude_from_bom`/`exclude_from_pos_files` no footprint — o BOM sai do esquemático e a posição sai da placa, e marcar só um lado faria a paridade divergir. `--so-esquematico` quando a placa ainda vai ser refeita. Conferir exportando BOM e posição antes e depois |
 | `paridade.py <pasta>` | Confere que a placa liga **exatamente** o que o esquemático liga, comparando o conjunto de pads de cada rede — não o nome. **Use este, não a paridade do DRC**: a sincronização pelo MCP grava nomes de rede diferentes e o DRC acusava 237 / 195 / 69 itens com as placas corretas. Sai com código 1 se divergir |
 | `pcb_info.py <pcb>` | Lista footprints com courtyard e posição — conferência do posicionamento |
 | `crop.py <pdf> <prefixo>` | Recorta regiões do PDF do esquemático para inspeção visual |
@@ -93,6 +93,13 @@ rerroteamento (peça trocada ou movida): del_fp.py → sincroniza → place_*.py
                   → export_dsn → dsn_sem_plano.py → Freerouting → import_ses
                   → zone_thermals.py → DRC com refill → pad_zone_connect.py / silk_*.py
 ```
+
+## Editar esquemático
+
+Três comparações a cada rodada — ligações (`netdiff.py`), campos de cada componente e símbolos de
+biblioteca embutidos — e `kicad-cli sch upgrade --force` depois de editar pelo MCP. O
+`replace_schematic_component` do MCP grava propriedades em **outros** componentes. Detalhes na
+ARQUITETURA §12.
 
 ## O que conferir, sempre
 
