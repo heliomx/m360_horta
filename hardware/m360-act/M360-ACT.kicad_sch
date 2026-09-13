@@ -2408,6 +2408,171 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Device:Polyfuse"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "F"
+				(at -2.54 0 90)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Polyfuse"
+				(at 2.54 0 90)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 1.27 -5.08 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Resettable fuse, polymeric positive temperature coefficient"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "resettable fuse PTC PPTC polyfuse polyswitch"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "*polyfuse* *PTC*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "Polyfuse_0_1"
+				(polyline
+					(pts
+						(xy -1.524 2.54) (xy -1.524 1.524) (xy 1.524 -1.524) (xy 1.524 -2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -0.762 2.54)
+					(end 0.762 -2.54)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy 0 -2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "Polyfuse_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 1.27)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 1.27)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Device:R"
 			(pin_numbers
 				(hide yes)
@@ -5033,6 +5198,16 @@
 	)
 	(wire
 		(pts
+			(xy 66.04 33.02) (xy 66.04 22.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "262f3298-dac5-45a6-b5bb-60435e19d8a8")
+	)
+	(wire
+		(pts
 			(xy 298.45 243.84) (xy 298.45 232.41)
 		)
 		(stroke
@@ -5403,26 +5578,6 @@
 	)
 	(wire
 		(pts
-			(xy 66.04 33.02) (xy 66.04 22.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "53a7e1cd-0a1c-4e6f-b3d7-74eca5e787de")
-	)
-	(wire
-		(pts
-			(xy 66.04 43.18) (xy 66.04 49.53)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "585684e3-6aac-42d8-baba-531f093cecef")
-	)
-	(wire
-		(pts
 			(xy 208.28 229.87) (xy 208.28 223.52)
 		)
 		(stroke
@@ -5570,6 +5725,16 @@
 			(type default)
 		)
 		(uuid "65f77de2-247b-4ed5-9ecc-897a36052217")
+	)
+	(wire
+		(pts
+			(xy 58.42 38.1) (xy 52.07 38.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "690428cf-3844-4909-9cc7-03c0df05f6c4")
 	)
 	(wire
 		(pts
@@ -5880,6 +6045,16 @@
 			(type default)
 		)
 		(uuid "92b52147-4dea-4745-829a-227366724545")
+	)
+	(wire
+		(pts
+			(xy 81.28 59.69) (xy 81.28 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9352e5b4-f1c8-4d96-b775-dd958dea37a9")
 	)
 	(wire
 		(pts
@@ -6433,16 +6608,6 @@
 	)
 	(wire
 		(pts
-			(xy 58.42 38.1) (xy 52.07 38.1)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d7762052-6aee-423f-9e29-9f9a512e4c74")
-	)
-	(wire
-		(pts
 			(xy 156.21 33.02) (xy 142.24 33.02)
 		)
 		(stroke
@@ -6623,6 +6788,16 @@
 	)
 	(wire
 		(pts
+			(xy 66.04 43.18) (xy 66.04 53.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ee335f3b-414c-429b-8b84-1787ecb5e8b5")
+	)
+	(wire
+		(pts
 			(xy 152.4 137.16) (xy 144.78 137.16)
 		)
 		(stroke
@@ -6650,6 +6825,16 @@
 			(type default)
 		)
 		(uuid "f12bac7e-9b5f-44d4-8bb5-30d0cbf63890")
+	)
+	(wire
+		(pts
+			(xy 81.28 52.07) (xy 81.28 41.91)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f328fa97-d2f9-44f9-925d-0c72265f1bd7")
 	)
 	(wire
 		(pts
@@ -6861,6 +7046,16 @@
 		)
 		(uuid "06fb3e2a-c2d5-4fdd-b942-29539826f361")
 	)
+	(label "VIN_POL"
+		(at 81.28 41.91 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "07cad8cb-fec0-43d3-a809-a74db05a16a6")
+	)
 	(label "MUX_S1_3V3"
 		(at 170.18 217.17 270)
 		(effects
@@ -7051,16 +7246,6 @@
 		)
 		(uuid "2147f4f5-02b2-4f81-9a8b-647ad9730504")
 	)
-	(label "+5V"
-		(at 66.04 49.53 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "226a0b83-8853-4136-b714-5aa569205839")
-	)
 	(label "MOSI"
 		(at 52.07 222.25 0)
 		(effects
@@ -7170,6 +7355,16 @@
 			(justify right bottom)
 		)
 		(uuid "2c70db8f-c7ee-480d-9c9d-2a527643eb28")
+	)
+	(label "VIN_RAW"
+		(at 66.04 22.86 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "2d8a1620-b8ce-4306-bb93-516b5589c7f1")
 	)
 	(label "FLOW_5V"
 		(at 284.48 223.52 270)
@@ -7490,6 +7685,16 @@
 			(justify left bottom)
 		)
 		(uuid "599e984e-4a41-4db1-90cc-f00b0d60def8")
+	)
+	(label "GND"
+		(at 52.07 38.1 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "5ba76754-ad79-475b-90c7-1da4fd1a4b81")
 	)
 	(label "REL_NFT_BUF"
 		(at 187.96 124.46 180)
@@ -7942,16 +8147,6 @@
 		(uuid "956f02ab-cda5-48db-a170-471ee463c91d")
 	)
 	(label "GND"
-		(at 52.07 38.1 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "95c18088-1d39-4c8d-b6ad-0e2fcf17f7f1")
-	)
-	(label "GND"
 		(at 298.45 257.81 90)
 		(effects
 			(font
@@ -8201,6 +8396,16 @@
 		)
 		(uuid "b56ac9a7-7399-4d36-9a04-153feaff1d59")
 	)
+	(label "VIN_POL"
+		(at 66.04 53.34 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b6c64087-812a-490f-aaa4-c76e7bfbdf0e")
+	)
 	(label "MUX_S3_3V3"
 		(at 36.83 157.48 0)
 		(effects
@@ -8290,6 +8495,16 @@
 			(justify left bottom)
 		)
 		(uuid "c224be6c-1906-45f7-bcf7-808885e7de2f")
+	)
+	(label "+5V"
+		(at 81.28 66.04 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c3b52db9-3f5b-41d6-9762-1da676bb7f35")
 	)
 	(label "REL_CH8"
 		(at 255.27 17.78 180)
@@ -8400,16 +8615,6 @@
 			(justify right bottom)
 		)
 		(uuid "cb3aefed-e49b-4b81-aa2e-fa5a3153c8fb")
-	)
-	(label "VIN_RAW"
-		(at 66.04 22.86 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "cbb2f8b9-5299-47a0-af5f-36277ce59e8e")
 	)
 	(label "REL_CH3"
 		(at 173.99 40.64 180)
@@ -14443,6 +14648,97 @@
 			(project "M360-ACT"
 				(path "/c5ce62f1-25ea-4dcc-94a9-6f847c324d30"
 					(reference "J3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:Polyfuse")
+		(at 81.28 55.88 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "f380a5f2-4f96-4262-95ba-1f4de56078c6")
+		(property "Reference" "F1"
+			(at 87.63 54.61 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "500mA"
+			(at 87.63 57.15 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Fuse:Fuse_1206_3216Metric"
+			(at 81.28 55.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" ""
+			(at 81.28 55.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resettable fuse, polymeric positive temperature coefficient"
+			(at 81.28 55.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C720075"
+			(at 81.28 55.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "f45a5544-472a-47c5-8959-51c84b1ea8ed")
+		)
+		(pin "2"
+			(uuid "bcd97ca5-c03c-4018-bb6c-39ff4bf483f2")
+		)
+		(instances
+			(project "M360-ACT"
+				(path "/c5ce62f1-25ea-4dcc-94a9-6f847c324d30"
+					(reference "F1")
 					(unit 1)
 				)
 			)

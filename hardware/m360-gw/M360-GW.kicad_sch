@@ -1322,6 +1322,171 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Device:Polyfuse"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "F"
+				(at -2.54 0 90)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Polyfuse"
+				(at 2.54 0 90)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 1.27 -5.08 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Resettable fuse, polymeric positive temperature coefficient"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "resettable fuse PTC PPTC polyfuse polyswitch"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "*polyfuse* *PTC*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "Polyfuse_0_1"
+				(polyline
+					(pts
+						(xy -1.524 2.54) (xy -1.524 1.524) (xy 1.524 -1.524) (xy 1.524 -2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -0.762 2.54)
+					(end 0.762 -2.54)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy 0 -2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "Polyfuse_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 1.27)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 1.27)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Device:R"
 			(pin_numbers
 				(hide yes)
@@ -2496,6 +2661,16 @@
 	)
 	(wire
 		(pts
+			(xy 49.53 38.1) (xy 59.69 38.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "01f507fc-7057-4841-a51a-7f736b503213")
+	)
+	(wire
+		(pts
 			(xy 120.65 100.33) (xy 133.35 100.33)
 		)
 		(stroke
@@ -2526,13 +2701,33 @@
 	)
 	(wire
 		(pts
-			(xy 49.53 38.1) (xy 52.07 38.1)
+			(xy 114.3 34.29) (xy 114.3 24.13)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "12dbcdac-3822-4ba1-9c9f-5434f03e1085")
+		(uuid "0f8a0d57-286a-4558-be34-8479ee8be993")
+	)
+	(wire
+		(pts
+			(xy 41.91 38.1) (xy 31.75 38.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0fdbfd3c-53f5-47be-9937-e6f03b3de2a2")
+	)
+	(wire
+		(pts
+			(xy 114.3 41.91) (xy 114.3 48.26)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "13f74cc0-7d1d-40a7-a874-54b76a59c0b0")
 	)
 	(wire
 		(pts
@@ -2623,16 +2818,6 @@
 			(type default)
 		)
 		(uuid "4224ac9d-2491-403c-86f8-7c154b3e33ff")
-	)
-	(wire
-		(pts
-			(xy 41.91 38.1) (xy 39.37 38.1)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "422a6534-12f3-4d0d-9269-fac79e65edfc")
 	)
 	(wire
 		(pts
@@ -3214,6 +3399,16 @@
 		)
 		(uuid "52b01121-2195-4683-8c30-c460d8dbfab2")
 	)
+	(label "VIN_RAW"
+		(at 59.69 38.1 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "54e7739c-4d4b-4ceb-a130-583c2cae32a4")
+	)
 	(label "A0_BTN"
 		(at 157.48 135.89 270)
 		(effects
@@ -3324,16 +3519,6 @@
 		)
 		(uuid "8d806879-e05b-4f96-9fd6-2233f0238dc0")
 	)
-	(label "VIN_RAW"
-		(at 52.07 38.1 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "8f2da424-5b6f-4422-aaaa-990aed1b4c65")
-	)
 	(label "NSS"
 		(at 163.83 113.03 0)
 		(effects
@@ -3343,16 +3528,6 @@
 			(justify left bottom)
 		)
 		(uuid "903b331c-4189-4fe9-af48-e48c19e40f90")
-	)
-	(label "+5V"
-		(at 39.37 38.1 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "90cecd63-a409-4dce-89bf-b7bbc2e78423")
 	)
 	(label "LED_GREEN_A"
 		(at 76.2 180.34 0)
@@ -3413,6 +3588,16 @@
 			(justify left bottom)
 		)
 		(uuid "a7faa02f-8d9a-497d-8c5c-89cc03f096f0")
+	)
+	(label "VIN_POL"
+		(at 114.3 24.13 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b729a926-5795-4cc2-a5fc-63205625d948")
 	)
 	(label "GND"
 		(at 189.23 115.57 180)
@@ -3554,6 +3739,16 @@
 		)
 		(uuid "f2d3de8c-8868-4c05-bed1-583d873819fd")
 	)
+	(label "+5V"
+		(at 114.3 48.26 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f316f91d-7501-4ec8-95cf-1330a6832933")
+	)
 	(label "MISO"
 		(at 162.56 105.41 0)
 		(effects
@@ -3573,6 +3768,16 @@
 			(justify left bottom)
 		)
 		(uuid "f4e2dc48-a2b9-428c-885b-6acde994a45f")
+	)
+	(label "VIN_POL"
+		(at 31.75 38.1 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f5840d3b-c950-407c-b6dd-7e523c05bee4")
 	)
 	(label "A0_BTN"
 		(at 129.54 97.79 180)
@@ -3696,7 +3901,7 @@
 		(dnp no)
 		(uuid "0bb7d4ed-6069-41c0-bb59-63c7ea2a53cf")
 		(property "Reference" "D1"
-			(at 45.72 40.64 0)
+			(at 45.72 41.91 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3706,7 +3911,7 @@
 			)
 		)
 		(property "Value" "SS14"
-			(at 45.72 35.56 0)
+			(at 45.72 34.29 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4782,6 +4987,97 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:Polyfuse")
+		(at 114.3 38.1 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "ce8e889a-9018-4e83-814c-c0e1e671e9b5")
+		(property "Reference" "F1"
+			(at 120.65 36.83 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "500mA"
+			(at 120.65 39.37 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Fuse:Fuse_1206_3216Metric"
+			(at 114.3 38.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" ""
+			(at 114.3 38.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resettable fuse, polymeric positive temperature coefficient"
+			(at 114.3 38.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C720075"
+			(at 114.3 38.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "0524a91e-d4a9-4b53-b3d7-f8b4623ef235")
+		)
+		(pin "2"
+			(uuid "3a96e76f-b6b0-48ac-8188-1c6a0d3948cd")
+		)
+		(instances
+			(project "M360-GW"
+				(path "/48a18d9a-df80-4072-896a-d7ca09082424"
+					(reference "F1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Connector_Generic:Conn_02x05_Odd_Even")
 		(at 175.26 110.49 0)
 		(unit 1)
@@ -4937,15 +5233,6 @@
 				)
 			)
 		)
-		(property "LCSC" "C2925443"
-			(at 80.01 40.64 0)
-			(hide yes)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(property "Datasheet" ""
 			(at 80.01 40.64 0)
 			(hide yes)
@@ -4958,6 +5245,17 @@
 			)
 		)
 		(property "Description" "TVS unidirecional (símbolo Zener: K no +5V)"
+			(at 80.01 40.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2925443"
 			(at 80.01 40.64 0)
 			(hide yes)
 			(show_name no)
