@@ -6,13 +6,15 @@ mão. As restrições que mandam no desenho, e nenhuma delas aparece no courtyar
 
   - o **mezanino** M360-RF ocupa 34,2 x 23 mm *acima* do soquete (contorno na F.Fab, §3). O
     SMA fica na borda direita: por isso J1 vai em x = borda − 27,2 mm. Embaixo dele só SMD baixo;
-  - o **D1 mini** traz uma zona de keep-out sobre a antena, na ponta onde também fica o USB.
-    Essa ponta encosta na borda de cima: a antena não irradia para dentro do cobre e o cabo USB
-    entra sem abrir a caixa;
+  - o **D1 mini** fica a 180° (2026-09-14): o **USB** encosta na borda de cima, para o cabo
+    entrar sem abrir a caixa, e a ponta da **antena** do ESP fica para dentro da placa, sobre a
+    faixa livre acima da cadeia de entrada. O footprint traz a zona de keep-out da antena — nada
+    de cobre ali. Com o giro, a coluna dos pinos 1-8 (A0, SPI, 3V3) fica à direita do módulo e a
+    dos pinos 9-16 (+5V, GND, LEDs, DIO0) à esquerda;
   - o **borne** J2 tem a entrada do fio no lado −y do footprint (datasheet C8465): rot 90 a leva
     para a borda esquerda;
-  - o **reed** SW1 é acionado por ímã através da parede: vai na borda esquerda, a 1 mm dela, junto
-    do pino A0 — **essa borda da placa precisa ficar rente à parede da caixa**.
+  - o **reed** SW1 é acionado por ímã através da parede: vai na borda direita, a 1 mm dela, entre
+    o H2 e o H4 — a mesma borda por onde o SMA atravessa a parede da caixa.
 
 Os furos M3 não ficam nos quatro cantos: o canto superior direito cairia embaixo do mezanino
 (a placa teria de ser parafusada antes de encaixar o módulo) e o superior esquerdo, embaixo do
@@ -35,19 +37,25 @@ def put(ref, x, y, rot=0):
     POS[ref] = (x, y, rot)
 
 
-# --- alto: D1 mini à esquerda (antena/USB na borda de cima) e mezanino à direita ------------
-# U1: courtyard 26,2 x 34,8 com origem no pino 1; a ponta da antena fica em y − 8,5.
-put("U1", 110.0, 108.5)                     # ocupa x 108,3-134,5 / y 100,0-134,8
+# --- alto: D1 mini a 180° (USB na borda de cima) e mezanino à direita ----------------------
+# U1: courtyard 26,2 x 34,8 com origem no pino 1; a 0° a ponta da antena fica em y − 8,5 e a do
+# USB em y + 26,3. A 180° a origem vai para o outro canto: x = 108,33 + 24,52, y = 100 + 26,29.
+put("U1", 132.85, 126.29, 180)              # ocupa x 108,3-134,5 / y 100,0-134,8; USB em y 100
 # J1: borda direita do mezanino = borda da placa, para o SMA sair pela lateral.
 put("J1", X0 + W - 27.2, Y0 + 6.42)         # mezanino ocupa x 145,8-180,0 / y 100,0-123,0
-put("R5", 140.0, 110.0, 90)                 # 100 k do MOSI ao GND, entre o D1 mini e o soquete
 
-# --- coluna da esquerda: reed na borda, A0 e 3,3 V ao lado dos pinos do módulo --------------
-put("SW1", X0 + 1.6, 120.0, 90)             # reed a 1 mm da borda, na altura do A0 (U1.2)
-put("R4", 105.0, 112.5, 90)                 # 10 k do 3,3 V ao A0
-put("C4", 105.0, 116.5, 90)                 # 100 nF no A0
-put("C2", 105.0, 122.5, 90)                 # 100 nF no 3,3 V
-put("C1", 105.0, 126.5, 90)                 # 10 uF no 3,3 V, junto do U1.8
+# --- entre o D1 mini e o mezanino: a coluna dos pinos 1-8 (A0, SPI, 3V3) está à direita do U1 --
+put("C1", 137.2, 106.0, 90)                 # 10 uF no 3,3 V, junto do U1.8 (132,85; 108,5)
+put("C2", 139.6, 106.0, 90)                 # 100 nF no 3,3 V
+put("R5", 140.0, 110.0, 90)                 # 100 k do MOSI ao GND
+put("R4", 138.0, 125.5, 90)                 # 10 k do 3,3 V ao A0 (U1.2 em 132,85; 123,75)
+put("C4", 140.4, 125.5, 90)                 # 100 nF no A0
+
+# --- reed na borda direita, entre o H2 e o H4 (a borda do SMA, rente à parede) --------------
+put("SW1", X0 + W - 1.6, 143.0, 90)
+
+# --- coluna esquerda do U1 (pinos 9-16): 100 nF no 5 V junto do U1.9 (110; 108,5) ---------
+put("C3", 105.0, 111.0, 90)
 
 # --- entrada de 5 V: borne na borda esquerda, cadeia SS14 -> PTC -> TVS até o U1.9 ----------
 # Borne C8465: a entrada do fio fica a 5,5 mm do pino (datasheet, corte A-A), o lado -y do
@@ -56,7 +64,6 @@ put("J2", 106.0, 147.0, 90)                 # courtyard x 100,5-110,5 / y 141,8-
 put("D1", 117.0, 139.5)                     # SS14: anodo no VIN_RAW (borne), catodo no VIN_POL
 put("F1", 124.0, 139.5)                     # PTC 500 mA
 put("D2", 131.0, 139.5)                     # SMAJ5.0A do +5V ao GND, depois do F1
-put("C3", 137.5, 128.0, 90)                 # 100 nF no 5 V, junto do U1.9
 
 # --- LEDs do painel: resistores e o 2N7002 do verde logo acima do J3 -----------------------
 for i, r in enumerate(("R1", "R2", "R3")):
@@ -68,7 +75,7 @@ put("J3", 130.0, 154.0)
 # H1 evita o D1 mini; H2 não fica no canto (cairia sob o mezanino) e desce para a faixa livre.
 HOLES = {"H1": (104.0, 104.0), "H2": (X0 + W - 4.0, 130.0),
          "H3": (104.0, Y0 + H - 4.0), "H4": (X0 + W - 4.0, Y0 + H - 4.0)}
-FIDUCIAIS = {"FID1": (140.0, 103.5), "FID2": (170.0, 140.0), "FID3": (116.0, 157.0)}
+FIDUCIAIS = {"FID1": (143.0, 103.5), "FID2": (170.0, 140.0), "FID3": (116.0, 157.0)}
 KICAD_FP = os.environ.get("KICAD10_FOOTPRINT_DIR",
                           r"C:\Program Files\KiCad\10.0\share\kicad\footprints")
 HOLE_LIB = os.path.join(KICAD_FP, "MountingHole.pretty")
