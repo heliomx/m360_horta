@@ -342,13 +342,15 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 | Seleção de peças | Candidatas em §9.1. O 10 kΩ basic (C25804) não aparece no catálogo local de peças **em estoque** (conferido de novo em 2026-09-12): confirmar no site antes do pedido. Está em 11 posições da LP e 3 da ACT; não há outro 10 kΩ 0603 basic em estoque — a alternativa é extended (FOJAN FRC0603F1002TS, C2906982) |
 | Footprints da LP | Feitos em `hardware/lib/M360.pretty`: Pro Mini, soquete do mezanino, RJ45 C385834 e reed C315909 (os dois do LCSC via easyeda2kicad, com os pinos-guia do RJ45 corrigidos para furo não metalizado e o modelo 3D do RJ45 subido 6,3 mm, que vinha atravessando a placa). O reed voltou em 2026-09-13, agora nas três placas |
 | Furos livres do Pro Mini | **Medidos por foto** (`docs/prominiFront.jpg`): homografia a partir dos 4 pinos de canto das fileiras, cuja posição é conhecida (passo 2,54 mm, fileiras a 15,24 mm). Escala consistente em 2% nas quatro bordas. **A4/A5** ficam uma coluna para dentro da fileira direita e a meio passo das linhas: (12,70; 11,43) e (12,70; 8,89). **GND/A6/A7** ficam na borda de baixo em 7,62 / 10,16 / 12,70, com y = 28,3 ± 0,3. Os espaçamentos medidos (2,57 e 2,59 mm) confirmam a grade de 2,54; o viés comum de −0,25 mm em x é erro de leitura dos pinos de canto. Esses cinco furos levam **1,2 mm** (os das fileiras, 1,0 mm) para absorver a incerteza. Confirmar com paquímetro antes de fabricar |
-| Placa da LP | Caixa de 100 × 100 × 50 mm → interior de ~92 mm. O plugue RJ45 crimpado é montado dentro da caixa e precisa de ~25–30 mm livres à frente dos conectores (corpo do plugue e capa), com os prensa-cabos na parede em frente a eles. Isso limita a placa a **86 × 62 mm**, formato em que o posicionamento foi refeito: RJ45 e reed na borda de baixo; TVS logo atrás deles; matriz RC dos 8 canais na faixa do meio; Pro Mini deitado no alto à esquerda (FTDI para fora da borda esquerda) com o 74HC4051 ao lado; mezanino no alto à direita com o SMA pela borda; alimentação e trilho VSW **embaixo do mezanino** (só SMD baixo: o mezanino fica a ~11 mm, o MCP1700 é linear e o P-MOSFET do VSW chaveia devagar); `J_VIN` na borda direita; 4 furos M3. Sem sobreposição de courtyard no DRC. Roteada (§11), com planos de terra nas duas faces e serigrafia acertada — DRC com 0 erros e 0 ligações pendentes. **Refeita em 2026-09-13** sobre o esquemático corrigido: reed de volta em (160, 158), R26–R29 na fileira em y = 136 entre o U5 e os pull-ups, legenda "FTDI sem VCC" junto à borda esquerda e marca do pino 1 do soquete; 606 trilhas, 47 vias, DRC com 0 violações (inclusive os antigos `silk_edge_clearance` dos RJ45, resolvidos no footprint pelo `tools/fix_rj45_silk.py`). Falta gerar os arquivos de fabricação |
+| Placa da LP | Caixa de 100 × 100 × 50 mm → interior de ~92 mm. O plugue RJ45 crimpado é montado dentro da caixa e precisa de ~25–30 mm livres à frente dos conectores (corpo do plugue e capa), com os prensa-cabos na parede em frente a eles. Isso limita a placa a **86 × 62 mm**, formato em que o posicionamento foi refeito: RJ45 e reed na borda de baixo; TVS logo atrás deles; matriz RC dos 8 canais na faixa do meio; Pro Mini deitado no alto à esquerda (FTDI para fora da borda esquerda) com o 74HC4051 ao lado; mezanino no alto à direita com o SMA pela borda; alimentação e trilho VSW **embaixo do mezanino** (só SMD baixo: o mezanino fica a ~11 mm, o MCP1700 é linear e o P-MOSFET do VSW chaveia devagar); `J_VIN` na borda direita; 4 furos M3. Sem sobreposição de courtyard no DRC. Roteada (§11), com planos de terra nas duas faces e serigrafia acertada — DRC com 0 erros e 0 ligações pendentes. **Refeita de novo em 2026-09-14** pela revisão adversarial de placa (§11.8): reed na borda esquerda em (101,6; 139) a 90°, TVS primeiro nas 13 linhas de campo, R26–R29 acima do U5, VIN/VIN_RAW/3V3 em 0,5 mm (classe Power, isolamento 0,3), C3 junto do U1, 48 vias de GND, fiduciais e marca do furo 10 do J4. Antes, **em 2026-09-13**: reed em (160, 158), R26–R29 na fileira em y = 136 entre o U5 e os pull-ups, legenda "FTDI sem VCC" junto à borda esquerda e marca do pino 1 do soquete; 606 trilhas, 47 vias, DRC com 0 violações (inclusive os antigos `silk_edge_clearance` dos RJ45, resolvidos no footprint pelo `tools/fix_rj45_silk.py`). Falta gerar os arquivos de fabricação |
 | Placa da GW (versão THT, **substituída pela SMD** — §6.2) | **80 × 60 mm**, montagem 100% THT — em inserção os passivos cobram área: cada resistor axial ocupa 12,4 × 3,1 mm contra 1,6 × 0,8 de um 0603. Arranjo: D1 mini no alto à esquerda, com a ponta da antena/USB **na borda de cima** (o footprint traz keep-out sobre a antena, e assim o cabo entra sem abrir a caixa); mezanino no alto à direita, com a borda direita dele coincidindo com a da placa, para o SMA sair pela lateral; desacoplamento logo abaixo do módulo; borne de 5 V na borda esquerda; o J3 dos LEDs na borda de baixo (os LEDs em si ficam no painel, §6.1), com os resistores em pé logo acima; botão de AP e pull-up do A0 na faixa livre sob o mezanino. Furos M3: H1 desvia do D1 mini e **H2 não fica no canto** — ali cairia sob o mezanino e a placa teria de ser parafusada antes de encaixar o módulo. Roteada pelo Freerouting (§11): 0,7 s de roteamento e 4 s de otimização, ~53% de melhoria, 133 segmentos e **1 via só** — numa placa toda THT cada ilha já atravessa as duas faces, então o roteador troca de camada nos próprios furos. Planos de GND nas duas faces. O preenchimento acusou `starved_thermal` na ilha 2 do J3 e **as hastes de 0,35 mm com folga de 0,3 bastaram**, sem precisar da ligação sólida que os RJ45 da LP e da ACT exigiram: nas ilhas do JST (1,7 × 1,95 mm a passo de 2,5) os raios verticais têm espaço assim que a folga cai de 0,5 para 0,3. Marca "Viridiotech.com.br" na faixa livre entre o mezanino e o C3/R4 — a 1,5 mm de altura ela mede ~20 mm, e na primeira posição encostava na ilha do C3. DRC final: 0 violações, 0 ligações pendentes. Faltam os arquivos de fabricação |
 | Gravação do Pro Mini | Com 86 mm de placa dentro de ~92 mm de interior sobram ~3 mm de cada lado, e o espaço livre restante fica à frente dos RJ45. **Não cabe o adaptador FTDI com a placa montada:** gravar na bancada, com a placa fora da caixa, ou prever cabo FTDI angulado. O nó é gravado antes da instalação; em campo, a atualização depende de retirar a placa |
 | Regulador do Pro Mini | Com 3,3 V no VCC e RAW solto, o regulador da própria placa pode ser alimentado de volta pelo diodo interno e consumir a corrente quiescente dele. Medir a corrente de sono na primeira placa; se passar de poucos µA, retirar o regulador, como o LED |
-| Firmware das placas novas | Envs `pro8MHzatmega328`; pinos novos; `MY_RFM95_RST_PIN` = D8 na LP e A3 na ACT (DIO0 no D2 é o padrão da lib). **LP:** `readBatteryVoltage()` pelo A6 com `analogReference(DEFAULT)`, calibração em dois pontos e **correção pelo VCC medido no bandgap** (§4.1), e corte de TX por bateria baixa. **Limiar de corte ≥ 3,0 V** com a correção (≥ 3,4 V sem ela): o core grava efuse 0xFD (BOD 2,7 V) no Pro Mini a 8 MHz, e com a bateria em ~2,85 V o pico de TX (120 mA pela célula, pelo 8205 do módulo e pelo LDO em dropout) leva o VCC ao BOD — o nó entra em laço de reset a cada transmissão. **ACT:** vazão com `INPUT` (hoje `INPUT_PULLUP` em `sensorDrivers.cpp:141`) e o A5 (/OE) liberado por último. **GW:** LED verde no D4, mesma polaridade dos outros; `initLEDs(LED_RED, LED_GREEN, LED_YELLOW)` continua com os argumentos trocados contra o protótipo (§6.2). Atualizar `inventario.md` e os `esquema_eletrico.md` na mesma entrega |
+| Firmware das placas novas | Envs `pro8MHzatmega328`; pinos novos; `MY_RFM95_RST_PIN` = D8 na LP e A3 na ACT (DIO0 no D2 é o padrão da lib). **LP:** `readBatteryVoltage()` pelo A6 com `analogReference(DEFAULT)`, calibração em dois pontos e **correção pelo VCC medido no bandgap** (§4.1), e corte de TX por bateria baixa. **Nunca amostrar o MUX_OUT (A0) durante uma transação SPI com o rádio**: a trilha corre rente ao SPI (§9, achado 8). **Limiar de corte ≥ 3,0 V** com a correção (≥ 3,4 V sem ela): o core grava efuse 0xFD (BOD 2,7 V) no Pro Mini a 8 MHz, e com a bateria em ~2,85 V o pico de TX (120 mA pela célula, pelo 8205 do módulo e pelo LDO em dropout) leva o VCC ao BOD — o nó entra em laço de reset a cada transmissão. **ACT:** vazão com `INPUT` (hoje `INPUT_PULLUP` em `sensorDrivers.cpp:141`) e o A5 (/OE) liberado por último. **GW:** LED verde no D4, mesma polaridade dos outros; `initLEDs(LED_RED, LED_GREEN, LED_YELLOW)` continua com os argumentos trocados contra o protótipo (§6.2). Atualizar `inventario.md` e os `esquema_eletrico.md` na mesma entrega |
 | Fuses dos Pro Mini (LP e ACT) | Os clones DeeKRobot chegam com fuses que o FTDI não lê. Confirmar com gravador ISP na primeira placa (`avrdude -U efuse:r:-:h`, esperado 0xFD = BOD 2,7 V) antes de fixar o limiar de corte |
 | Caixa | Modelo IP e dimensões internas; posição do SMA |
+| Distância do ímã ao reed (LP) | O 59170-S atua em média a **6,5 mm com o atuador 57045** (datasheet p. 2, `docs/datasheets/`). Na LP o corpo do reed fica a ~0,5 mm da borda, mais ~3 mm até a parede e a espessura dela: ~6 mm, justo. Medir com o ímã escolhido na primeira placa montada; se não atuar, ímã de neodímio maior |
+| Aceitos na revisão de placa da LP (2026-09-14) | **Achado 7** (baixo): VBAT_SENSE, nó de 667 kΩ, com 23 mm de trilha e o C4 a ~15 mm do A6 — com 100 MΩ de fuga superficial o erro fica em ~0,7 %, e a calibração em dois pontos não corrige deriva por umidade. **Achado 8** (baixo): MUX_OUT corre 6 mm a menos de 0,5 mm do cobre do SPI — regra de firmware abaixo. **REED** com 45 mm de trilha até o D3 |
 | Trilho de 3,3 V da GW | O ME6211 do D1 mini (500 mA) alimenta ESP8266 e RFM95W. Pelos datasheets a soma fica em ~290 mA; com os picos de WiFi medidos em bancada (300–400 mA) encosta no limite. Medir a queda com WiFi e LoRa transmitindo ao mesmo tempo — primeira suspeita se houver reset do gateway em campo |
 | Fusível por porta RJ45 da ACT | **Coberto em parte pelo PTC F1 da entrada** (2026-09-13): um curto no chicote desarma a placa em vez de derrubar o 5 V do quadro, mas derruba a placa inteira. PTC por porta continua opcional |
 | BOM da JLCPCB | Exportado em 2026-09-12. Códigos LCSC gravados nas três placas (ACT e GW com `add_lcsc.py --set`); só o **D1 mini** da GW fica sem código — não existe no catálogo. Os `PWR_FLAG` da GW (FLG1, FLG2) saíram do BOM em 2026-09-13. E o C13 da LP carregava o código do reed (C315909) desde `bc651ca`, o que faria a JLCPCB montar um reed no lugar de um capacitor de 100 nF — corrigido para C14663 |
@@ -583,6 +585,57 @@ no retorno da ferramenta pegou erro real mais de uma vez. O que faltou: **númer
 enquanto tudo em volta muda é sinal de modelo errado, não de remédio faltando** — os 15
 desconectados repetidos eram o aviso de que o diagnóstico estava furado, e insisti três
 tentativas além do que devia.
+
+### 11.8 Linhas de campo: o TVS tem de ser o primeiro pad (LP, 2026-09-14)
+
+A revisão de placa achou o TVS como **ramo morto** em SDA, DHT, SOIL6 e VSW: a rede abria em
+estrela no pad do RJ45 e o resistor de série saía por outro caminho, com o TVS no fim de 9–15 mm
+de trilha. DRC e paridade aprovavam, porque a ligação está "certa". O Freerouting liga pelo
+caminho mais curto e deriva em qualquer ponto do cobre da mesma rede, inclusive no meio de fio
+fixo. A prova agora é o `tools/ordem_tvs.py` (13 de 13 na LP).
+
+Fluxo que chegou lá:
+
+```
+clear_tracks.py → place_lp.py → leque_tvs.py U3 U4 U5          (saídas fixas dos TVS)
+pernas:  dsn_trechos.py --fios-viram-keepout --livre-perto <pads dos TVS> --area-proibida 100,100,186,141.9
+         SOIL0=J1-1,U3-1 ... VSW=J1-7,U3-5,J2-7,U5-5 GND=U3-2   → Freerouting → import_ses → ordem_tvs.py
+resto:   dsn_trechos.py --manter-outras --fios-viram-keepout --livre-perto ... --sem-keepout-de <DSN só do leque>
+         SOIL0=-J1-1 ... VSW=-J1-7,-J2-7                          → Freerouting → import_ses → ordem_tvs.py
+apara_pontas.py → vias_gnd.py → zone_thermals.py → pad_zone_connect.py → silk_lp.py → DRC → paridade.py
+```
+
+O que cada peça resolve, e o que custou descobrir:
+
+- **Área proibida em forma de caminho é ignorada** ("keepout is not an area"): cada trecho vira
+  retângulo. Trecho com menos de 20 µm trava o Freerouting.
+- **Fio fixo não basta**, o roteador deriva nele: vai coberto por área proibida da mesma largura,
+  cortada só sobre o pad do TVS da própria rede (com raio de 1,2 mm do centro, ainda derivava a
+  0,2 mm da borda do pad). Pino dentro de área proibida faz a rede sumir do roteamento.
+- **Rede tirada do `network` com fiação no DSN trava o roteador:** usar `--manter-outras` ou um
+  pino só (`GND=U3-2`).
+- **Na passada do resto, os pinos do RJ45 saem das redes** (`REDE=-J1-1`): senão o resto se liga
+  direto no pad THT do conector pela face de baixo.
+- **O DSN da passada seguinte sai da placa com a passada anterior importada** — exportar antes
+  deixou o SOIL5 sem perna, e o roteador fez uma por conta própria.
+- **Leque em B.Cu atrapalha:** toco que o roteador não usa fica solto e fecha a passagem de
+  redes vizinhas. O leque para na via.
+
+**Limite de projeto — a lição para a ACT e a GW.** A ordem dos pinos no RJ45 não casa com a
+ordem dos canais nos TVS: o U4 atende pinos do meio do J1 e do J2, e o SOIL0/SOIL1 chegam
+invertidos ao U3. Isso obriga pernas que se cruzam, e as pernas da LP saíram em etapas com
+ajuste à mão: SOIL2, SOIL7 e DHT roteados antes das demais; o SOIL2 fechou o J1.5 (pino da
+fileira de baixo, que não passa entre os pads da de cima — vão de 0,52 mm), e o SOIL5 foi refeito
+sozinho por um recorte na área sem trilha em B.Cu sob a metade direita do J1. **Nas próximas
+placas, a atribuição de canais dos TVS vai ao esquemático seguindo a ordem física dos pinos do
+conector** (os canais são equivalentes) antes de rotear. U3 e U5 da LP ficaram a 180°, que reduz
+os cruzamentos sem eliminá-los.
+
+Resultado na LP: 716 trilhas, 112 vias (48 de GND, eram 5); o J1.8 e o J2.8 com duas vias além do
+pino; plano de F.Cu em 13 ilhas, as maiores com 2–34 ligações entre faces e as sem via todas
+abaixo de 3 mm² (presas por pad SMD); DRC `--severity-all` com 0 violações e 0 pendências;
+`paridade.py` idêntica. Área sem trilha em B.Cu sob os RJ45 a partir de y 150,6 (não mais 146,3:
+as pernas precisam de uma faixa em B.Cu para se cruzar), com o recorte do SOIL5.
 
 ---
 

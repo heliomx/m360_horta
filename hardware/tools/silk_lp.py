@@ -20,9 +20,20 @@ import pcbnew
 # referência -> (x, y, ângulo) do texto de REFERÊNCIA
 REFS = {
     "U2": (152.5, 112.0, 90),    # folga entre o corpo do U2 e o soquete do mezanino
-    "U3": (117.5, 143.5, 0),     # vão entre U3 e U4: acima do corpo ele caía sobre o "C9"
-    "U4": (129.5, 143.5, 0),     # vão entre U4 e U5
-    "U5": (141.5, 143.5, 0),     # à direita do U5, antes dos pull-ups
+    # U3-U5: em pé, à esquerda de cada TVS. Logo abaixo (y 146,1) o render mostrou o texto sob o
+    # corpo dos RJ45, e acima saem as trilhas do leque.
+    "U3": (108.3, 143.5, 90),
+    "U4": (120.2, 143.5, 90),
+    "U5": (132.3, 143.5, 90),
+    "SW1": (104.1, 139.0, 90),
+    # R26-R29 em pé acima do U5, a 1,9 mm um do outro: referência girada, logo acima de cada um
+    "R26": (142.8, 136.9, 90),
+    "R27": (140.9, 136.9, 90),
+    "R28": (133.3, 136.95, 0),   # deitada na faixa entre a referência do R20 e o corpo
+    "R29": (139.0, 136.9, 90),
+    # O R28 ficou entre o C14 e o C15, onde caía a referência do C14: ela desce para baixo do C14
+    "C14": (129.4, 142.0, 0),
+    "C3": (167.6, 107.2, 0),     # à esquerda do C3; acima dele fica o U1   # reed na borda esquerda: referência entre ele e a coluna R6/R14/C8
     "R3": (147.0, 120.8, 0),     # abaixo do próprio corpo: em cima ele toca o contorno do U2
 }
 
@@ -33,14 +44,18 @@ TEXTOS = [
     # sobre o outro (silk_overlap). O par sobe para a faixa livre acima do SW1.
     ("Viridiotech.com.br", 158.0, 147.0, 1.5),   # acima do SW1
     ("M360-LP", 158.0, 150.5, 1.5),              # logo abaixo da marca
-    ("VCC", 177.0, 135.0, 0.8),                  # sobre a ilha 1 do J3 (VIN_RAW)
-    ("GND", 181.5, 135.0, 0.8),                  # sobre a ilha 2 do J3
+    # 1,0 mm é o mínimo de texto legível na serigrafia da JLCPCB (a revisão de placa achou 0,8).
+    ("VCC", 177.0, 134.0, 1.0),                  # sobre a ilha 1 do J3 (VIN_RAW)
+    ("GND", 181.5, 134.0, 1.0),                  # sobre a ilha 2 do J3
     # O header FTDI do Pro Mini liga direto no trilho de 3,3 V, que alimenta o rádio: um
-    # adaptador em 5 V queima o SX1276 (§4.2). Legenda na faixa entre a borda e o A1, abaixo do H1.
-    ("FTDI sem VCC", 105.5, 115.0, 0.9, 90),
+    # adaptador em 5 V queima o SX1276 (§4.2). Abaixo do Pro Mini: na faixa da borda esquerda ela
+    # ficava sob a projeção de um header FTDI angulado.
+    ("FTDI sem VCC", 112.0, 124.6, 1.0),
     # O mezanino encaixa girado 180° no soquete simétrico (§3): marca o pino 1 do J4, que fica
     # na coluna da direita (pad 1 em 158,8; 107,42).
     ("1", 161.6, 107.42, 1.0),
+    # Furo 10 do soquete: é o que se tampa para chavear o mezanino (§3). Pad 10 em (156,26; 117,58).
+    ("10", 153.3, 117.58, 1.0),
 ]
 
 ESPESSURA = 0.25
