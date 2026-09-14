@@ -326,7 +326,7 @@ Todas as linhas de sinal levam TVS no conector. SDA e SCL compartilham um par: a
 | Item | Como entra |
 |---|---|
 | SMD (LDOs, MOSFETs, diodo, 74HC4051, 74HCT244, CD74HC4067, passivos, TVS, reed switch, SMA de borda Samtec) | PCBA JLCPCB, com peças escolhidas pela disponibilidade no LCSC |
-| Pro Mini, D1 mini, módulo RFM95W (HopeRF, no mezanino), soquetes e headers 2×5, RJ45, bornes, JST | Solda manual após a PCBA, **fora do BOM e do arquivo de posição** (`tools/solda_manual.py`): LP — A1, J1, J2, J3, J4; ACT — A1, J1, J2, J3, J4, J5; GW — U1, J1, J2, J3. A propriedade `LCSC` continua nos símbolos, para a compra. Hoje só os esquemáticos estão marcados; as placas recebem a marca quando forem refeitas |
+| Pro Mini, D1 mini, módulo RFM95W (HopeRF, no mezanino), soquetes e headers 2×5, RJ45, bornes, JST | Solda manual após a PCBA, **fora do BOM e do arquivo de posição** (`tools/solda_manual.py`): LP — A1, J1, J2, J3, J4; ACT — A1, J1, J2, J3, J4, J5; GW — U1, J1, J2, J3; RF — U1 (RFM95W, módulos HopeRF já existentes) e J1 (header 2×5, na face de baixo). A propriedade `LCSC` continua nos símbolos, para a compra. Esquemáticos e placas das quatro estão marcados (2026-09-14) |
 | Chave do mezanino | Cortar o pino 10 do header do mezanino e tampar o furo 10 do soquete (§3) |
 | Gravação do Pro Mini | Adaptador FTDI **sem o fio VCC**, com `J_VIN` (LP) ou o borne (ACT) alimentado (§4.2) |
 | Antena | SMA de borda no mezanino: ou o conector atravessa a parede da caixa (furo e vedação), ou a antena fica dentro dela — funciona em 915 MHz se a caixa for plástica |

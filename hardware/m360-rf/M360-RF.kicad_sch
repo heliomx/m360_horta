@@ -1249,9 +1249,9 @@
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
-		(in_pos_files yes)
+		(in_pos_files no)
 		(dnp no)
 		(uuid "a047ef9c-2325-4d7a-9775-11d8789bcc15")
 		(property "Reference" "U1"
@@ -1399,9 +1399,9 @@
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
-		(in_pos_files yes)
+		(in_pos_files no)
 		(dnp no)
 		(uuid "53841f1e-d7a1-462a-a163-a45a0f7da049")
 		(property "Reference" "J1"
