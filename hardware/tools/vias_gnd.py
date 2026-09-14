@@ -42,7 +42,16 @@ def livre(board, x, y, gnd):
             caixa.GetTop() + ui(r + BORDA) <= p.y <= caixa.GetBottom() - ui(r + BORDA)):
         return False
     for pad in board.GetPads():   # qualquer pad, inclusive de GND: via fora do pad
-        if pad.HitTest(p, ui(r + max(ISOL, FOLGA_PAD))):
+        folga = ui(max(ISOL, FOLGA_PAD))
+        if pad.GetNetCode() != gnd.GetNetCode():   # classe do pad (Power pede 0,3 mm)
+            folga = max(folga, pad.GetOwnClearance(pcbnew.F_Cu))
+        if pad.HitTest(p, ui(r) + folga):
+            return False
+    # área proibida para via: da placa e dos footprints (o keep-out da antena do D1 mini, na GW,
+    # mora dentro do footprint)
+    zonas = list(board.Zones()) + [z for f in board.GetFootprints() for z in f.Zones()]
+    for z in zonas:
+        if z.GetIsRuleArea() and z.GetDoNotAllowVias() and z.Outline().Collide(p, ui(r)):
             return False
     for t in board.GetTracks():
         if t.GetNetCode() == gnd.GetNetCode() and t.Type() != pcbnew.PCB_VIA_T:
