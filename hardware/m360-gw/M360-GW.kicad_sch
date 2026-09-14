@@ -3820,7 +3820,7 @@
 				)
 			)
 		)
-		(property "Value" "1k"
+		(property "Value" "470"
 			(at 39.37 136.906 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3863,7 +3863,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C21190"
+		(property "LCSC" "C23179"
 			(at 39.37 134.62 0)
 			(hide yes)
 			(show_name no)
@@ -4568,7 +4568,7 @@
 				)
 			)
 		)
-		(property "Value" "1k"
+		(property "Value" "470"
 			(at 39.37 177.546 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4611,7 +4611,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C21190"
+		(property "LCSC" "C23179"
 			(at 39.37 175.26 0)
 			(hide yes)
 			(show_name no)
@@ -4985,6 +4985,136 @@
 				)
 			)
 		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 210.820 110.490 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "f89d681b-a671-4d0b-a09b-79c21741b735")
+		(property "Reference" "R5"
+			(at 208.788 110.236 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "100k"
+			(at 213.106 110.236 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 209.042 110.490 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 210.820 110.490 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 210.820 110.490 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C25803"
+			(at 210.820 110.490 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "7345837d-d949-4b83-8199-d100f357de9c")
+		)
+		(pin "2"
+			(uuid "28a562fc-8db0-4913-b5ca-d54e5f2d27fd")
+		)
+		(instances
+			(project "M360-GW"
+				(path "/48a18d9a-df80-4072-896a-d7ca09082424"
+					(reference "R5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 210.82 106.68) (xy 210.82 102.87)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5bae3563-0da3-4da9-8cc1-6372401cd26b")
+	)
+	(label "MOSI"
+		(at 210.82 102.87 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ff232e7b-ec56-4479-add9-ec504d2bf2bd")
+	)
+	(wire
+		(pts
+			(xy 210.82 114.3) (xy 210.82 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "145075ed-4bb9-4cbc-b7a4-cb907ab7c7b1")
+	)
+	(label "GND"
+		(at 210.82 118.11 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "c22e8973-1596-4e80-938b-01a0e861d3c2")
 	)
 	(symbol
 		(lib_id "Device:Polyfuse")
@@ -5392,7 +5522,7 @@
 				)
 			)
 		)
-		(property "Value" "1k"
+		(property "Value" "470"
 			(at 39.37 157.226 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5435,7 +5565,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C21190"
+		(property "LCSC" "C23179"
 			(at 39.37 154.94 0)
 			(hide yes)
 			(show_name no)
