@@ -7206,7 +7206,7 @@
 		)
 		(uuid "1f1b9569-69a8-4b43-8d13-a29b61f9b556")
 	)
-	(label "REL_CH9"
+	(label "REL_OXI"
 		(at 292.1 182.88 0)
 		(effects
 			(font
@@ -7426,7 +7426,7 @@
 		)
 		(uuid "34c8462b-b74a-4ac7-9330-fc859abbbd2f")
 	)
-	(label "REL_CH2"
+	(label "REL_CH5"
 		(at 337.82 46.99 180)
 		(effects
 			(font
@@ -7806,7 +7806,7 @@
 		)
 		(uuid "6d792672-7f50-4517-a66d-363390b16676")
 	)
-	(label "REL_CH5"
+	(label "REL_CH2"
 		(at 292.1 92.71 0)
 		(effects
 			(font
@@ -8056,7 +8056,7 @@
 		)
 		(uuid "88d9c071-957d-4ff6-961a-6c58a1570d12")
 	)
-	(label "REL_CH8"
+	(label "REL_CH6"
 		(at 292.1 177.8 0)
 		(effects
 			(font
@@ -8226,7 +8226,7 @@
 		)
 		(uuid "a2398e0f-823b-4e01-8265-7c604f82fc96")
 	)
-	(label "REL_CH4"
+	(label "REL_CH0"
 		(at 292.1 87.63 0)
 		(effects
 			(font
@@ -8386,7 +8386,7 @@
 		)
 		(uuid "b4fcd924-d35b-4d7c-8eff-fcd1cc2ce063")
 	)
-	(label "REL_CH6"
+	(label "REL_CH8"
 		(at 292.1 137.16 0)
 		(effects
 			(font
@@ -8606,7 +8606,7 @@
 		)
 		(uuid "caf29d46-4bc9-488b-9304-6d97463ec427")
 	)
-	(label "REL_OXI"
+	(label "REL_CH9"
 		(at 337.82 137.16 180)
 		(effects
 			(font
@@ -8826,7 +8826,7 @@
 		)
 		(uuid "dda2bab7-57eb-4d75-a166-7127cd229d6f")
 	)
-	(label "REL_CH0"
+	(label "REL_CH4"
 		(at 292.1 46.99 0)
 		(effects
 			(font

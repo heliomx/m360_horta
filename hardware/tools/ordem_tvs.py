@@ -16,7 +16,7 @@ O corte em (2) importa: apagar a trilha inteira que encosta no TVS aprovaria uma
 no meio dela, a milímetros do pad. Ligações em T (ponta de uma trilha no meio de outra) contam.
 
 Só leitura. Rodar com o Python do KiCad.
-Uso: <KiCad>/bin/python.exe ordem_tvs.py <placa.kicad_pcb> lp
+Uso: <KiCad>/bin/python.exe ordem_tvs.py <placa.kicad_pcb> lp|act
      <KiCad>/bin/python.exe ordem_tvs.py <placa.kicad_pcb> REDE=J1-7,J2-7:U3-5,U5-5 [...]
 Sai com código 1 se alguma rede reprovar.
 """
@@ -31,6 +31,15 @@ PRESETS = {
         "SOIL4=J1-4:U4-1", "SOIL5=J1-5:U4-3", "SOIL6=J2-4:U4-4", "SOIL7=J2-5:U4-6",
         "ONEWIRE=J2-1:U5-1", "DHT=J2-2:U5-3", "SDA=J2-3:U5-4", "SCL=J2-6:U5-6",
         "VSW=J1-7,J2-7:U3-5,U4-5,U5-5",
+    ],
+    # canais atribuídos pela ordem física dos pinos do RJ45 (ARQUITETURA §5.2)
+    "act": [
+        "REL_CH0=J3-1:U5-1", "REL_CH1=J3-2:U4-3", "REL_CH2=J3-3:U5-3",
+        "REL_CH3=J3-6:U4-6", "REL_CH4=J3-4:U4-1", "REL_CH5=J3-5:U4-4",
+        "REL_CH6=J4-1:U7-1", "REL_NFT=J4-2:U6-3", "REL_OXI=J4-3:U7-3",
+        "REL_CH7=J4-6:U6-6", "REL_CH8=J4-4:U6-1", "REL_CH9=J4-5:U6-4",
+        "FLOW_5V=J5-1:U8-1", "AUX_A6_IN=J5-3:U8-3",
+        "+5V=J3-7,J4-7,J5-7:U4-5,U5-5,U6-5,U7-5,U8-5",
     ],
 }
 

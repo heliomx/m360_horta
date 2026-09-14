@@ -8,7 +8,7 @@ Aqui a saída de cada pad é desenhada ANTES das pernas, num padrão fixo, e o r
   pad de cima (I/O)        sai para cima, pelo topo do pad (nada desenhado: o topo fica livre
                            porque a passada das pernas proíbe tudo acima do TVS)
   pad do meio GND          toco para fora até uma via de GND
-  pad do meio VSW          toco para dentro, sobe pelo vão entre as colunas até acima do TVS
+  pad do meio VP           (VSW na LP, +5V na ACT) toco para dentro, sobe pelo vão entre as colunas até acima do TVS
   pad de baixo, lado GND   toco para fora até uma via
   pad de baixo, lado VSW   toco para o vão, via logo abaixo do TVS
 
@@ -20,6 +20,7 @@ A perna de cada pad chega pelo lado que sobra: de baixo nos pads de baixo, e em 
 nos pads de cima e no VSW. Os tocos entram fixos e cobertos de área proibida na passada das
 pernas (`dsn_trechos.py --fios-viram-keepout`), e a ordem é provada pelo `ordem_tvs.py`.
 
+Pad de canal sem uso (sem rede) não recebe toco nem via.
 Rodar em placa sem trilhas dessas redes (depois do `clear_tracks.py`).
 Uso: <KiCad>/bin/python.exe leque_tvs.py <placa.kicad_pcb> U3 U4 U5
 """
@@ -68,7 +69,8 @@ def leque(board, fp):
         linha = "cima" if y < cy - 0.3 else ("baixo" if y > cy + 0.3 else "meio")
         pads[(lado, linha)] = p
     gnd = next(k for k, p in pads.items() if k[1] == "meio" and p.GetNetname() == "GND")
-    vsw = next(k for k, p in pads.items() if k[1] == "meio" and p.GetNetname() == "VSW")
+    # VP: o outro pad do meio (VSW na LP, +5V na ACT)
+    vsw = next(k for k, p in pads.items() if k[1] == "meio" and k != gnd)
     sg, sv = gnd[0], vsw[0]
     meia = mm(pads[gnd].GetBoundingBox().GetWidth()) / 2   # TVS a 0 ou 180 graus: pad deitado
     col = abs(mm(pads[gnd].GetPosition().x) - cx)
@@ -84,6 +86,9 @@ def leque(board, fp):
     out.append("GND via")
 
     # VSW do meio -> vão -> para cima
+    def sem_rede(pad):   # canal sem uso (U5, U7, U8 da ACT): nada de cobre em pad NC
+        return pad.GetNetCode() == 0 or pad.GetNetname().startswith("unconnected-")
+
     p = pads[vsw]
     trilha(board, p.GetNet(), F, [(cx + sv * dentro, cy), (cx, cy - 0.45), (cx, cy - Y_TOPO)])
     out.append("VSW pelo vão")
@@ -92,16 +97,18 @@ def leque(board, fp):
     # de baixo, lado do GND -> via para fora -> B.Cu sobe por baixo do TVS
     p = pads[(sg, "baixo")]
     xv = cx + sg * DX_VIA
-    trilha(board, p.GetNet(), F, [(cx + sg * fora, yb), (xv, yb)])
-    via(board, p.GetNet(), xv, yb)
-    out.append(f"{p.GetNetname()} via lateral")
+    if not sem_rede(p):
+        trilha(board, p.GetNet(), F, [(cx + sg * fora, yb), (xv, yb)])
+        via(board, p.GetNet(), xv, yb)
+        out.append(f"{p.GetNetname()} via lateral")
 
     # de baixo, lado do VSW -> vão -> via abaixo do TVS -> B.Cu sobe pelo centro
     p = pads[(sv, "baixo")]
     yv = cy + DY_VIA_CENTRO
-    trilha(board, p.GetNet(), F, [(cx + sv * dentro, yb), (cx, yb + 0.4), (cx, yv)])
-    via(board, p.GetNet(), cx, yv)
-    out.append(f"{p.GetNetname()} via central")
+    if not sem_rede(p):
+        trilha(board, p.GetNet(), F, [(cx + sv * dentro, yb), (cx, yb + 0.4), (cx, yv)])
+        via(board, p.GetNet(), cx, yv)
+        out.append(f"{p.GetNetname()} via central")
     return out
 
 
