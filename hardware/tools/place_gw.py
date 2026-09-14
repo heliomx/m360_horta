@@ -41,12 +41,16 @@ put("U1", 110.0, 108.5)                     # ocupa x 108,3-134,5 / y 100,0-134,
 put("J1", X0 + W - 27.2, Y0 + 6.42)         # mezanino ocupa x 145,8-180,0 / y 100,0-123,0
 
 # --- desacoplamento, junto dos pinos de alimentação do módulo -------------------------------
-put("C1", 106.0, 140.0)                     # 10 uF eletrolítico (POLARIZADO) no 3,3 V
+put("C1", 106.0, 138.0)                     # 10 uF no 3,3 V; subiu 2 mm para dar lugar ao J2 a 90°
 put("C2", 115.0, 140.0)                     # 100 nF no 3,3 V
 put("C3", 140.0, 130.0)                     # 100 nF no 5 V, entre o D1 mini e o mezanino
 
 # --- entrada de 5 V na borda esquerda -------------------------------------------------------
-put("J2", 114.0, 152.0)
+# Borne C8465: no datasheet (corte A-A) a entrada do fio fica a 5,5 mm do pino e o fundo a 4,5 mm;
+# no footprint a entrada é o lado -y (courtyard de -5,5 a +4,5). Em rot 0 ela olhava para dentro
+# da placa. Rot 90 leva o -y para -x: entrada a 0,5 mm da borda esquerda (mesma correção da ACT).
+# Cabe entre o C1 (termina em y 141,4) e o H3 (começa em 152,5): courtyard y 141,8-152,2.
+put("J2", 106.0, 147.0, 90)
 
 # --- LEDs na borda de baixo (visíveis) e seus resistores logo acima -------------------------
 # Resistores girados 90°: em pé ocupam 3,1 mm de largura e cabem no passo de 8 mm dos LEDs.
