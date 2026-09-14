@@ -12,6 +12,8 @@ Para cada rede, com a geometria de trilhas, vias e pads lida pelo pcbnew:
   3. o pino do RJ45 precisa ficar ISOLADO de qualquer outro pad da rede (resistor, pull-up, outro
      conector, fonte). Se ainda chegar a algum, existe caminho que contorna o TVS — reprovado.
 
+Não enxerga cobre de zona: numa rede com preenchimento, conferir à parte.
+
 O corte em (2) importa: apagar a trilha inteira que encosta no TVS aprovaria uma derivação feita
 no meio dela, a milímetros do pad. Ligações em T (ponta de uma trilha no meio de outra) contam.
 
@@ -52,6 +54,20 @@ def dist_ponto_seg(px, py, ax, ay, bx, by):
     L2 = dx * dx + dy * dy
     t = 0.0 if L2 == 0 else max(0.0, min(1.0, ((px - ax) * dx + (py - ay) * dy) / L2))
     return math.hypot(px - (ax + t * dx), py - (ay + t * dy))
+
+
+def dist_seg_seg(a, b):
+    """Menor distância entre dois segmentos (ax, ay, bx, by)."""
+    (ax, ay, bx, by), (cx, cy, dx, dy) = a, b
+
+    def lado(px, py, qx, qy, rx, ry):
+        return (qx - px) * (ry - py) - (qy - py) * (rx - px)
+    d1, d2 = lado(ax, ay, bx, by, cx, cy), lado(ax, ay, bx, by, dx, dy)
+    d3, d4 = lado(cx, cy, dx, dy, ax, ay), lado(cx, cy, dx, dy, bx, by)
+    if d1 * d2 < 0 and d3 * d4 < 0:
+        return 0.0   # cruzam em X
+    return min(dist_ponto_seg(ax, ay, cx, cy, dx, dy), dist_ponto_seg(bx, by, cx, cy, dx, dy),
+               dist_ponto_seg(cx, cy, ax, ay, bx, by), dist_ponto_seg(dx, dy, ax, ay, bx, by))
 
 
 def nome_pad(p):
@@ -126,8 +142,9 @@ def grupos(board, rede, sem=()):
         for m, (lay2, cx, cy, dx, dy, w22) in enumerate(segs):
             if m == k or lay2 != lay:
                 continue
-            if (dist_ponto_seg(ax, ay, cx, cy, dx, dy) <= w22 + TOL or
-                    dist_ponto_seg(bx, by, cx, cy, dx, dy) <= w22 + TOL):
+            # cobre encosta quando a distância entre os eixos cabe nas duas meias-larguras: pega
+            # ponta com ponta, T, sobreposição lateral e cruzamento em X (revisão da ACT, 2026-09-14)
+            if dist_seg_seg((ax, ay, bx, by), (cx, cy, dx, dy)) <= w2 + w22 + TOL:
                 una(("s", k), ("s", m))
     for v in vias:
         una(("v", id(v)), ("v", id(v)))

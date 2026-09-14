@@ -59,7 +59,7 @@ regular que não casava com o formato e aprovava em silêncio.
 | Script | O que faz |
 |---|---|
 | `place_lp.py <pcb>` | Posiciona a M360-LP (86 × 62 mm, formato imposto pela caixa) e desenha o contorno |
-| `place_act.py <pcb>` | Posiciona a M360-ACT (100 × 80 mm) |
+| `place_act.py <pcb>` | Posiciona a M360-ACT (100 × 80 mm): par de TVS a 180° atrás de cada RJ45, 100 Ω na ordem de saída dos TVS, furos, fiduciais e área sem trilha em B.Cu sob os RJ45 |
 | `place_gw.py <pcb>` | Posiciona a M360-GW (80 × 60 mm). **Atenção ao girar peça em 90°:** o courtyard não fica centrado na origem — ver o comentário no script, que custou quatro violações de DRC |
 | `zone_thermals.py <pcb> [haste] [folga]` | Afina o alívio térmico das zonas (padrão 0,35 / 0,3). É o **primeiro** recurso contra `starved_thermal`; só se não bastar vem a ligação sólida abaixo |
 | `del_fp.py <pcb> <REF>...` | Apaga o bloco de um footprint, para a sincronização com o esquemático recriá-lo da biblioteca. É o caminho para trocar um footprint sem o segfault do SWIG |
@@ -73,6 +73,7 @@ regular que não casava com o formato e aprovava em silêncio.
 | `vias_gnd.py <pcb> [--perimetro PASSO] REF-PAD...` | Via de GND junto aos pads pedidos e costura do perímetro, respeitando o isolamento da classe da trilha (Power 0,3 mm) e os fiduciais. Diz **onde**; a suficiência é do DRC e da contagem de ilhas |
 | `pad_zone_connect.py <pcb> <REF> <PAD> <MODO>` | Ligação do pad às zonas: 0 nenhuma, 1 alívio térmico, 2 sólida. Age só no footprint pedido |
 | `silk_lp.py`, `silk_act.py`, `silk_gw.py` | Serigrafia de cada placa: tiram textos de referência de cima de ilhas, põem a marca e o nome do modelo, e acrescentam legendas. Na ACT, o campo **Value dos conectores** vai para a serigrafia ("RJ45 RELES-A", "5V do quadro"…), para o instalador não depender de saber o que é J3 ou J5. Na LP, **VCC e GND do J3** — ligar a alimentação invertida queima o nó, então a legenda é proteção, não conforto —, **"FTDI sem VCC"** junto ao header do Pro Mini e a marca do **pino 1 do soquete** do mezanino. Na GW não há texto a mover: os furos M3 já saem sem serigrafia pelo `place_gw.py` |
+| `silk_refs.py <pcb> [--pular REF,...]` | Posiciona as referências automaticamente em volta de cada peça, longe de pads, de outra serigrafia, da borda e (se der) de courtyard alheio; esconde e lista as que não couberem. Rodar **depois** do `silk_*.py` da placa, cujas legendas entram como obstáculo. Na ACT: `--pular A1,J2` |
 
 > Duas armadilhas de serigrafia que custaram rodada extra: **o campo Value herda a rotação do
 > footprint** — num conector em rot 90 o texto sai na vertical, atravessando a própria ilha, a

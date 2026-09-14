@@ -24,11 +24,9 @@ import sys
 import pcbnew
 
 # referência -> (x, y, ângulo) do texto de REFERÊNCIA
-REFS = {
-    # Em y = 144 o texto encostava na serigrafia do J1 depois que ele passou a rot 0 (topo em
-    # y 144,5). O courtyard do U1 termina em 141,6: y = 143 fica no meio da folga.
-    "U1": (109.0, 143.0, 0),     # entre o corpo do U1 e o borne J1
-}
+# As referências das peças são posicionadas pelo tools/silk_refs.py, rodado DEPOIS deste script
+# (placa refeita em 2026-09-14: 59 peças, fileiras a passo de 1,9 mm).
+REFS = {}
 
 # referência -> (x, y, altura, ângulo) do campo VALUE, que vira legenda na serigrafia
 #
@@ -44,18 +42,20 @@ VALORES = {
     # A faixa boa é ABAIXO do J1, que termina em y 154,6, antes dos TVS em y 158,75.
     "J1": (106.0, 157.2, 0.8, 0),   # entre o borne e a fileira de TVS
     "J2": (176.0, 128.0, 1.0, 0),   # abaixo do contorno do mezanino
-    # A faixa entre os TVS (terminam em y 162,25) e os RJ45 (começam em 164,76) tem 2,5 mm e
-    # NÃO serve: mesmo a 0,8 mm o texto encostava nos corpos dos conectores. As legendas sobem
-    # para ACIMA da fileira de TVS (que começa em y 158,75), onde há espaço de verdade.
-    "J3": (120.0, 156.0, 0.9, 0),
-    "J4": (140.0, 156.0, 0.9, 0),
-    "J5": (160.0, 156.0, 0.9, 0),
+    # Entre a fileira dos 100 ohm (termina em y 155,0) e os TVS (começam em 159,75): a faixa
+    # entre TVS e RJ45 tem 1,5 mm e não serve.
+    "J3": (120.0, 157.4, 0.9, 0),
+    "J4": (140.0, 157.4, 0.9, 0),
+    "J5": (160.0, 157.4, 0.9, 0),
 }
 
 # textos livres: (conteúdo, x, y, altura)
 TEXTOS = [
-    ("Viridiotech.com.br", 176.0, 149.0, 1.5),   # entre o U3 e o SW1
-    ("M360-ACT", 176.0, 152.0, 1.5),             # logo abaixo da marca
+    ("Viridiotech.com.br", 176.0, 146.0, 1.5),   # entre a coluna R14-R20 e o SW1
+    ("M360-ACT", 176.0, 149.0, 1.5),             # logo abaixo da marca
+    # Fileira da J5 a passo de 1,9 mm: o silk_refs.py não acha lugar para metade das referências,
+    # e é ela que define o divisor 10 k / 20 k. Legenda única, na ordem das peças.
+    ("R3 R4 C7 D1 R5 R6 C8", 162.7, 150.9, 1.0),
 ]
 
 ESPESSURA = 0.25
