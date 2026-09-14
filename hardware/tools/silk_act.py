@@ -41,7 +41,7 @@ VALORES = {
     # (silk_edge_clearance) e ainda encostou na referência e no contorno do próprio borne.
     # A faixa boa é ABAIXO do J1, que termina em y 154,6, antes dos TVS em y 158,75.
     "J1": (106.0, 157.2, 0.8, 0),   # entre o borne e a fileira de TVS
-    "J2": (176.0, 128.0, 1.0, 0),   # abaixo do contorno do mezanino
+    "J2": (167.04, 130.0, 1.0, 90),  # ao lado do soquete, em pé (posição do usuário, 2026-09-14)
     # Entre a fileira dos 100 ohm (termina em y 155,0) e os TVS (começam em 159,75): a faixa
     # entre TVS e RJ45 tem 1,5 mm e não serve.
     "J3": (120.0, 157.4, 0.9, 0),
@@ -49,10 +49,10 @@ VALORES = {
     "J5": (160.0, 157.4, 0.9, 0),
 }
 
-# textos livres: (conteúdo, x, y, altura)
+# textos livres: (conteúdo, x, y, altura[, ângulo])
 TEXTOS = [
-    ("Viridiotech.com.br", 176.0, 146.0, 1.5),   # entre a coluna R14-R20 e o SW1
-    ("M360-ACT", 176.0, 149.0, 1.5),             # logo abaixo da marca
+    ("Viridiotech.com.br", 170.5, 167.5, 1.5, 90),   # em pé, à direita do J5 (posição do usuário)
+    ("M360-ACT", 173.5, 167.5, 1.5, 90),             # ao lado da marca
     # Fileira da J5 a passo de 1,9 mm: o silk_refs.py não acha lugar para metade das referências,
     # e é ela que define o divisor 10 k / 20 k. Legenda única, na ordem das peças.
     ("R3 R4 C7 D1 R5 R6 C8", 162.7, 150.9, 1.0),
@@ -65,7 +65,7 @@ def v(x, y):
     return pcbnew.VECTOR2I(pcbnew.FromMM(x), pcbnew.FromMM(y))
 
 
-def texto_livre(board, conteudo, x, y, altura):
+def texto_livre(board, conteudo, x, y, altura, angulo=0):
     """Cria ou reposiciona um texto solto na serigrafia da face de cima."""
     alvo = None
     for d in board.GetDrawings():
@@ -83,7 +83,8 @@ def texto_livre(board, conteudo, x, y, altura):
     alvo.SetTextSize(v(altura, altura))
     alvo.SetTextThickness(pcbnew.FromMM(ESPESSURA))
     alvo.SetHorizJustify(pcbnew.GR_TEXT_H_ALIGN_CENTER)
-    print(f'   "{conteudo}" {acao} em ({x}, {y}), altura {altura} mm')
+    alvo.SetTextAngleDegrees(angulo)
+    print(f'   "{conteudo}" {acao} em ({x}, {y}), altura {altura} mm, {angulo}°')
 
 
 def main(path):
@@ -118,8 +119,8 @@ def main(path):
         print(f'   {ref}: "{t.GetText()}" -> ({x}, {y}) ang={ang}, altura {altura} mm')
 
     print("textos livres:")
-    for conteudo, x, y, altura in TEXTOS:
-        texto_livre(board, conteudo, x, y, altura)
+    for conteudo, x, y, altura, *ang in TEXTOS:
+        texto_livre(board, conteudo, x, y, altura, *ang)
 
     pcbnew.SaveBoard(path, board)
     print("placa salva")

@@ -24,7 +24,7 @@ import sys
 
 import pcbnew
 
-X0, Y0, W, H = 100.0, 100.0, 100.0, 80.0
+X0, Y0, W, H = 100.0, 100.0, 93.0, 80.0   # 93 mm desde 2026-09-14 (ajuste do usuário na placa)
 
 POS = {}
 
@@ -35,7 +35,7 @@ def put(ref, x, y, rot=0):
 
 # --- alto: Pro Mini (FTDI para fora da borda esquerda) e mezanino (SMA pela borda direita) --
 put("A1", 115.0, 126.0, 90)                 # ocupa x 111,5-145,1 / y 109,2-127,6
-put("J2", X0 + W - 27.2, 102.0 + 6.42)      # borda do mezanino (lado do SMA) = borda da placa
+put("J2", 171.96, 127.46, 90)              # soquete do mezanino a 90°, posição definida pelo usuário na placa
 put("R1", 163.0, 112.0, 270)                # pull-up do NSS, fora do mezanino (x >= 165,9)
 
 # --- coluna da esquerda: entrada de 5 V acima do borne --------------------------------------
@@ -98,13 +98,14 @@ put("J3", 120.0, Y0 + H - 8.66)             # RELES-A: canais 0 a 5
 put("J4", 140.0, Y0 + H - 8.66)             # RELES-B: canal 6, NFT, OXI, canais 7 a 9
 put("J5", 160.0, Y0 + H - 8.66)             # SENSORES: vazão e A6
 
-# --- reed na borda direita, entre o H2 e o H4 -----------------------------------------------
-put("SW1", X0 + W - 1.6, 146.0, 90)
+# --- reed na borda direita, entre o H2 e o H4 (a ACT fica dentro do quadro: o usuário abre a porta
+#     e passa o ímã junto do SW1, §5.2) -------------------------------------------------------
+put("SW1", 186.5, 152.2, 90)              # posição definida pelo usuário na placa
 
 # H2 não fica no canto: ali ele cairia embaixo do mezanino, e a placa teria de ser parafusada
 # antes de encaixar o módulo.
-HOLES = {"H1": (104.0, 104.0), "H2": (X0 + W - 4.0, 131.0),
-         "H3": (104.0, Y0 + H - 4.0), "H4": (X0 + W - 4.0, Y0 + H - 4.0)}
+HOLES = {"H1": (104.0, 104.0), "H2": (186.5, 138.5),
+         "H3": (104.0, Y0 + H - 4.0), "H4": (186.5, 174.5)}
 FIDUCIAIS = {"FID1": (109.0, 104.0), "FID2": (160.0, 104.0), "FID3": (185.0, 165.0)}
 # Área sem trilha em B.Cu sob a fileira de pads dos RJ45 (plano de baixo inteiro sob os
 # conectores, §11.8); começa 0,9 mm acima da fileira de cima. Vias e preenchimento continuam.

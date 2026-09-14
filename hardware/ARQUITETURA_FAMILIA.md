@@ -581,6 +581,14 @@ sem DSN/SES). Com o MCP fora do ar, trabalho de roteamento simplesmente para.
 Mitigação: fazer a etapa de placa inteira numa sessão só, e tratar o esquemático — que depende
 bem menos do MCP — como trabalho separado.
 
+> ⛔ **Contorno de zona pelo SWIG pode zerar a placa.** Em 2026-09-14, estender as zonas de GND da
+> ACT com `zone.SetOutline(SHAPE_POLY_SET)` montado a partir de `Outline().CPoint()` e depois
+> `SaveBoard` deixou o `.kicad_pcb` com **0 bytes**, sem exceção no Python — o `kicad-cli` seguinte
+> só acusou "falha ao carregar a placa". Recuperado da cópia que o `chk` guarda a cada conferência.
+> Para mexer em contorno de zona existente, **editar o texto** (`(polygon (pts (xy ...)))` do bloco
+> `(zone`) e deixar o refill regenerar o preenchimento; e conferir o tamanho do arquivo depois de
+> qualquer script que salve a placa.
+
 **Dois hábitos que se pagaram, e um que faltou.** Busca vazia não é prova: três vezes nesta
 sessão um `grep` meu voltou vazio por padrão errado (indentação, nome qualificado de símbolo,
 `(via ` com espaço) e quase virou conclusão sobre a placa. Conferir no arquivo em vez de confiar
