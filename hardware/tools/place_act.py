@@ -102,6 +102,15 @@ put("J5", 160.0, Y0 + H - 8.66)             # SENSORES: vazão e A6
 #     e passa o ímã junto do SW1, §5.2) -------------------------------------------------------
 put("SW1", 186.5, 152.2, 90)              # posição definida pelo usuário na placa
 
+# --- header 1x8 do nRF24 legado (ARQUITETURA §2 e §5.2): exclusivo com o mezanino -------
+# Coluna vertical logo abaixo do mezanino a 90° (que termina em y 134,5), entre a coluna
+# R14-R20 / fileira Y_SERIE (x <= 170,2) e o SW1/H2 (x >= 183,5). Rot 0: pinos correm em +y, pino
+# 1 (CE = DIO0) em cima. y 137,93 deixa a trilha de GND em y 151,9 a meio passo entre dois pinos
+# (folga 0,32 mm); a trilha do REED em B.Cu (x 178,32) fica a 0,85 mm dos pads. O 10 uF fica à
+# esquerda, na altura dos primeiros pinos.
+put("J6", 176.5, 137.93, 0)
+put("C9", 173.5, 141.0, 90)                 # 10 uF do 3,3 V do nRF24, na ponta do cabo
+
 # H2 não fica no canto: ali ele cairia embaixo do mezanino, e a placa teria de ser parafusada
 # antes de encaixar o módulo.
 HOLES = {"H1": (104.0, 104.0), "H2": (186.5, 138.5),

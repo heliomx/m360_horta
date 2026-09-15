@@ -72,6 +72,14 @@ put("Q1", 140.5, 147.5)
 # Courtyard do JST XH: de x − 3,0 a x + 15,5, ou seja, quase todo à direita da origem.
 put("J3", 130.0, 154.0)
 
+# --- header 1x8 do nRF24 legado (ARQUITETURA §2 e §6.1): exclusivo com o mezanino -------
+# Faixa livre abaixo do mezanino (termina em y 123) e à direita de R4/C4: pino 1 (CE = DIO0) à
+# esquerda, em rot 90 os pinos correm em +x (149,65 a 167,43). Deslocado 2,5 mm para a direita
+# da posição do plano para não cair sobre a trilha de GND que desce em diagonal de (150,9; 135,2).
+# O 10 uF fica logo abaixo (acima do header está a marca "Viridiotech.com.br", silk_gw.py).
+put("J4", 149.65, 131.0, 90)
+put("C5", 163.0, 138.0)                     # 10 uF do 3,3 V do nRF24, na ponta do cabo
+
 # H1 evita o D1 mini; H2 não fica no canto (cairia sob o mezanino) e desce para a faixa livre.
 HOLES = {"H1": (104.0, 104.0), "H2": (X0 + W - 4.0, 130.0),
          "H3": (104.0, Y0 + H - 4.0), "H4": (X0 + W - 4.0, Y0 + H - 4.0)}

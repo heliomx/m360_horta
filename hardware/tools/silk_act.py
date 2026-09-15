@@ -56,6 +56,11 @@ TEXTOS = [
     # Fileira da J5 a passo de 1,9 mm: o silk_refs.py não acha lugar para metade das referências,
     # e é ela que define o divisor 10 k / 20 k. Legenda única, na ordem das peças.
     ("R3 R4 C7 D1 R5 R6 C8", 162.7, 150.9, 1.0),
+    # Header J6 do nRF24 (coluna em x 176,5, pinos y 137,9-155,7): um rádio por placa, o CSN
+    # partilha o NSS e o CE partilha o DIO0 (ARQUITETURA §2, §5.2). Legenda em pé à direita da
+    # coluna (a trilha do REED em B.Cu fica sob a máscara); "CE" acima do pino 1.
+    ("nRF24 OU mezanino", 179.0, 147.0, 0.9, 90),
+    ("CE", 176.5, 135.5, 0.9),
 ]
 
 ESPESSURA = 0.25

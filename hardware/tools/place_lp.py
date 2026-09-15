@@ -84,6 +84,14 @@ put("R26", 142.8, 139.8, 270)              # ONEWIRE
 
 # --- entrada e reed -------------------------------------------------------------------------
 put("J3", 178.0, 140.0)                    # J_VIN na borda direita
+
+# --- header 1x8 do nRF24 legado (ARQUITETURA §2 e §4.2): exclusivo com o mezanino -------
+# Único vão livre: à direita do J2 (borda em 142), abaixo da fileira R26-R29 (y 139,8) e fora da
+# área sem trilha em B.Cu. Em rot 90 os pinos correm em +x: pino 1 (CE = DIO0) em 147,1, pino 8 em
+# 164,9. A marca e o nome do modelo sobem para y 143,5 / 147,0 (silk_lp.py). O 10 uF fica à
+# direita, acima do fim do header (o courtyard do header vai até x 166,7) e antes do J3.
+put("J5", 147.1, 152.0, 90)
+put("C16", 169.0, 148.0, 270)              # 10 uF do 3,3 V do nRF24, na ponta do cabo
 # Reed na borda esquerda (2026-09-14). Na borda de baixo ele ficava a ~30 mm da parede (é o lado
 # do espaço do plugue RJ45), fora do alcance do ímã. A placa tem 86 mm num interior de ~92 mm:
 # nas laterais sobram ~3 mm até a parede. Faixa livre entre o Pro Mini (y > 122,6) e o H3.

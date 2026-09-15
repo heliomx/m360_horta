@@ -40,10 +40,14 @@ REFS = {
 # textos livres: (conteúdo, x, y, altura[, ângulo])
 # O J3 ocupa y 137,1-143,9; as legendas ficam acima, na faixa livre até os pull-ups (y 130).
 TEXTOS = [
-    # A referência do SW1 fica em y ≈ 154: com "M360-LP" em 153,5 os dois se imprimiam um
-    # sobre o outro (silk_overlap). O par sobe para a faixa livre acima do SW1.
-    ("Viridiotech.com.br", 158.0, 147.0, 1.5),   # acima do SW1
-    ("M360-LP", 158.0, 150.5, 1.5),              # logo abaixo da marca
+    # O header J5 do nRF24 (pinos em y 152, x 147,1-164,9) ocupa a faixa onde a marca ficava:
+    # o par sobe para entre a fileira R26-R29 (courtyard até 141,3) e o header (courtyard a partir
+    # de 150,2). As trilhas de DHT/SCL em y 142,2-142,7 ficam sob a máscara, sem ilha.
+    ("Viridiotech.com.br", 158.0, 143.5, 1.5),
+    ("M360-LP", 158.0, 147.0, 1.5),
+    # Um rádio por placa: o CSN partilha o NSS e o CE partilha o DIO0 (ARQUITETURA §2, §4.2).
+    ("nRF24 OU mezanino", 156.0, 155.3, 0.9),    # abaixo da fileira do J5
+    ("CE", 147.1, 149.6, 0.9),                   # pino 1 do J5
     # 1,0 mm é o mínimo de texto legível na serigrafia da JLCPCB (a revisão de placa achou 0,8).
     ("VCC", 177.0, 134.0, 1.0),                  # sobre a ilha 1 do J3 (VIN_RAW)
     ("GND", 181.5, 134.0, 1.0),                  # sobre a ilha 2 do J3
