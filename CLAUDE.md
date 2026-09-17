@@ -78,6 +78,25 @@ Ao trabalhar em qualquer arquivo dentro de `src/DRY/` (nós **ou** gateway), apl
 
 ---
 
+## Regras Obrigatórias — Hardware KiCad (`hardware/`)
+
+Ao trabalhar em qualquer arquivo dentro de `hardware/` (`.kicad_sch`, `.kicad_pcb`, `.kicad_mod`,
+`.kicad_sym`, `tools/`), aplicar **obrigatoriamente**:
+
+- **Referência consolidada (SSoT):** `.agent/skills/m360-kicad-hardware-workflow/SKILL.md`
+
+O que não se negocia:
+
+| Regra | Por quê |
+|---|---|
+| **`kicad-cli` é o juiz.** Toda edição de esquemático passa por netlist antes/depois + `hardware/tools/netdiff.py` + ERC com zero violações + comparação de campos e do bloco `lib_symbols` | O ERC **não** acusa fio que funde duas redes: o curto é eletricamente válido |
+| **MCP KiCad** serve para catálogo JLCPCB, leitura e lint. Escrita em esquemático só peça a peça, lendo a rotação real no arquivo antes de desenhar fios, e `kicad-cli sch upgrade --force` depois. **Nunca `replace_schematic_component`** | Os mutadores do MCP falham em silêncio: ignoram o ângulo, gravam campos em outro componente e escrevem fora do formato canônico |
+| **Busca vazia não é prova** (`grep`, `search_jlcpcb_parts`). Registrar a consulta junto da conclusão | Três conclusões erradas por padrão de busca errado em uma sessão |
+| **Datasheets** que fundamentam decisões vão para `docs/datasheets/` com índice, não para pasta temporária | A próxima rodada precisa auditar sem refazer o download |
+| **Placas marcadas como defasadas** não são comparadas com o esquemático; a lista "já conhecido" vive em `hardware/ARQUITETURA_FAMILIA.md` §9 | Evita achado repetido e comparação sem sentido |
+
+---
+
 ## Regra Obrigatória — Manter o Inventário Sincronizado
 
 Qualquer alteração de código em `src/DRY/horta/` **deve** ser refletida em
@@ -272,6 +291,14 @@ include/
 - **JSON gateway:** `DynamicJsonDocument(512)` para mensagens, `(384)` para heartbeat, `(256)` para eventos
 - **Macros MY_\*:** definidas exclusivamente no `platformio.ini` — nunca no `.cpp` após `#include <MySensors.h>`
 - **Pinos virtuais MUX (Nó 99):** `pin = MUX_CHANNEL_OFFSET + canal` (100–115) — `setupPins()` deve ser omitido; pinos gerenciados em `initSensors()`
+
+---
+
+## Diretrizes de Comunicação e Formatação no Chat
+
+- **Proibido usar blocos matemáticos/LaTeX (`$$...$$` ou `$...$`) para formatar texto comum ou destaques:**  
+  Nunca utilize notação matemática LaTeX (`$$\text{...}$$`, `\textbf{...}`, etc.) para enfatizar frases, rótulos de botões, badges ou valores de telemetria no chat (ex.: proibido `$$\text{Logo ao lado de }\textbf{Nó físico ID: 4}\text{ está o badge verde: }...$$`).  
+  Utilize sempre **Markdown nativo e limpo** (`**negrito**`, `*itálico*`, `` `código/badge inline` `` ou listas), mantendo a renderização fluida, elegante e perfeitamente legível na interface.
 
 ---
 

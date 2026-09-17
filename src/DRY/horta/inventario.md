@@ -135,7 +135,7 @@ Convenção do label: `<canteiro>_<distância>_<profundidade>`.
 
 **Env:** `ProMini_04noodeSolarMini` (Pro Mini 5V/16MHz)
 **Perfil:** `M360_LOW_POWER`
-**Hardware:** DHT11 (ar) + DS18B20 (solo), painel solar com bateria
+**Hardware:** DHT11 (ar) + DS18B20 (solo), 18650 direto no VCC carregada por painel solar (TP4056)
 
 | Child | Constante | Label | `kind` | `S_*` | `V_*` | Payload | Sensor | Pino | `reportIntervalMin` | `wakeOnRadio` | `flags` |
 |---:|---|---|---|---|---|---|---|---|:---:|:---:|:---:|
@@ -146,9 +146,11 @@ Convenção do label: `<canteiro>_<distância>_<profundidade>`.
 `pin = -1` porque a leitura é resolvida por `childId` em `sensorDrivers.cpp`, não
 por porta. `reportIntervalMin = 1` reduz tráfego num nó a bateria.
 
-> Este nó **sobrescreve** `M360::readBatteryVoltage()` (divisor 100k/100k em
-> `PIN_BATTERY_ADC`) em vez de usar o bandgap interno de 1,1 V da lib. O child 255
-> continua reportando float com 1 casa.
+> A bateria (child 255) usa o padrão da lib: VCC medido contra o bandgap interno
+> de 1,1 V. Só vale porque a 18650 alimenta o VCC direto, sem passar pelo RAW —
+> ver `nos/04noodeSolarMini/esquema_eletrico.md` §3. O antigo divisor 100k/100k
+> em A0 saiu: travava a leitura em ~3,3 V. O child 255 continua reportando float
+> com 1 casa.
 
 ---
 

@@ -9,7 +9,7 @@
 #define PIN_POWER_SENSORS  3  // Pino VCC controlado para economizar bateria
 #define PIN_DHT            4  // Pino de dados do DHT11
 #define PIN_ONEWIRE        5  // Pino de dados OneWire do DS18B20 (Temperatura Solo)
-#define PIN_BATTERY_ADC    A0 // Divisor de tensão da bateria (100k/100k)
+// Bateria: sem pino — lida pelo bandgap interno (bateria direto no VCC)
 
 // ===== CHILD IDs (Canais do Nó conforme R13) =====
 #define CHILD_ID_TEMP      11 // Temperatura do Ar (DHT11 - Clima 11–20)
