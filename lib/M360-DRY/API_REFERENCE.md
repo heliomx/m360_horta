@@ -64,6 +64,8 @@ M360Node(const M360ItemDef* items, uint8_t count, float* lastValues, uint8_t* nN
 - `onWrite(callback)`: Registra sua função de atuação para relés e válvulas.
 - `setupPins()`: Configura automaticamente os pinos definidos na struct `M360ItemDef` como INPUT ou OUTPUT.
 - `getInterval()`: Retorna o intervalo atual em minutos.
+- `setInterval(minutes)`: Altera o intervalo de ciclo **sem gravar na EEPROM**. Cancela qualquer override em ms. Ignora valores fora de `[M360_MIN_INTERVAL, M360_MAX_INTERVAL]`. Imprime `INT:<valor>` no Serial. Um `C_SET V_VAR1` recebido via rede tem a mesma semântica, mas persiste na EEPROM.
+- `setIntervalMs(ms)`: Define o intervalo em milissegundos brutos (sem validação de faixa, sem gravar EEPROM). Passa `0` para cancelar o override e retomar o intervalo em minutos. Uso principal: **warm-up pós-boot** (ver §4 abaixo).
 - `sendDebug(text)`: Envia string arbitrária pelo child `CHILD_ID_DEBUG` (253, `V_TEXT`). Chega ao MQTT/Node-RED via gateway sem precisar de acesso Serial ao nó — canal de debug remoto. Payload truncado em 24 chars (limite `MAX_PAYLOAD_SIZE`).
 - `sendItemState(index, state)`: Envia o estado (`bool`) do item `NODE_ITEMS[index]`, com o child e o tipo dele. Para uso do nó fora do fluxo da lib — ex.: o failsafe que desliga um relé sozinho, ou o eco do canal MUX preemptado (Nó 99).
 
@@ -105,6 +107,54 @@ Funções de utilidade para economia de bateria e persistência.
 - `M360_MIN_VOLTAGE`: Tensão mínima (ex: 2.7V para baterias de lítio).
 - `M360_MAX_VOLTAGE`: Tensão máxima (ex: 4.2V).
 - `M360_DEFAULT_INTERVAL`: Padrão: 30 minutos.
+
+---
+
+## 4. Padrão Warm-Up Pós-Boot (nós `M360_LOW_POWER`)
+
+Após um reboot (queda de energia, reset manual ou watchdog), o nó demora até 1 intervalo completo para enviar a primeira leitura — o que pode significar 30 min sem dados no MQTT. O padrão **warm-up** resolve isso:
+
+- **Fase 1 (0 – N min):** intervalo curto em ms via `setIntervalMs()` — garante dados rápidos logo após o boot e confirma a reconexão com o gateway.
+- **Fase 2 (após N min):** transição automática para o intervalo nominal via `setInterval()`, que cancela o override em ms.
+
+### Comportamento com comandos externos durante o warm-up
+
+| Evento | Resultado |
+|---|---|
+| Node-RED envia `C_SET V_VAR1` (child 254) durante o warm-up | `handleMessage()` cancela `_intervalMs`, adota e persiste o novo intervalo imediatamente |
+| `millis()` atinge o limiar de duração | `setInterval(NOMINAL)` cancela `_intervalMs`, nó entra em regime normal |
+| Reboot/reset | `_intervalMs` volta para 0 no constructor; `setup()` do nó precisa rearmá-lo |
+
+> ⚠️ O campo `_intervalMs` **não é persistido na EEPROM** — é sempre zerado no constructor. O nó deve rearmar o warm-up em `setup()` a cada boot.
+
+### Exemplo de implementação (Nó 4 — SolarMini)
+
+```cpp
+// Constantes de warm-up (definir no .cpp do nó)
+#define WARMUP_INTERVAL_MS   30000UL          // 30 s
+#define WARMUP_DURATION_MS   (5UL * 60000UL)  // 5 min
+#define NOMINAL_INTERVAL_MIN 30               // 30 min
+
+static bool warmupDone = false;
+
+void setup() {
+    node.onRead(readNodeItem);
+    node.setIntervalMs(WARMUP_INTERVAL_MS);   // fase 1: dorme 30 s
+    Serial.println(F("WARMUP:30s"));
+}
+
+void loop() {
+    // millis() acumula tempo de uptime real (smartSleep para o clock)
+    if (!warmupDone && millis() >= WARMUP_DURATION_MS) {
+        warmupDone = true;
+        node.setInterval(NOMINAL_INTERVAL_MIN); // fase 2: cancela ms, adota 30 min
+        Serial.println(F("WARMUP:done"));
+    }
+    node.process();
+}
+```
+
+> **Nota sobre `millis()` e LOW_POWER:** no perfil `M360_LOW_POWER` o `smartSleep()` **para** o `millis()` durante o sono — o tempo dorme não conta. A janela de 5 min é medida em **tempo de uptime cumulativo** (soma dos períodos acordado). Com WARMUP de 30 s, ~10 ciclos acordados completam os 5 min.
 
 ---
 *Retornar ao [README.md](README.md)*

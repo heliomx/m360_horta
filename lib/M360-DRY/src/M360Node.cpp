@@ -24,6 +24,7 @@ namespace M360
 	      _lastValues(lastValues),
 	      _nNoUpdates(nNoUpdates),
 	      _interval(M360_DEFAULT_INTERVAL),
+	      _intervalMs(0),
 	      _lastBattVoltage(NAN),
 	      _battCycle(0),
 	      _profile(profile),
@@ -58,6 +59,26 @@ namespace M360
 
 	void M360Node::sendDebug(const char* text) {
 		send(_msgFor(M360_CHILD_ID_DEBUG, V_TEXT).set(text));
+	}
+
+	// ===== CONTROLE DE INTERVALO EM RUNTIME =====
+
+	void M360Node::setInterval(uint16_t minutes) {
+		if (minutes < M360_MIN_INTERVAL || minutes > M360_MAX_INTERVAL) {
+			return;
+		}
+		_interval   = minutes;
+		_intervalMs = 0; // cancela qualquer override em ms
+		Serial.print(F("INT:"));
+		Serial.println(_interval);
+	}
+
+	void M360Node::setIntervalMs(uint32_t ms) {
+		_intervalMs = ms;
+		if (ms > 0) {
+			Serial.print(F("INT_MS:"));
+			Serial.println(ms);
+		}
 	}
 
 	// ===== SETUP DE PINOS =====
@@ -147,11 +168,17 @@ namespace M360
 			}
 
 			wait(M360_MIN_AWAKE_MS);
-			smartSleep((unsigned long)_interval * 60000UL);
+			uint32_t sleepMs = (_intervalMs > 0)
+			                 ? _intervalMs
+			                 : (uint32_t)_interval * 60000UL;
+			smartSleep(sleepMs);
 		} else if (_profile == M360_PASSIVE) {
 			// Modo passivo: APENAS dorme e aguarda mensagens (V_CUSTOM do gateway)
 			// Não realiza leituras periódicas automáticas.
-			smartSleep((unsigned long)_interval * 60000UL); // Intervalo longo por padrão
+			uint32_t sleepMs = (_intervalMs > 0)
+			                 ? _intervalMs
+			                 : (uint32_t)_interval * 60000UL;
+			smartSleep(sleepMs); // Intervalo longo por padrão
 		}
 	}
 
@@ -184,7 +211,8 @@ namespace M360
 		    (msg.getType() == V_VAR1 || msg.getType() == V_VAR5)) {
 			uint16_t iv = msg.getUInt();
 			if (iv >= M360_MIN_INTERVAL && iv <= M360_MAX_INTERVAL) {
-				_interval = iv;
+				_interval   = iv;
+				_intervalMs = 0; // cancela warm-up: comando externo tem precedência
 				saveInterval(_interval);
 			}
 			// Sempre confirma o valor vigente (gateway sabe se a mudança foi aceita ou rejeitada)

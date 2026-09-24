@@ -137,10 +137,25 @@ namespace M360
 		// ----- Configuração de pinos (opcional, baseado em items[].pin) -----
 		void setupPins();
 
-		// ----- Acesso ao intervalo atual -----
+		// ----- Acesso e ajuste do intervalo em runtime -----
 		uint16_t getInterval() const {
 			return _interval;
 		}
+
+		// Retorna o override em ms (0 = inativo — warm-up concluído ou não iniciado).
+		uint32_t getIntervalMs() const {
+			return _intervalMs;
+		}
+
+		// Altera o intervalo de ciclo sem gravar na EEPROM.
+		// Uso: warm-up pós-boot (ex.: 30 s inicial → 30 min após 5 min).
+		// Valores fora de [M360_MIN_INTERVAL, M360_MAX_INTERVAL] são ignorados.
+		void setInterval(uint16_t minutes);
+
+		// Altera o intervalo de ciclo usando milissegundos brutos (sem gravar EEPROM).
+		// Sobrepõe temporariamente o intervalo em minutos; use 0 para cancelar o override.
+		// Uso típico: warm-up com 30 s (setIntervalMs(30000UL)) logo após o boot.
+		void setIntervalMs(uint32_t ms);
 
 	private:
 		const M360ItemDef* _items;
@@ -150,7 +165,8 @@ namespace M360
 		MyMessage          _txMsg;
 		float*             _lastValues;
 		uint8_t*           _nNoUpdates;
-		uint16_t           _interval;
+		uint16_t           _interval;    // minutos (persistido na EEPROM)
+		uint32_t           _intervalMs;  // override em ms (0 = inativo, não persiste)
 		float              _lastBattVoltage;
 		uint8_t            _battCycle;
 

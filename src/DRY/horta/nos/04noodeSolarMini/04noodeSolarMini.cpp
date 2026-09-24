@@ -10,6 +10,15 @@
 #include <M360.h>
 #include "sensorDrivers.h"
 
+// ===== WARM-UP PÓS-BOOT =====
+// Após o reboot, o nó transmite a cada 30 s por 5 min para confirmar a
+// reconexão com o gateway. Decorridos 5 min, muda para 30 min (valor EEPROM).
+#define WARMUP_INTERVAL_MS   30000UL          // 30 s (intervalo inicial)
+#define WARMUP_DURATION_MS   (5UL * 60000UL)  // 5 min (duração do warm-up)
+#define NOMINAL_INTERVAL_MIN 30               // 30 min (intervalo nominal)
+
+static bool warmupDone = false;  // transiciona apenas uma vez por boot
+
 // ===== RÓTULOS (na Flash) =====
 // M360_LABEL() só aceita arrays PROGMEM. O texto é o que o Node-RED exibe —
 // ver inventario.md §6.
@@ -70,10 +79,33 @@ void presentation()
 void setup()
 {
 	node.onRead(readNodeItem);
+
+	// Warm-up: inicia com intervalo de 30 s para confirmar rede pós-boot.
+	// A transição para 30 min ocorre em loop() após 5 min.
+	node.setIntervalMs(WARMUP_INTERVAL_MS);
+	Serial.println(F("WARMUP:30s"));
 }
 
 void loop()
 {
+	// Após WARMUP_DURATION_MS do boot, migra para o intervalo nominal.
+	// millis() é lido ao acordar de cada smartSleep(), então a migração
+	// ocorre na primeira chamada de loop() que ultrapasse 5 min de uptime.
+	//
+	// Guard: só aciona a transição se o warm-up ainda estiver ativo
+	// (getIntervalMs() > 0). Se o backend tiver enviado um C_SET V_VAR1
+	// durante a janela de 5 min, handleMessage() já zerou _intervalMs e
+	// persistiu o intervalo do operador — não sobrescrever.
+	if (!warmupDone && millis() >= WARMUP_DURATION_MS) {
+		warmupDone = true;
+		if (node.getIntervalMs() > 0) {
+			node.setInterval(NOMINAL_INTERVAL_MIN); // cancela o override em ms
+			Serial.println(F("WARMUP:done->30min"));
+		} else {
+			Serial.println(F("WARMUP:done->backend"));
+		}
+	}
+
 	node.process();
 }
 

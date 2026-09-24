@@ -137,6 +137,11 @@ Convenção do label: `<canteiro>_<distância>_<profundidade>`.
 **Perfil:** `M360_LOW_POWER`
 **Hardware:** DHT11 (ar) + DS18B20 (solo), 18650 direto no VCC carregada por painel solar (TP4056)
 
+**Intervalo de transmissão:**
+- **Warm-up pós-boot:** 30 s (primeiros 5 min de uptime) — garante confirmação rápida de reconexão
+- **Nominal:** 30 min (após os 5 min iniciais, via `setInterval(30)` sem persistir na EEPROM)
+- O valor gravado na EEPROM (child 254) não é alterado pelo warm-up; um `C_SET V_VAR1` do Node-RED sempre sobrepõe e persiste o intervalo desejado.
+
 | Child | Constante | Label | `kind` | `S_*` | `V_*` | Payload | Sensor | Pino | `reportIntervalMin` | `wakeOnRadio` | `flags` |
 |---:|---|---|---|---|---|---|---|---|:---:|:---:|:---:|
 | **1** | `CHILD_ID_SOIL_TEMP` | `Temperatura Solo` | `M360_SENSOR` | `S_TEMP` | `V_TEMP` (0) | float, 1 casa | DS18B20 | −1 | 1 | false | 0 |
