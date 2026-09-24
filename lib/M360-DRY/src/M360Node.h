@@ -47,7 +47,9 @@ namespace M360
 		Comportamento: O nó acorda sozinho em intervalos regulares (ex: a cada 5 minutos).
         Ação ao Acordar: Ele executa automaticamente o ciclo: Ligar Periféricos -> Ler Sensores -> Enviar Dados -> Desligar Periféricos -> Voltar a Dormir.
         Uso Ideal: Sensores de bateria comuns (Temperatura, Umidade de Solo simples) onde você quer um gráfico constante no Home Assistant sem precisar solicitar.
-        Comando Externo: Se o gateway enviar um comando enquanto ele está no smartSleep, ele acorda, processa o comando, faz uma leitura completa e volta a dormir.
+        Comando Externo: o rádio fica DESLIGADO durante o sono (transportDisable() antes do hwSleep()).
+        O nó só recebe comandos na janela acordada de cada ciclo (~M360_MIN_AWAKE_MS + 500 ms do smartSleep);
+        o gateway não retém mensagens — cabe ao controlador reenviar quando o nó der sinal de vida.
 		*/
 		M360_ALWAYS_ON,   // fonte fixa / debug: timer por millis, sem sleep
 		M360_PASSIVE,     // reativo: acorda no intervalo para "check-in", mas só lê/atua sob comando
@@ -147,15 +149,20 @@ namespace M360
 			return _intervalMs;
 		}
 
-		// Altera o intervalo de ciclo sem gravar na EEPROM.
-		// Uso: warm-up pós-boot (ex.: 30 s inicial → 30 min após 5 min).
-		// Valores fora de [M360_MIN_INTERVAL, M360_MAX_INTERVAL] são ignorados.
-		void setInterval(uint16_t minutes);
+		// Altera o intervalo em minutos sem gravar na EEPROM, cancela qualquer
+		// override em ms e ecoa o valor vigente no child 254 (como handleMessage()).
+		// Devolve false fora de [M360_MIN_INTERVAL, M360_MAX_INTERVAL] (log INT_LOC:REJ).
+		// Só tem efeito depois de begin(), que carrega o valor da EEPROM.
+		bool setInterval(uint16_t minutes);
 
-		// Altera o intervalo de ciclo usando milissegundos brutos (sem gravar EEPROM).
-		// Sobrepõe temporariamente o intervalo em minutos; use 0 para cancelar o override.
-		// Uso típico: warm-up com 30 s (setIntervalMs(30000UL)) logo após o boot.
-		void setIntervalMs(uint32_t ms);
+		// Override temporário do intervalo em milissegundos (sem gravar EEPROM),
+		// lido por process() nos perfis LOW_POWER e PASSIVE. 0 cancela o override
+		// e volta ao intervalo em minutos (EEPROM), ecoando-o no child 254.
+		// Devolve false nos perfis ALWAYS_ON/REPEATER (INT_MS:IGN — usam timer por
+		// millis() e nunca leem o override) e fora de
+		// [M360_MIN_INTERVAL_MS, M360_MAX_INTERVAL * 60000] (INT_MS:REJ).
+		// Uso típico: warm-up pós-boot — ver API_REFERENCE.md §4.
+		bool setIntervalMs(uint32_t ms);
 
 	private:
 		const M360ItemDef* _items;
@@ -176,6 +183,8 @@ namespace M360
 
 		// Prepara _txMsg para o child/tipo informados e o devolve para o send().
 		MyMessage& _msgFor(uint8_t childId, uint8_t valueType);
+		// Ecoa o intervalo vigente (minutos) no child 254 / V_VAR1.
+		void _sendInterval();
 		// forceAll=true ignora o filtro de "mudou o suficiente" (usado por CMD_FORCE_UPDATE)
 		void _readAndSendAll(bool forceAll = false);
 		// Envia _lastValues[i] já em cache (sem reler o hardware), usada tanto por

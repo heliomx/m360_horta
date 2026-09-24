@@ -1,7 +1,7 @@
 /*
  * 04noodeSolarMini.cpp — Nó 4: Monitoramento Solar de Clima e Solo (DHT11 + DS18B20)
  *
- * Hardware: Arduino Pro Mini 3.3V/8MHz + DHT11 + DS18B20 + nRF24L01+
+ * Hardware: Arduino Pro Mini 5V/16MHz (env pro16MHzatmega328) + DHT11 + DS18B20 + nRF24L01+
  * Alimentação: Baixo Consumo (Bateria / Solar)
  */
 
@@ -11,13 +11,20 @@
 #include "sensorDrivers.h"
 
 // ===== WARM-UP PÓS-BOOT =====
-// Após o reboot, o nó transmite a cada 30 s por 5 min para confirmar a
-// reconexão com o gateway. Decorridos 5 min, muda para 30 min (valor EEPROM).
-#define WARMUP_INTERVAL_MS   30000UL          // 30 s (intervalo inicial)
-#define WARMUP_DURATION_MS   (5UL * 60000UL)  // 5 min (duração do warm-up)
-#define NOMINAL_INTERVAL_MIN 30               // 30 min (intervalo nominal)
+// Após o reboot, o nó transmite a cada 30 s por WARMUP_CYCLES ciclos (~5 min de
+// relógio) para confirmar a reconexão com o gateway. Depois volta ao intervalo
+// em minutos que begin() carregou da EEPROM (child 254) — o warm-up nunca
+// sobrescreve o valor do operador. Ver API_REFERENCE.md §4.
+//
+// Conta-se ciclos, não millis(): o smartSleep() para o millis() durante o sono,
+// então "5 min de millis()" seriam ~60 ciclos (~35 min de relógio a 30 s). E o
+// millis() já corre enquanto _begin() espera o gateway, o que faria um warm-up
+// por tempo nascer expirado em setup() numa queda geral de energia.
+#define WARMUP_INTERVAL_MS 30000UL   // 30 s entre ciclos
+#define WARMUP_CYCLES      10        // 10 ciclos × 30 s ≈ 5 min
 
-static bool warmupDone = false;  // transiciona apenas uma vez por boot
+static uint8_t warmupCycles = 0;     // ciclos concluídos; para em WARMUP_CYCLES
+static bool    warmupDone   = false; // transiciona apenas uma vez por boot
 
 // ===== RÓTULOS (na Flash) =====
 // M360_LABEL() só aceita arrays PROGMEM. O texto é o que o Node-RED exibe —
@@ -72,7 +79,7 @@ void before()
 
 void presentation()
 {
-	node.begin(F("SolarMini"), F("2.0.0"));
+	node.begin(F("SolarMini"), F("2.1.0"));
 }
 
 
@@ -80,33 +87,29 @@ void setup()
 {
 	node.onRead(readNodeItem);
 
-	// Warm-up: inicia com intervalo de 30 s para confirmar rede pós-boot.
-	// A transição para 30 min ocorre em loop() após 5 min.
-	node.setIntervalMs(WARMUP_INTERVAL_MS);
-	Serial.println(F("WARMUP:30s"));
+	// Warm-up: 30 s por ciclo até WARMUP_CYCLES; a transição ocorre em loop().
+	if (node.setIntervalMs(WARMUP_INTERVAL_MS)) {
+		Serial.println(F("WARMUP:30s"));
+	}
 }
 
 void loop()
 {
-	// Após WARMUP_DURATION_MS do boot, migra para o intervalo nominal.
-	// millis() é lido ao acordar de cada smartSleep(), então a migração
-	// ocorre na primeira chamada de loop() que ultrapasse 5 min de uptime.
-	//
-	// Guard: só aciona a transição se o warm-up ainda estiver ativo
-	// (getIntervalMs() > 0). Se o backend tiver enviado um C_SET V_VAR1
-	// durante a janela de 5 min, handleMessage() já zerou _intervalMs e
-	// persistiu o intervalo do operador — não sobrescrever.
-	if (!warmupDone && millis() >= WARMUP_DURATION_MS) {
+	node.process(); // LOW_POWER: uma chamada = um ciclo (lê → envia → dorme)
+
+	// Após WARMUP_CYCLES ciclos, encerra o override e volta ao intervalo da
+	// EEPROM. setIntervalMs(0) não toca em _interval: se o backend já tiver
+	// enviado um C_SET V_VAR1 durante o warm-up, handleMessage() zerou o
+	// override e persistiu o valor do operador — o comando externo prevalece.
+	if (!warmupDone && ++warmupCycles >= WARMUP_CYCLES) {
 		warmupDone = true;
 		if (node.getIntervalMs() > 0) {
-			node.setInterval(NOMINAL_INTERVAL_MIN); // cancela o override em ms
-			Serial.println(F("WARMUP:done->30min"));
+			node.setIntervalMs(0); // a lib ecoa o intervalo vigente no child 254
+			Serial.println(F("WARMUP:done->eeprom"));
 		} else {
 			Serial.println(F("WARMUP:done->backend"));
 		}
 	}
-
-	node.process();
 }
 
 void receive(const MyMessage& msg)

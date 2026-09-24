@@ -26,8 +26,14 @@ O ciclo `M360_LOW_POWER` está em `M360Node::process()`
 | Espera de mensagens do smartSleep | `MY_SMART_SLEEP_WAIT_DURATION_MS` = 500 (MySensors 2.3.2) | 0,5 s |
 | Sono | `smartSleep(intervalo × 60 000)` | resto do intervalo |
 
-**Intervalo atual: 1 minuto** — `M360_DEFAULT_INTERVAL` (`M360Config.h`), o pior
-caso para energia. Pode ser alterado sem regravar o nó (§5).
+**Intervalo padrão de fábrica: 30 minutos** — `-D M360_DEFAULT_INTERVAL=30` no env
+(`platformio.ini`), aplicado só com EEPROM virgem. Um nó já gravado mantém o valor
+da EEPROM (1 min, antigo padrão da lib e pior caso para energia) até receber um
+`INTERVAL_<min>` pelo dashboard (§5). Os cálculos abaixo continuam em 1 min.
+
+**Warm-up pós-boot:** 10 ciclos de 30 s a cada reset — ~10 × 0,028 mAh ≈ 0,3 mAh
+por boot, desprezível frente ao consumo diário; só pesa se o nó entrar em loop de
+reset por brown-out.
 
 Durante as esperas o `wait()` do MySensors mantém o rádio escutando, então os ~5 s
 acordado custam praticamente o mesmo em qualquer etapa.

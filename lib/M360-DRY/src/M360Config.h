@@ -99,6 +99,14 @@ namespace M360 {
 
 #define M360_MIN_AWAKE_MS 3000UL
 
+// Piso do override em ms (M360Node::setIntervalMs). Abaixo de
+// MY_SMART_SLEEP_WAIT_DURATION_MS (500 ms) o MySensors devolve
+// MY_SLEEP_NOT_POSSIBLE sem dormir e o nó fica em loop acordado com o rádio
+// ligado; 5 s cobre também a janela M360_MIN_AWAKE_MS.
+#ifndef M360_MIN_INTERVAL_MS
+#  define M360_MIN_INTERVAL_MS 5000UL
+#endif
+
 // ===== BATERIA =====
 
 #ifndef M360_MIN_VOLTAGE

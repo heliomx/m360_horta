@@ -1,6 +1,6 @@
 {
   "name": "M360-DRY",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Motor genérico DRY para nós MySensors M360 — encapsula lifecycle, bateria, intervalo e atuadores em classe M360Node.",
   "keywords": ["mysensors", "iot", "arduino", "m360", "horta"],
   "authors": [

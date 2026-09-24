@@ -138,9 +138,10 @@ Convenção do label: `<canteiro>_<distância>_<profundidade>`.
 **Hardware:** DHT11 (ar) + DS18B20 (solo), 18650 direto no VCC carregada por painel solar (TP4056)
 
 **Intervalo de transmissão:**
-- **Warm-up pós-boot:** 30 s (primeiros 5 min de uptime) — garante confirmação rápida de reconexão
-- **Nominal:** 30 min (após os 5 min iniciais, via `setInterval(30)` sem persistir na EEPROM)
-- O valor gravado na EEPROM (child 254) não é alterado pelo warm-up; um `C_SET V_VAR1` do Node-RED sempre sobrepõe e persiste o intervalo desejado.
+- **Warm-up pós-boot:** 10 ciclos de 30 s (~5 min de relógio) — confirma a reconexão logo após o reset. Contado em ciclos, não em `millis()`, que para durante o `smartSleep()`.
+- **Nominal:** o valor gravado na EEPROM (child 254). Padrão de fábrica 30 min (`-D M360_DEFAULT_INTERVAL=30` no env), válido só para EEPROM virgem — nós já gravados mantêm o valor atual até receber um `INTERVAL_<min>` pelo dashboard.
+- Ao fim do warm-up (`setIntervalMs(0)`) o nó ecoa o intervalo vigente no child 254; o Node-RED guarda esse valor em `declaredIntervalMs` e o usa como cadência esperada, com precedência sobre a média móvel `cycleMs`.
+- Um `C_SET V_VAR1` do Node-RED durante o warm-up cancela o override e persiste o intervalo desejado; o Sincronizador ACK aguarda o eco do child 254 (`type 24`) com o mesmo payload e reenvia até 3 vezes.
 
 | Child | Constante | Label | `kind` | `S_*` | `V_*` | Payload | Sensor | Pino | `reportIntervalMin` | `wakeOnRadio` | `flags` |
 |---:|---|---|---|---|---|---|---|---|:---:|:---:|:---:|

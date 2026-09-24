@@ -167,54 +167,61 @@ O agente **nunca gera código** sem ter todos os requisitos do Passo 1 respondid
 
 ## R13 — Warm-Up Pós-Boot obrigatório para `M360_LOW_POWER`
 
-Todo nó com perfil `M360_LOW_POWER` **deve** implementar o padrão warm-up:
+Todo nó com perfil `M360_LOW_POWER` **deve** implementar o padrão warm-up, contado em **ciclos**
+(referência completa: `lib/M360-DRY/API_REFERENCE.md` §4):
 
 ```cpp
-#define WARMUP_INTERVAL_MS   30000UL          // 30 s
-#define WARMUP_DURATION_MS   (5UL * 60000UL)  // 5 min
-#define NOMINAL_INTERVAL_MIN <intervalo_nominal>
+#define WARMUP_INTERVAL_MS 30000UL   // 30 s entre ciclos
+#define WARMUP_CYCLES      10        // 10 ciclos × 30 s ≈ 5 min de relógio
 
-static bool warmupDone = false;
+static uint8_t warmupCycles = 0;
+static bool    warmupDone   = false;
 
 void setup() {
     node.onRead(readNodeItem);
-    node.setIntervalMs(WARMUP_INTERVAL_MS);  // fase 1: 30 s
-    Serial.println(F("WARMUP:30s"));
+    if (node.setIntervalMs(WARMUP_INTERVAL_MS)) {   // fase 1: 30 s
+        Serial.println(F("WARMUP:30s"));
+    }
 }
 
 void loop() {
-    if (!warmupDone && millis() >= WARMUP_DURATION_MS) {
+    node.process();   // LOW_POWER: uma chamada = um ciclo (lê → envia → dorme)
+
+    if (!warmupDone && ++warmupCycles >= WARMUP_CYCLES) {
         warmupDone = true;
-        // Guard: só aciona transição se o backend não interveio durante o warm-up.
-        // Se handleMessage() recebeu um C_SET V_VAR1, _intervalMs já é 0 e o
-        // intervalo do operador está em _interval — não sobrescrever.
         if (node.getIntervalMs() > 0) {
-            node.setInterval(NOMINAL_INTERVAL_MIN);
-            Serial.println(F("WARMUP:done->nominal"));
+            node.setIntervalMs(0);                      // fase 2: intervalo da EEPROM
+            Serial.println(F("WARMUP:done->eeprom"));
         } else {
-            Serial.println(F("WARMUP:done->backend"));
+            Serial.println(F("WARMUP:done->backend"));  // C_SET V_VAR1 já cancelou
         }
     }
-    node.process();
 }
 ```
 
-
-**Por quê:** Após um reboot, sem warm-up o nó demora 1 intervalo completo (ex: 30 min) para enviar
+**Por quê:** após um reboot, sem warm-up o nó demora 1 intervalo completo (ex.: 30 min) para enviar
 a primeira leitura. O warm-up garante dados rápidos e confirma a reconexão com o gateway.
 
-**Precedência:** Um `C_SET V_VAR1` recebido pelo Node-RED durante o warm-up cancela imediatamente
-o override de 30 s e persiste o novo intervalo na EEPROM — o comando externo sempre tem prioridade.
+**Regras que não se negociam:**
+
+| Regra | Por quê |
+|---|---|
+| Contar **ciclos**, nunca `millis()` | `smartSleep()` para o `millis()` no sono: "5 min de `millis()`" viram ~60 ciclos (~35 min de relógio). E o `millis()` corre enquanto `_begin()` espera o gateway — numa queda geral um warm-up por tempo nasce expirado em `setup()` |
+| Encerrar com `setIntervalMs(0)`, **nunca** `setInterval(<constante>)` | `setInterval(30)` descarta o intervalo que o operador persistiu na EEPROM (`begin()` já o carregou). O nominal de fábrica vai no env: `-D M360_DEFAULT_INTERVAL=<min>` |
+| Checar o retorno de `setIntervalMs()` | Devolve `false` em `ALWAYS_ON`/`REPEATER` (no-op) e fora de `[M360_MIN_INTERVAL_MS, MAX]` |
+
+**Precedência:** um `C_SET V_VAR1` recebido durante o warm-up cancela o override na hora e persiste
+o novo intervalo na EEPROM — o comando externo sempre tem prioridade. `setIntervalMs(0)` não toca em
+`_interval`, então a transição posterior é inócua.
 
 **`_intervalMs` não persiste** na EEPROM — é zerado no constructor a cada boot.
 O nó deve rearmar o warm-up em `setup()` a cada vez que inicializa.
 
-> Nós `M360_ALWAYS_ON` e `M360_PASSIVE` **não** precisam deste padrão:
-> `ALWAYS_ON` envia logo no primeiro `millis()` expirado (normalmente 1 min),
-> e `PASSIVE` só lê sob comando externo.
+> Nós `M360_ALWAYS_ON` e `M360_PASSIVE` **não** usam este padrão: `ALWAYS_ON` envia já no
+> primeiro `process()` (`lastRun == 0`) e `setIntervalMs()` rejeita o perfil; `PASSIVE` só lê sob
+> comando externo.
 
 ---
-
 
 # Passo 1 — Elicitação de Requisitos (STOP & WAIT)
 
@@ -350,12 +357,13 @@ flags bit0 (true = multiplica valor × 100 antes de enviar):
 ## 1.8 Warm-Up Pós-Boot (apenas para `M360_LOW_POWER`)
 
 ```
-Intervalo nominal (minutos, ex: 30):
-Duração do warm-up (minutos, padrão 5):
+Duração do warm-up (ciclos, padrão 10):
 Intervalo de warm-up (segundos, padrão 30):
+Intervalo nominal de fábrica (minutos, opcional): → vira `-D M360_DEFAULT_INTERVAL=<min>` no env
 ```
 
-> Se o usuário não informar, usar os padrões: 30 s / 5 min / nominal = intervalo EEPROM atual.
+> Se o usuário não informar, usar os padrões: 30 s / 10 ciclos. O nominal é sempre o valor da
+> EEPROM (child 254); a constante de fábrica só vale com EEPROM virgem e nunca entra no `.cpp`.
 > Para `M360_ALWAYS_ON` e `M360_PASSIVE`, omitir — ver R13.
 
 ---
@@ -649,7 +657,7 @@ Verificar cada item antes de entregar o código:
 | 14 | childId 254 ou 255 em `NODE_ITEMS[]` | Reservados para intervalo e bateria |
 | 15 | Ordem errada de includes (`M360.h` antes de `MySensors.h`) | Causa banner truncado + hang; ordem correta: `Arduino.h` → `MySensors.h` → `M360.h` → `sensorDrivers.h` |
 | 16 | `src/DRY/horta/` alterado sem atualizar `inventario.md` | Ver R12 — inventário é contrato com o Node-RED |
-| 17 | `M360_LOW_POWER` sem warm-up em `setup()` e `loop()` | Ver R13 — sem warm-up o nó demora 1 intervalo completo para a 1ª leitura após reset |
+| 17 | `M360_LOW_POWER` sem warm-up, warm-up medido por `millis()`, ou transição com `setInterval(<constante>)` | Ver R13 — sem warm-up o nó demora 1 intervalo para a 1ª leitura; `millis()` para no sono; a constante descarta o intervalo da EEPROM |
 
 ---
 
@@ -692,4 +700,4 @@ Explicar:
 5. Bateria: como `_processBattery()` reporta automaticamente via childId 255
 6. Se PASSIVE: como o FORCE_UPDATE dispara leitura via `handleMessage()` → `_readAndSendAll()`
 7. Reapresentação: como o comando `REPRESENT` (V_CUSTOM) dispara `_rePresent()` que re-anuncia todos os children via `present()` sem resetar `lastValues` — útil após reinício do broker ou do Home Assistant
-8. Se LOW_POWER: como o warm-up (R13) funciona — fase 1 (30 s) vs fase 2 (nominal), como `millis()` acumula apenas uptime real, e como um `C_SET V_VAR1` durante o warm-up tem prioridade e cancela o override
+8. Se LOW_POWER: como o warm-up (R13) funciona — fase 1 (N ciclos de 30 s) vs fase 2 (`setIntervalMs(0)` → intervalo da EEPROM, com eco no child 254), por que se conta ciclos e não `millis()`, e como um `C_SET V_VAR1` durante o warm-up tem prioridade e cancela o override

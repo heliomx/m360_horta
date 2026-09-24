@@ -16,10 +16,10 @@ O sistema **Manejo360** é uma infraestrutura integrada de computação embarcad
 ```mermaid
 graph TD
     subgraph Campo ["Infraestrutura de Campo / Estufa MVP"]
-        N01["Nó 01: 01nodeSolo3dNano (3x Umidade Solo ADC + Temp Solo)"]
-        N02["Nó 02: 02nodeSolo3dNano (3x Umidade Solo ADC + Temp Solo)"]
-        N04["Nó 04: 04noodeSolarMini (Temp/Umid Ar DHT11 + pH + Bateria Solar)"]
-        N99["Nó 99: 99nodeReles (4x Solenoides MUX + Medidor Vazão YF-S201)"]
+        N01["Nó 01: 01nodeSolo3dNano (6x Umidade Solo resistiva)"]
+        N02["Nó 02: 02nodeSolo3dNano (6x Umidade Solo resistiva)"]
+        N04["Nó 04: 04noodeSolarMini (Temp/Umid Ar DHT11 + Temp Solo DS18B20 + Bateria Solar)"]
+        N99["Nó 99: 99nodeReles (9 atuadores: 7 via MUX + 2 nativos, DHT11 + Vazão YF-S201)"]
     end
 
     subgraph RF24 ["Rede Sem Fio Local (RF24 2.4 GHz)"]
@@ -44,13 +44,13 @@ graph TD
 * **Arquitetura Monorepo e LibDRY:** Desenvolvimento da biblioteca reutilizável `M360Node`, `M360Gateway` e padronização do motor de execução `node_engine.h`, eliminando duplicidade de código nos ambientes ATmega328P e ESP8266.
 * **Gerenciamento de Perfis de Energia:** Implementação de rotinas de baixo consumo (`POWER_PROFILE_LOW_POWER` com suspensão de rádio e sleep profundo) para nós solares/bateria e regime contínuo (`POWER_PROFILE_ALWAYS_ON`) para controladores de relés.
 * **Comunicação e Tradução de Payloads:** Criação da camada de abstração `M360Translator` para conversão bidirecional entre pacotes binários MySensors v2.3.2 e estruturas JSON padronizadas no MQTT.
-* **Segurança e Estabilidade Lógica:** Revisão de código e testes estáticos eliminando vulnerabilidades de estouro de buffer de mensagens (`MyMessage messages[NODE_ITEMS_COUNT + 3]`) e tratamento de exceções com *Global Catch*.
+* **Segurança e Estabilidade Lógica:** Revisão de código e análise estática (cppcheck via `pio check`) eliminando estouros de buffer de mensagens; na M360-DRY 2.0.0 o vetor `messages[]` por nó foi substituído por um único buffer de envio, liberando ~710 B de SRAM nos nós ATmega328P.
 
 ### 2.2 Hardware, Integração Eletrônica e Bancada
 * **Comissionamento e Homologação de Nós:** Montagem, parametrização e carga de firmware em 4 nós coletores/atuadores:
-  * **Nó 01 e Nó 02 (Solo 3D):** Leitura de umidade do solo em 3 profundidades (10cm, 20cm e 30cm) e temperatura (DS18B20).
-  * **Nó 04 (Estação Solar Mini):** Monitoramento microclimático aéreo (DHT11), pH e tensão de alimentação fotovoltaica.
-  * **Nó 99 (Atuação Hidráulica):** Multiplexação e controle de válvulas solenoides de irrigação e medição volumétrica via sensor de vazão YF-S201.
+  * **Nó 01 e Nó 02 (Solo 3D):** Leitura de umidade do solo resistiva em 6 canais por nó, rotulados por canteiro, distância e profundidade (`<canteiro>_<distância>_<profundidade>`).
+  * **Nó 04 (Estação Solar Mini):** Monitoramento microclimático aéreo (DHT11), temperatura do solo (DS18B20) e tensão da bateria carregada por painel solar.
+  * **Nó 99 (Atuação Hidráulica):** 9 atuadores (7 via multiplexador + 2 nativos) para válvulas solenoides e bombas de irrigação, com failsafe de tempo máximo ligado, DHT11 e medição volumétrica via sensor de vazão YF-S201.
 * **Gateway Central ESP8266:** Parametrização do módulo de rádio NRF24L01+ com amplificador PA/LNA, configuração de interface web em modo AP/Station para provisionamento WiFi e bridge MQTT.
 * **Engenharia de Placas e Adaptação:** Desenvolvimento de esquema elétrico e layout PCB no KiCad para o módulo adaptador de soquete **RFM95W (LoRa) para NRF24L01+**, assegurando flexibilidade de transceptores sem troca da placa-mãe.
 * **Testes de Bancada e Validação Elétrica:** Testes de estabilidade de sinal RF24, verificação de capacitores de desacoplamento, medição de consumo em regime de sleep e ensaios de continuidade de barramentos 12V/5V.

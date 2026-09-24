@@ -64,8 +64,9 @@ M360Node(const M360ItemDef* items, uint8_t count, float* lastValues, uint8_t* nN
 - `onWrite(callback)`: Registra sua função de atuação para relés e válvulas.
 - `setupPins()`: Configura automaticamente os pinos definidos na struct `M360ItemDef` como INPUT ou OUTPUT.
 - `getInterval()`: Retorna o intervalo atual em minutos.
-- `setInterval(minutes)`: Altera o intervalo de ciclo **sem gravar na EEPROM**. Cancela qualquer override em ms. Ignora valores fora de `[M360_MIN_INTERVAL, M360_MAX_INTERVAL]`. Imprime `INT:<valor>` no Serial. Um `C_SET V_VAR1` recebido via rede tem a mesma semântica, mas persiste na EEPROM.
-- `setIntervalMs(ms)`: Define o intervalo em milissegundos brutos (sem validação de faixa, sem gravar EEPROM). Passa `0` para cancelar o override e retomar o intervalo em minutos. Uso principal: **warm-up pós-boot** (ver §4 abaixo).
+- `setInterval(minutes)`: Altera o intervalo em minutos **sem gravar na EEPROM**, cancela qualquer override em ms e ecoa o valor vigente no child 254. Devolve `false` (log `INT_LOC:REJ:<valor>`) fora de `[M360_MIN_INTERVAL, M360_MAX_INTERVAL]`. Log `INT_LOC:<valor>`; o caminho da rede (`C_SET V_VAR1` em `handleMessage()`) imprime `INT:<valor>` e persiste. Só tem efeito depois de `begin()`, que carrega o valor da EEPROM.
+- `setIntervalMs(ms)`: Override temporário do intervalo em milissegundos (sem gravar EEPROM), lido por `process()` nos perfis `M360_LOW_POWER` e `M360_PASSIVE`. `0` cancela o override e ecoa o intervalo em minutos no child 254. Devolve `false` nos perfis `M360_ALWAYS_ON`/`M360_REPEATER` (`INT_MS:IGN`) e fora de `[M360_MIN_INTERVAL_MS, M360_MAX_INTERVAL × 60 000]` (`INT_MS:REJ`). Uso principal: **warm-up pós-boot** (ver §4 abaixo).
+- `getIntervalMs()`: Override em ms vigente (`0` = inativo).
 - `sendDebug(text)`: Envia string arbitrária pelo child `CHILD_ID_DEBUG` (253, `V_TEXT`). Chega ao MQTT/Node-RED via gateway sem precisar de acesso Serial ao nó — canal de debug remoto. Payload truncado em 24 chars (limite `MAX_PAYLOAD_SIZE`).
 - `sendItemState(index, state)`: Envia o estado (`bool`) do item `NODE_ITEMS[index]`, com o child e o tipo dele. Para uso do nó fora do fluxo da lib — ex.: o failsafe que desliga um relé sozinho, ou o eco do canal MUX preemptado (Nó 99).
 
@@ -106,55 +107,69 @@ Funções de utilidade para economia de bateria e persistência.
 ### Constantes de Configuração (`M360Config.h`)
 - `M360_MIN_VOLTAGE`: Tensão mínima (ex: 2.7V para baterias de lítio).
 - `M360_MAX_VOLTAGE`: Tensão máxima (ex: 4.2V).
-- `M360_DEFAULT_INTERVAL`: Padrão: 30 minutos.
+- `M360_DEFAULT_INTERVAL`: Padrão: **1 minuto** (`M360Config.h`). O env do nó pode redefinir com `-D M360_DEFAULT_INTERVAL=<min>`; só vale com EEPROM virgem ou inválida.
+- `M360_MIN_INTERVAL_MS`: Piso do override de `setIntervalMs()`. Padrão: 5000 ms.
 
 ---
 
 ## 4. Padrão Warm-Up Pós-Boot (nós `M360_LOW_POWER`)
 
-Após um reboot (queda de energia, reset manual ou watchdog), o nó demora até 1 intervalo completo para enviar a primeira leitura — o que pode significar 30 min sem dados no MQTT. O padrão **warm-up** resolve isso:
+Após um reboot (queda de energia, reset manual ou watchdog), o nó demora até 1 intervalo completo para enviar a primeira leitura — com intervalo de 30 min, são 30 min sem dados no MQTT. O padrão **warm-up** resolve isso:
 
-- **Fase 1 (0 – N min):** intervalo curto em ms via `setIntervalMs()` — garante dados rápidos logo após o boot e confirma a reconexão com o gateway.
-- **Fase 2 (após N min):** transição automática para o intervalo nominal via `setInterval()`, que cancela o override em ms.
+- **Fase 1 (N ciclos):** intervalo curto em ms via `setIntervalMs()` — dados rápidos logo após o boot e confirmação da reconexão com o gateway.
+- **Fase 2 (após N ciclos):** `setIntervalMs(0)` encerra o override; o nó volta ao intervalo em minutos que `begin()` carregou da EEPROM (child 254). A lib ecoa o intervalo vigente no child 254 nessa transição.
 
-### Comportamento com comandos externos durante o warm-up
+### Por que contar ciclos, e não `millis()`
 
-| Evento | Resultado |
+- `smartSleep()` **para** o `millis()` durante o sono: o HAL AVR do MySensors dorme por watchdog e não ajusta o contador. Uma janela de "5 min de `millis()`" mede só tempo acordado (~5 s por ciclo) e levaria ~60 ciclos — ~35 min de relógio transmitindo a cada 30 s.
+- O `millis()` **corre** enquanto `_begin()` espera o gateway (`MY_TRANSPORT_WAIT_READY_MS` = 0 espera indefinidamente). Numa queda geral de energia em que o gateway demore mais que a janela, um warm-up por tempo já nasceria expirado em `setup()`.
+
+No perfil `M360_LOW_POWER`, cada chamada de `process()` é exatamente um ciclo (lê → envia → dorme), então basta contar chamadas.
+
+### Regras
+
+| Situação | Comportamento |
 |---|---|
-| Node-RED envia `C_SET V_VAR1` (child 254) durante o warm-up | `handleMessage()` cancela `_intervalMs`, adota e persiste o novo intervalo imediatamente |
-| `millis()` atinge o limiar de duração | `setInterval(NOMINAL)` cancela `_intervalMs`, nó entra em regime normal |
-| Reboot/reset | `_intervalMs` volta para 0 no constructor; `setup()` do nó precisa rearmá-lo |
+| `C_SET V_VAR1` (child 254) chega durante o warm-up | `handleMessage()` zera `_intervalMs`, adota e persiste o novo intervalo; o `setIntervalMs(0)` posterior é inócuo |
+| Warm-up termina | `setIntervalMs(0)` → intervalo da EEPROM; eco no child 254 |
+| Reboot | `_intervalMs` volta a 0 no constructor; `setup()` rearma |
+| Perfil `M360_ALWAYS_ON` / `M360_REPEATER` | `setIntervalMs()` **rejeita** (`INT_MS:IGN`): esses perfis usam o timer por `millis()` e enviam já no primeiro `process()` — não precisam de warm-up |
+| `ms` fora de `[M360_MIN_INTERVAL_MS, M360_MAX_INTERVAL × 60 000]` | Rejeitado (`INT_MS:REJ`) — abaixo de 500 ms o MySensors nem dorme e o nó ficaria em loop acordado com o rádio ligado |
 
-> ⚠️ O campo `_intervalMs` **não é persistido na EEPROM** — é sempre zerado no constructor. O nó deve rearmar o warm-up em `setup()` a cada boot.
+> O intervalo nominal **não** é uma constante do nó: é o valor da EEPROM. O padrão de fábrica vem de `M360_DEFAULT_INTERVAL` (1 min na lib; o env pode redefinir com `-D M360_DEFAULT_INTERVAL=30`) e só vale com EEPROM virgem ou inválida. Nunca chame `setInterval(<constante>)` na transição: isso descarta o intervalo que o operador persistiu.
 
 ### Exemplo de implementação (Nó 4 — SolarMini)
 
 ```cpp
-// Constantes de warm-up (definir no .cpp do nó)
-#define WARMUP_INTERVAL_MS   30000UL          // 30 s
-#define WARMUP_DURATION_MS   (5UL * 60000UL)  // 5 min
-#define NOMINAL_INTERVAL_MIN 30               // 30 min
+#define WARMUP_INTERVAL_MS 30000UL   // 30 s entre ciclos
+#define WARMUP_CYCLES      10        // 10 ciclos × 30 s ≈ 5 min de relógio
 
-static bool warmupDone = false;
+static uint8_t warmupCycles = 0;
+static bool    warmupDone   = false;
 
 void setup() {
     node.onRead(readNodeItem);
-    node.setIntervalMs(WARMUP_INTERVAL_MS);   // fase 1: dorme 30 s
-    Serial.println(F("WARMUP:30s"));
+    if (node.setIntervalMs(WARMUP_INTERVAL_MS)) {
+        Serial.println(F("WARMUP:30s"));
+    }
 }
 
 void loop() {
-    // millis() acumula tempo de uptime real (smartSleep para o clock)
-    if (!warmupDone && millis() >= WARMUP_DURATION_MS) {
+    node.process();   // LOW_POWER: uma chamada = um ciclo
+
+    if (!warmupDone && ++warmupCycles >= WARMUP_CYCLES) {
         warmupDone = true;
-        node.setInterval(NOMINAL_INTERVAL_MIN); // fase 2: cancela ms, adota 30 min
-        Serial.println(F("WARMUP:done"));
+        if (node.getIntervalMs() > 0) {
+            node.setIntervalMs(0);                      // volta ao intervalo da EEPROM
+            Serial.println(F("WARMUP:done->eeprom"));
+        } else {
+            Serial.println(F("WARMUP:done->backend"));  // C_SET V_VAR1 já cancelou
+        }
     }
-    node.process();
 }
 ```
 
-> **Nota sobre `millis()` e LOW_POWER:** no perfil `M360_LOW_POWER` o `smartSleep()` **para** o `millis()` durante o sono — o tempo dorme não conta. A janela de 5 min é medida em **tempo de uptime cumulativo** (soma dos períodos acordado). Com WARMUP de 30 s, ~10 ciclos acordados completam os 5 min.
+**Custo:** 10 ciclos extras de ~5 s acordado por boot (~0,3 mAh no Nó 4) — ver `balanco_energetico.md` do nó.
 
 ---
 *Retornar ao [README.md](README.md)*

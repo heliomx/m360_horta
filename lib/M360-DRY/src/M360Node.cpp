@@ -63,22 +63,52 @@ namespace M360
 
 	// ===== CONTROLE DE INTERVALO EM RUNTIME =====
 
-	void M360Node::setInterval(uint16_t minutes) {
+	// Mesmo eco que handleMessage() faz ao aceitar um C_SET: o Node-RED usa esse
+	// valor como cadência esperada do nó, em vez de aprender por média móvel.
+	void M360Node::_sendInterval() {
+		send(_msgFor(M360_CHILD_ID_INTERVAL, V_VAR1).set(_interval));
+	}
+
+	bool M360Node::setInterval(uint16_t minutes) {
 		if (minutes < M360_MIN_INTERVAL || minutes > M360_MAX_INTERVAL) {
-			return;
+			Serial.print(F("INT_LOC:REJ:"));
+			Serial.println(minutes);
+			return false;
 		}
 		_interval   = minutes;
 		_intervalMs = 0; // cancela qualquer override em ms
-		Serial.print(F("INT:"));
+		_sendInterval();
+		// INT_LOC = ajuste local (nó); INT: é o caminho da rede em handleMessage()
+		Serial.print(F("INT_LOC:"));
 		Serial.println(_interval);
+		return true;
 	}
 
-	void M360Node::setIntervalMs(uint32_t ms) {
+	bool M360Node::setIntervalMs(uint32_t ms) {
+		if (_profile == M360_ALWAYS_ON || _profile == M360_REPEATER) {
+			// process() desses perfis usa só _interval no timer por millis();
+			// aceitar aqui seria um no-op silencioso com log enganoso.
+			Serial.println(F("INT_MS:IGN"));
+			return false;
+		}
+		if (ms > 0 && (ms < M360_MIN_INTERVAL_MS ||
+		               ms > (uint32_t)M360_MAX_INTERVAL * 60000UL)) {
+			Serial.print(F("INT_MS:REJ:"));
+			Serial.println(ms);
+			return false;
+		}
+		const bool hadOverride = (_intervalMs > 0);
 		_intervalMs = ms;
 		if (ms > 0) {
 			Serial.print(F("INT_MS:"));
 			Serial.println(ms);
+		} else if (hadOverride) {
+			// Fim do override: volta ao intervalo em minutos e avisa o controlador.
+			_sendInterval();
+			Serial.print(F("INT_MS:OFF->"));
+			Serial.println(_interval);
 		}
+		return true;
 	}
 
 	// ===== SETUP DE PINOS =====
@@ -216,7 +246,7 @@ namespace M360
 				saveInterval(_interval);
 			}
 			// Sempre confirma o valor vigente (gateway sabe se a mudança foi aceita ou rejeitada)
-			send(_msgFor(M360_CHILD_ID_INTERVAL, V_VAR1).set(_interval));
+			_sendInterval();
 			Serial.print(F("INT:"));
 			Serial.println(_interval);
 			return;
