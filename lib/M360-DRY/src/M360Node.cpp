@@ -352,8 +352,10 @@ namespace M360
 		if (isnan(_lastBattVoltage) || _battCycle >= 10) {
 			_battCycle = 0;
 			float voltage = readBatteryVoltage();
-			if (voltage > 0.0f &&
-			    (isnan(_lastBattVoltage) || fabsf(voltage - _lastBattVoltage) >= 0.1f)) {
+			// Envia no boot e depois a cada 10 ciclos, mude ou não. Só por mudança
+			// (>= 0,1 V), uma 18650 estável em 3,8 V ficava horas sem ponto no
+			// gráfico de bateria — janela de 7 dias vazia no dashboard.
+			if (voltage > 0.0f) {
 				_lastBattVoltage = voltage;
 				send(_msgFor(M360_CHILD_ID_BATTERY, V_VOLTAGE).set(voltage, 1));
 				// Percentual padrão MySensors (I_BATTERY_LEVEL) — usado pela UI nativa
