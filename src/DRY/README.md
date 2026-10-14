@@ -2,6 +2,8 @@
 
 Este diretório contém a especificação e o código fonte modularizado dos nós sensores, atuadores e do gateway central que compõem a rede de automação da **M360 Horta**. Todo o ecossistema é construído com base na biblioteca **[LibDRY](file:///c:/Users/jmarc/Documents/PlatformIO/Projects/m360_horta/lib/M360-DRY/)** e no protocolo **MySensors (v2.x)**, rodando em rádio **nRF24L01+**.
 
+
+Para qualquer alteração, compilação ou gravação de firmware, a referência autoritativa e atualizada é m360_horta. O diretório m360_horta-hw deve ser utilizado estritamente para o projeto de esquemáticos e placas KiCad (hardware/).
 ---
 
 ## 🏗️ Visão Geral da Arquitetura

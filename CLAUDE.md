@@ -70,6 +70,23 @@ O arquivo `include/M360Credentials.h` define AP SSID/senha, WiFi STA, MQTT serve
 
 ---
 
+## Deploy no Node-RED (`src/DRY/horta/nodered/`)
+
+Procedimento completo: [`src/DRY/horta/nodered/DEPLOY.md`](src/DRY/horta/nodered/DEPLOY.md).
+
+- **Sem token.** Autenticação por usuário/senha em `%USERPROFILE%\.m360\nodered.env`
+  (fora do repo, ACL só do usuário). O login gera token de curta duração só em
+  memória. Nunca copiar credenciais para repo, `~/.claude.json`, chat ou commit.
+- **Ferramenta única:** `python src/DRY/horta/nodered/tools/nr_deploy.py <login|backup|diff|pull|deploy>`.
+  O MCP `node-red` usa o wrapper `nr-mcp-login.mjs`, que faz o mesmo login a cada início.
+- **Ordem fixa:** `backup` → `diff` → (servidor à frente? `pull` e reaplicar) →
+  `deploy --tab <ID>` só das abas alteradas → `diff` de confirmação → commit.
+- **`deploy --all` só com pedido explícito.** Substitui config nodes (broker, dashboard, Telegram).
+- **Aba Irrigação** só sobe com Nó 99 e gateway gravados com o failsafe.
+- Em 2026-09-24 o servidor estava à frente do repo em todas as abas: fazer `pull` antes de editar `flows.json`.
+
+---
+
 ## Skill Obrigatória — MySensors Node Coding & Gateway
 
 Ao trabalhar em qualquer arquivo dentro de `src/DRY/` (nós **ou** gateway), aplicar **obrigatoriamente** os padrões definidos em:

@@ -12,6 +12,20 @@ parte de `src/DRY/...`. Os envs vivem nos `platformio.ini` de cada sub-projeto.
 
 ---
 
+## Deploy no Node-RED (`src/DRY/horta/nodered/`)
+
+Procedimento completo (SSoT): `src/DRY/horta/nodered/DEPLOY.md`. Regra para Antigravity: `.agent/rules/nodered-deploy.md`.
+
+- **Sem token.** Autenticação por usuário/senha em `%USERPROFILE%\.m360\nodered.env`
+  (fora do repo, ACL só do usuário). Nunca copiar credenciais para repo, config de IDE, chat ou commit.
+- **Ferramenta única:** `python src/DRY/horta/nodered/tools/nr_deploy.py <login|backup|diff|pull|deploy>`.
+- **Ordem fixa:** `backup` → `diff` → (servidor à frente? `pull` e reaplicar) →
+  `deploy --tab <ID>` só das abas alteradas → `diff` de confirmação → commit.
+- **`deploy --all` só com pedido explícito.** **Aba Irrigação** só sobe com Nó 99 e gateway gravados com o failsafe.
+- Em 2026-09-24 o servidor estava à frente do repo em todas as abas: fazer `pull` antes de editar `flows.json`.
+
+---
+
 ## Skill Obrigatória — MySensors Node Coding & Gateway
 
 Ao trabalhar em qualquer arquivo dentro de `src/DRY/` (nós **ou** gateway), aplicar **obrigatoriamente** os padrões definidos em:
