@@ -19,8 +19,8 @@ Relação de todos os nós da rede MySensors e de seus child IDs, um a um.
 | Nó | Env PlatformIO | Placa | Perfil | Children | Consumido pelo Node-RED |
 |---:|---|---|---|---|---|
 | **0** | `d1_mini_gateway` | ESP8266 D1 Mini | — | — | Gateway MQTT (não tem children) |
-| **1** | `nano_01nodeSolo3d` · `ProMini_01nodeSolo3d` | Nano 5V · Pro Mini 16MHz | `LOW_POWER` | 1–6 | Sim — Filtro Umidade Solo Canteiro A |
-| **2** | `nano_02nodeSolo3d` | Nano 5V | `LOW_POWER` | 1–6 | Sim — Filtro Canteiro B + Motor de Regras |
+| **1** | `lp_01` (M360-LP) · `nano_01nodeSolo3d` · `ProMini_01nodeSolo3d` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V · Pro Mini 16MHz | `ALWAYS_ON` | 1–6 | Sim — Filtro Umidade Solo Canteiro A |
+| **2** | `lp_02` (M360-LP) · `nano_02nodeSolo3d` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V | `ALWAYS_ON` | 1–6 | Sim — Filtro Canteiro B + Motor de Regras |
 | **4** | `ProMini_04noodeSolarMini` | Pro Mini 16MHz | `LOW_POWER` | 1, 11, 12 | Sim — Filtro Clima SolarMini |
 | **99** | `nano_99reles` · `nano_99reles_rep` | Nano 5V | `ALWAYS_ON` | 11, 12, 21, 31–39 | Sim — comandos, clima e vazão |
 
@@ -96,38 +96,39 @@ Definidas em [`lib/M360-DRY/src/M360Constants.h`](../../../lib/M360-DRY/src/M360
 
 ## 4. Nó 1 — `01nodeSolo3dNano` (Canteiro A)
 
-**Env:** `nano_01nodeSolo3d` (Nano 5V) · `ProMini_01nodeSolo3d` (Pro Mini 16MHz)
-**Perfil:** `M360_LOW_POWER` — `smartSleep()` entre ciclos
-**Hardware:** 6 eletrodos resistivos ligados direto às portas analógicas nativas
+**Env:** `lp_01` (placa M360-LP, `nos/lp/config/node01/nodeConfig.h`) · `nano_01nodeSolo3d` (Nano 5V) · `ProMini_01nodeSolo3d` (Pro Mini 16MHz) — legados
+**Perfil:** `M360_ALWAYS_ON` — fonte fixa 5 V, timer por `millis()`; o trilho dos sensores (VSW na LP, D3 no Nano) só liga durante a varredura
+**Hardware:** M360-LP: 6 sondas resistivas pela porta J1 via 74HC4051 (ch0–ch5 em A0). Nano: 6 eletrodos direto em A0–A5
 
 | Child | Label | `kind` | `S_*` | `V_*` | Payload | Pino | `reportIntervalMin` | `wakeOnRadio` | `flags` |
 |---:|---|---|---|---|---|---|:---:|:---:|:---:|
-| **1** | `A_1m_10cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | A0 | 0 | false | 0 |
-| **2** | `A_1m_30cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | A1 | 0 | false | 0 |
-| **3** | `A_3m_10cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | A2 | 0 | false | 0 |
-| **4** | `A_3m_30cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | A3 | 0 | false | 0 |
-| **5** | `A_5m_10cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | A4 | 0 | false | 0 |
-| **6** | `A_5m_30cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | A5 | 0 | false | 0 |
+| **1** | `A_1m_10cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | LP ch0 · Nano A0 | 0 | false | 0 |
+| **2** | `A_1m_30cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | LP ch1 · Nano A1 | 0 | false | 0 |
+| **3** | `A_3m_10cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | LP ch2 · Nano A2 | 0 | false | 0 |
+| **4** | `A_3m_30cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | LP ch3 · Nano A3 | 0 | false | 0 |
+| **5** | `A_5m_10cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | LP ch4 · Nano A4 | 0 | false | 0 |
+| **6** | `A_5m_30cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | LP ch5 · Nano A5 | 0 | false | 0 |
 
 Convenção do label: `<canteiro>_<distância>_<profundidade>`.
+Coluna **Pino**: na M360-LP o `pin` do item é o código `LP_SRC_SOIL(ch)` (100+ch, canal do 74HC4051, porta J1: ch0/ch1 estaca de 1 m, ch2/ch3 de 3 m, ch4/ch5 de 5 m); no Nano é a porta analógica nativa.
 **Escala:** ADC bruto 0–1023 — valor alto = solo seco. Ver [§9](#9-escalas-e-unidades).
 
 ---
 
 ## 5. Nó 2 — `02nodeSolo3dNano` (Canteiro B)
 
-**Env:** `nano_02nodeSolo3d` (Nano 5V)
-**Perfil:** `M360_LOW_POWER`
+**Env:** `lp_02` (placa M360-LP, `nos/lp/config/node02/nodeConfig.h`) · `nano_02nodeSolo3d` (Nano 5V, legado)
+**Perfil:** `M360_ALWAYS_ON` — fonte fixa 5 V
 **Hardware:** idêntico ao nó 1, instalado no canteiro B. Alimenta o **Motor de Regras Canteiro B**.
 
 | Child | Label | `kind` | `S_*` | `V_*` | Payload | Pino | `reportIntervalMin` | `wakeOnRadio` | `flags` |
 |---:|---|---|---|---|---|---|:---:|:---:|:---:|
-| **1** | `B_1m_10cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | A0 | 0 | false | 0 |
-| **2** | `B_1m_30cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | A1 | 0 | false | 0 |
-| **3** | `B_3m_10cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | A2 | 0 | false | 0 |
-| **4** | `B_3m_30cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | A3 | 0 | false | 0 |
-| **5** | `B_5m_10cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | A4 | 0 | false | 0 |
-| **6** | `B_5m_30cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | A5 | 0 | false | 0 |
+| **1** | `B_1m_10cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | LP ch0 · Nano A0 | 0 | false | 0 |
+| **2** | `B_1m_30cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | LP ch1 · Nano A1 | 0 | false | 0 |
+| **3** | `B_3m_10cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | LP ch2 · Nano A2 | 0 | false | 0 |
+| **4** | `B_3m_30cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | LP ch3 · Nano A3 | 0 | false | 0 |
+| **5** | `B_5m_10cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | LP ch4 · Nano A4 | 0 | false | 0 |
+| **6** | `B_5m_30cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | LP ch5 · Nano A5 | 0 | false | 0 |
 
 ---
 

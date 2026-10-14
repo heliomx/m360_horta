@@ -223,6 +223,114 @@ O nó deve rearmar o warm-up em `setup()` a cada vez que inicializa.
 
 ---
 
+# Passo 0 — Em que hardware o nó vai rodar?
+
+Antes de elicitar sensores, decidir o **caminho**:
+
+| Caminho | Quando | O que se cria |
+|---|---|---|
+| **A — Placa M360-LP** (`hardware/m360-lp/`, Pro Mini 3,3 V / 8 MHz) | Nó sensor da família de placas: sondas de solo pelo 74HC4051, DS18B20, DHT, bateria/solar ou fonte 5 V | **Só** `src/DRY/horta/nos/lp/config/<nó>/nodeConfig.h` + um `[env:lp_XX]`. Nenhum `.cpp` novo |
+| **B — Hardware próprio** (Nano, Pro Mini 16 MHz, M360-ACT, protótipo) | Qualquer outro caso | Pasta `src/DRY/horta/nos/<nomeNó>/` com `.cpp` + `sensorDrivers` (Passos 3–7) |
+
+> Decisão de 2026-10-14 (ver `nos/lp/README.md`): na LP, **um firmware por placa, uma
+> configuração por nó**. Nem `.cpp` por nó (os Nós 01 e 02 eram cópias byte a byte com
+> seis rótulos de diferença), nem binário genérico configurado em campo (todos os drivers
+> linkados sempre, rótulos fora da Flash, e depende de pareamento no gateway e backend —
+> o spine `m360-generic-nodes-autoconfig` continua como evolução futura, não como base).
+
+## 0.A — Caminho A: nó na M360-LP
+
+### Estrutura (já existe — não recriar)
+
+```
+src/DRY/horta/nos/lp/
+├── lpNode.cpp            nó declarativo comum (hooks, M360Node, warm-up, corte de bateria)
+├── lpPins.h              pinagem fixa da placa + códigos LP_SRC_* para o campo `pin`
+├── lpDrivers.h/.cpp      VSW, ordem de ligar/desligar, despacho das leituras
+├── drivers/              soilMux.cpp · dht.cpp · onewire.cpp · battery.cpp (cada um atrás de #if)
+└── config/<nó>/nodeConfig.h   ← o ÚNICO arquivo que o nó novo acrescenta
+```
+
+### `nodeConfig.h` — o que o agente escreve
+
+```cpp
+#pragma once
+#define LP_NODE_NAME     "LP-<Nome>"     // F() exige literal: fica numa macro
+#define LP_NODE_VERSION  "1.0.0"
+
+// Alimentação — exatamente uma (lpNode.cpp falha a compilação se houver 0 ou 2):
+#define LP_POWER_FIXED_5V 1     // 5 V em J_VIN → M360_ALWAYS_ON
+// #define LP_POWER_BATTERY 1   // TP4056+DW01 em J_VIN → M360_LOW_POWER + bateria pelo A6
+                                //   opcionais: LP_VBAT_CUTOFF (3,0 V), LP_VBAT_GAIN/OFFSET
+
+// Drivers compilados (0 = o arquivo e a lib dele ficam fora do binário):
+#define LP_HAS_SOIL     1
+#define LP_HAS_DHT      0       // LP_DHT_TYPE DHT11 (padrão) ou DHT22
+#define LP_HAS_ONEWIRE  0
+
+#ifdef LP_NODE_ITEMS_SCOPE      // só lpNode.cpp vê este bloco; os drivers só leem as flags
+static const char L_X[] PROGMEM = "A_1m_10cm";
+// childId | kind | S_* | V_* | pin = LP_SRC_* | intervalMin | samples | label | wakeOnRadio | flags
+static const M360::M360ItemDef NODE_ITEMS[] = {
+    { 1,  M360::M360_SENSOR, S_MOISTURE, V_LEVEL, LP_SRC_SOIL(0),  0, 1, M360_LABEL(L_X), false, 0 },
+    { 11, M360::M360_SENSOR, S_TEMP,     V_TEMP,  LP_SRC_DHT_TEMP, 1, 1, ...,             false, 0 },
+    { 12, M360::M360_SENSOR, S_HUM,      V_HUM,   LP_SRC_DHT_HUM,  1, 1, ...,             false, 0 },
+    { 7,  M360::M360_SENSOR, S_TEMP,     V_TEMP,  LP_SRC_DS18B20,  1, 1, ...,             false, 0 },
+};
+#endif
+```
+
+O campo `pin` **não é um pino**: é a fonte da leitura (`LP_SRC_SOIL(ch)` = canal 0–7 do
+74HC4051, `LP_SRC_DHT_TEMP`, `LP_SRC_DHT_HUM`, `LP_SRC_DS18B20`). Convenção B de R5, a mesma
+do pino virtual do Nó 99, e por isso `setupPins()` é omitido (R7). Canal ↔ porta J1
+(`ARQUITETURA_FAMILIA.md` §7): ch0/ch1 estaca de 1 m (10/30 cm), ch2/ch3 de 3 m, ch4/ch5 de
+5 m; ch6/ch7 saem pela J2 (reserva).
+
+### Env — o que o agente acrescenta ao `src/DRY/horta/platformio.ini`
+
+```ini
+[env:lp_XX]
+extends = lp_base
+build_flags =
+    ${lp_base.build_flags}
+    -D MY_NODE_ID=<ID>
+    -D MY_DEBUG                         ; só em desenvolvimento
+    ; -D M360_DEFAULT_INTERVAL=30       ; só LP_POWER_BATTERY (R13)
+    -Isrc/DRY/horta/nos/lp/config/nodeXX
+```
+
+`lp_base` já traz placa, `lib_ldf_mode = chain+`, as libs e os pinos de rádio (RFM95W:
+`MY_RFM95_RST_PIN=8`; nRF24 legado no J5: `MY_RF24_CE_PIN=2`). O rádio ativo vem de
+`[common] radio_flags`, nunca do env do nó.
+
+### O que o hardware impõe e o firmware comum já cumpre — não reescrever
+
+| Regra | Onde está |
+|---|---|
+| VSW (D4) liga em **LOW**; sobe no primeiro item e desce no último | `lpNode.cpp::readItem()` + `lpDrivers.cpp` |
+| S0–S2 em LOW **antes** de cortar o VSW; A1/A2 em `INPUT` puro com o VSW desligado | `powerDownSensors()` |
+| D3 (reed) nunca vira saída; A4/A5 ficam sem TWI até existir driver I2C | `lpPins.h`, `README.md` |
+| Bateria = 3 × A6 × VCC(bandgap)/1023, corte de TX abaixo de `LP_VBAT_CUTOFF` | `drivers/battery.cpp`, `lpNode.cpp::loop()` |
+| Warm-up pós-boot (R13) | `lpNode.cpp`, só com `LP_POWER_BATTERY` |
+
+### Entregáveis do caminho A
+
+```
+src/DRY/horta/nos/lp/config/nodeXX/nodeConfig.h
+src/DRY/horta/platformio.ini   ([env:lp_XX])
+src/DRY/horta/inventario.md    (§1 + seção do nó — R12; na coluna Pino, "LP chN")
+```
+
+Depois: `pio run -e lp_XX` e o checklist do Passo 8 (itens 18–20). Usar o Passo 1 apenas
+para elicitar child IDs, rótulos, alimentação e sensores (1.1, 1.3, 1.7, 1.8); os itens
+1.2, 1.4, 1.5 e 1.6 já estão decididos pela placa.
+
+## 0.B — Caminho B: hardware próprio
+
+Seguir os Passos 1 a 8 abaixo.
+
+---
+
 # Passo 1 — Elicitação de Requisitos (STOP & WAIT)
 
 Apresentar as perguntas a seguir e aguardar resposta completa antes de prosseguir.
@@ -247,6 +355,7 @@ Arduino Nano (ATmega328P 5V/16MHz)   ← board: nanoatmega328
 Arduino Pro Mini 5V/16MHz            ← board: pro16MHzatmega328
 Arduino Pro Mini 3.3V/8MHz           ← board: pro8MHzatmega328
 Arduino Mega 2560                    ← board: megaatmega2560
+Placa M360-LP (Pro Mini 3,3V/8MHz)   ← caminho A do Passo 0: env lp_XX, sem .cpp novo
 ```
 
 > Placas ESP32/ESP8266 são reservadas para o gateway — não usar em nós de campo.
@@ -262,7 +371,12 @@ Arduino Mega 2560                    ← board: megaatmega2560
                        lê somente se o gateway enviar FORCE_UPDATE
 ```
 
-## 1.4 Rádio nRF24L01+
+## 1.4 Rádio
+
+O rádio ativo (nRF24L01+ ou RFM95W) vem de `[common] radio_flags` no
+`src/DRY/horta/platformio.ini`, nunca do env do nó. Abaixo, só os pinos.
+
+### nRF24L01+
 
 ```
 Pino CE  (default D9):
@@ -411,6 +525,7 @@ src/DRY/horta/nos/<nomeNó>/
 
 > O sketch fica **direto na pasta do nó**. O subdiretório `withLibDRY/` foi
 > abandonado — nenhum nó do projeto o utiliza.
+> **Caminho A (M360-LP): nada disto é criado** — só `nos/lp/config/<nó>/nodeConfig.h` (Passo 0).
 
 ---
 
@@ -658,6 +773,9 @@ Verificar cada item antes de entregar o código:
 | 15 | Ordem errada de includes (`M360.h` antes de `MySensors.h`) | Causa banner truncado + hang; ordem correta: `Arduino.h` → `MySensors.h` → `M360.h` → `sensorDrivers.h` |
 | 16 | `src/DRY/horta/` alterado sem atualizar `inventario.md` | Ver R12 — inventário é contrato com o Node-RED |
 | 17 | `M360_LOW_POWER` sem warm-up, warm-up medido por `millis()`, ou transição com `setInterval(<constante>)` | Ver R13 — sem warm-up o nó demora 1 intervalo para a 1ª leitura; `millis()` para no sono; a constante descarta o intervalo da EEPROM |
+| 18 | Nó na M360-LP com `.cpp` próprio, ou `lpNode.cpp`/`drivers/` editados para um nó só | Caminho A do Passo 0: o nó é só `config/<nó>/nodeConfig.h` + env; o comum muda para todos ou não muda |
+| 19 | `nodeConfig.h` sem `#ifdef LP_NODE_ITEMS_SCOPE` em volta de `NODE_ITEMS[]`, ou com `LP_HAS_*` ausente em vez de `0` | Os drivers incluem o `nodeConfig.h` antes de `M360.h`; `#if` de macro ausente vale 0, mas explícito é o contrato |
+| 20 | Na LP, `pin` com número de pino físico (A0, 5…) ou `node.setupPins()` | `pin` carrega `LP_SRC_*`; pino real ali faz `pinMode` em linha de campo ou de rádio |
 
 ---
 
