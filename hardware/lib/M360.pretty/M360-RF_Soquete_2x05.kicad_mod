@@ -1,0 +1,377 @@
+(footprint "M360-RF_Soquete_2x05"
+	(version 20260206)
+	(generator "kicad-footprint-generator")
+	(layer "F.Cu")
+	(descr "Soquete 2x05 2,54 mm do mezanino M360-RF (PinSocket_2x05 stock). F.Fab: contorno do mezanino 34,2 x 23 mm e do SMA de borda. Mezanino em ~11 mm de altura: SMD baixo pode ficar embaixo; nada alto")
+	(tags "Through hole socket strip THT 2x05 2.54mm double row")
+	(property "Reference" "REF**"
+		(at -1.27 -2.77 0)
+		(layer "F.SilkS")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "M360-RF_Soquete_2x05"
+		(at -1.27 12.93 0)
+		(layer "F.Fab")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "KiLib_Generator" "connector/pin_header_socket"
+		(at 0 0 0)
+		(layer "F.SilkS")
+		(hide yes)
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_line
+		(start -3.87 -1.33)
+		(end -3.87 11.49)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start -3.87 -1.33)
+		(end -1.27 -1.33)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start -3.87 11.49)
+		(end 1.33 11.49)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start -1.27 -1.33)
+		(end -1.27 1.27)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start -1.27 1.27)
+		(end 1.33 1.27)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start 0 -1.33)
+		(end 1.33 -1.33)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start 1.33 -1.33)
+		(end 1.33 0)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start 1.33 1.27)
+		(end 1.33 11.49)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start -4.31 -1.77)
+		(end 1.77 -1.77)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start -4.31 11.93)
+		(end -4.31 -1.77)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start 1.77 -1.77)
+		(end 1.77 11.93)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start 1.77 11.93)
+		(end -4.31 11.93)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start -3.81 -1.27)
+		(end 0.27 -1.27)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start -3.81 11.43)
+		(end -3.81 -1.27)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start 0.27 -1.27)
+		(end 1.27 -0.27)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start 1.27 -0.27)
+		(end 1.27 11.43)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start 1.27 11.43)
+		(end -3.81 11.43)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start -7 -6.42)
+		(end 27.2 -6.42)
+		(stroke
+			(width 0.12)
+			(type dash)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start 27.2 -6.42)
+		(end 27.2 16.58)
+		(stroke
+			(width 0.12)
+			(type dash)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start 27.2 16.58)
+		(end -7 16.58)
+		(stroke
+			(width 0.12)
+			(type dash)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start -7 16.58)
+		(end -7 -6.42)
+		(stroke
+			(width 0.12)
+			(type dash)
+		)
+		(layer "F.Fab")
+	)
+	(fp_text user "M360-RF (mezanino)"
+		(at 10.1 -4.9 0)
+		(layer "F.Fab")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(fp_line
+		(start 27.2 8.88)
+		(end 37.2 8.88)
+		(stroke
+			(width 0.12)
+			(type dash)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start 37.2 8.88)
+		(end 37.2 15.28)
+		(stroke
+			(width 0.12)
+			(type dash)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start 37.2 15.28)
+		(end 27.2 15.28)
+		(stroke
+			(width 0.12)
+			(type dash)
+		)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start 27.2 15.28)
+		(end 27.2 8.88)
+		(stroke
+			(width 0.12)
+			(type dash)
+		)
+		(layer "F.Fab")
+	)
+	(fp_text user "SMA"
+		(at 32.2 12.08 0)
+		(layer "F.Fab")
+		(effects
+			(font
+				(size 0.8 0.8)
+				(thickness 0.12)
+			)
+		)
+	)
+	(fp_text user "${REFERENCE}"
+		(at -1.27 5.08 90)
+		(layer "F.Fab")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" thru_hole rect
+		(at 0 0)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+	)
+	(pad "2" thru_hole circle
+		(at -2.54 0)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+	)
+	(pad "3" thru_hole circle
+		(at 0 2.54)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+	)
+	(pad "4" thru_hole circle
+		(at -2.54 2.54)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+	)
+	(pad "5" thru_hole circle
+		(at 0 5.08)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+	)
+	(pad "6" thru_hole circle
+		(at -2.54 5.08)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+	)
+	(pad "7" thru_hole circle
+		(at 0 7.62)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+	)
+	(pad "8" thru_hole circle
+		(at -2.54 7.62)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+	)
+	(pad "9" thru_hole circle
+		(at 0 10.16)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+	)
+	(pad "10" thru_hole circle
+		(at -2.54 10.16)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+	)
+	(embedded_fonts no)
+	(model "${KICAD10_3DMODEL_DIR}/Connector_PinSocket_2.54mm.3dshapes/PinSocket_2x05_P2.54mm_Vertical.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)

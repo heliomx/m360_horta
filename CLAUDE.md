@@ -261,7 +261,7 @@ void receive(const MyMessage& msg) { node.handleMessage(msg); }
 
 **Modo AP / Factory Reset:**
 - A0 em GND durante o boot → modo configuração (SSID: `M360-Config`, portal em `192.168.4.1`)
-- Factory reset via web portal ou mantendo A0 em GND por 3 s nos primeiros 30 s
+- Factory reset: **não implementado** — nem pelo web portal (só `/` e `/save`) nem pelo A0 (lido uma vez, no `before()`). Pendência em `hardware/ARQUITETURA_FAMILIA.md` §9
 
 **LEDs de status:** Verde = WiFi+MQTT OK | Amarelo piscando = WiFi OK, sem MQTT | Vermelho piscando = sem WiFi
 

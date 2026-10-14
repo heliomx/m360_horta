@@ -52,7 +52,8 @@
       "PowerShell($pio = \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\"; $envs = & $pio project config 2>&1 | Select-String -Pattern \"^env:\"; Write-Output \"Total de envs: $\\($envs.Count\\)\"; $envs)",
       "Bash(python -c ' *)",
       "Bash(grep -nE \"^[[:space:]]*V_\\(TEMP|HUM|STATUS|PERCENTAGE|FLOW|VOLUME|LEVEL|VOLTAGE|VAR1|CUSTOM\\)[[:space:]]*=\" \"C:/Users/jmarc/AppData/Local/Temp/pio_builds/jmarc/m360_horta/libdeps/check_m360_dry/MySensors/core/MyMessage.h\")",
-      "Read(//c/Users/jmarc/AppData/Local/Temp/pio_builds/jmarc/m360_horta/libdeps/check_m360_dry/MySensors/core/**)"
+      "Read(//c/Users/jmarc/AppData/Local/Temp/pio_builds/jmarc/m360_horta/libdeps/check_m360_dry/MySensors/core/**)",
+      "mcp__kicad__get_jlcpcb_part"
     ]
   }
 }
