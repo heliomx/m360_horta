@@ -3047,7 +3047,7 @@
 	)
 	(wire
 		(pts
-			(xy 116.205 40.005) (xy 106.045 40.005)
+			(xy 115.57 39.37) (xy 105.41 39.37)
 		)
 		(stroke
 			(width 0)
@@ -3067,7 +3067,7 @@
 	)
 	(wire
 		(pts
-			(xy 123.825 40.005) (xy 130.175 40.005)
+			(xy 123.19 39.37) (xy 129.54 39.37)
 		)
 		(stroke
 			(width 0)
@@ -3177,7 +3177,7 @@
 	)
 	(wire
 		(pts
-			(xy 78.105 42.545) (xy 71.755 42.545)
+			(xy 77.47 41.91) (xy 71.12 41.91)
 		)
 		(stroke
 			(width 0)
@@ -3377,7 +3377,7 @@
 	)
 	(wire
 		(pts
-			(xy 85.725 42.545) (xy 92.075 42.545)
+			(xy 85.09 41.91) (xy 91.44 41.91)
 		)
 		(stroke
 			(width 0)
@@ -3726,7 +3726,7 @@
 		(uuid "234f7f94-108f-4321-8854-939d407b1cdf")
 	)
 	(label "+5V"
-		(at 92.075 42.545 180)
+		(at 91.44 41.91 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4076,7 +4076,7 @@
 		(uuid "a7faa02f-8d9a-497d-8c5c-89cc03f096f0")
 	)
 	(label "VIN_POL"
-		(at 106.045 40.005 0)
+		(at 105.41 39.37 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4186,7 +4186,7 @@
 		(uuid "cc6a4a09-2976-4c29-9682-db4456d700cd")
 	)
 	(label "GND"
-		(at 71.755 42.545 0)
+		(at 71.12 41.91 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4296,7 +4296,7 @@
 		(uuid "f2d3de8c-8868-4c05-bed1-583d873819fd")
 	)
 	(label "+5V"
-		(at 130.175 40.005 180)
+		(at 129.54 39.37 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5752,7 +5752,7 @@
 	)
 	(symbol
 		(lib_id "Device:Polyfuse")
-		(at 120.015 40.005 90)
+		(at 119.38 39.37 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5762,7 +5762,7 @@
 		(dnp no)
 		(uuid "ce8e889a-9018-4e83-814c-c0e1e671e9b5")
 		(property "Reference" "F1"
-			(at 118.745 33.655 0)
+			(at 118.11 33.02 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5772,7 +5772,7 @@
 			)
 		)
 		(property "Value" "500mA"
-			(at 121.285 33.655 0)
+			(at 120.65 33.02 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5782,7 +5782,7 @@
 			)
 		)
 		(property "Footprint" "Fuse:Fuse_1206_3216Metric"
-			(at 120.015 40.005 0)
+			(at 119.38 39.37 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5794,7 +5794,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 120.015 40.005 0)
+			(at 119.38 39.37 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5805,7 +5805,7 @@
 			)
 		)
 		(property "Description" "Resettable fuse, polymeric positive temperature coefficient"
-			(at 120.015 40.005 0)
+			(at 119.38 39.37 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5816,7 +5816,7 @@
 			)
 		)
 		(property "LCSC" "C720075"
-			(at 120.015 40.005 0)
+			(at 119.38 39.37 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5957,7 +5957,7 @@
 	)
 	(symbol
 		(lib_id "Device:D_Zener")
-		(at 81.915 42.545 180)
+		(at 81.28 41.91 180)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5967,7 +5967,7 @@
 		(dnp no)
 		(uuid "d9a0a865-1348-4487-b0c1-56cf23cda725")
 		(property "Reference" "D2"
-			(at 76.835 38.735 0)
+			(at 76.2 38.1 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5977,7 +5977,7 @@
 			)
 		)
 		(property "Value" "SMAJ5.0A"
-			(at 86.995 38.735 0)
+			(at 86.36 38.1 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5987,7 +5987,7 @@
 			)
 		)
 		(property "Footprint" "Diode_SMD:D_SMA"
-			(at 81.915 42.545 0)
+			(at 81.28 41.91 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5998,7 +5998,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 81.915 42.545 0)
+			(at 81.28 41.91 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6009,7 +6009,7 @@
 			)
 		)
 		(property "Description" "TVS unidirecional (símbolo Zener: K no +5V)"
-			(at 81.915 42.545 0)
+			(at 81.28 41.91 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6020,7 +6020,7 @@
 			)
 		)
 		(property "LCSC" "C2925443"
-			(at 81.915 42.545 0)
+			(at 81.28 41.91 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
