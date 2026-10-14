@@ -2,7 +2,8 @@
 
 Saída em <pasta>/fabricacao/:
   <PLACA>_gerbers.zip   Gerbers (sem X2, máscara subtraída da serigrafia) + furação Excellon em mm,
-                        PTH e NPTH separados — é o que sobe no pedido de PCB
+                        PTH e NPTH separados, e também o BOM e a posição abaixo — um arquivo só
+                        para o pedido
   <PLACA>_bom.csv       BOM no formato da JLCPCB: Comment, Designator, Footprint, LCSC Part #
   <PLACA>_cpl.csv       Posição no formato da JLCPCB: Designator, Mid X, Mid Y, Layer, Rotation
 
@@ -70,12 +71,6 @@ def main(pasta):
             "--subtract-soldermask", pcb)
         cli("pcb", "export", "drill", "-o", ger + os.sep, "--format", "excellon", "--excellon-units", "mm",
             "--excellon-separate-th", "--generate-map", "--map-format", "gerberx2", pcb)
-        arquivos = sorted(os.listdir(ger))
-        zpath = os.path.join(saida, f"{nome}_gerbers.zip")
-        with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
-            for a in arquivos:
-                z.write(os.path.join(ger, a), a)
-        print(f"{os.path.basename(zpath)}: {len(arquivos)} arquivo(s) — {', '.join(arquivos)}")
 
         # --- BOM ------------------------------------------------------------------------------
         bom_tmp = os.path.join(tmp, "bom.csv")
@@ -109,6 +104,17 @@ def main(pasta):
                 w.writerow([l["Ref"], f'{float(l["PosX"]):.4f}mm', f'{float(l["PosY"]):.4f}mm',
                             "Top" if l["Side"] == "top" else "Bottom", f'{float(l["Rot"]):g}'])
         print(f"{os.path.basename(cpl_path)}: {len(refs_pos)} peça(s)")
+
+        # --- zip: Gerbers + furação + BOM + posição -------------------------------------------
+        arquivos = sorted(os.listdir(ger))
+        zpath = os.path.join(saida, f"{nome}_gerbers.zip")
+        with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
+            for a in arquivos:
+                z.write(os.path.join(ger, a), a)
+            for extra in (bom_path, cpl_path):
+                z.write(extra, os.path.basename(extra))
+        print(f"{os.path.basename(zpath)}: {len(arquivos) + 2} arquivo(s) — "
+              f"{', '.join(arquivos + [os.path.basename(bom_path), os.path.basename(cpl_path)])}")
 
     # --- Conferência cruzada ----------------------------------------------------------------------
     erros = []

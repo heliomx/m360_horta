@@ -240,7 +240,7 @@
       "internal_id": "",
       "mfg": "",
       "mpn": "",
-      "sch_revision": ""
+      "sch_revision": "0.1"
     },
     "layer_pairs": [],
     "layer_presets": [],
@@ -677,13 +677,18 @@
       {
         "filename": "M360-LP.kicad_sch",
         "name": "M360-LP",
-        "uuid": "00000000-0000-0000-0000-000000000000"
+        "uuid": "e985d55b-0fcb-4497-9a07-fdd20db72e7e"
       }
     ],
     "used_designators": "",
     "variants": []
   },
-  "sheets": [],
+  "sheets": [
+    [
+      "e985d55b-0fcb-4497-9a07-fdd20db72e7e",
+      "M360-LP"
+    ]
+  ],
   "text_variables": {},
   "tuning_profiles": {
     "meta": {
