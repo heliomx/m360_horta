@@ -18,7 +18,7 @@ Relação de todos os nós da rede MySensors e de seus child IDs, um a um.
 
 | Nó | Env PlatformIO | Placa | Perfil | Children | Consumido pelo Node-RED |
 |---:|---|---|---|---|---|
-| **0** | `d1_mini_gateway` | ESP8266 D1 Mini | — | — | Gateway MQTT (não tem children) |
+| **0** | `d1_mini_gateway` (protótipo) · `d1_mini_gw` (M360-GW) | ESP8266 D1 Mini · D1 Mini no carrier M360-GW | — | — | Gateway MQTT (não tem children) |
 | **1** | `lp_01` (M360-LP) · `nano_01nodeSolo3d` · `ProMini_01nodeSolo3d` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V · Pro Mini 16MHz | `ALWAYS_ON` | 1–6 | Sim — Filtro Umidade Solo Canteiro A |
 | **2** | `lp_02` (M360-LP) · `nano_02nodeSolo3d` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V | `ALWAYS_ON` | 1–6 | Sim — Filtro Canteiro B + Motor de Regras |
 | **4** | `ProMini_04noodeSolarMini` | Pro Mini 16MHz | `LOW_POWER` | 1, 11, 12 | Sim — Filtro Clima SolarMini |

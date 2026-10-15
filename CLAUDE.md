@@ -43,6 +43,7 @@ Definidos em `src/DRY/horta/platformio.ini` e `src/DRY/kit-helio/platformio.ini`
 | `env`                       | Hardware                    | Porta | Nó |
 |-----------------------------|-----------------------------|-------|----|
 | `d1_mini_gateway`           | ESP8266 D1 Mini             | COM5  | 0 (Gateway Horta) |
+| `d1_mini_gw`                | ESP8266 D1 Mini na M360-GW  | COM5  | 0 (Gateway Horta, placa nova) |
 | `lp_01`                     | M360-LP (Pro Mini 3,3 V)    | —     | 1  |
 | `lp_02`                     | M360-LP (Pro Mini 3,3 V)    | —     | 2  |
 | `nano_01nodeSolo3d`         | Arduino Nano (5V)           | —     | 1  |
@@ -268,6 +269,11 @@ void receive(const MyMessage& msg) { node.handleMessage(msg); }
 - Factory reset: **não implementado** — nem pelo web portal (só `/` e `/save`) nem pelo A0 (lido uma vez, no `before()`). Pendência em `hardware/ARQUITETURA_FAMILIA.md` §9
 
 **LEDs de status:** Verde = WiFi+MQTT OK | Amarelo piscando = WiFi OK, sem MQTT | Vermelho piscando = sem WiFi
+
+Pinos (`lib/M360-DRY/src/M360Leds.h`): vermelho D2, amarelo D0 e verde D1 no protótipo. Na placa
+M360-GW o D1 é o DIO0 do RFM95W, e o verde sai pelo D4 (GPIO2, gate do 2N7002 Q1, ativo em HIGH
+como os outros) — selecionado por `-D M360_BOARD_GW`, que só o env `d1_mini_gw` define. A chamada
+é `initLEDs(LED_RED, LED_YELLOW, LED_GREEN)`, na ordem do protótipo `(redPin, yellowPin, greenPin)`.
 
 ---
 

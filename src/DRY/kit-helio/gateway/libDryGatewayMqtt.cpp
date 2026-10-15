@@ -6,7 +6,8 @@
  *
  * Dependências ngm/ restantes (sem equivalente na lib):
  *   - ngm/webserver  — portal web de configuração captivo
- *   - ngm/leds       — controle de LEDs de status (D0/D1/D2)
+ *   - ngm/leds       — controle de LEDs de status: amarelo D0, vermelho D2,
+ *                      verde D1 (protótipo) ou D4 (M360-GW, -D M360_BOARD_GW)
  */
 
 #include <Arduino.h>
@@ -183,7 +184,7 @@ void sendMQTT(const MyMessage &message, bool isAck) {
 
 void before() {
 	Serial.begin(115200);
-	initLEDs(LED_RED, LED_GREEN, LED_YELLOW);
+	initLEDs(LED_RED, LED_YELLOW, LED_GREEN);  // ordem do protótipo: (redPin, yellowPin, greenPin)
 	ledBegin();
 
 	M360_PRINT_BUILD_INFO();
