@@ -230,6 +230,12 @@ O sensor abaixo possui conexão direta ao Arduino, permitindo leituras periódic
 > D2 e D3 são os **únicos** pinos de interrupção externa do Nano. D2 está ocupado
 > pelo DHT11, logo o sensor de vazão obrigatoriamente usa D3/INT1.
 
+> **Variante M360-ACT** (env `act_99`, `-D NODE99_BOARD_ACT`): não há DHT11 — os
+> children 11 e 12 não existem —, o D2 é o DIO0 do rádio e o D3 fica em `INPUT`
+> puro, porque a placa condiciona o sinal. O `/OE` do 74HCT244 (A5) é liberado por
+> último em `initSensors()`. Pinagem completa em `sensorDrivers.h` e na seção
+> "Variante M360-ACT" de `esquema_eletrico.md`.
+
 ### 3.5 Relés e Atuadores Multiplexados (Concorrência Restrita)
 Os relés listados abaixo são controlados pelas saídas lógicas do MUX. Apenas **UM** relé desta lista pode ser ativado simultaneamente.
 | Canal MUX | Child ID | Ligação Física | Carga (Atuador) | Especificação Alimentação |

@@ -22,9 +22,9 @@ Relação de todos os nós da rede MySensors e de seus child IDs, um a um.
 | **1** | `lp_01` (M360-LP) · `nano_01nodeSolo3d` · `ProMini_01nodeSolo3d` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V · Pro Mini 16MHz | `ALWAYS_ON` | 1–6 | Sim — Filtro Umidade Solo Canteiro A |
 | **2** | `lp_02` (M360-LP) · `nano_02nodeSolo3d` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V | `ALWAYS_ON` | 1–6 | Sim — Filtro Canteiro B + Motor de Regras |
 | **4** | `ProMini_04noodeSolarMini` | Pro Mini 16MHz | `LOW_POWER` | 1, 11, 12 | Sim — Filtro Clima SolarMini |
-| **99** | `nano_99reles` · `nano_99reles_rep` | Nano 5V | `ALWAYS_ON` | 11, 12, 21, 31–39 | Sim — comandos, clima e vazão |
+| **99** | `act_99` (M360-ACT) · `act_99_rep` · `nano_99reles` · `nano_99reles_rep` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V | `ALWAYS_ON` | ACT: 21, 31–39 · Nano: 11, 12, 21, 31–39 | Sim — comandos e vazão; clima (11, 12) só com o Nano |
 
-**Total: 27 children declarados** (6 + 6 + 3 + 12), mais os 3 reservados por nó.  
+**Total: 27 children declarados** (6 + 6 + 3 + 12) com o Nó 99 no Nano, ou 25 na M360-ACT (sem os children 11 e 12); mais os 3 reservados por nó.  
 *Nota de Hardware:* Todos os módulos nRF24L01+ de todos os nós e gateways possuem capacitor de desacoplamento instalado (premissa de hardware confirmada). A camada de transporte possui suporte a chaveamento no `platformio.ini` entre nRF24L01+ e LoRa HopeRF RFM95W (915 MHz).
 
 ---
@@ -163,17 +163,24 @@ por porta. `reportIntervalMin = 1` reduz tráfego num nó a bateria.
 
 ## 7. Nó 99 — `99nodeReles` (atuação central da estufa)
 
-**Env:** `nano_99reles` · `nano_99reles_rep` (mesmo hardware, com `MY_REPEATER_FEATURE`)
+**Env:** `act_99` · `act_99_rep` (placa **M360-ACT**, Pro Mini 3,3 V / 8 MHz, `-D NODE99_BOARD_ACT`) · `nano_99reles` · `nano_99reles_rep` (Nano 5 V, legado). Os `_rep` são o mesmo hardware com `MY_REPEATER_FEATURE`. É um fonte só: a flag muda a pinagem e remove o DHT.
 **Perfil:** `M360_ALWAYS_ON` — fonte fixa, timer por `millis()`, nunca dorme
-**Hardware:** MUX CD74HC4067 + 9 relés + DHT11 + sensor de vazão YF-S201
+**Hardware:** MUX CD74HC4067 + 9 relés + sensor de vazão YF-S201; **DHT11 só no Nano** — a M360-ACT não tem o sensor (decisão de 2026-10-14)
 
 ### 7.1 Sensores
 
 | Child | Constante | Label | `kind` | `S_*` | `V_*` | Payload | Pino | `reportIntervalMin` | `wakeOnRadio` | `flags` |
 |---:|---|---|---|---|---|---|---|:---:|:---:|:---:|
-| **11** | `CHILD_ID_DHT_TEMP` | `Temperatura do Ar` | `M360_SENSOR` | `S_TEMP` | `V_TEMP` (0) | float, 1 casa | D2 | 0 | false | 0 |
-| **12** | `CHILD_ID_DHT_HUM` | `Umidade do Ar` | `M360_SENSOR` | `S_HUM` | `V_HUM` (1) | float, 1 casa | D2 | 0 | false | 0 |
-| **21** | `CHILD_ID_FLOW` | `Vazao.Irrig` | `M360_SENSOR` | `S_WATER` | `V_FLOW` (34) | float, 1 casa | D3 (INT1) | 0 | false | 0 |
+| **11** | `CHILD_ID_DHT_TEMP` | `Temperatura do Ar` | `M360_SENSOR` | `S_TEMP` | `V_TEMP` (0) | float, 1 casa | D2 — **só Nano** | 0 | false | 0 |
+| **12** | `CHILD_ID_DHT_HUM` | `Umidade do Ar` | `M360_SENSOR` | `S_HUM` | `V_HUM` (1) | float, 1 casa | D2 — **só Nano** | 0 | false | 0 |
+| **21** | `CHILD_ID_FLOW` | `Vazao.Irrig` | `M360_SENSOR` | `S_WATER` | `V_FLOW` (34) | float, 1 casa | D3 (INT1) — Nano `INPUT_PULLUP`, ACT `INPUT` | 0 | false | 0 |
+
+**Na M360-ACT (`act_99`) os children 11 e 12 não existem:** `NODE_ITEMS[]` é
+compilado sem eles atrás de `#ifndef NODE99_BOARD_ACT`, e a placa não tem DHT.
+O nó apresenta 10 children (21 e 31–39). Na ACT o D3 fica em `INPUT` puro
+porque a placa condiciona o sinal (R3 10 kΩ em série, R4 100 kΩ para GND,
+clamp BAT54WS) — o pull-up interno contra o R3 deixaria o nível baixo acima
+do VIL.
 
 O child 21 declara `pin = -1`: a leitura é despachada por `childId` para
 `readFlowLpm()`, que consome o contador de pulsos da ISR ligada a D3/INT1.
@@ -204,8 +211,16 @@ sem nenhum sinal — o dashboard continuaria mostrando as duas ligadas.
 **Lógica dos relés:** Active-LOW (`LOW` = ligado), com ligação em NA/COM para que
 uma falha ou reset deixe as cargas desligadas.
 
-**Pinagem completa:** MUX `SIG=D8`, `S0–S3=D4–D7` · DHT11 `D2` · Vazão `D3` ·
+**Pinagem completa (Nano):** MUX `SIG=D8`, `S0–S3=D4–D7` · DHT11 `D2` · Vazão `D3` ·
 Bombas `A0`/`A1` · NRF24 `D9–D13`.
+
+**Pinagem completa (M360-ACT, netlist de 2026-10-14):** MUX `SIG=D8`, `S0–S3=D4–D7`
+e Bombas `A0`/`A1`, todos via 74HCT244 (fronteira 3,3 → 5 V) · `/OE` do 74HCT244 em
+`A5`, liberado por **último** em `initSensors()` — enquanto está alto nenhum relé
+aciona · Vazão `D3` em `INPUT` · RFM95W `D2`=DIO0, `A2`=DIO1, `A3`=RESET
+(`MY_RFM95_RST_PIN=17`), `D10–D13` SPI; nRF24 legado no header J6 com CE=`D2`
+(`MY_RF24_CE_PIN=2`) e CSN=`D10` · reed `A4` · analógica da porta J5 em `A6`
+(sem child) · `D9` livre. Child IDs e rótulos dos atuadores são os mesmos do Nano.
 
 ### 7.3 Failsafe de atuação
 
@@ -256,7 +271,7 @@ Sincronizador ACK, não erro de log.
 | 99 / 33 | Botões do dashboard | Liga/desliga Solenóide C |
 | 99 / 38 | Botões do dashboard | Liga/desliga Bomba NFT |
 | 99 / 39 | Botões do dashboard | Liga/desliga Bomba Oxi |
-| 99 / 11, 12 | `Coletor Telemetria Canteiro B & Clima` | Clima do Motor de Regras |
+| 99 / 11, 12 | `Coletor Telemetria Canteiro B & Clima` | Clima do Motor de Regras — **só com o Nó 99 no Nano** (`nano_99reles`). A M360-ACT (`act_99`) não publica esses children; a troca da fonte de clima no flow é decisão pendente |
 | 99 / 21 | `Filtro Vazão e Volume` (casa por `type=34`) | Vazão e acúmulo de volume |
 | 4 / 1, 11, 12 | `Filtro Clima SolarMini` | Gráficos de clima |
 | 1 / 1–6 | `Filtro Umidade Solo Canteiro A` (`type=37`) | Gráficos de solo |

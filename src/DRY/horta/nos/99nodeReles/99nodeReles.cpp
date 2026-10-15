@@ -5,6 +5,10 @@
  * (optoacoplador)
  *           + nRF24L01+ (adaptador socket regulado 3.3V) — CE=D9, CSN=D10
  *
+ * Variante M360-ACT (Pro Mini 3,3 V / 8 MHz, env act_99, -D NODE99_BOARD_ACT):
+ * mesmos child IDs e rótulos para os atuadores (31–39) e a vazão (21), SEM os
+ * children 11/12 (não há DHT na placa). Pinagem e regras em sensorDrivers.h.
+ *
  * Arquitetura de Atuação:
  *
  *   Canais via MUX CD74HC4067 (SIG=D8 | S0-S3=D4-D7 | EN=GND):
@@ -28,7 +32,7 @@
  *   │  D3  │ Sensor de Vazão YF-S201 (INT1)                   │
  *   └──────┴──────────────────────────────────────────────────┘
  *
- * Macros MY_* definidas no platformio.ini [env:node_99_reles_nano]
+ * Macros MY_* definidas no platformio.ini (envs nano_99reles* e act_99*)
  */
 
 // ===== CONFIGURAÇÃO MYSENSORS =====
@@ -77,8 +81,10 @@ static const char L_PH_PLUS[]  PROGMEM = "Perist.pH+";
 static const char L_PH_MINUS[] PROGMEM = "Perist.pH-";
 static const char L_NFT_PUMP[] PROGMEM = "BombaNFT";
 static const char L_NFT_OXI[]  PROGMEM = "BombaOxi";
+#ifndef NODE99_BOARD_ACT
 static const char L_DHT_TEMP[] PROGMEM = "Temperatura do Ar";
 static const char L_DHT_HUM[]  PROGMEM = "Umidade do Ar";
+#endif
 static const char L_FLOW[]     PROGMEM = "Vazao.Irrig";
 
 // ===== DEFINIÇÃO DOS ITENS DO NÓ =====
@@ -108,11 +114,13 @@ static const M360::M360ItemDef NODE_ITEMS[] = {
      0, 1, M360_LABEL(L_NFT_PUMP), false, 0},
     {CHILD_ID_NFT_OXI, M360::M360_ACTUATOR, S_BINARY, V_STATUS, PIN_NFT_OXI, 0,
      1, M360_LABEL(L_NFT_OXI), false, 0},
-    // --- Sensores Nativos (DHT11 - Concorrência livre) ---
+#ifndef NODE99_BOARD_ACT
+    // --- Sensores Nativos (DHT11 - Concorrência livre) — só no Nano ---
     {CHILD_ID_DHT_TEMP, M360::M360_SENSOR, S_TEMP, V_TEMP, PIN_DHT, 0, 1,
      M360_LABEL(L_DHT_TEMP), false, 0},
     {CHILD_ID_DHT_HUM, M360::M360_SENSOR, S_HUM, V_HUM, PIN_DHT, 0, 1,
      M360_LABEL(L_DHT_HUM), false, 0},
+#endif
     // --- Vazão de irrigação (YF-S201 em D3/INT1) ---
     // pin = -1: a leitura não passa por readNodeItem(), é despachada por
     // childId em readItem() abaixo.
@@ -232,12 +240,14 @@ static void checkActuatorFailsafe() {
 // ===== CALLBACKS =====
 
 static float readItem(uint8_t index) {
+#ifndef NODE99_BOARD_ACT
   if (NODE_ITEMS[index].childId == CHILD_ID_DHT_TEMP) {
     return readDHTTemp();
   }
   if (NODE_ITEMS[index].childId == CHILD_ID_DHT_HUM) {
     return readDHTHum();
   }
+#endif
   if (NODE_ITEMS[index].childId == CHILD_ID_FLOW) {
     return readFlowLpm();
   }

@@ -209,4 +209,33 @@ Após ajuste no código-fonte para maior segurança (fail-safe), a lógica adota
 > ✅ **Vantagem de Segurança:** Se o cabo de sinal soltar ou o microcontrolador reiniciar/travar, os pinos flutuam ou ficam em alta impedância, deixando o relé desatracado (repouso). Como a bomba está ligada no NA, ela ficará **desligada**, evitando inundações ou desperdício na horta.
 
 ---
+
+## Variante M360-ACT (env `act_99`, `-D NODE99_BOARD_ACT`)
+
+Mesmo firmware, placa própria: `hardware/m360-act/` (Pro Mini 3,3 V / 8 MHz,
+`hardware/ARQUITETURA_FAMILIA.md` §5). Tudo acima descreve o Nano; o que muda
+na ACT está aqui. Child IDs e rótulos dos atuadores (31–39) e da vazão (21)
+são os mesmos. **Não há DHT11**: os children 11 e 12 não existem nesta variante.
+
+| Pino | Função | Observação |
+| :--- | :--- | :--- |
+| D4–D7 | S0–S3 do CD74HC4067 | Via 74HCT244 (3,3 → 5 V); pull-down 100 kΩ dos dois lados |
+| D8 | SIG do CD74HC4067 | Via 74HCT244; pull-up 100 kΩ dos dois lados (relé desligado) |
+| A0 / A1 | Bomba NFT (38) / Bomba Oxi (39) | Via 74HCT244; pull-up 100 kΩ dos dois lados |
+| A5 | `/OE` do 74HCT244 | Pull-up R2 10 kΩ para 3,3 V. `initSensors()` o baixa por **último**, depois de D4–D8, A0 e A1 estarem em OUTPUT com os relés desligados. Com o /OE alto, as saídas do buffer ficam soltas e nenhum relé aciona |
+| D3 (INT1) | Vazão YF-S201 (21), porta J5 | `INPUT` puro: R3 10 kΩ em série, R4 100 kΩ para GND, clamp BAT54WS no 3,3 V, 1 nF. O pull-up interno contra o R3 deixaria o nível baixo acima do VIL |
+| D2 / A2 | DIO0 / DIO1 do RFM95W (mezanino J2) | DIO0 e NSS (D10) são os padrões da lib no AVR |
+| A3 | RESET do rádio | `MY_RFM95_RST_PIN=17` no env |
+| D10–D13 | NSS / MOSI / MISO / SCK | SPI de hardware |
+| J6 | nRF24 legado (exclusivo com o mezanino) | CE=D2 (`MY_RF24_CE_PIN=2`), CSN=D10 |
+| A4 | Reed switch SW1 | Sem uso no firmware por enquanto |
+| A6 | Entrada analógica da porta J5 (divisor 10 k / 20 k) | Sem child |
+| D9 | Livre | Era o DHT no esboço inicial |
+
+Fonte: netlist exportada do `M360-ACT.kicad_sch` em 2026-10-14 (`kicad-cli sch
+export netlist --format kicadxml`). Alimentação: só 5 V do quadro entra na placa;
+o 3,3 V do rádio vem do ME6211 local (§5.1 da arquitetura). Os módulos de relé
+recebem o 5 V do opto pelo par marrom do RJ45 e as bobinas pelo JD-VCC do quadro.
+
+---
 **Nota:** Recomenda-se unir os GNDs (Terra) de todas as fontes (12V, 5V e 3.3V) em corrente contínua para evitar oscilações nos sinais de controle. **Nunca** una o fio Neutro ou Terra da rede AC com o GND DC.
