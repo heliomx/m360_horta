@@ -43,6 +43,8 @@ Definidos em `src/DRY/horta/platformio.ini` e `src/DRY/kit-helio/platformio.ini`
 | `env`                       | Hardware                    | Porta | Nó |
 |-----------------------------|-----------------------------|-------|----|
 | `d1_mini_gateway`           | ESP8266 D1 Mini             | COM5  | 0 (Gateway Horta) |
+| `lp_01`                     | M360-LP (Pro Mini 3,3 V)    | —     | 1  |
+| `lp_02`                     | M360-LP (Pro Mini 3,3 V)    | —     | 2  |
 | `nano_01nodeSolo3d`         | Arduino Nano (5V)           | —     | 1  |
 | `ProMini_01nodeSolo3d`      | Arduino Pro Mini (5V/16MHz) | —     | 1  |
 | `nano_02nodeSolo3d`         | Arduino Nano (5V)           | —     | 2  |
