@@ -4,6 +4,10 @@
 > O Node-RED é o **backend temporário** e a implementação de referência: tudo que
 > ele faz hoje está inventariado aqui, junto com o contrato que o firmware impõe
 > e os modos de falha que já custaram sessões de debugging.
+>
+> **Especificação normativa da implementação:** [`especificacao-backend-m360.md`](especificacao-backend-m360.md)
+> (2026-10-14). Este guia segue como referência de lições; os requisitos, o modelo de
+> dados, os parâmetros e o plano de migração estão lá.
 
 **Fontes de verdade — não duplicar aqui:**
 
