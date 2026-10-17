@@ -22,7 +22,7 @@ Relação de todos os nós da rede MySensors e de seus child IDs, um a um.
 | **1** | `lp_01` (M360-LP) · `nano_01nodeSolo3d` · `ProMini_01nodeSolo3d` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V · Pro Mini 16MHz | `ALWAYS_ON` | 1–6 | Sim — Filtro Umidade Solo Canteiro A |
 | **2** | `lp_02` (M360-LP) · `nano_02nodeSolo3d` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V | `ALWAYS_ON` | 1–6 | Sim — Filtro Canteiro B + Motor de Regras |
 | **4** | `ProMini_04noodeSolarMini` | Pro Mini 16MHz | `LOW_POWER` | 1, 11, 12 | Sim — Filtro Clima SolarMini; **fonte de clima** do Motor de Regras, do Radar M360 e do `/status` do Telegram (11, 12) |
-| **99** | `act_99` (M360-ACT) · `act_99_rep` · `nano_99reles` · `nano_99reles_rep` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V | `ALWAYS_ON` (`REPEATER` nos `_rep`) | ACT: 21, 31–39 · Nano: 11, 12, 21, 31–39 | Sim — comandos e vazão; clima (11, 12) só com o Nano |
+| **99** | `act_99` (M360-ACT) · `act_99_rep` · `nano_99reles` · `nano_99reles_rep` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V | `ALWAYS_ON` (`REPEATER` nos `_rep`) | ACT: 21, 31–39 · Nano: 11, 12, 21, 31–39 | Sim — comandos e vazão; clima (11, 12) só com o Nano e só para o gráfico "Clima (Nó 99)" — a fonte de clima é o Nó 4 |
 
 **Total: 27 children declarados** (6 + 6 + 3 + 12) com o Nó 99 no Nano, ou 25 na M360-ACT (sem os children 11 e 12); mais os 3 reservados por nó.  
 *Nota de Hardware:* Todos os módulos nRF24L01+ de todos os nós e gateways possuem capacitor de desacoplamento instalado (premissa de hardware confirmada). O rádio é escolhido em `[common] radio_flags` de `platformio.ini` entre nRF24L01+ e LoRa HopeRF RFM95W (915 MHz); **hoje o RFM95W está ativo**. A escolha vale só para as placas da família M360 (`lp_*`, `act_99*`, `d1_mini_gw`). Os protótipos em campo (`nano_*`, `ProMini_*`, `d1_mini_gateway`) são fixos em nRF24 por `[proto_rf24]`, e o Kit Hélio por `[kit_helio]` (Apêndice A).
@@ -138,6 +138,13 @@ Coluna **Pino**: na M360-LP o `pin` do item é o código `LP_SRC_SOIL(ch)` (100+
 **Env:** `ProMini_04noodeSolarMini` (Pro Mini 5V/16MHz)
 **Perfil:** `M360_LOW_POWER`
 **Hardware:** DHT11 (ar) + DS18B20 (solo), 18650 direto no VCC carregada por painel solar (TP4056)
+
+> **Fonte de clima do Node-RED** (desde 2026-10-17, em produção): os children 11 e 12 deste nó
+> alimentam o Motor de Regras do Canteiro B (`clima_dht11`, gravado pelo `Coletor Telemetria
+> Canteiro B & Clima`), o relatório diário `Radar M360` e o `/status` do Telegram — ver §8. O nó
+> fica fora da estufa e transmite a cada intervalo (30 min de fábrica): o motor usa a última
+> leitura recebida. Renumerar 11/12 ou mudar o `V_*` aqui quebra essas três consumidoras em
+> silêncio; o fallback do motor é 20 °C / 20 %.
 
 **Intervalo de transmissão:**
 - **Warm-up pós-boot:** 10 ciclos de 30 s (~5 min de relógio) — confirma a reconexão logo após o reset. Contado em ciclos, não em `millis()`, que para durante o `smartSleep()`.
@@ -328,7 +335,7 @@ Node-RED** — é o diagnóstico mais direto para comando que "não faz nada".
   - $< 350\text{ ADC}$: Solo saturado / Capacidade de campo (Standby).
   - $350\text{ a }850\text{ ADC}$: Escala contínua de déficit hídrico mapeada em lâmina de reposição líquida ($0\text{ a }3.5\text{ mm}$ com cap de $4.5\text{ mm}$).
   - $\ge 700\text{ ADC}$: Limiar de estresse hídrico crítico (sobrepõe adiamento por chuva).
-- **Motor Agroclimático do Canteiro B (Open-Meteo + IoT):** Integração de $ET_0$ FAO-56 Penman-Monteith, VPD, radiação solar, vento e previsão de chuva com corte mínimo de duração $> 3\text{ minutos}$ ($180\text{ s}$) — ver documentação detalhada em [`docs/motor_agroclimatico_manejo360.md`](../../../docs/motor_agroclimatico_manejo360.md).
+- **Motor Agroclimático do Canteiro B (Open-Meteo + IoT):** clima local do **Nó 4** (V_TEMP °C e V_HUM %, children 11/12), integrado a $ET_0$ FAO-56 Penman-Monteith, VPD, radiação solar, vento e previsão de chuva com corte mínimo de duração $> 3\text{ minutos}$ ($180\text{ s}$) — ver documentação detalhada em [`docs/motor_agroclimatico_manejo360.md`](../../../docs/motor_agroclimatico_manejo360.md).
 - **Temperatura** (`V_TEMP`): °C, 1 casa decimal.
 - **Umidade do ar** (`V_HUM`): % relativa, 1 casa decimal.
 - **Vazão** (nó 99, child 21): `V_FLOW` (34) em **L/min**. Fator do YF-S201:
