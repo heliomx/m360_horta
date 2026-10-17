@@ -21,7 +21,7 @@ Relação de todos os nós da rede MySensors e de seus child IDs, um a um.
 | **0** | `d1_mini_gateway` (protótipo) · `d1_mini_gw` (M360-GW) | ESP8266 D1 Mini · D1 Mini no carrier M360-GW | — | — | Gateway MQTT (não tem children) |
 | **1** | `lp_01` (M360-LP) · `nano_01nodeSolo3d` · `ProMini_01nodeSolo3d` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V · Pro Mini 16MHz | `ALWAYS_ON` | 1–6 | Sim — Filtro Umidade Solo Canteiro A |
 | **2** | `lp_02` (M360-LP) · `nano_02nodeSolo3d` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V | `ALWAYS_ON` | 1–6 | Sim — Filtro Canteiro B + Motor de Regras |
-| **4** | `ProMini_04noodeSolarMini` | Pro Mini 16MHz | `LOW_POWER` | 1, 11, 12 | Sim — Filtro Clima SolarMini |
+| **4** | `ProMini_04noodeSolarMini` | Pro Mini 16MHz | `LOW_POWER` | 1, 11, 12 | Sim — Filtro Clima SolarMini; **fonte de clima** do Motor de Regras, do Radar M360 e do `/status` do Telegram (11, 12) |
 | **99** | `act_99` (M360-ACT) · `act_99_rep` · `nano_99reles` · `nano_99reles_rep` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V | `ALWAYS_ON` (`REPEATER` nos `_rep`) | ACT: 21, 31–39 · Nano: 11, 12, 21, 31–39 | Sim — comandos e vazão; clima (11, 12) só com o Nano |
 
 **Total: 27 children declarados** (6 + 6 + 3 + 12) com o Nó 99 no Nano, ou 25 na M360-ACT (sem os children 11 e 12); mais os 3 reservados por nó.  
@@ -273,9 +273,10 @@ Sincronizador ACK, não erro de log.
 | 99 / 33 | `Despachante & Feedback Imediato Solenóides` (aba *Fluxo 2 - Solenóides*) | Liga/desliga Solenóide C |
 | 99 / 38 | `Despachante & Feedback Imediato Bombas` (aba *Fluxo 2 - Bombas*) | Liga/desliga Bomba NFT |
 | 99 / 39 | `Despachante & Feedback Imediato Bombas` | Liga/desliga Bomba Oxi |
-| 99 / 11, 12 | `Coletor Telemetria Canteiro B & Clima` | Clima do Motor de Regras — **só com o Nó 99 no Nano** (`nano_99reles`). A M360-ACT (`act_99`) não publica esses children; a troca da fonte de clima no flow é decisão pendente |
+| 99 / 11, 12 | `Filtro Temp/Hum Ar` → gráfico "Clima (Nó 99)" | Só exibição, e só com o Nó 99 no Nano (`nano_99reles`); a M360-ACT não publica esses children. **Não alimentam mais nenhuma lógica** (2026-10-17) |
 | 99 / 21 | `Filtro Vazão e Volume` (casa por `type=34`) | Vazão e acúmulo de volume |
 | 4 / 1, 11, 12 | `Filtro Clima SolarMini` | Gráficos de clima |
+| 4 / 11, 12 | `Coletor Telemetria Canteiro B & Clima` (grava `clima_dht11`), `Radar M360: Contexto 24h` (tópicos `/out/4/11/`, `/out/4/12/`), `Tratar Comandos e Convites Telegram` (`/status`) | **Fonte de clima** desde 2026-10-17: Motor de Regras do Canteiro B, relatório diário e `/status`. O Nó 4 é `LOW_POWER`, então o valor muda a cada intervalo do nó (30 min de fábrica) |
 | 1 / 1–6 | `Filtro Umidade Solo Canteiro A` (`type=37`) | Gráficos de solo |
 | 2 / 1–6 | `Filtro Umidade Solo Canteiro B` + `Coletor Telemetria Canteiro B & Clima` | Gráficos + irrigação |
 | qualquer / 255 | `Filtro Bateria SolarMini` (trata qualquer nó) | Gráfico de bateria |
