@@ -68,6 +68,13 @@
 // pull-up R2 mantém as saídas do buffer soltas — e entrada solta = relé
 // desligado. É a mesma regra de segurança do Nano; aqui ela tem um pino.
 #define PIN_OE_N        A5
+
+// ===== REED SWITCH SW1 (só M360-ACT) =====
+// Contato para GND, sem resistor na placa: INPUT_PULLUP. Lido por polling (o nó
+// nunca dorme). Ímã mantido por REED_HOLD_MS dispara o repareamento
+// (M360Node::requestRejoin). O tempo evita acionamento acidental dentro do quadro.
+#define PIN_REED        A4
+#define REED_HOLD_MS    3000UL
 #endif
 
 // ===== CHILD IDs — FAIXAS NORMATIVAS M360 =====

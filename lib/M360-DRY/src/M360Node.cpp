@@ -9,6 +9,8 @@
 // Forward declarations of MySensors functions not defined in core headers
 uint8_t getDistanceGW(void);
 bool isTransportReady(void);
+void transportInitialise(void);
+void transportClearRoutingTable(void);
 
 namespace M360
 {
@@ -31,6 +33,8 @@ namespace M360
 	      _wakeIrq(-1),
 	      _wakeMode(0),
 	      _wokeByIrq(false),
+	      _rejoinPhase(0),
+	      _rejoinT0(0),
 	      _readCb(nullptr),
 	      _writeCb(nullptr) {}
 
@@ -53,6 +57,34 @@ namespace M360
 	void M360Node::setWakeInterrupt(uint8_t interruptNum, uint8_t mode) {
 		_wakeIrq  = (int8_t)interruptNum;
 		_wakeMode = mode;
+	}
+
+	void M360Node::requestRejoin() {
+		if (_rejoinPhase != 0) {
+			return;
+		}
+		sendDebug("REJOIN");          // melhor esforço, ainda pelo enlace antigo
+		Serial.println(F("REJOIN:INI"));
+		transportClearRoutingTable();  // rotas de nós filhos (repetidor) e do pai
+		transportInitialise();         // reinit do rádio -> busca de pai -> uplink
+		_rejoinPhase = 1;
+		_rejoinT0    = millis();
+	}
+
+	void M360Node::_checkRejoin() {
+		if (_rejoinPhase == 1) {
+			// isTransportReady() só cai quando a busca de pai começa; até lá ainda
+			// reflete o enlace antigo. Teto de 5 s para não esperar para sempre.
+			if (!isTransportReady() || (millis() - _rejoinT0) > 5000UL) {
+				_rejoinPhase = 2;
+			}
+		} else if (_rejoinPhase == 2 && isTransportReady()) {
+			_rejoinPhase = 0;
+			_rePresent();
+			forceUpdate();
+			sendDebug("REJOIN:OK");
+			Serial.println(F("REJOIN:OK"));
+		}
 	}
 
 	void M360Node::_sleep(uint32_t sleepMs) {
@@ -197,6 +229,9 @@ namespace M360
 	// ===== PROCESS =====
 
 	void M360Node::process() {
+		if (_rejoinPhase != 0) {
+			_checkRejoin();
+		}
 		if (_profile == M360_ALWAYS_ON || _profile == M360_REPEATER) {
 			// Modo 12V / always-on: timer por millis, sem sleep
 			static unsigned long lastRun = 0;

@@ -150,6 +150,20 @@ namespace M360
 		// Sem efeito em ALWAYS_ON/REPEATER, que não dormem: lá o nó faz polling.
 		void setWakeInterrupt(uint8_t interruptNum, uint8_t mode);
 
+		// Repareamento local (nó de ID fixo): esquece o pai e a tabela de rotas,
+		// reinicia o transporte (rádio + busca de pai) SEM reiniciar o MCU — atuadores
+		// ficam como estão. Quando o enlace volta, reapresenta todos os children e
+		// envia tudo (forceUpdate). Não bloqueia: o andamento é tratado em process(),
+		// então só serve aos perfis que chamam process() continuamente (ALWAYS_ON,
+		// REPEATER). Ignorado se já houver um repareamento em curso.
+		// Serial: REJOIN:INI, REJOIN:OK; debug remoto (child 253): REJOIN, REJOIN:OK.
+		void requestRejoin();
+
+		// true enquanto o repareamento não terminou.
+		bool rejoinPending() const {
+			return _rejoinPhase != 0;
+		}
+
 		// ----- Configuração de pinos (opcional, baseado em items[].pin) -----
 		void setupPins();
 
@@ -195,11 +209,16 @@ namespace M360
 		int8_t             _wakeIrq;     // -1 = só timer (setWakeInterrupt não chamado)
 		uint8_t            _wakeMode;
 		bool               _wokeByIrq;   // o último smartSleep() acabou pela interrupção
+		uint8_t            _rejoinPhase; // 0 nada; 1 esperando o enlace cair; 2 esperando voltar
+		uint32_t           _rejoinT0;
 		float (*_readCb)(uint8_t);
 		void  (*_writeCb)(uint8_t, bool);
 
 		// smartSleep() por timer, ou por timer e _wakeIrq quando configurada.
 		void _sleep(uint32_t sleepMs);
+
+		// Avança o repareamento pedido por requestRejoin(); chamada no início de process().
+		void _checkRejoin();
 
 		// Prepara _txMsg para o child/tipo informados e o devolve para o send().
 		MyMessage& _msgFor(uint8_t childId, uint8_t valueType);

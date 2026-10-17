@@ -233,8 +233,12 @@ O sensor abaixo possui conexão direta ao Arduino, permitindo leituras periódic
 > **Variante M360-ACT** (env `act_99`, `-D NODE99_BOARD_ACT`): não há DHT11 — os
 > children 11 e 12 não existem —, o D2 é o DIO0 do rádio e o D3 fica em `INPUT`
 > puro, porque a placa condiciona o sinal. O `/OE` do 74HCT244 (A5) é liberado por
-> último em `initSensors()`. Pinagem completa em `sensorDrivers.h` e na seção
-> "Variante M360-ACT" de `esquema_eletrico.md`.
+> último em `initSensors()`. O reed (A4) faz o **repareamento**: com o ímã junto do SW1
+> por 3 s, o nó esquece o pai e as rotas, procura o gateway de novo, reapresenta os
+> children e reenvia o estado de todos os relés e da vazão, sem reiniciar o MCU (relés e
+> failsafe intactos). No Serial: `REED:REPAREAR`, `REJOIN:INI`, `REJOIN:OK`; no debug
+> remoto (child 253): `REJOIN` e `REJOIN:OK`. Pinagem completa em `sensorDrivers.h` e
+> na seção "Variante M360-ACT" de `esquema_eletrico.md`.
 
 ### 3.5 Relés e Atuadores Multiplexados (Concorrência Restrita)
 Os relés listados abaixo são controlados pelas saídas lógicas do MUX. Apenas **UM** relé desta lista pode ser ativado simultaneamente.

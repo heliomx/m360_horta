@@ -77,6 +77,9 @@ void initSensors()
 	initFlowSensor();
 
 #ifdef NODE99_BOARD_ACT
+	// --- Reed (SW1) ---
+	pinMode(PIN_REED, INPUT_PULLUP);
+
 	// --- /OE do 74HCT244: ÚLTIMO passo ---
 	// Até aqui o pull-up R2 manteve o buffer em alta impedância e os módulos
 	// de relé com a entrada solta (= desligados). Só agora, com D4–D8, A0 e A1

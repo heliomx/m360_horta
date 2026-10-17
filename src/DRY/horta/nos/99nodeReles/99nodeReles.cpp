@@ -237,6 +237,31 @@ static void checkActuatorFailsafe() {
   }
 }
 
+#ifdef NODE99_BOARD_ACT
+// ===== REPAREAMENTO PELO REED (só M360-ACT) =====
+// Ímã junto do SW1 (porta do quadro aberta) por REED_HOLD_MS: o nó esquece o pai e
+// as rotas, procura o gateway de novo, reapresenta os children e reenvia o estado
+// de todos os relés e da vazão. Sem reboot — relés e failsafe seguem intactos.
+// Dispara uma vez por aproximação; precisa afastar o ímã para repetir.
+static void checkReedRejoin() {
+  static uint32_t lowSince = 0; // 0 = contato aberto
+  static bool fired = false;
+  if (digitalRead(PIN_REED) == LOW) {
+    const uint32_t agora = millis();
+    if (lowSince == 0) {
+      lowSince = agora | 1UL; // nunca 0 enquanto fechado
+    } else if (!fired && (agora - lowSince) >= REED_HOLD_MS) {
+      fired = true;
+      Serial.println(F("REED:REPAREAR"));
+      node.requestRejoin();
+    }
+  } else {
+    lowSince = 0;
+    fired = false;
+  }
+}
+#endif
+
 // ===== CALLBACKS =====
 
 static float readItem(uint8_t index) {
@@ -318,6 +343,10 @@ void loop() {
   // node.process() em M360_ALWAYS_ON termina em wait(50), então o failsafe é
   // avaliado ~20x por segundo — resolução de sobra para prazos de minutos.
   checkActuatorFailsafe();
+
+#ifdef NODE99_BOARD_ACT
+  checkReedRejoin();
+#endif
 
 #ifdef NODE99_HEALTH_LOG
   // Batimento a cada 5 s: uptime em segundos e RAM livre.
