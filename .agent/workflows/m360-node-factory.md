@@ -4,7 +4,7 @@
 
 Orientar a criação completa de um novo nó da rede **M360 Horta**, garantindo conformidade com:
 
-- Biblioteca `lib/M360-DRY` (padrão canônico — **não** usar `src/DRY/horta/nos/shared/`)
+- Biblioteca `lib/M360-DRY` (único motor de nó do projeto)
 - Padrão MySensors v2.x
 - Estrutura PlatformIO do projeto
 - Documentação de esquema elétrico e diagrama de blocos

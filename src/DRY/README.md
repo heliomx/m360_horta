@@ -3,8 +3,8 @@
 Código dos nós de campo, dos gateways e dos fluxos Node-RED do sistema de monitoramento
 agrícola **M360 Horta**, organizado em dois sub-projetos agregados pelo `platformio.ini` da raiz
 (`extra_configs`). Todo nó e gateway usa a biblioteca **[M360-DRY 2.2.0](../../lib/M360-DRY/)**
-sobre **MySensors 2.3.2**. O motor legado em `horta/nos/shared/` continua no repositório, mas
-nenhum nó novo o usa.
+sobre **MySensors 2.3.2**. O motor legado `horta/nos/shared/` foi removido em
+2026-10-17; está no histórico do git, no commit `13671e7`.
 
 > As regras de trabalho vivem em [`CLAUDE.md`](../../CLAUDE.md) (raiz), no skill
 > [`bmad-mysensors-node-coding`](../../.agent/skills/bmad-mysensors-node-coding/SKILL.md) e no
@@ -69,8 +69,7 @@ src/DRY/
 │       ├── 02nodeSolo3dNano/     Nó 2 no Nano (legado): idem, Canteiro B
 │       ├── 04noodeSolarMini/     Nó 4: DHT11 + DS18B20, solar, LOW_POWER
 │       ├── 99nodeReles/          Nó 99: 9 relés + vazão (+ DHT11 só no Nano); Nano ou M360-ACT
-│       ├── 01nodeSolo3dMini/     documentação defasada de um projeto de 18 canais (sem firmware)
-│       └── shared/               motor legado node_engine.h — não usar em novos nós
+│       └── 01nodeSolo3dMini/     documentação defasada de um projeto de 18 canais (sem firmware)
 └── kit-helio/                    sub-projeto Kit Hélio (platformio.ini próprio)
     ├── gateway/                  libDryGatewayMqtt.cpp do Kit Hélio
     └── nos/miniDHT/              Nó 11: DHT11, ALWAYS_ON

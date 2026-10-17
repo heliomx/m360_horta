@@ -1,8 +1,7 @@
 /*
  * M360Config.h — Constantes globais da biblioteca M360-DRY
  *
- * Substitui config.h + powerProfile.h dos nós legados.
- * Inclua este header nos nós em vez dos arquivos shared/.
+ * Substituiu o config.h e o powerProfile.h do motor legado, removido em 2026-10-17.
  */
 
 #pragma once

@@ -90,26 +90,6 @@ Na placa M360-LP o nó é só um `nodeConfig.h` em `src/DRY/horta/nos/lp/config/
 `.agent/workflows/m360-node-factory.md`; padrões: `.agent/skills/bmad-mysensors-node-coding/SKILL.md`;
 detalhes e armadilhas MySensors ↔ MQTT ↔ Node-RED: `CLAUDE.md`.
 
-### Regras do motor legado (`src/DRY/horta/nos/shared/`)
-
-Nenhum env compila o motor legado hoje; estas regras só valem se um nó antigo for ressuscitado.
-**Nunca escrever manualmente** o que já existe como macro no `node_engine.h`:
-
-| Padrão proibido | Substituição obrigatória |
-|---|---|
-| Corpo manual de `presentation()` | `NODE_ENGINE_PRESENTATION(name, ver)` |
-| 6 declarações de globais repetidas | `NODE_ENGINE_DEFINE_GLOBALS()` |
-| Bloco validação/save/send de intervalo | `NODE_ENGINE_HANDLE_INTERVAL(msg)` |
-| Loop V_STATUS para atuadores | `NODE_ENGINE_HANDLE_ACTUATORS(msg)` |
-| Bloco diagnóstico de rede | `NODE_ENGINE_CHECK_TRANSPORT()` |
-| Bloco teste de conectividade | `NODE_ENGINE_TEST_CONNECTIVITY()` |
-| Ciclo static battCycle manual | `NODE_ENGINE_PROCESS_BATTERY(N)` |
-| Loop `pinMode`/`digitalWrite` | `nodeEngine_setupPins()` |
-| Loop `lastValues=NAN` / `nNoUpdates=0` | `nodeEngine_initArrays(lv, nu, cnt)` |
-| String `"teste_do_gateway"` hardcoded | `CMD_FORCE_UPDATE` (de `config.h`) |
-| `MyMessage messages[N]` fixo | `messages[NODE_ITEMS_COUNT + 2]` |
-| Código após `sleep()` | mover `request()`/`wait()` para **antes** |
-
 **Antes de criar qualquer novo nó**, seguir o workflow `.agent/workflows/m360-node-factory.md` (Passo 0 decide entre a placa M360-LP e hardware próprio).
 
 ### Regras críticas do Gateway (`src/DRY/horta/gateway/`)
@@ -139,7 +119,6 @@ src/DRY/
 │   ├── inventario.md            Nós e child IDs — contrato com o Node-RED
 │   └── nos/
 │       ├── lp/                  Firmware comum da placa M360-LP + config/<nó>/nodeConfig.h (envs lp_01, lp_02)
-│       ├── shared/              Motor legado (node_engine.h) — nenhum env compila; não usar em novos nós
 │       ├── 01nodeSolo3dNano/    Solo resistivo — 6 canais nativos no Nano (Nó 1, ON)
 │       ├── 02nodeSolo3dNano/    Solo resistivo — 6 canais nativos no Nano (Nó 2, ON)
 │       ├── 04noodeSolarMini/    DHT11 + DS18B20, alimentação solar (Nó 4, LOW_POWER)
@@ -158,7 +137,7 @@ src/DRY/
 
 - **Linguagem dos comentários e logs Serial:** português
 - **IDs reservados:** 253 = Debug remoto (`V_TEXT`), 254 = Intervalo (`V_VAR1`), 255 = Bateria (`V_VOLTAGE`)
-- **EEPROM nós:** endereços 512–515 via `M360::saveInterval()` (legado: `nodeEngine_saveInterval()`), nunca `EEPROM.put()` direto
+- **EEPROM nós:** endereços 512–515 via `M360::saveInterval()`, nunca `EEPROM.put()` direto
 - **EEPROM gateway:** 0–511 = MySensors, 512–520 = `M360NodeConfig`/reservado, **521+** = `M360DeviceConfig` com CRC
 - **Perfil de energia:** exatamente um `M360::M360_*` no construtor (`LOW_POWER`, `ALWAYS_ON`, `PASSIVE`, `REPEATER`); na M360-LP, exatamente um `LP_POWER_*` no `nodeConfig.h`
 - **Precisão float:** 1 casa decimal (`set(val, 1)`)

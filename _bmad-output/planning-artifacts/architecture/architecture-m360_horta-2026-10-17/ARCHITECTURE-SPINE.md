@@ -135,7 +135,7 @@ As setas indicam "pode depender de". O domínio nunca importa um adaptador. O n�
 
 - **Binds:** F1–F9; todo nó novo e todo gateway
 - **Prevents:** ciclo de vida reimplementado por nó; uso do motor legado em código novo.
-- **Rule:** nó novo usa `M360::M360Node` com `NODE_ITEMS[]` declarativo e drivers por callback; rótulos em `PROGMEM`; envio pelo `MyMessage` interno da lib. `src/DRY/horta/nos/shared/` é legado e congelado. Mudança na lib passa por `pio check -e check_m360_dry` limpo e pelo orçamento de RAM do AD-20.
+- **Rule:** nó novo usa `M360::M360Node` com `NODE_ITEMS[]` declarativo e drivers por callback; rótulos em `PROGMEM`; envio pelo `MyMessage` interno da lib. O motor legado `nos/shared/` foi removido em 2026-10-17 (recuperável no commit `13671e7`). Mudança na lib passa por `pio check -e check_m360_dry` limpo e pelo orçamento de RAM do AD-20.
 
 ### AD-11 — Children reservados e comandos administrativos [ADOPTED]
 
@@ -300,7 +300,6 @@ m360_horta/
     nos/lp/                # fonte único da M360-LP; config/<nó>/nodeConfig.h
     nos/99nodeReles/       # Nó 99 (Nano e ACT)
     nos/04noodeSolarMini/  # Nó 4 (clima)
-    nos/shared/            # motor legado, congelado
     nodered/               # flows.json + nr_deploy.py (legado após o corte)
     inventario.md          # contrato (AD-1)
   src/DRY/kit-helio/       # gateway e nó do Kit Hélio

@@ -15,7 +15,6 @@ Node-RED é o [`inventario.md`](../inventario.md).
 | `04noodeSolarMini/` | 4 | Pro Mini 16 MHz, DHT11 + DS18B20, solar | `ProMini_04noodeSolarMini` |
 | `99nodeReles/` | 99 | Nano 5 V (com DHT11) **ou** placa **M360-ACT** (sem DHT11, flag `NODE99_BOARD_ACT`) | `nano_99reles`, `nano_99reles_rep`, `act_99`, `act_99_rep` |
 | `01nodeSolo3dMini/` | — | Só documentação, defasada (projeto de 18 canais que não existe) | — |
-| `shared/` | — | Motor legado `node_engine.h`; não usar em nós novos | — |
 
 Os nós 5, 13 e 80 foram removidos (inventário, Apêndice B).
 

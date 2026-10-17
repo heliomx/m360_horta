@@ -57,7 +57,7 @@ _Regras que um agente erraria sem aviso. O detalhe vive nos documentos apontados
 - Na M360-LP há um fonte único em `nos/lp/`. Cada nó é um `config/<nó>/nodeConfig.h` mais um env, com exatamente um de `LP_POWER_FIXED_5V`/`LP_POWER_BATTERY`.
 - ACT e GW reaproveitam o fonte do protótipo, selecionado pelas flags `NODE99_BOARD_ACT` e `M360_BOARD_GW`.
 - Macros `MY_*` ficam só no `platformio.ini`.
-- O motor legado `nos/shared/` está congelado; nenhum env o compila.
+- O motor legado `nos/shared/` e os sketches de `src/noDRY/` foram removidos em 2026-10-17 (recuperáveis no commit `13671e7`). Não recriar.
 - O nó envia por mudança ou a cada 10 ciclos. `reportIntervalMin` e `readSamples` não são lidos pela lib.
 - Mudança na lib exige `pio check -e check_m360_dry` limpo, build de todos os `default_envs` e pelo menos 512 B de RAM livre em `act_99` e `nano_99reles`.
 
