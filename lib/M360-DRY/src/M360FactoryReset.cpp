@@ -22,7 +22,7 @@ namespace M360
 	      _expired(false),
 	      _callback(nullptr) {}
 
-	void FactoryReset::onTrigger(std::function<void()> callback) {
+	void FactoryReset::onTrigger(std::function<void(const char*)> callback) {
 		_callback = callback;
 	}
 
@@ -63,10 +63,15 @@ namespace M360
 			return;
 		}
 
-		Serial.println(F("FRESET: apagando a configuração e reiniciando no modo AP"));
+		trigger(cfg, "reed/botao A0");
+	}
+
+	void FactoryReset::trigger(M360DeviceConfig& cfg, const char* origem) {
+		Serial.print(F("FRESET: apagando a configuração e reiniciando no modo AP — origem: "));
+		Serial.println(origem);
 		// Callback ANTES de apagar: o evento sai com o prefixo (UF/CAR) atual.
 		if (_callback) {
-			_callback();
+			_callback(origem);
 		}
 		memset(&cfg, 0, sizeof(cfg)); // version 0 -> Config::isValid() falso no boot
 		Config::save(cfg);

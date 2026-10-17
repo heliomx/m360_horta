@@ -5,6 +5,10 @@
 #ifdef ESP8266
 
 #include "M360Webserver.h"
+#include <M360Credentials.h>  // M360_AP_SSID, mostrado na página do reset
+
+// Handler do botão "Restaurar padrões de fábrica" (nullptr = sem botão nem rota).
+static std::function<void()> s_onFactoryReset = nullptr;
 
 static String htmlEscape(const String& s) {
     String out;
@@ -129,7 +133,21 @@ String generateIndexHTML(const M360::M360DeviceConfig &cfg) {
     html += "<label>Número do CAR:</label>";
     html += "<input name='carNumber' value='" + String(cfg.carNumber) + "' maxlength='8' required>";
     html += "<input type='submit' value='💾 Salvar Configurações'>";
-    html += "</form></div></body></html>";
+    html += "</form>";
+    if (s_onFactoryReset) {
+        // Formulário separado do /save: apagar não pode sair de um clique no botão errado.
+        html += "<hr style='margin:25px 0'><h3>⚠️ Restaurar padrões de fábrica</h3>";
+        html += "<p style='font-size:13px;color:#666'>Apaga WiFi, broker MQTT, UF e CAR. ";
+        html += "O gateway reinicia no modo configuração (rede <b>" + String(M360_AP_SSID) + "</b>, ";
+        html += "portal em 192.168.4.1). Use para levar o gateway a outra propriedade.</p>";
+        html += "<form action='/reset' method='POST' ";
+        html += "onsubmit=\"return confirm('Apagar a configuracao e reiniciar em modo AP?');\">";
+        html += "<label style='font-weight:normal'><input type='checkbox' name='confirm' value='1' required ";
+        html += "style='width:auto;margin-right:8px'>Confirmo que quero apagar a configuração</label>";
+        html += "<input type='submit' value='🗑️ Restaurar padrões de fábrica' style='background:#c62828'>";
+        html += "</form>";
+    }
+    html += "</div></body></html>";
 
     return html;
 }
@@ -200,9 +218,27 @@ void handleSave(M360::M360DeviceConfig &cfg, ESP8266WebServer &server) {
     ESP.restart();
 }
 
-void setupWebServer(M360::M360DeviceConfig &cfg, ESP8266WebServer &server) {
+void handleFactoryReset(ESP8266WebServer &server) {
+    if (server.arg("confirm") != "1") {
+        server.send(400, "text/html", "<h3>❌ Confirmação ausente: nada foi apagado.</h3><a href='/'>Voltar</a>");
+        return;
+    }
+    // Responde ANTES de apagar: depois do restart o navegador perde a conexão.
+    String html = "<h3>🗑️ Configuração apagada. Reiniciando no modo configuração...</h3>";
+    html += "<p>Conecte-se à rede <b>" + String(M360_AP_SSID) + "</b> e abra http://192.168.4.1</p>";
+    server.send(200, "text/html", html);
+    delay(500);
+    s_onFactoryReset();  // não retorna: apaga e reinicia
+}
+
+void setupWebServer(M360::M360DeviceConfig &cfg, ESP8266WebServer &server,
+                    std::function<void()> onFactoryReset) {
+    s_onFactoryReset = onFactoryReset;
     server.on("/",     [&]() { handleRoot(cfg, server); });
     server.on("/save", HTTP_POST, [&]() { handleSave(cfg, server); });
+    if (s_onFactoryReset) {
+        server.on("/reset", HTTP_POST, [&]() { handleFactoryReset(server); });
+    }
     server.begin();
     Serial.println("🌐 Servidor Web iniciado em porta 80");
 }

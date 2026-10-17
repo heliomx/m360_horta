@@ -265,7 +265,8 @@ void setup() {
 	Serial.flush();
 	delay(100);
 
-	setupWebServer(config, server);
+	// Botão "Restaurar padrões de fábrica" do portal: mesmo caminho do reed/botão no A0.
+	setupWebServer(config, server, []() { factoryReset.trigger(config, "portal web"); });
 	Serial.flush();
 
 	bool isInAPMode = (WiFi.getMode() == WIFI_AP);
@@ -299,8 +300,14 @@ void setup() {
 		mqttManager.publishMetrics(config, mqttClient);
 	});
 	gateway.onNodeCheck(checkNodeTimeouts);
-	factoryReset.onTrigger([]() {
-		publishTransportEvent(M360::EVT_FACTORY_RESET, "A0 mantido 3 s - config apagada, reinicia em AP");
+	factoryReset.onTrigger([](const char* origem) {
+		// No modo AP não há MQTT (regra: nada de mqttClient.loop() em AP) — o reset
+		// pelo portal em modo configuração segue sem o evento.
+		if (WiFi.getMode() == WIFI_AP || !mqttClient.connected()) {
+			return;
+		}
+		String det = String("origem: ") + origem + " - config apagada, reinicia em AP";
+		publishTransportEvent(M360::EVT_FACTORY_RESET, det.c_str());
 		for (uint8_t i = 0; i < 5; i++) {  // dá tempo de o evento sair antes do restart
 			mqttClient.loop();
 			delay(50);

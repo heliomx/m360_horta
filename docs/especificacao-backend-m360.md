@@ -760,7 +760,7 @@ Cada function node do `flows.json` mapeado para o requisito que o substitui:
 - Alterações de child ID, label ou failsafe no firmware exigem atualizar **na mesma entrega** o `inventario.md` e a configuração `actuators`/`beds` do backend (§5.6). O teste de aceite 1 e um teste de contrato que lê o `inventario.md` detectam divergência.
 - O `inventario.md` §8 ("Contrato com o Node-RED") passa a chamar-se "Contrato com o backend" na Fase 7, apontando para a configuração do backend em vez de nós do `flows.json`.
 - `CLAUDE.md`: a seção "Deploy no Node-RED" vira histórico na Fase 7; a seção "Armadilhas Críticas" permanece válida e passa a citar os requisitos RF-CMD-04 e RF-CMD-08.
-- `hardware/ARQUITETURA_FAMILIA.md` §9 e §6.1: o factory reset do gateway foi implementado em 2026-10-17 conforme RF-PRV-09 (exceto o botão do portal).
+- `hardware/ARQUITETURA_FAMILIA.md` §9 e §6.1: o factory reset do gateway foi implementado em 2026-10-17 conforme RF-PRV-09, por hardware e pelo portal.
 
 ---
 
@@ -793,7 +793,7 @@ recompilar firmware.
 | Identidade da instalação | Portal grava `ssid, password, mqttServer, mqttPort, mqttUser, mqttPassword, uf, carNumber` na EEPROM (521+, CRC) | Mantido. O portal passa a validar `UF` (2 letras) e `CAR` (1–7 dígitos) e a mostrar o prefixo resultante |
 | Separação de rádio | Frequência RFM95W fixa no `[common]` do `platformio.ini` (vale para as placas M360; protótipos e Kit Hélio são fixos em nRF24); todo gateway é o nó 0 e o vizinho na mesma frequência confirma pacotes alheios | **D-09 / §15.6**: campo `canal` (0..63) no portal, gravado na EEPROM e convertido em frequência no `before()`; nos nós, o índice entra por comando de provisionamento `V_CUSTOM` `SET_RADIO:<k>` enquanto o nó ainda está no canal de fábrica, com confirmação pelo eco antes de o nó trocar |
 | Nós | `MY_NODE_ID` por env; IDs 1–254 recomeçam em cada propriedade; apresentação automática | Mantido. As faixas por função de `M360Config.h` (`isClimaNode` 1–50 etc.) **não** são usadas pelos nós reais e não entram no fluxo |
-| Factory reset do gateway | **Por hardware: implementado** (2026-10-17, `M360::FactoryReset`). Pelo portal: não existe | **RF-PRV-09** — falta o botão do portal |
+| Factory reset do gateway | **Implementado** (2026-10-17, `M360::FactoryReset`): por hardware (A0) e pelo portal (`POST /reset`) | **RF-PRV-09** |
 
 ### 15.3 Requisitos (PRV)
 
@@ -808,7 +808,7 @@ recompilar firmware.
 - **RF-PRV-09** Factory reset do gateway, requisito de firmware rastreado aqui porque é pré-condição para reaproveitar um gateway em outra propriedade.
   - **Por hardware (implementado):** nos primeiros **30 s do `loop()`** (não do boot: a conexão WiFi no `before()` pode passar disso), o ímã/botão é **afastado** e depois mantido **3 s** no A0. Segurá-lo desde o boot só abre o modo AP — é preciso soltar e aproximar de novo, para quem só quer o AP não apagar nada.
   - **Efeito:** publica `factory_reset` em `out/events` com o prefixo atual, **apaga** a `M360DeviceConfig` (EEPROM 521+) e reinicia direto no modo AP. Nada da instalação anterior sobrevive. Ao entrar no AP o firmware grava os padrões de compilação; se ninguém configurar pelo portal, o boot seguinte os usa, como um gateway novo.
-  - **Pelo portal (pendente):** botão "restaurar padrões" com o mesmo efeito.
+  - **Pelo portal (implementado):** botão "Restaurar padrões de fábrica" (`POST /reset`, caixa de confirmação obrigatória), mesmo efeito. O `details` do evento traz a origem (`reed/botao A0` ou `portal web`). Disparado em modo AP, não há evento (não há MQTT). O portal não tem autenticação; quem alcança o IP do gateway na rede local pode apagá-lo — risco já existente no `/save`.
   - **Backend:** ao receber `factory_reset`, marcar o gateway como `RESETADO`, alertar (RF-NOT-03) e não tratar o silêncio seguinte como falha.
 - **RF-PRV-10** Operadores: cada instalação tem seu chat principal e seus assinantes do Telegram; o convite `/start convite` fica vinculado à instalação pelo link gerado na UI (`?start=convite_<installation_id>`).
 - **RF-PRV-11** Toda mudança de estado da instalação e toda alteração de atuadores ou canteiros é registrada com usuário e horário.

@@ -12,7 +12,7 @@ ESP8266 D1 mini que faz a ponte entre a rede de rádio MySensors e o broker MQTT
 |---|---|
 | `M360Gateway` | Orquestra o `loop()`: reconexão WiFi e MQTT, webserver, LEDs, heartbeat, timeouts de nós |
 | `M360WiFi` | Modo STA com a rede configurada, ou AP de configuração `M360-Config` (`192.168.4.1`) |
-| `M360Webserver` | Portal com as rotas `/` e `/save` |
+| `M360Webserver` | Portal com as rotas `/`, `/save` e `/reset` (botão "Restaurar padrões de fábrica") |
 | `M360MQTT` | Conexão ao broker, tópicos `buildTopicOut()` / `buildTopicIn()`, assinatura de `in/#` |
 | `M360Translator` | Serialização MySensors ↔ MQTT (modo nativo e envelope JSON), validação |
 | `M360Registry` | Nós ativos, `node_discovered`, `node_lost` (15 min sem mensagem), `node_reconnected` |
@@ -73,7 +73,7 @@ Heartbeat a cada 60 s em `.../out/events` com uptime, RSSI do WiFi, IP e versão
 - Ímã no reed (ou botão) com A0 em GND **durante o boot** → AP `M360-Config`, portal em `192.168.4.1`.
 - **Factory reset** (`M360::FactoryReset`, `lib/M360-DRY/src/M360FactoryReset.h`): nos primeiros **30 s** do `loop()`, afastar o ímã/botão e mantê-lo **3 s** no A0. O gateway publica `factory_reset` em `.../out/events` (ainda com o prefixo atual), **apaga** a configuração e reinicia direto no modo AP, como um gateway novo. No Serial: `FRESET: ...`.
 - O reset só arma depois de ver o A0 solto: segurar o ímã desde o boot abre o modo AP e **não** apaga nada. A janela conta do início do `loop()`, não do boot.
-- Nada da instalação anterior (WiFi, broker, UF/CAR) sobrevive: é o que permite levar o gateway para outra propriedade (RF-PRV-09). Ao entrar no AP o `before()` grava os padrões do `M360Credentials.h`; se ninguém configurar pelo portal, o boot seguinte usa esses padrões, como um gateway novo. O portal web não tem rota de reset.
+- Nada da instalação anterior (WiFi, broker, UF/CAR) sobrevive: é o que permite levar o gateway para outra propriedade (RF-PRV-09). Ao entrar no AP o `before()` grava os padrões do `M360Credentials.h`; se ninguém configurar pelo portal, o boot seguinte usa esses padrões, como um gateway novo. **Pelo portal:** botão "Restaurar padrões de fábrica" (`POST /reset`, exige marcar a confirmação), mesmo efeito do ímã; o evento traz `origem: portal web` e, em modo AP, não é publicado (não há MQTT). O portal não tem autenticação: em modo STA, qualquer um na rede local que alcance o IP do gateway pode reconfigurá-lo ou apagá-lo.
 - Sem o pull-up de 10 kΩ no A0 o pino flutua perto de 0 V e o gateway sobe em AP sozinho.
 
 ## Antes de compilar

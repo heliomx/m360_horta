@@ -274,7 +274,7 @@ void receive(const MyMessage& msg) { node.handleMessage(msg); }
 
 **Modo AP / Factory Reset:**
 - A0 em GND durante o boot → modo configuração (SSID: `M360-Config`, portal em `192.168.4.1`)
-- Factory reset: com o gateway já no `loop()`, nos primeiros **30 s**, **afastar** o ímã/botão do A0 e **mantê-lo 3 s** → evento `factory_reset` em `.../out/events` (com o prefixo atual) → a `M360DeviceConfig` é **apagada** → restart direto no modo AP, como um gateway novo (`M360::FactoryReset`, `lib/M360-DRY/src/M360FactoryReset.h`, nos dois gateways; requisito RF-PRV-09 de `docs/especificacao-backend-m360.md`). Segurar o ímã desde o boot só abre o modo AP — é preciso soltar e aproximar de novo. O portal web continua sem reset (só `/` e `/save`)
+- Factory reset: com o gateway já no `loop()`, nos primeiros **30 s**, **afastar** o ímã/botão do A0 e **mantê-lo 3 s** → evento `factory_reset` em `.../out/events` (com o prefixo atual) → a `M360DeviceConfig` é **apagada** → restart direto no modo AP, como um gateway novo (`M360::FactoryReset`, `lib/M360-DRY/src/M360FactoryReset.h`, nos dois gateways; requisito RF-PRV-09 de `docs/especificacao-backend-m360.md`). Segurar o ímã desde o boot só abre o modo AP — é preciso soltar e aproximar de novo. O portal web também tem o botão "Restaurar padrões de fábrica" (`POST /reset`, com caixa de confirmação obrigatória), que chama o mesmo `M360::FactoryReset::trigger()`; o evento traz a origem (`reed/botao A0` ou `portal web`) e não sai em modo AP, onde não há MQTT. O portal não tem autenticação: quem alcança o IP do gateway pode reconfigurá-lo (`/save`) ou apagá-lo (`/reset`)
 
 **LEDs de status:** Verde = WiFi+MQTT OK | Amarelo piscando = WiFi OK, sem MQTT | Vermelho piscando = sem WiFi
 
