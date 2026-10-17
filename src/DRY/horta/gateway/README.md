@@ -1,75 +1,86 @@
-documentação completa e detalhada do funcionamento do Gateway MySensors MQTT (Modular).
+# Gateway MySensors ↔ MQTT da M360 Horta
 
-Documentação: Gateway MySensors MQTT (Modular)
-Este projeto implementa um gateway avançado para a rede MySensors, utilizando um ESP8266 (NodeMCU/D1 Mini) como controlador central e um rádio NRF24L01 para comunicação com os nós campo. Ao contrário dos exemplos padrão, este gateway utiliza uma arquitetura modularizada para facilitar a manutenção e a robustez.
+ESP8266 D1 mini que faz a ponte entre a rede de rádio MySensors e o broker MQTT. O sketch
+[`libDryGatewayMqtt.cpp`](libDryGatewayMqtt.cpp) é só a composição: toda a infraestrutura vive em
+`lib/M360-DRY/`. Hardware em [`esquema_eletrico.md`](esquema_eletrico.md) e
+[`diagrama_blocos.svg`](diagrama_blocos.svg); a placa definitiva é a **M360-GW**
+(`hardware/m360-gw/`, `ARQUITETURA_FAMILIA.md` §6).
 
-1. Arquitetura Modular (ngm/)
-O projeto está organizado na pasta src/DRY/gateway/ngm/ (provavelmente "Next Generation MQTT"), dividindo as responsabilidades em módulos:
+## Módulos (`lib/M360-DRY/src/`)
 
-Módulo	Responsabilidade
-config_utils	Gestão de memória EEPROM (offset 512), cálculo de CRC e estrutura do DeviceConfig.
-wifi_utils	Gerenciamento da conexão WiFi (STA) e do ponto de acesso de configuração (AP).
-mqtt_utils	Lógica de conexão com o broker, tradução de mensagens MySensors/JSON e métricas.
-webserver	Interface web para configuração remota do dispositivo.
-leds	Controle visual de status através de LEDs RGB ou independentes.
-2. Fluxo de Operação e Inicialização
-O ciclo de vida do gateway é dividido em três estágios principais:
+| Módulo | Responsabilidade |
+|---|---|
+| `M360Gateway` | Orquestra o `loop()`: reconexão WiFi e MQTT, webserver, LEDs, heartbeat, timeouts de nós |
+| `M360WiFi` | Modo STA com a rede configurada, ou AP de configuração `M360-Config` (`192.168.4.1`) |
+| `M360Webserver` | Portal com as rotas `/` e `/save` |
+| `M360MQTT` | Conexão ao broker, tópicos `buildTopicOut()` / `buildTopicIn()`, assinatura de `in/#` |
+| `M360Translator` | Serialização MySensors ↔ MQTT (modo nativo e envelope JSON), validação |
+| `M360Registry` | Nós ativos, `node_discovered`, `node_lost` (15 min sem mensagem), `node_reconnected` |
+| `M360Config` | `M360DeviceConfig` na EEPROM a partir de 521, com CRC, gravado campo a campo |
+| `M360Leds` | Três LEDs de status (pinos abaixo) |
 
-A. Estágio before() (Pré-inicialização)
-Este estágio ocorre antes do rádio MySensors ser ativado:
+## Hardware e envs
 
-Carga de Configuração: Lê a estrutura DeviceConfig da EEPROM (posição 512+).
-Validação: Verifica se a configuração é válida (versão + CRC).
-Seleção de Modo:
-Modo AP (Configuração): Ativado se a config for inválida ou se o pino A0 for aterrado (GND) no boot. Cria o WiFi Manejo360-Config.
-Modo STA (Operação): Ativa o WiFi para conectar-se ao roteador configurado.
-B. Estágio setup() & presentation()
-Servidor Web: Inicia o servidor na porta 80 para permitir reconfiguração via navegador.
-Conexão MQTT: O módulo mqtt_utils inicia a conexão com o broker usando as credenciais da EEPROM.
-Identificação MySensors: O gateway se registra na rede como Node 0 ("Manejo360 Gateway MQTT 2.0").
-C. Estágio loop() (Execução Contínua)
-O loop principal executa tarefas não bloqueantes:
+| Env | Placa | Rádio | LEDs (todos ativos em HIGH) | Reed / botão |
+|---|---|---|---|---|
+| `d1_mini_gateway` | Protótipo em bancada (COM5) | RFM95W: DIO0 D1, NSS D8. nRF24: CE D4 (`MY_RF24_CE_PIN=2`), CSN D8 | vermelho D2, amarelo D0, verde D1 | A0 com pull-up de 10 kΩ |
+| `d1_mini_gw` | D1 mini no carrier **M360-GW** (`-D M360_BOARD_GW`) | RFM95W: DIO0 D1, NSS D8, sem RESET. nRF24 no header J4: CE D1 (`MY_RF24_CE_PIN=5`), CSN D8 | vermelho D2, amarelo D0, **verde D4** pelo 2N7002 Q1 (o D1 virou DIO0) | reed SW1 em A0, ímã pela parede |
 
-handleWiFiReconnect() e handleMQTTReconnect() mantêm a conexão viva.
-wait(1) processa pacotes do rádio MySensors com baixa latência.
-server.handleClient() atende requisições web.
-checkNodeTimeouts() verifica se algum nó parou de responder.
-3. Lógica de Comunicação e Tradução
-O gateway atua como um tradutor bidirecional:
+O rádio ativo vem de `[common] radio_flags` em `../platformio.ini`; o env só define pinos.
+`initLEDs(LED_RED, LED_YELLOW, LED_GREEN)` segue a ordem do protótipo `(red, yellow, green)`.
 
-Upstream (Rede Rádio → Broker MQTT)
-A função receive() captura o pacote MySensors do rádio.
-A função sendMQTT() converte o pacote para um envelope JSON.
-O JSON é publicado no tópico: m360/{UF}/{CAR}/out.
-Exemplo de Payload: {"nodeId":5, "sensorId":1, "command":1, "type":0, "payload":"25.5"}
-Downstream (Broker MQTT → Rede Rádio)
-O gateway assina o tópico: m360/{UF}/{CAR}/in.
-Ao receber um comando via mqttCallback, ele tenta parsear o JSON.
-Formato MySensors: Se o JSON contiver nodeId, sensorId, type, etc., ele envia o comando bruto via rádio.
-Formato Simplificado: O gateway aceita ações como "action": "PUMP_ON", mapeando-as internamente para comandos V_STATUS ou V_CUSTOM conforme a necessidade do projeto M360.
-4. Monitoramento e Manutenção
-Rastreamento de Nós (Node Tracking)
-O gateway mantém um registro de até 10 nós (nodeRegistry).
+Na M360-GW o verde fica aceso durante reset e gravação, porque o GPIO2 é o TXD do boot ROM e só
+cai no `initLEDs()`. Esperado, não é defeito.
 
-Se um nó envia mensagem, ele é marcado como active.
-Se um nó não se comunica por 15 minutos (DEFAULT_TIMEOUT_MS = 900 s), o gateway publica um evento "node_lost" no tópico MQTT de eventos para alertar o backend.
-Diagnóstico por LEDs
-Estado Visual	Significado
-Verde Aceso	Sistema Online (WiFi + MQTT OK).
-Yellow Piscando	WiFi OK, mas Broker MQTT inacessível.
-Red Piscando	WiFi desconectado (Tentando reconectar).
-Flash Verde	Recebendo mensagem do rádio MySensors.
-Flash Amarelo	Enviando dados para o Broker ou Heartbeat.
-Heartbeat Diário/Periódico
-A cada 60 segundos, o gateway publica um pacote de telemetria contendo:
+## Ciclo de vida
 
-Uptime (tempo ligado).
-Força do sinal WiFi (RSSI).
-Endereço IP Local.
-Versão do Firmware.
-5. Detalhes Técnicos da EEPROM
-A memória é segmentada para evitar conflitos:
+1. **`before()`** — `initLEDs()`, EEPROM, `loadConfig()`. Configuração inválida ou A0 em GND no boot → modo AP; senão → WiFi STA. Só WiFi aqui: MQTT e webserver são de `setup()`.
+2. **`setup()`** — webserver, MQTT (só em STA), `gateway.begin(...)`; apresenta o gateway como nó 0, `Manejo360 Gateway MQTT 2.0.0`.
+3. **`loop()`** — `M360Gateway::loop()`: tudo não bloqueante, `wait()` curto para o rádio.
 
-0 - 511: Reservado para a biblioteca MySensors (Node IDs, routing info, etc.).
-512+: Configurações customizadas do Manejo360 (SSID, Password, MQTT Server, UF, CAR).
-Para realizar um Factory Reset, o pino A0 deve ser mantido em GND por 3 segundos durante os primeiros 30 segundos após o ligamento. Isso limpa a EEPROM e retorna o gateway ao Modo AP de fábrica.
+## MQTT
+
+Modo nativo (`M360_NATIVE_MQTT=1` no env): os campos vão no tópico e o payload é o valor bruto.
+
+```
+subida:  m360/{UF}/{CAR}/out/{nodeId}/{childId}/{command}/{ack}/{type}   payload: "23.5"
+descida: m360/{UF}/{CAR}/in/{nodeId}/{childId}/{command}/{ack}/{type}    payload: "1"
+eventos: m360/{UF}/{CAR}/out/events                                       JSON
+```
+
+Na descida o `Translator` também aceita o envelope JSON (`nodeId`, `sensorId`, `command`, `type`,
+`payload`) e a forma simplificada `{"action": "..."}`. Para `V_STATUS` o payload do nó é lido com
+`atoi()`: só `"0"` e `"1"` valem, qualquer outra coisa **desliga**.
+
+Todo envio ao rádio passa por `dispatchCommand()`, que valida, envia com `send(msg, false)` e
+publica `publishTransportAck()` ou `command_send_failed`. Esse ACK prova só o auto-ACK do próximo
+salto; a confirmação real é o eco do nó. Detalhes e armadilhas em [`CLAUDE.md`](../../../../CLAUDE.md),
+seção "Armadilhas Críticas".
+
+Heartbeat a cada 60 s em `.../out/events` com uptime, RSSI do WiFi, IP e versão.
+
+## EEPROM
+
+| Região | Dono |
+|---|---|
+| 0–511 | MySensors (IDs, roteamento). Intocável |
+| 512–520 | `M360NodeConfig` (reservado) |
+| 521+ | `M360DeviceConfig`: SSID, senha, broker, usuário, UF, CAR, CRC16 |
+
+## Modo AP e factory reset
+
+- Ímã no reed (ou botão) com A0 em GND **durante o boot** → AP `M360-Config`, portal em `192.168.4.1`.
+- O A0 é lido uma única vez, no `before()`. **Factory reset não está implementado**, nem pelo portal nem pelo A0 por 3 s; pendência em `hardware/ARQUITETURA_FAMILIA.md` §9. Para voltar ao padrão, regravar com a EEPROM limpa ou salvar uma configuração nova pelo portal.
+- Sem o pull-up de 10 kΩ no A0 o pino flutua perto de 0 V e o gateway sobe em AP sozinho.
+
+## Antes de compilar
+
+```bash
+cp include/M360Credentials.h.example include/M360Credentials.h
+```
+
+Preencher AP, STA, MQTT, UF e CAR. O arquivo é ignorado pelo Git.
+
+```bash
+pio run -e d1_mini_gw -t upload && pio device monitor -e d1_mini_gw
+```

@@ -258,8 +258,8 @@ serem descartados em silêncio — `M360Node::handleMessage()` casa `childId` ex
 
 | Child | Constante | Tipo MySensors | Item | Faixa |
 | :--- | :--- | :--- | :--- | :--- |
-| 11 | `CHILD_ID_DHT_TEMP` | `S_TEMP` / `V_TEMP` | Temperatura do ar | Clima 11-20 |
-| 12 | `CHILD_ID_DHT_HUM` | `S_HUM` / `V_HUM` | Umidade do ar | Clima 11-20 |
+| 11 | `CHILD_ID_DHT_TEMP` | `S_TEMP` / `V_TEMP` | Temperatura do ar — **só no Nano**; ausente na M360-ACT | Clima 11-20 |
+| 12 | `CHILD_ID_DHT_HUM` | `S_HUM` / `V_HUM` | Umidade do ar — **só no Nano**; ausente na M360-ACT | Clima 11-20 |
 | 21 | `CHILD_ID_FLOW` | `S_WATER` / `V_FLOW` | Vazão de irrigação (L/min) | Hidrometria 21-30 |
 | 31 | `CHILD_ID_SOL_A` | `S_BINARY` / `V_STATUS` | Solenóide Canteiro A | Atuação 31-40 |
 | 32 | `CHILD_ID_SOL_B` | `S_BINARY` / `V_STATUS` | Solenóide Canteiro B | Atuação 31-40 |
@@ -316,7 +316,10 @@ Nenhuma camada acima do nó garante o comando de desligamento: o OFF da irrigaç
 * As bombas NFT (childs 38/39) ficam de fora por projeto — são circulação e oxigenação em regime contínuo, e um timeout nelas interromperia a hidroponia.
 * Ao estourar o prazo, `checkActuatorFailsafe()` desliga a carga e envia `V_STATUS=0`, permitindo ao Node-RED reconciliar o estado. É a única proteção que sobrevive à queda do WiFi, do MQTT, do Node-RED e do próprio gateway.
 
-### 5.3 Tratamento do DHT11 (Sensor Nativo)
+### 5.3 Tratamento do DHT11 (Sensor Nativo — só na variante Nano)
+Na M360-ACT (`-D NODE99_BOARD_ACT`) não há DHT11: o D2 é o DIO0 do rádio, os children 11 e 12
+não são declarados e a lib DHT não entra no binário. O que segue vale para o Nano.
+
 Por ser um protocolo bidirecional, o DHT11 é conectado diretamente ao pino nativo `D2`. A leitura dele ocorre no callback `readItem()` em `99nodeReles.cpp`:
 * Quando o motor solicita a leitura do child **11** (temperatura) ou **12** (umidade), a lógica desvia a requisição direto para `readDHTTemp()` ou `readDHTHum()`.
 * Essas funções realizam a leitura direta no pino D2 usando a biblioteca Adafruit DHT, tratando erros de leitura (retornando `NAN` caso ocorram problemas físicos) e mantendo a integridade do barramento MUX.

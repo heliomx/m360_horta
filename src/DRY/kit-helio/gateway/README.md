@@ -4,16 +4,18 @@ Este projeto implementa um gateway avançado para a rede MySensors, utilizando u
 
 ---
 
-## 1. Arquitetura Modular (`ngm/`)
-O projeto está organizado na pasta `src/DRY/gateway/ngm/` ("Next Generation MQTT"), dividindo as responsabilidades em módulos:
+## 1. Arquitetura Modular (`lib/M360-DRY/`)
+O sketch `libDryGatewayMqtt.cpp` desta pasta é só a composição; a infraestrutura vive na biblioteca `lib/M360-DRY/src/`, compartilhada com o gateway da Horta (a antiga pasta `ngm/` não existe mais):
 
 | Módulo | Responsabilidade |
 | :--- | :--- |
-| `config_utils` | Gestão de memória EEPROM (offset 512), cálculo de CRC e estrutura do `DeviceConfig`. |
-| `wifi_utils` | Gerenciamento da conexão Wi-Fi (STA) e do ponto de acesso de configuração (AP). |
-| `mqtt_utils` | Lógica de conexão com o broker, tradução de mensagens MySensors/JSON e métricas. |
-| `webserver` | Interface web para configuração remota do dispositivo. |
-| `leds` | Controle visual de status através de LEDs independentes. |
+| `M360Config` | `M360DeviceConfig` na EEPROM a partir de 521, com CRC16, gravado campo a campo. |
+| `M360WiFi` | Conexão Wi-Fi (STA) e ponto de acesso de configuração `M360-Config` (AP). |
+| `M360MQTT` + `M360Translator` | Conexão com o broker, tópicos `buildTopicOut()`/`buildTopicIn()`, tradução MySensors ↔ MQTT. |
+| `M360Webserver` | Portal de configuração (`/` e `/save`). |
+| `M360Leds` | LEDs de status independentes. |
+| `M360Registry` | Nós ativos e eventos `node_lost` / `node_reconnected`. |
+| `M360Gateway` | Orquestra o `loop()`. |
 
 ---
 
@@ -66,9 +68,11 @@ O projeto está organizado na pasta `src/DRY/gateway/ngm/` ("Next Generation MQT
 
 ## 4. Lógica de Comunicação e Tradução
 
-* **Upstream (Rádio → MQTT):** Captura o pacote MySensors do rádio e publica um JSON em `m360/{UF}/{CAR}/out`.
-  * *Payload Exemplo:* `{"nodeId":5, "sensorId":1, "command":1, "type":0, "payload":"25.5"}`
-* **Downstream (MQTT → Rádio):** Assina o tópico `m360/{UF}/{CAR}/in`. Converte comandos JSON (brutos ou simplificados como `"action": "PUMP_ON"`) em mensagens MySensors para envio via rádio.
+O env `d1_mini_kit_helio_gateway` compila com `M360_NATIVE_MQTT=1`: os campos vão no tópico e o payload é o valor bruto.
+
+* **Upstream (Rádio → MQTT):** publica em `m360/{UF}/{CAR}/out/{nodeId}/{childId}/{command}/{ack}/{type}` com o valor bruto no payload (ex.: `25.5`).
+* **Downstream (MQTT → Rádio):** assina `m360/{UF}/{CAR}/in/#`. Aceita o tópico nativo com payload bruto, o envelope JSON (`nodeId`, `sensorId`, `command`, `type`, `payload`) e a forma simplificada `{"action": "..."}`. Para `V_STATUS` o nó lê o payload com `atoi()`: só `"0"` e `"1"` valem.
+* **Eventos:** `m360/{UF}/{CAR}/out/events` (heartbeat a cada 60 s, `node_lost` após 15 min sem mensagem).
 
 ---
 
@@ -87,6 +91,8 @@ Para otimizar o roteamento de trilhas e evitar cruzamentos (já que o LED Amarel
 | **Flash Verde** | Verde (2º) | D1 (GPIO5) | Mensagem de rádio recebida com sucesso. |
 | **Flash Amarelo** | Amarelo (3º) | D0 (GPIO16) | Transmissão de dados MQTT / Heartbeat. |
 
+> Esta pinagem é a da placa do Kit Hélio e do protótipo da Horta (`LED_GREEN D1` em `M360Leds.h`). Na placa **M360-GW** da Horta o D1 é o DIO0 do rádio e o verde sai pelo D4 via 2N7002, selecionado por `-D M360_BOARD_GW`; esse env não se aplica ao Kit Hélio.
+
 ---
 
 ## 6. Verificações Críticas de Hardware Real
@@ -94,4 +100,4 @@ Para otimizar o roteamento de trilhas e evitar cruzamentos (já que o LED Amarel
 Antes da fabricação e montagem final da PCI, conferir fisicamente:
 1. **Área da Antena do nRF24:** Garantir que o corpo do módulo nRF24L01 (≈15,3 × 29 mm) encaixe perfeitamente no soquete com a antena posicionada exatamente sobre a área de recorte de cobre (keepout) na placa.
 2. **Ordem dos LEDs no Painel:** Confirmar serigrafia e furação do painel no padrão **Vermelho · Verde · Amarelo**.
-3. **Resistor R4:** Confirmar soldagem do resistor de 10 kΩ entre A0 e 3V3.
+3. **Resistor R4:** Confirmar soldagem do resistor de 10 kΩ entre A0 e 3V3.

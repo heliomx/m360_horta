@@ -1,5 +1,7 @@
 # Nó 01 - Monitoramento 3D de Solo (Versão Pro Mini)
 
+> **Documentação defasada — sem firmware.** Esta pasta descreve um projeto de 18 canais com CD74HC4067 que nunca entrou no repositório. O Nó 1 real tem 6 sondas: no Nano, em `../01nodeSolo3dNano/`; na placa M360-LP, em `../lp/` (config em `../lp/config/node01/nodeConfig.h`, env `lp_01`). O pino D3 como chave de energia e a pinagem S0–S3 em D4–D7 abaixo **não valem** para a M360-LP (VSW em D4 ativo em LOW, S0–S2 em D5–D7, reed em D3). Mantido só como histórico.
+
 Esta pasta contém o código e documentação para o **Nó 01 (Versão Pro Mini)**, configurado em baixo consumo (`M360_LOW_POWER`), projetado para ser alimentado por uma bateria recarregável e painel solar.
 
 ## Estratégia de Economia e Eletrólise

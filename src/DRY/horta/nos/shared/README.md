@@ -1,3 +1,7 @@
+# Node Engine (legado)
+
+> **Não usar em nós novos.** Este motor foi substituído pela biblioteca `lib/M360-DRY/` (`M360::M360Node`); nenhum nó do repositório o compila hoje. Fica como referência histórica e para o caso de um nó antigo precisar de manutenção. As regras de uso do motor legado estão em `CLAUDE.md`, seção "Resumo das regras críticas para nós legados".
+
 A pasta src\DRY\nos\shared contém o Node Engine, um framework interno desenvolvido para o projeto M360 que segue a filosofia DRY (Don't Repeat Yourself). Ele centraliza toda a lógica complexa e repetitiva dos nós MySensors, permitindo que novos sensores sejam adicionados com o mínimo de código possível.
 
 Aqui está o detalhamento técnico de como esse motor funciona:
