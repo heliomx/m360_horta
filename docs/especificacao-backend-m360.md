@@ -1,6 +1,6 @@
 # Especificação do Backend M360 Horta (substituto do Node-RED)
 
-**Versão:** 1.2 — 2026-10-15 (1.1: seção 15, provisionamento; 1.2: D-09 com grade de 64 canais)
+**Versão:** 1.3 — 2026-10-17 (1.1: seção 15, provisionamento; 1.2: D-09 com grade de 64 canais; 1.3: reed das placas M360 — eventos `factory_reset`, `REJOIN`, leitura forçada; fonte de clima = Nó 4; RF-PRV-09 conforme o firmware)
 **Status:** proposta para aprovação do dono do projeto
 **Escopo:** backend que assume todas as funções hoje executadas pelo Node-RED
 (`src/DRY/horta/nodered/flows.json`), com o Node-RED desativado ao final da migração.
@@ -48,8 +48,8 @@ como segunda instalação).
 
 ```
 Nós MySensors (nRF24 ou RFM95W)              Backend (este documento)
-  Nó 1  Solo A   LOW_POWER                      ┌────────────────────────┐
-  Nó 2  Solo B   LOW_POWER      Gateway ESP8266 │ ingestor · registro    │
+  Nó 1  Solo A   ALWAYS_ON                      ┌────────────────────────┐
+  Nó 2  Solo B   ALWAYS_ON      Gateway ESP8266 │ ingestor · registro    │
   Nó 4  SolarMini LOW_POWER  ──►  (Nó 0)  ──►   │ despachante · regras   │──► Telegram
   Nó 99 Atuação  ALWAYS_ON/REP   WiFi → MQTT    │ agendador · API · UI   │──► Open-Meteo, LLM
                                  broker         └────────────────────────┘
@@ -81,7 +81,8 @@ Campos relevantes já verificados no código:
 
 - Heartbeat: `nodeId:0, command:3, type:22, event:"heartbeat", uptime, rssi, wifiRssi, ip, version, source:"gateway"`. `timestamp` e `uptime` são **segundos desde o boot**, não epoch.
 - Status: `isConnected, connectionTime, reconnectCount, lastErrorCode, lastError, uptime, source, type:"mqtt_metrics"`.
-- Evento: `event, nodeId, timestamp (uptime), rssi, details?`. Catálogo: `gateway_presented, node_discovered, node_reconnected, node_lost, node_presentation, child_presentation, node_sketch_name, node_sketch_version, node_registration_request, node_config_request, node_heartbeat, command_rejected, command_send_failed`.
+- Evento: `event, nodeId, timestamp (uptime), rssi, details?`. Catálogo: `gateway_presented, node_discovered, node_reconnected, node_lost, node_presentation, child_presentation, node_sketch_name, node_sketch_version, node_registration_request, node_config_request, node_heartbeat, command_rejected, command_send_failed, factory_reset`. O `factory_reset` sai **antes** de o gateway apagar a configuração e reiniciar em AP: é a última mensagem do prefixo antes de o gateway sumir (RF-PRV-09).
+- Debug remoto dos nós: `out/{node}/253/1/0/47` (`V_TEXT`), payload texto ≤ 24 caracteres. Hoje: resposta do `DEBUG_NET` (`P:<pai> D:<dist> R:<S/N>`), `REJOIN` e `REJOIN:OK` (repareamento por reed, RF-ING-10).
 - `ack=1` em qualquer mensagem de saída é o **ACK de transporte fabricado pelo gateway**, nunca o nó.
 
 ### 2.3 Contrato MQTT que o backend produz
@@ -106,7 +107,11 @@ segmentos numéricos, `cmd ∈ {1,2,3}`, `node ∈ 1..255`, payload ≤ 25 bytes
 | Failsafe no nó: 600 s solenóides (31–33), 120 s peristálticas (34–37), sem limite bombas (38–39) | Nenhuma ação pode durar ≥ limite; `V_STATUS=0` não solicitado é verdade |
 | Nós `LOW_POWER` só recebem na janela de despertar (`smartSleep`) | Caixa postal por nó; comando a LP é "pendente até despertar", nunca interativo |
 | `M360Node` só reenvia sensor sem variação a cada 10 ciclos | Timeout de inatividade de nó `[ON]/[REP]` é 10× o intervalo declarado |
-| M360-ACT (`act_99`) **não tem DHT**: children 11/12 só existem no Nano | Fonte de clima do motor do Canteiro B é **configurável** (§7.3) |
+| M360-ACT (`act_99`) **não tem DHT**: children 11/12 só existem no Nano | Fonte de clima do motor do Canteiro B é **configurável** (§7.3); em produção, desde 2026-10-17, é o **Nó 4** (children 11/12, `LOW_POWER`, 30 min) |
+| `forceUpdate()` (comando `FORCE_UPDATE`, reed da LP, repareamento da ACT) reenvia só **sensores** e bateria; atuadores nunca | Nenhuma leitura forçada produz eco de relé; RF-CMD-11 não é disparado por ela |
+| Reed da M360-LP (ímã pela parede) força leitura e envio de todos os children; em `LOW_POWER` acorda o nó fora do ciclo | Mensagem fora de hora é normal: libera a caixa postal (RF-CMD-09) e não pode distorcer a cadência (RF-REG-08) |
+| Reed da M360-ACT mantido 3 s: repareamento sem reboot (`REJOIN` → busca de pai → reapresentação dos children → `REJOIN:OK`) | Reapresentação **sem** a apresentação do nó (child 255): não zera a tabela (RF-REG-02); relés não são reenviados |
+| Reed/botão do gateway mantido 3 s nos 30 s iniciais do `loop()`: `factory_reset` e configuração apagada | O prefixo some; o próximo tráfego do gateway virá de outro prefixo ou de nenhum (RF-PRV-09) |
 | Relógio do gateway é uptime | Toda leitura é carimbada com o horário de recepção do backend, fuso `America/Sao_Paulo` |
 
 ---
@@ -126,6 +131,7 @@ Numeração: `RF-<área>-<nn>`. "Deve" é obrigatório; "pode" é opcional.
 - **RF-ING-07** Consumir `{prefix}/out/events` e persistir cada evento em `gateway_event`. Hoje o Node-RED descarta todos eles.
 - **RF-ING-08** Consumir heartbeat e `gateway/status`; atualizar `gateway.last_seen`, `uptime`, `rssi`, `ip`, `version`, métricas MQTT. Detectar **reboot do gateway** (uptime menor que o anterior) e registrar evento interno `gateway_rebooted`.
 - **RF-ING-09** Operar com várias instalações (`UF/CAR`) na mesma instância, isolando registro, comandos, regras e notificações por instalação. Tráfego de um prefixo **não configurado** não é descartado: cria a instalação em estado `PENDENTE` (RF-PRV-03).
+- **RF-ING-10** Debug remoto (child 253, `V_TEXT`): persistir cada texto como evento de nó (`gateway_event` com `event = node_debug`, `node_id`, `details` = texto) — nunca como leitura. `REJOIN` gera o evento interno `node_rejoin_started`; `REJOIN:OK`, `node_rejoined` (com a duração desde o `REJOIN`). Resposta de `DEBUG_NET` é correlacionada ao comando `debug_net` em voo (RF-CMD-07) e exibida no detalhe do comando.
 
 ### 3.2 Registro de nós e children (REG)
 
@@ -138,7 +144,7 @@ Substitui `mys_nodes`. Dirigido pela apresentação do nó, sem lista estática.
 - **RF-REG-05** Poda de valores órfãos: na primeira leitura após a rajada de apresentação, remover `last_value` de children que não constam da nova tabela, preservando 253/254/255. Nunca apagar o estado dos atuadores junto com a tabela (não há como reconsultá-los).
 - **RF-REG-06** Internas (`command 3`): `type 0` → `battery_level` (%); `type 11` → `sketch_name`; `type 12` → `sketch_version`; `type 22` → `last_heartbeat`; `type 32/33` → marca de ciclo de sono (`LP`). Leitura em child 255 → `battery_voltage`; em child 254 → `interval_min` (confirmação de intervalo).
 - **RF-REG-07** Perfil de energia derivado do sufixo do `sketch_name`: `[LP]`, `[ON]`, `[PAS]`, `[REP]`. Fallback por `cycle_ms` observado > 15 s ⇒ `LP`.
-- **RF-REG-08** Cadência observada `cycle_ms` por média móvel exponencial (0,7 anterior / 0,3 novo) de intervalos entre mensagens maiores que 15 s.
+- **RF-REG-08** Cadência observada `cycle_ms` por média móvel exponencial (0,7 anterior / 0,3 novo) de intervalos entre mensagens maiores que 15 s. Com `interval_min` conhecido, intervalos menores que metade dele **não** entram na média: são acordadas fora do ciclo (reed da M360-LP, `FORCE_UPDATE`) e encurtariam o timeout do nó.
 - **RF-REG-09** Timeout de inatividade por nó, em ponto único: `base = interval_min × 60`; se perfil `[ON]`/`[REP]`, `base ×= 10`; `base = max(base, cycle_ms/1000)`; `timeout_s = base + max(120, 0,5 × base)`; padrão 450 s sem dados. Espelha `NodeRegistry::recalcTimeout()` do gateway.
 - **RF-REG-10** Status derivado: `SEM DADOS` (nunca visto), `OFFLINE` (idade > `timeout_s`), `SEM HEARTBEAT` (> 900 s sem `type 22`, só para nós que já enviaram heartbeat), `SEM ACK` (> 1800 s sem `ack=1`), senão `ONLINE`. Um só critério para API, UI e alertas — no Node-RED a tabela de watchdog e o mapa divergiam.
 - **RF-REG-11** TTL: nó sem contato há mais de 48 h (configurável) sai da lista ativa (`status = EXPIRED`), sem apagar histórico. Varredura a cada 300 s.
@@ -157,7 +163,7 @@ Substitui `Sincronizador ACK`, `Despachante`, `Pub MQTT` e `Caixa Postal`.
 - **RF-CMD-06** `command_rejected` recebido em `out/events` dentro da janela do comando → estado `REJEITADO` com `details`; `command_send_failed` → conta como tentativa falha e dispara a próxima.
 - **RF-CMD-07** Comandos administrativos (`represent`, `force_update`, `debug_net`, `ler`, `set_interval`) não esperam eco: estado `ENVIADO` ao publicar. Para `set_interval`, a leitura subsequente de child 254 é correlacionada ao comando (`CONFIRMADO` se igual ao pedido, `DIVERGENTE` se o nó respondeu outro valor — o nó sempre responde o vigente).
 - **RF-CMD-08** **Fila por nó**, FIFO. Dentro do Nó 99, os children 31–37 formam um **grupo de exclusão mútua**: nunca há dois comandos em voo no grupo, e um `atuar(…,1)` para um canal do grupo marca os demais como `OFF` ao receber o eco de preempção. Children 38 e 39 são independentes entre si e do grupo.
-- **RF-CMD-09** **Caixa postal (LP):** comando para nó de perfil `LP` que não transmitiu nos últimos 2 s fica em `AGUARDANDO_DESPERTAR`. Qualquer mensagem do nó libera a fila dele imediatamente (janela de despertar). A caixa é **FIFO por nó** — hoje o Node-RED guarda um só comando por nó e sobrescreve o anterior sem aviso. Expiração configurável (padrão 24 h) com estado `EXPIRADO`.
+- **RF-CMD-09** **Caixa postal (LP):** comando para nó de perfil `LP` que não transmitiu nos últimos 2 s fica em `AGUARDANDO_DESPERTAR`. Qualquer mensagem do nó libera a fila dele imediatamente (janela de despertar). A caixa é **FIFO por nó** — hoje o Node-RED guarda um só comando por nó e sobrescreve o anterior sem aviso. Expiração configurável (padrão 24 h) com estado `EXPIRADO`. Na M360-LP o instalador pode **forçar a janela** aproximando o ímã do reed: o nó acorda, transmite e a fila é liberada (útil no comissionamento, C12).
 - **RF-CMD-10** Comando originado por regra traz `origin = rule:<id>`; por usuário, `origin = user:<id>`; por reconciliador, `origin = reconciler`. Toda transição de estado é persistida com horário.
 - **RF-CMD-11** Eco de aplicação **não solicitado** (sem comando em voo para o child) atualiza o estado do atuador e gera evento interno `actuator_unsolicited_off` quando o payload é `0` — é o failsafe ou a preempção falando. Se havia uma `irrigation_run` ativa para o child, ela é encerrada com `end_reason = failsafe_or_preempt`.
 - **RF-CMD-12** Reconciliação de estado dos atuadores no startup: carregar o último estado persistido, marcar como `incerto` se o gateway ou o Nó 99 rebootaram depois dele (uptime menor), e aguardar ecos. Opcionalmente, `OFF` explícito em todos os atuadores de grupo no boot, atrás de flag de configuração (padrão desligado, porque interrompe rega em curso).
@@ -195,8 +201,8 @@ Substitui a aba `Irrigação` e o `Reconciliador`.
 Substitui `Monitor de Falhas`, `Formatador Telegram`, `Telegram Bot Interativo`, boletim e relatório. Toda saída passa por uma interface `Notifier` com implementação Telegram; segredos via configuração (§5.6).
 
 - **RF-NOT-01** Lista de assinantes persistida (`telegram_subscriber`: chat_id, nome, origem, registrado_em). Chat principal configurado é sempre assinante.
-- **RF-NOT-02** Comandos do bot: `/start` (registra), `/start convite` (registra com origem `convite`), `/id`, `/status` (clima do Nó 99 ou da fonte configurada, vazão, alimentação, status dos nós), `/tempo` ou `/previsao` (último boletim agroclimático), `/ajuda`. Desconhecido → resposta padrão.
-- **RF-NOT-03** Alertas de rede com cooldown: `node_lost` 5 min por nó e só na transição; `node_reconnected` 2 min e só se houve `lost` antes; `node_sketch_name` 30 s; `gateway_offline` 5 min; `gateway_online` sempre na transição. Texto inclui descrição do nó (`sketch_name vVersão`), motivo com o `timeout_s` realmente aplicado, RSSI e horário.
+- **RF-NOT-02** Comandos do bot: `/start` (registra), `/start convite` (registra com origem `convite`), `/id`, `/status` (clima da `climate_source` — Nó 4 em produção —, vazão e alimentação do Nó 99, status dos nós), `/tempo` ou `/previsao` (último boletim agroclimático), `/ajuda`. Desconhecido → resposta padrão.
+- **RF-NOT-03** Alertas de rede com cooldown: `node_lost` 5 min por nó e só na transição; `node_reconnected` 2 min e só se houve `lost` antes; `node_sketch_name` 30 s; `gateway_offline` 5 min; `gateway_online` sempre na transição; `factory_reset` sempre, sem cooldown, e suprime o `gateway_offline` que vem em seguida (o gateway saiu do prefixo de propósito); `node_rejoined` 30 s por nó, com a duração do repareamento; `node_rejoin_started` sem `node_rejoined` em 5 min → alerta de repareamento sem conclusão. Texto inclui descrição do nó (`sketch_name vVersão`), motivo com o `timeout_s` realmente aplicado, RSSI e horário.
 - **RF-NOT-04** Alertas de comando: `AGUARDANDO_DESPERTAR` e despacho da caixa postal; `CONFIRMADO` de atuação (cooldown 3 s por node/child) com rótulo do child; comando administrativo despachado (texto distinto: "não aguarda ACK"); `set_interval` confirmado pela leitura do child 254 (só quando o valor muda); `FALHOU` (cooldown 60 s por node/child).
 - **RF-NOT-05** Irrigação: mensagem em `INICIADA`, `FINALIZADA` e `RECONCILIADA`, com canteiro, duração formatada, modo e, para o Canteiro B, os parâmetros agroclimáticos da avaliação. Horário no fuso `America/Sao_Paulo`.
 - **RF-NOT-06** **Boletim meteorológico** às 06:00, 11:00, 16:00 e 21:00 com dados da Open-Meteo (§6.4): temperatura, orvalho, umidade, VPD, radiação, ET₀, vento, chuva nas próximas 6 h e recomendação (chuva ≥ 60 % e ≥ 2 mm → reduzir rega; VPD > 1,8 → estresse hídrico; VPD < 0,4 e umidade > 85 % → ventilar; senão condições favoráveis). Enviado a todos os assinantes.
@@ -209,7 +215,7 @@ Substitui o dashboard do Node-RED (grupos Controle Manual, Gráficos, Log MQTT, 
 
 - **RF-UI-01** **Controle manual:** botões ligar/desligar para cada atuador do Nó 99 (31–33, 38–39 obrigatórios; 34–37 atrás de confirmação, por serem dosagem). Cor por estado do comando: pendente (âmbar), confirmado (verde, mantido enquanto o atuador estiver `ON`), erro (vermelho por 2 s), caixa postal (índigo). O estado inicial vem do estado persistido do atuador.
 - **RF-UI-02** **Painel administrativo:** seletor de nó (lista dinâmica do registro), ação (`REPRESENT`, `FORCE_UPDATE`, `DEBUG_NET`, `SET_INTERVAL`), campo de intervalo 1..1440 validado no cliente e no servidor, botão enviar, e botão "reapresentar toda a rede".
-- **RF-UI-03** **Gráficos** (janela padrão 7 dias, zoom livre, dados do banco): umidade de solo Canteiro A (Nó 1, 6 séries por rótulo do child), Canteiro B (Nó 2), clima do Nó 99, clima do Nó 4 (temperatura do ar, umidade, temperatura do solo), bateria (tensão e nível por nó), vazão (L/s) e volume acumulado. Séries nomeadas pelo `label` apresentado pelo nó.
+- **RF-UI-03** **Gráficos** (janela padrão 7 dias, zoom livre, dados do banco): umidade de solo Canteiro A (Nó 1, 6 séries por rótulo do child), Canteiro B (Nó 2), clima do Nó 4 (temperatura do ar, umidade, temperatura do solo — é a fonte de clima em produção), clima do Nó 99 (só existe no Nano), bateria (tensão e nível por nó), vazão (L/s) e volume acumulado. Séries nomeadas pelo `label` apresentado pelo nó.
 - **RF-UI-04** **Mapa da rede:** gateway (status, uptime, IP, RSSI, versão) e cards por nó com categoria, status, último contato (absoluto e relativo), bateria, firmware e lista de children com último valor formatado por tipo (`S_BINARY` → LIGADO/DESLIGADO, unidades da §9.2).
 - **RF-UI-05** **Tabela de vigilância:** por nó, status, idade do último contato, do heartbeat e do ACK, `timeout_s` aplicado.
 - **RF-UI-06** **Log MQTT:** últimas N mensagens (padrão 100) com data, direção, tópico, payload; filtro por nó/tópico; exportação CSV do período (`Timestamp, Direction, Topic, Payload`, aspas duplas escapadas); botão limpar **não** apaga o banco, só a visão.
@@ -366,7 +372,8 @@ Administrativos (`kind ≠ atuar`) terminam em `ENVIADO`; `set_interval` pode ir
 `reading_received, node_presented, child_presented, node_status_changed,
 gateway_status_changed, gateway_rebooted, command_state_changed,
 actuator_state_changed, actuator_unsolicited_off, irrigation_started,
-irrigation_ended, rule_evaluated, weather_updated`. Consumidores: Notifier,
+irrigation_ended, rule_evaluated, weather_updated, node_rejoin_started,
+node_rejoined, gateway_factory_reset`. Consumidores: Notifier,
 SSE, métricas, regras. Barramento em memória (asyncio) é suficiente; a
 persistência de cada evento já está nas tabelas de origem.
 
@@ -396,7 +403,7 @@ installations:
       - { id: A, node: 99, child: 31, flow_child: 21, rule: fixed, cron: ["0 7 * * *", "0 17 * * *"], duration_s: 300 }
       - { id: B, node: 99, child: 32, flow_child: 21, rule: agro, evaluate_every_s: 300,
           soil_source: { node: 2, children: [1,2,3,4,5,6] },
-          climate_source: { node: 99, temp_child: 11, hum_child: 12, max_age_s: 1800, fallback: open_meteo },
+          climate_source: { node: 4, temp_child: 11, hum_child: 12, max_age_s: 3600, fallback: open_meteo },  # ≥ 2× o intervalo do Nó 4
           params: { ...§9.3... } }
     commands: { ack_timeout_s: 5, max_attempts: 3, backoff_factor: 2, mailbox_ttl_h: 24, confirmation_enabled: true }
     watchdog: { gateway_offline_s: 120, node_ttl_h: 48, heartbeat_stale_s: 900, ack_stale_s: 1800 }
@@ -686,13 +693,15 @@ Processo que se conecta ao broker e emula o gateway + Nó 99 + um nó LP:
 6. **Durabilidade.** Dado run de 60 s, quando o processo morre em 20 s e volta em 70 s, então um único OFF é publicado e a run fica `FINALIZADA (late_by_reconciler)`.
 7. **Caixa postal.** Dado comando a nó LP dormindo, então estado `AGUARDANDO_DESPERTAR`; quando o nó transmite, então o comando é publicado em < 500 ms.
 8. **Soak time.** Dado rega B iniciada às 10:00 com `temp = 16 °C`, quando o avaliador roda às 10:15, então `STANDBY_SOAK`; às 10:20, avalia normalmente.
-9. **Clima indisponível.** Dado Nó 99 sem children 11/12 (placa ACT) e `fallback = open_meteo`, então o motor usa `temp_ext`/`hum_ext` e registra a origem em `rationale`.
+9. **Clima indisponível.** Dado `climate_source` = Nó 4 sem leitura há mais de `max_age_s` e `fallback = open_meteo`, então o motor usa `temp_ext`/`hum_ext` e registra a origem em `rationale`; com leitura recente do Nó 4, a origem registrada é `node:4`.
 10. **Watchdog.** Dado gateway silencioso por 121 s, então `gateway_offline` e alerta; quando volta, então alerta `online` e cooldown respeitado.
 11. **Apresentação.** Dado `REPRESENT` para um nó com children antigos, então a tabela é zerada e reconstruída só com os apresentados; estados de atuadores preservados.
 12. **Gráficos limpos.** Dado um `REPRESENT`, então nenhuma leitura `NaN` entra em `reading`.
 13. **Volume.** Dado vazão 2,5 L/min por 120 s em amostras de 60 s, então o contador cresce 5,0 L; amostra após lacuna de 400 s não acrescenta nada.
 14. **Multi-instalação.** Dado tráfego em `m360/DF/0000` e `m360/GO/0001`, então nós, comandos e alertas não se misturam.
 15. **Segredo ausente.** Dado `TELEGRAM_BOT_TOKEN` vazio, então o processo não sobe e o log diz qual variável falta.
+15a. **Repareamento.** Dado `out/99/253/1/0/47 = REJOIN` e, 20 s depois, apresentações dos children e `REJOIN:OK`, então existem os eventos `node_rejoin_started` e `node_rejoined`, a tabela de children do Nó 99 **não** é zerada, o estado dos atuadores não muda e um alerta é enviado.
+15b. **Reed da LP.** Dado o Nó 4 com `interval_min = 30` e uma transmissão 10 min após a anterior, então `cycle_ms` não muda e a caixa postal do nó é liberada.
 
 ### 12.3 Checklist de paridade com o Node-RED
 
@@ -725,7 +734,7 @@ Cada function node do `flows.json` mapeado para o requisito que o substitui:
 | **D-01 Linguagem e runtime** | Python 3.12+ com `asyncio`, `aiomqtt`, FastAPI, SQLAlchemy 2 + Alembic | Já é a linguagem das ferramentas do repo (`nr_deploy.py`) e do dono do projeto; simulador e testes ficam no mesmo stack | Node.js/TypeScript (NestJS), coerente com o entregável ENT-DOC-01 do Manejo360, que previa Node.js/Express. Os documentos ENT-DOC não estão neste repositório e a taxonomia de tópicos que citam (`m360/out/{gateway_id}/...`) não é a do firmware |
 | **D-02 Banco** | PostgreSQL 16, `reading` particionada por mês | Relacional cobre tudo; TimescaleDB pode ser ligado depois sem mudar o modelo | SQLite para instalação única (perde concorrência e particionamento) |
 | **D-03 UI** | Páginas servidas pelo backend (templates + HTMX ou Vue leve), gráficos com uPlot/ECharts, SSE | Um só deploy, sem build pesado | SPA separada (React/Vue) ou Grafana para tudo (perde controle manual) |
-| **D-04 Fonte de clima do Canteiro B** | `climate_source = Nó 99 (11/12)` com `fallback = open_meteo` | Mantém o comportamento atual no Nano e resolve a ACT sem DHT | Fixar Open-Meteo (perde microclima interno) ou mover DHT para outro nó |
+| **D-04 Fonte de clima do Canteiro B** | **Decidida (2026-10-17):** `climate_source = Nó 4 (11/12)`, `max_age_s = 3600`, `fallback = open_meteo` | Já em produção no Node-RED; o Nó 99 na ACT não tem DHT. O clima é o de fora da estufa e muda a cada 30 min | Mover um DHT para dentro da estufa (LP com `LP_HAS_DHT`) e apontar a `climate_source` para ele |
 | **D-05 Hospedagem** | Mesmo servidor do broker e do Node-RED (`viridiotech`), em containers | Latência mínima com o broker; infra já existe | Servidor dedicado |
 | **D-06 Autenticação** | Usuário/senha local com sessão e tokens de API; um papel `admin` | Suficiente para a equipe atual | OIDC quando houver mais usuários |
 | **D-07 Peristálticas na UI** | Botões 34–37 atrás de confirmação explícita | Dosagem de pH/suplemento não deve ser clique único | Omitir da UI até existir regra de dosagem |
@@ -739,7 +748,7 @@ Cada function node do `flows.json` mapeado para o requisito que o substitui:
 - Alterações de child ID, label ou failsafe no firmware exigem atualizar **na mesma entrega** o `inventario.md` e a configuração `actuators`/`beds` do backend (§5.6). O teste de aceite 1 e um teste de contrato que lê o `inventario.md` detectam divergência.
 - O `inventario.md` §8 ("Contrato com o Node-RED") passa a chamar-se "Contrato com o backend" na Fase 7, apontando para a configuração do backend em vez de nós do `flows.json`.
 - `CLAUDE.md`: a seção "Deploy no Node-RED" vira histórico na Fase 7; a seção "Armadilhas Críticas" permanece válida e passa a citar os requisitos RF-CMD-04 e RF-CMD-08.
-- `hardware/ARQUITETURA_FAMILIA.md` §9: a pendência de factory reset do gateway passa a referenciar RF-PRV-09.
+- `hardware/ARQUITETURA_FAMILIA.md` §9 e §6.1: o factory reset do gateway foi implementado em 2026-10-17 conforme RF-PRV-09 (exceto o botão do portal).
 
 ---
 
@@ -770,9 +779,9 @@ recompilar firmware.
 | Etapa | Hoje | Requisito |
 |---|---|---|
 | Identidade da instalação | Portal grava `ssid, password, mqttServer, mqttPort, mqttUser, mqttPassword, uf, carNumber` na EEPROM (521+, CRC) | Mantido. O portal passa a validar `UF` (2 letras) e `CAR` (1–7 dígitos) e a mostrar o prefixo resultante |
-| Separação de rádio | Canal nRF24 e frequência RFM95W fixos no `[common]` do `platformio.ini`; todo gateway é o nó 0 e o vizinho na mesma frequência confirma pacotes alheios | **D-09 / §15.6**: campo `canal` (0..63) no portal, gravado na EEPROM e convertido em frequência no `before()`; nos nós, o índice entra por comando de provisionamento `V_CUSTOM` `SET_RADIO:<k>` enquanto o nó ainda está no canal de fábrica, com confirmação pelo eco antes de o nó trocar |
+| Separação de rádio | Frequência RFM95W fixa no `[common]` do `platformio.ini` (vale para as placas M360; protótipos e Kit Hélio são fixos em nRF24); todo gateway é o nó 0 e o vizinho na mesma frequência confirma pacotes alheios | **D-09 / §15.6**: campo `canal` (0..63) no portal, gravado na EEPROM e convertido em frequência no `before()`; nos nós, o índice entra por comando de provisionamento `V_CUSTOM` `SET_RADIO:<k>` enquanto o nó ainda está no canal de fábrica, com confirmação pelo eco antes de o nó trocar |
 | Nós | `MY_NODE_ID` por env; IDs 1–254 recomeçam em cada propriedade; apresentação automática | Mantido. As faixas por função de `M360Config.h` (`isClimaNode` 1–50 etc.) **não** são usadas pelos nós reais e não entram no fluxo |
-| Factory reset do gateway | Não existe (pendência §9 do ARQUITETURA_FAMILIA.md) | **RF-PRV-09** |
+| Factory reset do gateway | **Por hardware: implementado** (2026-10-17, `M360::FactoryReset`). Pelo portal: não existe | **RF-PRV-09** — falta o botão do portal |
 
 ### 15.3 Requisitos (PRV)
 
@@ -784,7 +793,11 @@ recompilar firmware.
 - **RF-PRV-06** `SUSPENSA`: instalação desativada pelo operador (propriedade desligada, gateway em manutenção). Ingestão continua, alertas de offline são silenciados, comandos recusados.
 - **RF-PRV-07** Credencial MQTT por instalação, com ACL do broker restrita a `m360/{UF}/{CAR}/#`. O backend conecta com uma credencial de serviço que lê `m360/+/+/#` e publica em todos os prefixos. A ACL é requisito de implantação (§11), verificada no checklist.
 - **RF-PRV-08** Coordenadas por instalação alimentam a Open-Meteo (§6.4) e o boletim; fuso por instalação governa cron, soak time e exibição.
-- **RF-PRV-09** Factory reset do gateway: pelo portal (botão "restaurar padrões") e por hardware (A0 em GND por 10 s após o boot, lido no `loop()` e não só no `before()`). Apaga a `M360DeviceConfig` e volta ao AP. Requisito de firmware, rastreado aqui porque é pré-condição para reaproveitar um gateway em outra propriedade.
+- **RF-PRV-09** Factory reset do gateway, requisito de firmware rastreado aqui porque é pré-condição para reaproveitar um gateway em outra propriedade.
+  - **Por hardware (implementado):** nos primeiros **30 s do `loop()`** (não do boot: a conexão WiFi no `before()` pode passar disso), o ímã/botão é **afastado** e depois mantido **3 s** no A0. Segurá-lo desde o boot só abre o modo AP — é preciso soltar e aproximar de novo, para quem só quer o AP não apagar nada.
+  - **Efeito:** publica `factory_reset` em `out/events` com o prefixo atual, **apaga** a `M360DeviceConfig` (EEPROM 521+) e reinicia direto no modo AP. Nada da instalação anterior sobrevive. Ao entrar no AP o firmware grava os padrões de compilação; se ninguém configurar pelo portal, o boot seguinte os usa, como um gateway novo.
+  - **Pelo portal (pendente):** botão "restaurar padrões" com o mesmo efeito.
+  - **Backend:** ao receber `factory_reset`, marcar o gateway como `RESETADO`, alertar (RF-NOT-03) e não tratar o silêncio seguinte como falha.
 - **RF-PRV-10** Operadores: cada instalação tem seu chat principal e seus assinantes do Telegram; o convite `/start convite` fica vinculado à instalação pelo link gerado na UI (`?start=convite_<installation_id>`).
 - **RF-PRV-11** Toda mudança de estado da instalação e toda alteração de atuadores ou canteiros é registrada com usuário e horário.
 - **RF-PRV-12** Canal de rádio por instalação (`installation.radio = {banda, canal}`, §15.6). No cadastro e na edição, o backend lista as instalações no mesmo canal a menos de `raio_reuso_km` (padrão 10 km, configurável) das coordenadas informadas e **recusa** o cadastro com `409` se houver alguma; o administrador pode forçar com justificativa registrada. O checklist C5 confere na prática o que esta regra confere no papel.
@@ -821,7 +834,7 @@ registrada, mas a instalação fica marcada `failsafe_nao_verificado` até ser f
 19. **ACL.** Dado a credencial da instalação `GO/0001`, quando se publica em `m360/DF/0000/in/99/31/1/0/2`, então o broker recusa e C2 passa; se aceitar, C2 falha e a instalação não pode ir a `ATIVA`.
 20. **Nó fantasma.** Dado um nó com `sketch_name` de outra instalação aparecendo no prefixo, então C5 falha e o alerta cita o nó e o prefixo de origem provável.
 21. **Suspensão.** Dado instalação `SUSPENSA` e gateway silencioso por 10 min, então nenhum alerta de `gateway_offline` é enviado; ao reativar, o watchdog volta a valer.
-22. **Reaproveitamento de gateway.** Dado gateway com configuração de `DF/0000`, quando o A0 é mantido em GND por 10 s após o boot, então ele sobe em AP com EEPROM limpa (requisito de firmware, verificado em bancada).
+22. **Reaproveitamento de gateway.** Dado gateway com configuração de `DF/0000` já no `loop()`, quando o ímã é afastado e depois mantido 3 s no A0 dentro dos 30 s iniciais, então `factory_reset` chega em `m360/DF/0000/out/events`, o gateway reinicia em AP (`M360-Config`) sem a configuração anterior e o backend não alerta `gateway_offline` para `DF/0000` (firmware verificado em bancada; backend no simulador).
 23. **Canal em conflito.** Dado instalação `ATIVA` em `DF/0000` no canal 8 em (−15,964; −47,804), quando se cadastra `DF/0001` no canal 8 a 3 km, então `POST /api/installations` devolve `409` citando `DF/0000`; a 25 km, o cadastro é aceito.
 
 ### 15.6 Grade de canais de rádio (RFM95W, 915 MHz)
