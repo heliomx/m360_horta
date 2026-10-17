@@ -50,7 +50,7 @@ O sketch `libDryGatewayMqtt.cpp` desta pasta é só a composição; a infraestru
 1. **Carga de Configuração:** Lê a estrutura `DeviceConfig` da EEPROM (offset 512+).
 2. **Validação:** Verifica a integridade da configuração (versão + CRC).
 3. **Seleção de Modo:**
-   * **Modo AP (Configuração):** Ativado se a configuração for inválida ou se A0 estiver em LOW no boot (botão SW1 pressionado). Cria o AP `Manejo360-Config`.
+   * **Modo AP (Configuração):** Ativado se a configuração for inválida ou se A0 estiver em LOW no boot (botão SW1 pressionado). Cria o AP `M360-Config`.
    * **Modo STA (Operação):** Ativa a interface Wi-Fi para conexão com a rede configurada.
 
 ### B. Estágio `setup()` & `presentation()`
