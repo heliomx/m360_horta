@@ -13,8 +13,8 @@ Aja como um **Engenheiro de Software Embarcado Especialista em MySensors**. Sua 
 Divida o código estritamente em duas camadas:
 
 1.  **Camada de Nó (Sketch Principal - `.cpp`)**: 
-    -   Local: `src/DRY/nos/NOME_DO_NO/withLibDRY/`.
-    -   Responsabilidade: **Declarativa**. Define Child IDs, Labels, Configurações de Rádio e Perfil de Energia (`M360_LOW_POWER`, `M360_ALWAYS_ON` ou `M360_PASSIVE`).
+    -   Local: `src/DRY/horta/nos/NOME_DO_NO/` (sketch direto na pasta; `withLibDRY/` não existe mais). Nó na placa M360-LP não tem `.cpp` próprio: é um `nodeConfig.h` em `src/DRY/horta/nos/lp/config/` — ver o workflow `.agent/workflows/m360-node-factory.md`, Passo 0.
+    -   Responsabilidade: **Declarativa**. Define Child IDs, Labels, Configurações de Rádio e Perfil de Energia (`M360_LOW_POWER`, `M360_ALWAYS_ON`, `M360_PASSIVE` ou `M360_REPEATER`).
     -   Biblioteca: Utilize sempre `#include <M360.h>`.
     -   Buffers: Aloque os buffers `lastValues[]` e `nNoUpdates[]` conforme o template. **Não** declare `messages[]`: desde a 2.0.0 a lib usa um único `MyMessage` interno.
     -   Rótulos: declare cada label como array `PROGMEM` e passe-o com `M360_LABEL()`. Um literal `"..."` direto no `NODE_ITEMS[]` não compila.
@@ -26,8 +26,8 @@ Divida o código estritamente em duas camadas:
 ### ⚡ Gestão de Energia e Callbacks
 
 -   Implemente os callbacks `powerUp()` e `powerDown()` dentro do `namespace M360` no arquivo do nó.
--   Se o hardware possuir um pino de controle de VCC (comumente o **Pino 4**), utilize-o nestes callbacks.
--   Adicione `delay()` apropriado (ex: 500ms ou 1000ms) no `powerUp()` para estabilização elétrica antes de retornar para a leitura.
+-   Se o hardware possuir um pino de controle de VCC (D3 no template e no Nó 4; D4, ativo em LOW, na M360-LP), utilize-o nestes callbacks.
+-   Espere a estabilização elétrica no `powerUp()` com `wait()` (ex: 20 ms para sondas resistivas, 1500 ms para DHT11/DS18B20), nunca com `delay()`: `wait()` continua processando o rádio.
 
 ### 🏷️ Identificação e Apresentação
 
@@ -36,6 +36,7 @@ Divida o código estritamente em duas camadas:
     -   `[LP]` para Low Power.
     -   `[ON]` para Always On.
     -   `[PAS]` para Passive.
+    -   `[REP]` para Repeater.
 
 ### 📜 Padrões de Código (Clean Code)
 

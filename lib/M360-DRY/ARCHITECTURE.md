@@ -36,23 +36,27 @@ Medido no Nó 99 com a assinatura MySensors ligada: 1945 → 1235 B de RAM está
 
 ## 3. Gestão de Energia (Modos de Voo) ⚡
 
-A LibDRY implementa três perfis distintos, selecionados no ato da criação do objeto:
+A LibDRY implementa quatro perfis, selecionados no ato da criação do objeto:
 
 ### `M360_LOW_POWER` (O Modo Padrão)
 - **Comportamento:** Acorda -> Processa -> Dorme.
-- **Diferencial:** Usa `smartSleep()`. Se o gateway enviar uma mensagem enquanto o nó dorme, o MySensors segura a mensagem e a entrega assim que o nó acorda para a próxima leitura.
+- **Diferencial:** Usa `smartSleep()`, que avisa o controlador e abre uma janela de escuta de 500 ms antes de dormir. Durante o sono o rádio fica **desligado** e o gateway **não retém** mensagens: um comando enviado nesse intervalo se perde, e cabe ao controlador reenviá-lo quando o nó reaparecer (é o papel da "caixa postal" do Node-RED).
 - **Uso:** Sensores de umidade, temperatura e nível de bateria.
 
 ### `M360_ALWAYS_ON`
 - **Comportamento:** Nunca dorme.
 - **Lógica:** Implementa um timer interno via `millis()`.
-- **Uso:** Nós ligados em fonte 12V ou USB que precisam atuar como repetidores da rede.
+- **Uso:** Nós em fonte fixa que precisam responder a comando na hora (atuadores, Nós 1, 2 e 99). Não encaminha mensagens de outros nós: para isso, `M360_REPEATER`.
 
 ### `M360_PASSIVE`
 - **Comportamento:** O nó acorda a cada intervalo definido, mas NÃO realiza a leitura automática dos sensores.
 - **Ação ao Acordar:** Ele utiliza o `smartSleep()` para verificar se o gateway possui mensagens pendentes (como comandos `V_STATUS` ou `V_CUSTOM`).
 - **Diferencial:** Se não houver comando no gateway, ele volta a dormir imediatamente após o "check-in" do `smartSleep`. O ciclo de leitura/envio só acontece se o gateway enviar um comando durante a janela de acordado.
 - **Uso:** Sensores de altíssimo consumo (ex: RS485 Modbus) que só devem ser ativados quando o sistema central realmente precisar do dado.
+
+### `M360_REPEATER`
+- **Comportamento:** Igual ao `M360_ALWAYS_ON`, com `-D MY_REPEATER_FEATURE` no env: o MySensors mantém a tabela de rotas e encaminha mensagens de nós fora do alcance do gateway.
+- **Uso:** Nó em fonte fixa numa posição central — o Nó 99 nos envs `nano_99reles_rep` e `act_99_rep`.
 
 ---
 

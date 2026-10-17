@@ -122,8 +122,11 @@ namespace M360 {
 #define M360_SENSOR_INVALID -32768.0f
 
 // ===== COMANDOS REMOTOS =====
+// Strings dos comandos V_CUSTOM (FORCE_UPDATE, REPRESENT, DEBUG_NET): M360Constants.h.
 
 // ===== PERFIL DE ENERGIA =====
 // Selecione o perfil no constructor do nó via M360PowerProfile:
 //   M360::M360_LOW_POWER   — bateria: usa smartSleep()
 //   M360::M360_ALWAYS_ON   — fonte fixa / debug: timer por millis, sem sleep
+//   M360::M360_PASSIVE     — bateria + sensor pesado: dorme, lê só sob FORCE_UPDATE
+//   M360::M360_REPEATER    — ALWAYS_ON + MY_REPEATER_FEATURE (encaminha outros nós)

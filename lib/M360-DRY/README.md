@@ -85,7 +85,7 @@ Para mergulhar fundo nas engrenagens, consulte:
 
 - 🏗️ [**Arquitetura Interna**](ARCHITECTURE.md) — Como o motor funciona por dentro.
 - 📖 [**Referência da API**](API_REFERENCE.md) — Dicionário técnico de funções e structs.
-- ⚡ [**Gestão de Energia**](ARCHITECTURE.md#gestão-de-energia) — Detalhes sobre os perfis LP, ON e PAS.
+- ⚡ [**Gestão de Energia**](ARCHITECTURE.md) (§3) — Detalhes sobre os perfis LP, ON, PAS e REP.
 
 ---
 *Desenvolvido com ❤️ para a M360 Horta por Marcelo e Paige.*

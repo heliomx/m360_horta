@@ -22,10 +22,10 @@ Relação de todos os nós da rede MySensors e de seus child IDs, um a um.
 | **1** | `lp_01` (M360-LP) · `nano_01nodeSolo3d` · `ProMini_01nodeSolo3d` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V · Pro Mini 16MHz | `ALWAYS_ON` | 1–6 | Sim — Filtro Umidade Solo Canteiro A |
 | **2** | `lp_02` (M360-LP) · `nano_02nodeSolo3d` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V | `ALWAYS_ON` | 1–6 | Sim — Filtro Canteiro B + Motor de Regras |
 | **4** | `ProMini_04noodeSolarMini` | Pro Mini 16MHz | `LOW_POWER` | 1, 11, 12 | Sim — Filtro Clima SolarMini |
-| **99** | `act_99` (M360-ACT) · `act_99_rep` · `nano_99reles` · `nano_99reles_rep` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V | `ALWAYS_ON` | ACT: 21, 31–39 · Nano: 11, 12, 21, 31–39 | Sim — comandos e vazão; clima (11, 12) só com o Nano |
+| **99** | `act_99` (M360-ACT) · `act_99_rep` · `nano_99reles` · `nano_99reles_rep` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V | `ALWAYS_ON` (`REPEATER` nos `_rep`) | ACT: 21, 31–39 · Nano: 11, 12, 21, 31–39 | Sim — comandos e vazão; clima (11, 12) só com o Nano |
 
 **Total: 27 children declarados** (6 + 6 + 3 + 12) com o Nó 99 no Nano, ou 25 na M360-ACT (sem os children 11 e 12); mais os 3 reservados por nó.  
-*Nota de Hardware:* Todos os módulos nRF24L01+ de todos os nós e gateways possuem capacitor de desacoplamento instalado (premissa de hardware confirmada). A camada de transporte possui suporte a chaveamento no `platformio.ini` entre nRF24L01+ e LoRa HopeRF RFM95W (915 MHz).
+*Nota de Hardware:* Todos os módulos nRF24L01+ de todos os nós e gateways possuem capacitor de desacoplamento instalado (premissa de hardware confirmada). O rádio é escolhido em `[common] radio_flags` de `platformio.ini` entre nRF24L01+ e LoRa HopeRF RFM95W (915 MHz); **hoje o RFM95W está ativo**. A escolha vale para **todos** os envs que estendem `common`, inclusive os protótipos Nano/Pro Mini e o Kit Hélio, cujo hardware é nRF24 — gravar um protótipo com LoRa ativo deixa o nó surdo.
 
 ---
 
@@ -41,7 +41,7 @@ com os campos abaixo na ordem em que aparecem no código:
 | `presentationType` | Tipo `S_*` anunciado no `present()` — define o ícone/classe no controlador |
 | `valueType` | Tipo `V_*` do payload — define como o valor é interpretado |
 | `pin` | Pino físico, pino virtual MUX (`100 + canal`) ou `-1` se resolvido em software |
-| `reportIntervalMin` | Ciclos mínimos entre envios; `0` = envia sempre que o valor mudar |
+| `reportIntervalMin` | **Não implementado** — a lib não lê o campo. O envio sai quando o valor muda mais de 0,05 ou após 10 ciclos sem mudança |
 | `readSamples` | **Não implementado** — a lib chama o callback de leitura uma única vez por ciclo |
 | `label` | Nome enviado no `present()`; é o que o Node-RED exibe e usa em `child.de` |
 | `wakeOnRadio` | `true` = solicita o estado ao gateway após acordar |
@@ -140,7 +140,7 @@ Coluna **Pino**: na M360-LP o `pin` do item é o código `LP_SRC_SOIL(ch)` (100+
 
 **Intervalo de transmissão:**
 - **Warm-up pós-boot:** 10 ciclos de 30 s (~5 min de relógio) — confirma a reconexão logo após o reset. Contado em ciclos, não em `millis()`, que para durante o `smartSleep()`.
-- **Nominal:** o valor gravado na EEPROM (child 254). Padrão de fábrica 30 min (`-D M360_DEFAULT_INTERVAL=30` no env), válido só para EEPROM virgem — nós já gravados mantêm o valor atual até receber um `INTERVAL_<min>` pelo dashboard.
+- **Nominal:** o valor gravado na EEPROM (child 254). Padrão de fábrica 30 min (`-D M360_DEFAULT_INTERVAL=30` no env), válido só para EEPROM virgem — nós já gravados mantêm o valor atual até receber um novo intervalo pelo dashboard (ação `SET_INTERVAL`, que publica `C_SET V_VAR1` no child 254).
 - Ao fim do warm-up (`setIntervalMs(0)`) o nó ecoa o intervalo vigente no child 254; o Node-RED guarda esse valor em `declaredIntervalMs` e o usa como cadência esperada, com precedência sobre a média móvel `cycleMs`.
 - Um `C_SET V_VAR1` do Node-RED durante o warm-up cancela o override e persiste o intervalo desejado; o Sincronizador ACK aguarda o eco do child 254 (`type 24`) com o mesmo payload e reenvia até 3 vezes.
 
@@ -151,7 +151,7 @@ Coluna **Pino**: na M360-LP o `pin` do item é o código `LP_SRC_SOIL(ch)` (100+
 | **12** | `CHILD_ID_HUM` | `Umidade Ar` | `M360_SENSOR` | `S_HUM` | `V_HUM` (1) | float, 1 casa | DHT11 | −1 | 1 | false | 0 |
 
 `pin = -1` porque a leitura é resolvida por `childId` em `sensorDrivers.cpp`, não
-por porta. `reportIntervalMin = 1` reduz tráfego num nó a bateria.
+por porta. O `reportIntervalMin = 1` declarado não tem efeito (campo não lido pela lib).
 
 > A bateria (child 255) usa o padrão da lib: VCC medido contra o bandgap interno
 > de 1,1 V. Só vale porque a 18650 alimenta o VCC direto, sem passar pelo RAW —
@@ -164,7 +164,7 @@ por porta. `reportIntervalMin = 1` reduz tráfego num nó a bateria.
 ## 7. Nó 99 — `99nodeReles` (atuação central da estufa)
 
 **Env:** `act_99` · `act_99_rep` (placa **M360-ACT**, Pro Mini 3,3 V / 8 MHz, `-D NODE99_BOARD_ACT`) · `nano_99reles` · `nano_99reles_rep` (Nano 5 V, legado). Os `_rep` são o mesmo hardware com `MY_REPEATER_FEATURE`. É um fonte só: a flag muda a pinagem e remove o DHT.
-**Perfil:** `M360_ALWAYS_ON` — fonte fixa, timer por `millis()`, nunca dorme
+**Perfil:** `M360_ALWAYS_ON` — fonte fixa, timer por `millis()`, nunca dorme; `M360_REPEATER` nos envs `_rep`
 **Hardware:** MUX CD74HC4067 + 9 relés + sensor de vazão YF-S201; **DHT11 só no Nano** — a M360-ACT não tem o sensor (decisão de 2026-10-14)
 
 ### 7.1 Sensores
@@ -266,17 +266,17 @@ Sincronizador ACK, não erro de log.
 
 | Nó / Child | Onde aparece no flow | Uso |
 |---|---|---|
-| 99 / 31 | `Controlador Canteiro A`, botões, `mqtt out` | Liga/desliga Solenóide A |
-| 99 / 32 | `Motor de Regras Canteiro B`, botões, `mqtt out` | Liga/desliga Solenóide B |
-| 99 / 33 | Botões do dashboard | Liga/desliga Solenóide C |
-| 99 / 38 | Botões do dashboard | Liga/desliga Bomba NFT |
-| 99 / 39 | Botões do dashboard | Liga/desliga Bomba Oxi |
+| 99 / 31 | `Controlador Canteiro A`, `Despachante & Feedback Imediato Solenóides`, `mqtt out` | Liga/desliga Solenóide A |
+| 99 / 32 | `Motor de Regras Canteiro B`, `Despachante & Feedback Imediato Solenóides`, `mqtt out` | Liga/desliga Solenóide B |
+| 99 / 33 | `Despachante & Feedback Imediato Solenóides` (aba *Fluxo 2 - Solenóides*) | Liga/desliga Solenóide C |
+| 99 / 38 | `Despachante & Feedback Imediato Bombas` (aba *Fluxo 2 - Bombas*) | Liga/desliga Bomba NFT |
+| 99 / 39 | `Despachante & Feedback Imediato Bombas` | Liga/desliga Bomba Oxi |
 | 99 / 11, 12 | `Coletor Telemetria Canteiro B & Clima` | Clima do Motor de Regras — **só com o Nó 99 no Nano** (`nano_99reles`). A M360-ACT (`act_99`) não publica esses children; a troca da fonte de clima no flow é decisão pendente |
 | 99 / 21 | `Filtro Vazão e Volume` (casa por `type=34`) | Vazão e acúmulo de volume |
 | 4 / 1, 11, 12 | `Filtro Clima SolarMini` | Gráficos de clima |
 | 1 / 1–6 | `Filtro Umidade Solo Canteiro A` (`type=37`) | Gráficos de solo |
-| 2 / 1–6 | `Filtro Canteiro B` + `Coletor Telemetria` | Gráficos + irrigação |
-| qualquer / 255 | `Filtro Bateria` | Gráfico de bateria |
+| 2 / 1–6 | `Filtro Umidade Solo Canteiro B` + `Coletor Telemetria Canteiro B & Clima` | Gráficos + irrigação |
+| qualquer / 255 | `Filtro Bateria SolarMini` (trata qualquer nó) | Gráfico de bateria |
 
 Comando MQTT em formato nativo (`M360_NATIVE_MQTT=1`) — ligar a Solenóide A:
 

@@ -11,15 +11,15 @@ Define as propriedades de um sensor ou atuador no nó.
 
 | Campo | Tipo | Descrição |
 | :--- | :--- | :--- |
-| `childId` | `uint8_t` | ID único do sensor no nó (0-253). |
+| `childId` | `uint8_t` | ID único do sensor no nó (1–252). O 0 é `CHILD_ID_STATUS` e 253–255 são reservados (debug, intervalo, bateria). Use as faixas normativas de `M360Constants.h`: solo 1–10, clima 11–20, hidrometria 21–30, atuação 31–40. |
 | `kind` | `M360ItemKind` | `M360_SENSOR` ou `M360_ACTUATOR`. |
 | `presentationType` | `uint8_t` | Tipo MySensors (ex: `S_TEMP`, `S_HUM`). |
 | `valueType` | `uint8_t` | Tipo de dado MySensors (ex: `V_TEMP`, `V_STATUS`). |
 | `pin` | `int` | Pino físico associado (-1 se não usado). |
-| `reportIntervalMin` | `uint16_t` | Intervalo mínimo de reporte em minutos (0 = sempre reporta). |
-| `readSamples` | `uint8_t` | Amostras para média aritmética antes do envio. |
+| `reportIntervalMin` | `uint16_t` | **Não lido pela lib** (campo reservado). O filtro de envio é fixo: o valor sai quando muda mais de 0,05 ou após 10 ciclos sem mudança. Preencher com `0`. |
+| `readSamples` | `uint8_t` | **Não lido pela lib** (campo reservado): o callback de leitura é chamado uma vez por item e por ciclo. Se precisar de média, faça-a no driver. Preencher com `1`. |
 | `label` | `const __FlashStringHelper*` | Nome exibido no Controller (ex: "Bomba 1"). Fica na **Flash**: declare um array `PROGMEM` e passe-o com `M360_LABEL()` (ver abaixo). |
-| `wakeOnRadio` | `bool` | Se `true`, solicita estado ao gateway logo após acordar. |
+| `wakeOnRadio` | `bool` | Só para `M360_ACTUATOR` no perfil `M360_LOW_POWER`: depois da leitura e antes de dormir, faz `request()` do estado ao controlador. Ignorado nos demais casos. |
 | `flags` | `uint8_t` | Bit 0: Multiplica valor por 100 antes de enviar (Útil p/ Volts). |
 
 #### Rótulos na Flash (2.0.0+)
@@ -51,10 +51,9 @@ M360Node(const M360ItemDef* items, uint8_t count, float* lastValues, uint8_t* nN
 - **Comportamento:** Acorda no intervalo -> Faz Check-in -> Volta a Dormir.
 - **Lógica:** Ele respeita o timer de intervalo para acordar e verificar mensagens via `smartSleep()`, mas **ignora a rotina de leitura automática**. O ciclo de leitura/envio só acontece se o gateway enviar um comando (ex: `V_CUSTOM` ou `V_STATUS`) durante a janela de acordado.
 - **Uso:** Sensores de altíssimo consumo (ex: RS485 Modbus) que só devem ser ativados quando o sistema central realmente precisar do dado.
-- `handleMessage(msg)`: Executa no `receive()`. Processa comandos de intervalo, força atualização e atuadores.
-- `onRead(callback)`: Registra sua função de leitura.
-- `onWrite(callback)`: Registra sua função de atuação para relés e válvulas.
-- `setupPins()`: Configura automaticamente os pinos definidos na struct `M360ItemDef` como INPUT ou OUTPUT.
+
+### `M360_REPEATER`
+- Igual ao `M360_ALWAYS_ON` (timer por `millis()`, nunca dorme), mas exige `-D MY_REPEATER_FEATURE` no env: o MySensors encaminha mensagens de nós fora do alcance do gateway. Sufixo `[REP]`. Usado pelo Nó 99 nos envs `_rep`.
 
 ### Métodos Principais
 - `begin(F(name), F(version))`: Registra o nó no MySensors. Nome e versão ficam na Flash — um literal sem `F()` não compila. Adiciona sufixo ao nome (`[LP]`, `[ON]`, `[PAS]`, `[REP]`). Inicializa `lastValues[]` com `NAN` e `nNoUpdates[]` com `0`.
@@ -79,18 +78,17 @@ Todos os payloads são strings. Constantes definidas em `M360Constants.h`.
 | `CMD_FORCE_UPDATE` | `"FORCE_UPDATE"` | Dispara `_readAndSendAll(true)` imediatamente: lê e **sempre envia** o valor atual de cada sensor, ignorando o filtro de "mudou mais que 0.05" e o contador de 10 ciclos sem atualização; em `M360_PASSIVE` liga/desliga periféricos |
 | `CMD_REPRESENT` | `"REPRESENT"` | Dispara `_rePresent()`: re-executa `present()` para todos os children sem resetar `lastValues[]`; imprime `REPRES:OK` no Serial |
 | `CMD_DEBUG_NET` | `"DEBUG_NET"` | Envia diagnóstico de rede (`parent`/`dist`/`transportReady`) via `sendDebug()` — equivalente remoto de `_printNetDiag()` |
-| `CMD_RESET` | `"RESET"` | Não processado pelo motor — disponível para uso customizado no nó |
 
-**Exemplo MQTT para solicitar diagnóstico remoto do nó 13:**
-```json
-{ "nodeId": 13, "sensorId": 0, "command": 1, "type": 48, "payload": "DEBUG_NET" }
-```
-A resposta chega em `m360/{UF}/{CAR}/out` com `sensorId: 253` e o payload `"P:0 D:1 R:S"`.
+Os gateways compilam com `M360_NATIVE_MQTT=1`: os campos vão no **tópico** (`in/<nodeId>/<childId>/<command>/<ack>/<type>`) e o payload é a string bruta. Um envelope JSON publicado no tópico raiz `.../in` é rejeitado (`reportCommandRejected`).
 
-**Exemplo MQTT para acionar reapresentação:**
-```json
-{ "nodeId": 1, "sensorId": 0, "command": 1, "type": 48, "payload": "REPRESENT" }
+**Diagnóstico remoto do Nó 4** (`type 48` = `V_CUSTOM`):
 ```
+tópico:  m360/{UF}/{CAR}/in/4/0/1/0/48
+payload: DEBUG_NET
+```
+A resposta chega em `m360/{UF}/{CAR}/out/4/253/1/0/47` (`V_TEXT`) com payload como `P:0 D:1 R:S`.
+
+**Reapresentação do Nó 1:** mesmo formato, tópico `m360/{UF}/{CAR}/in/1/0/1/0/48`, payload `REPRESENT`.
 
 ---
 
@@ -99,14 +97,14 @@ A resposta chega em `m360/{UF}/{CAR}/out` com `sensorId: 253` e o payload `"P:0 
 Funções de utilidade para economia de bateria e persistência.
 
 ### Funções Globais
-- `readBatteryVoltage()`: Lê a voltagem de entrada (VCC) usando a referência interna de 1.1V.
+- `readBatteryVoltage()`: Símbolo **fraco** (`__attribute__((weak))`). O padrão mede o VCC contra o bandgap de 1,1 V, o que só é a tensão da bateria quando ela alimenta o MCU direto (Nó 4). O nó pode sobrescrever dentro do `namespace M360` — a M360-LP o faz em `src/DRY/horta/nos/lp/drivers/battery.cpp`, lendo o A6 corrigido pelo bandgap.
 - `readBatteryPercent()`: Converte voltagem em porcentagem (0-100%).
 - `loadInterval()`: Recupera o intervalo de reporte da EEPROM (robusto contra resets).
 - `saveInterval(uint16_t)`: Salva o novo intervalo vindo do gateway na EEPROM.
 
 ### Constantes de Configuração (`M360Config.h`)
-- `M360_MIN_VOLTAGE`: Tensão mínima (ex: 2.7V para baterias de lítio).
-- `M360_MAX_VOLTAGE`: Tensão máxima (ex: 4.2V).
+- `M360_MIN_VOLTAGE`: Tensão mínima, 0 % (padrão **3,0 V**).
+- `M360_MAX_VOLTAGE`: Tensão máxima, 100 % (padrão **4,2 V**).
 - `M360_DEFAULT_INTERVAL`: Padrão: **1 minuto** (`M360Config.h`). O env do nó pode redefinir com `-D M360_DEFAULT_INTERVAL=<min>`; só vale com EEPROM virgem ou inválida.
 - `M360_MIN_INTERVAL_MS`: Piso do override de `setIntervalMs()`. Padrão: 5000 ms.
 

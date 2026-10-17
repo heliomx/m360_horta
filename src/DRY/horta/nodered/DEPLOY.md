@@ -91,7 +91,8 @@ Só depende da biblioteca padrão do Python 3.
 
 - **Irrigação** (`tab_irrigacao_m360`): abre solenoides de verdade. Só subir
   com o Nó 99 e o gateway já gravados com o failsafe de atuação
-  (`pio run -e nano_99reles -t upload`, `pio run -e d1_mini_gateway -t upload`).
+  (Nó 99: `nano_99reles` ou `act_99`/`act_99_rep`; gateway: `d1_mini_gateway` ou `d1_mini_gw`).
+  Todos esses envs compilam com o failsafe.
 - Um redeploy mata os `setTimeout` de desligamento dentro dos function nodes
   dos canteiros. Quem cobre isso é o failsafe do firmware e o reconciliador
   de irrigação que existe no servidor.
@@ -100,10 +101,11 @@ Só depende da biblioteca padrão do Python 3.
 - Segredos do Telegram são lidos de `env.get("TELEGRAM_BOT_TOKEN")` /
   `global.get(...)`. Não deixar token nem chat ID literal em function node.
 
-## 6. Estado conhecido em 2026-09-24
+## 6. Histórico do alinhamento
 
-O `diff` desse dia mostrou o servidor à frente do repositório em todas as
-abas (guardas anti-loop nos despachantes, caixa postal para nós LP,
-reconciliador de irrigação, filtros de telemetria, mapa de rede). Nenhum
-deploy foi feito. O repositório precisa de um `pull` antes de qualquer
-alteração nova em `flows.json`.
+Em 2026-09-24 o `diff` mostrou o servidor à frente do repositório em todas
+as abas (guardas anti-loop nos despachantes, caixa postal para nós LP,
+reconciliador de irrigação, filtros de telemetria, mapa de rede). No mesmo
+dia o `flows.json` foi alinhado ao servidor (commit `7ad0a04`) e houve
+deploy das abas revisadas (`7ad0a04`, `9c8b768`). O estado atual só se
+conhece rodando `diff`: faça-o sempre antes de editar.
