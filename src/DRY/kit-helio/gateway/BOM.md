@@ -21,7 +21,7 @@ Este documento descreve todos os componentes necessários para a montagem físic
 | 4 | **LED Vermelho** | Status 1: Erro de Rede / Modo Access Point (AP) Ativo (Conectado a D2) | 1 | LED Difuso 5mm |
 | 5 | **LED Verde** | Status 2: Sistema Conectado e Operativo (Wi-Fi + MQTT OK) (Conectado a D1) | 1 | LED Difuso 5mm |
 | 6 | **LED Amarelo** | Status 3: Atividade MQTT / Heartbeat / Inicialização (Conectado a D0) | 1 | LED Difuso 5mm |
-| 7 | **Botão (SW1)** | Botão de Manutenção (Modo AP / Factory Reset no Boot ligado a A0) | 1 | Push Button Tact Switch 6x6x5mm |
+| 7 | **Botão (SW1)** | Botão de Manutenção (Modo AP no boot, ligado a A0; factory reset não implementado) | 1 | Push Button Tact Switch 6x6x5mm |
 
 ---
 

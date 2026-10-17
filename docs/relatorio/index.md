@@ -13,8 +13,8 @@ O **Manejo360** é uma plataforma IoT de alta eficiência voltada para o monitor
 ```mermaid
 graph TD
     subgraph Campo ["Campo Agrícola / Estufa (Mês de Julho/2026)"]
-        N01["Nó 01: 01nodeSolo3dNano (3x Umidade Solo)"]
-        N02["Nó 02: 02nodeSolo3dNano (3x Umidade Solo)"]
+        N01["Nó 01: 01nodeSolo3dNano (6x Umidade Solo)"]
+        N02["Nó 02: 02nodeSolo3dNano (6x Umidade Solo)"]
         N04["Nó 04: 04noodeSolarMini alimentado por  Painel Solar (Temp/Umid Ar + Temperatura do solo)"]
         N99["Nó 99: 99nodeReles (2x Solenoide (Atuador MUX) + Vazão + pH + Temp/Umid Ar)"]
     end
@@ -38,11 +38,11 @@ Total de 12 Sensors e 2 atuadores de irrigação Instalados"
 
 O relatório técnico está dividido em 3 capítulos fundamentais, correlacionados com as emissões de Notas Fiscais dos serviços executados e com os marcos operacionais de campo:
 
-- **[Capítulo 1 — Entrega NF 13/02/2026](file:///c:/Users/jmarc/Documents/PlatformIO/Projects/Manejo360/docs/relatorio/01_relatorio_entrega_13-02-2026.md)**  
+- **[Capítulo 1 — Entrega NF 13/02/2026](01_relatorio_entrega_13-02-2026.md)**  
   *Concepção da Arquitetura Manejo360, Scaffolding da Biblioteca Mysensors -> LibDRY (utilizando o método DRY - Dont Repeat Yourself), Especificações Iniciais e Documentação Conceitual (Documento Técnico, Arquitetura IoT).*
-- **[Capítulo 2 — Entrega NF 04/05/2026](file:///c:/Users/jmarc/Documents/PlatformIO/Projects/Manejo360/docs/relatorio/02_relatorio_entrega_04-05-2026.md)**  
+- **[Capítulo 2 — Entrega NF 04/05/2026](02_relatorio_entrega_04-05-2026.md)**  
   *Estruturação Física da Estufa Agrícola MVP (01/05 a 01/06/2026), LibDRY, Perfis de Energia, Adaptador Eletrônico RFM95W e Especificações de Backend/Hardware (API MQTT v1.0, DB Design v1.0, Hardware IoT, Gateway Wemos JSON, LoRa Neutra, Durabilidade de Sensores).*
-- **[Capítulo 3 — Entrega NF 07/08/2026](file:///c:/Users/jmarc/Documents/PlatformIO/Projects/Manejo360/docs/relatorio/03_relatorio_entrega_07-08-2026.md)**  
+- **[Capítulo 3 — Entrega NF 07/08/2026](03_relatorio_entrega_07-08-2026.md)**  
   *Comissionamento e Instalação em Campo (Mês de Julho/2026) do Gateway ESP8266 + 2 Nós Sensores/Atuadores + 12 Sensores + Automação Node-RED.*
   *(Nota: A automação Node-RED foi uma solução temporária de baixo custo para viabilizar o comissionamento imediato do sistema em campo, enquanto a arquitetura definitiva com agente LLM dedicado esta em desenvolvimento e homologação.)*
 
@@ -86,5 +86,5 @@ Como entregáveis oficiais do projeto **Manejo360**, foram incorporados os segui
 
 ## 5. Arquivos Complementares e Matrizes de Suporte
 
-- **[dados_commits_brutos.md](file:///c:/Users/jmarc/Documents/PlatformIO/Projects/Manejo360/docs/relatorio/dados_commits_brutos.md)** — Inventário minucioso dos 53 commits com estatísticas de linhas e arquivos.
-- **[matriz_atividades.md](file:///c:/Users/jmarc/Documents/PlatformIO/Projects/Manejo360/docs/relatorio/matriz_atividades.md)** — Cruzamento detalhado entre commits, atividades de engenharia, entregáveis documentais e instalação física.
+- **[dados_commits_brutos.md](dados_commits_brutos.md)** — Inventário minucioso dos 53 commits com estatísticas de linhas e arquivos.
+- **[matriz_atividades.md](matriz_atividades.md)** — Cruzamento detalhado entre commits, atividades de engenharia, entregáveis documentais e instalação física.

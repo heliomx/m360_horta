@@ -2,6 +2,8 @@
 
 Este documento detalha as conexões físicas e lógicas do **Nó 02 (Solo3dNano)** (Monitoramento 3D de Solo, versão Arduino Nano), responsável por ler 6 sensores de umidade diretamente no Canteiro B.
 
+> Este documento é da versão **Arduino Nano** (envs `nano_02nodeSolo3d`). Na placa **M360-LP** o mesmo nó usa o firmware comum em `../lp/` (config em `../lp/config/node02/nodeConfig.h`, env `lp_02`): sondas pela porta J1 via 74HC4051 em A0, VSW em D4 ativo em LOW, reed em D3. Pinagem em `hardware/ARQUITETURA_FAMILIA.md` §4.3 e `../lp/README.md`.
+
 ---
 
 ## Mapeamento de Pinos (Pinout)

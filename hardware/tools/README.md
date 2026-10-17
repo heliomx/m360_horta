@@ -3,15 +3,15 @@
 Scripts usados para construir as placas desta pasta. Nenhum é mágico: cada um automatiza um
 passo que o KiCad faz à mão, mas que precisaria ser repetido dezenas de vezes sem errar.
 
-Todos são **idempotentes** — rodar duas vezes dá o mesmo resultado — e todos **reescrevem o
-arquivo passado por argumento**. Trabalhe com a árvore limpa no git: é o diff que mostra o que
+Quase todos são **idempotentes** — rodar duas vezes dá o mesmo resultado; a exceção é o
+`fix_layout.py` (ver a tabela) — e todos **reescrevem o arquivo passado por argumento**. Trabalhe com a árvore limpa no git: é o diff que mostra o que
 o script fez, e é o `git checkout` que desfaz quando ele faz o que não devia.
 
 ## Os dois interpretadores
 
 | Script | Interpretador | Por quê |
 |---|---|---|
-| `place_*.py`, `silk_*.py`, `pcb_info.py` | o Python do KiCad (`C:\Program Files\KiCad\10.0\bin\python.exe`) | usam o módulo `pcbnew`, que só existe lá |
+| `place_*.py`, `silk_*.py`, `silk_refs.py`, `pcb_info.py`, `apara_pontas.py`, `leque_tvs.py`, `ordem_tvs.py`, `vias_gnd.py` | o Python do KiCad (`C:\Program Files\KiCad\10.0\bin\python.exe`) | usam o módulo `pcbnew`, que só existe lá |
 | `promini_medida.py`, `grade.py`, `crop.py` | um venv qualquer com `opencv-python-headless`, `numpy` e `pymupdf` | dependências de imagem |
 | os demais | qualquer Python 3 | mexem no texto do arquivo |
 
@@ -66,10 +66,10 @@ regular que não casava com o formato e aprovava em silêncio.
 | `del_fp.py <pcb> <REF>...` | Apaga o bloco de um footprint, para a sincronização com o esquemático recriá-lo da biblioteca. É o caminho para trocar um footprint sem o segfault do SWIG |
 | `clear_tracks.py <pcb>` | Apaga **todas** as trilhas e vias, para rerrotear do zero. Necessário sempre que uma peça muda de footprint ou de posição depois de roteada: as trilhas velhas cruzam as ilhas novas e o DRC enche de `clearance`, `hole_clearance` e até `shorting_items` apontando todos para a mesma ilha. As zonas ficam, e são refeitas no refill |
 | `dsn_sem_plano.py <in.dsn> <out.dsn>` | Tira as declarações `plane` do DSN antes do Freerouting. **Obrigatório ao rerrotear placa que já tem zona de GND**: com o plano declarado o roteador não desenha fio de terra, o plano se parte em ilhas e o DRC acusa `unconnected_items` "Zona [GND]" que nenhum ajuste de zona resolve (ARQUITETURA §11.6) |
-| `gnd_stitch.py <pcb> [--dry]` | Põe via de GND dentro de ilha de plano solta, com verificação de colisão nas duas faces. **Use só para colocar a via, nunca para decidir se ela é necessária** — o critério interno de "já ligada" é falho (§11.6). Se o plano fragmentou, o certo é rerrotear com o GND roteado (`dsn_sem_plano.py`) |
+| `gnd_stitch.py <pcb> [--dry] [--rede GND]` | Põe via de GND dentro de ilha de plano solta, com verificação de colisão nas duas faces. **Use só para colocar a via, nunca para decidir se ela é necessária** — o critério interno de "já ligada" é falho (§11.6). Se o plano fragmentou, o certo é rerrotear com o GND roteado (`dsn_sem_plano.py`) |
 | `leque_tvs.py <pcb> U3 U4 U5` | Desenha a saída fixa de cada pad dos TVS SOT-23-6 antes de rotear: GND do meio numa via para fora, VSW do meio subindo pelo vão entre as colunas, pads de baixo em via. Placa sem trilhas (ARQUITETURA §11.8) |
 | `dsn_trechos.py <in.dsn> <out.dsn> [opções] [ESPEC...]` | Prepara o DSN das passadas da §11.8. `REDE=PINO,PINO` mantém só esses pinos; `REDE=-PINO` tira pinos; `REDE` só o nome, a rede inteira. `--fios-viram-keepout` fixa a fiação e cobre com área proibida da mesma largura; `--livre-perto REDE@X,Y;...` corta essa área sobre o pad do TVS da própria rede; `--area-proibida X1,Y1,X2,Y2`; `--keepout-de`/`--sem-keepout-de OUTRO.dsn` escolhem de que fiação sai a área (sem o leque); `--manter-outras` não tira as redes fora dos ESPEC |
-| `ordem_tvs.py <pcb> lp` | **Prova** que cada pino de campo do RJ45 chega ao pad do TVS antes de qualquer outro pad: corta o cobre dentro do pad do TVS e exige o pino isolado do resto. DRC e paridade não enxergam isso. Python do KiCad; sai com código 1 se reprovar |
+| `ordem_tvs.py <pcb> lp\|act` | **Prova** que cada pino de campo do RJ45 chega ao pad do TVS antes de qualquer outro pad: corta o cobre dentro do pad do TVS e exige o pino isolado do resto. DRC e paridade não enxergam isso. Python do KiCad; sai com código 1 se reprovar |
 | `apara_pontas.py <pcb> [REDE...]` | Apaga trilha com ponta solta e via de rede sem zona que só tem trilha numa face (`track_dangling`, `via_dangling`), repetindo até não sobrar nada. Uma rodada por processo: o SWIG devolve objeto morto numa segunda `LoadBoard` |
 | `vias_gnd.py <pcb> [--perimetro PASSO] REF-PAD...` | Via de GND junto aos pads pedidos e costura do perímetro, respeitando o isolamento da classe da trilha e do pad (Power 0,3 mm), os fiduciais e as áreas proibidas para via — inclusive as que moram dentro de footprint, como o keep-out da antena do D1 mini. Diz **onde**; a suficiência é do DRC e da contagem de ilhas |
 | `pad_zone_connect.py <pcb> <REF> <PAD> <MODO>` | Ligação do pad às zonas: 0 nenhuma, 1 alívio térmico, 2 sólida. Age só no footprint pedido |
@@ -82,6 +82,9 @@ regular que não casava com o formato e aprovava em silêncio.
 > então afastar um rótulo de uma ilha empurrando-o para a borda troca um problema por outro.
 > O DRC também não pega tudo: legenda sobre o *corpo* de um conector passa no DRC e fica
 > ilegível na placa. Conferir na imagem, não só no relatório.
+
+| Script | O que faz |
+|---|---|
 | `solda_manual.py <pasta> [--desfazer] [--so-esquematico] <REF>...` | Tira do BOM e do arquivo de posição as peças soldadas à mão depois da PCBA (`--desfazer` devolve). Marca **as duas pontas**: `in_bom`/`in_pos_files` no símbolo e `exclude_from_bom`/`exclude_from_pos_files` no footprint — o BOM sai do esquemático e a posição sai da placa, e marcar só um lado faria a paridade divergir. `--so-esquematico` quando a placa ainda vai ser refeita. Conferir exportando BOM e posição antes e depois |
 | `fabricacao.py <pasta>` | Gera em `<pasta>/fabricacao/` o zip de Gerbers + furação, o BOM e a posição no formato da JLCPCB. Recusa gerar com ERC ou DRC (`--severity-all`) sujos, e confere que BOM e posição têm as mesmas referências, todas com código LCSC. Lista as peças polarizadas para conferir a rotação no visualizador da JLCPCB |
 | `paridade.py <pasta>` | Confere que a placa liga **exatamente** o que o esquemático liga, comparando o conjunto de pads de cada rede — não o nome. **Use este, não a paridade do DRC**: a sincronização pelo MCP grava nomes de rede diferentes e o DRC acusava 237 / 195 / 69 itens com as placas corretas. Sai com código 1 se divergir |

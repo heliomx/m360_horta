@@ -1,6 +1,6 @@
 # Esquema Elétrico — Gateway MQTT (M360-DRY)
 
-O diagrama a seguir detalha as conexões físicas e lógicas do **Gateway MQTT**, responsável por fazer a ponte de comunicação entre os nós sensores/atuadores da rede MySensors (via rádio NRF24L01) e o servidor central M360 (via rede Wi-Fi e MQTT).
+O diagrama a seguir detalha as conexões físicas e lógicas do **Gateway MQTT**, responsável por fazer a ponte de comunicação entre os nós sensores/atuadores da rede MySensors (via rádio nRF24L01+ no protótipo, ou RFM95W no mezanino da M360-GW — o rádio ativo vem de `[common] radio_flags`) e o servidor central M360 (via rede Wi-Fi e MQTT).
 
 ## Diagrama de Conexões (Mermaid)
 
@@ -55,6 +55,11 @@ graph TD
 ```
 
 ## Tabela de Pinagem (Pinout)
+
+> Esta tabela e o diagrama acima são do **protótipo** (env `d1_mini_gateway`), que tem nRF24.
+> Com `radio_flags` em RFM95W o binário sai LoRa, e o DIO0 do RFM95 é o **D1**, o mesmo pino do
+> LED verde do protótipo — não gravar o protótipo com LoRa ativo. Na placa M360-GW use
+> `d1_mini_gw` (verde no D4; ver "Variante M360-GW" abaixo).
 
 ### NRF24L01 (Comunicação SPI)
 | Pino Módulo | Pino NodeMCU (ESP8266) | Descrição |

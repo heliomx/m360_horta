@@ -23,7 +23,7 @@ ESP8266 D1 mini que faz a ponte entre a rede de rádio MySensors e o broker MQTT
 
 | Env | Placa | Rádio | LEDs (todos ativos em HIGH) | Reed / botão |
 |---|---|---|---|---|
-| `d1_mini_gateway` | Protótipo em bancada (COM5) | RFM95W: DIO0 D1, NSS D8. nRF24: CE D4 (`MY_RF24_CE_PIN=2`), CSN D8 | vermelho D2, amarelo D0, verde D1 | A0 com pull-up de 10 kΩ |
+| `d1_mini_gateway` | Protótipo em bancada (COM5), hardware nRF24 | nRF24: CE D4 (`MY_RF24_CE_PIN=2`), CSN D8. ⚠ Com `radio_flags` em RFM95W o binário sai LoRa e o DIO0 (D1) colide com o LED verde: não gravar o protótipo assim | vermelho D2, amarelo D0, verde D1 | A0 com pull-up de 10 kΩ |
 | `d1_mini_gw` | D1 mini no carrier **M360-GW** (`-D M360_BOARD_GW`) | RFM95W: DIO0 D1, NSS D8, sem RESET. nRF24 no header J4: CE D1 (`MY_RF24_CE_PIN=5`), CSN D8 | vermelho D2, amarelo D0, **verde D4** pelo 2N7002 Q1 (o D1 virou DIO0) | reed SW1 em A0, ímã pela parede |
 
 O rádio ativo vem de `[common] radio_flags` em `../platformio.ini`; o env só define pinos.

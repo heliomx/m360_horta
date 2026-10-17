@@ -17,7 +17,7 @@ Na parte inferior esquerda há **3 disjuntores Siemens unipolares**:
 ### 1.2 Fontes de Alimentação
 Na lateral superior esquerda encontram-se **2 conversores DC-DC Step Down (Buck Converter) LM2596** com dissipadores de calor individuais:
 * Reduzem a saída da fonte principal (12V) regulando as tensões lógicas do circuito.
-* **Aplicações:** Regulagem da linha de 5.0V para o Arduino Nano/periféricos e da linha dedicada de 3.3V (específica para o rádio NRF24L01).
+* **Aplicações:** Regulagem da linha de 5.0V para o Arduino Nano/periféricos e da linha de 3.3V que alimentava o rádio NRF24L01 — desde 20/08/2026 o rádio é alimentado pelo 5 V do Nano via adaptador regulado, e essa linha deixou de ser necessária (ver §3.1).
 
 ### 1.3 Barramentos de Distribuição
 No centro-esquerdo existem **4 barramentos de distribuição de latão**:
