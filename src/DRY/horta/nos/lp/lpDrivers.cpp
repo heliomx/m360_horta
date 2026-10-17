@@ -22,6 +22,10 @@ void initSensors()
 	pinMode(LP_PIN_VSW_EN, OUTPUT);
 	vswOn = false;
 
+	// Reed (SW1) do D3 ao GND, contato normalmente aberto: pull-up interno, zero
+	// corrente com o contato aberto. Só drena (~100 µA) enquanto o ímã estiver perto.
+	pinMode(LP_PIN_REED, INPUT_PULLUP);
+
 #if LP_HAS_SOIL
 	soilMuxInit();
 #endif

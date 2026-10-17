@@ -28,6 +28,9 @@ namespace M360
 	      _lastBattVoltage(NAN),
 	      _battCycle(0),
 	      _profile(profile),
+	      _wakeIrq(-1),
+	      _wakeMode(0),
+	      _wokeByIrq(false),
 	      _readCb(nullptr),
 	      _writeCb(nullptr) {}
 
@@ -38,6 +41,30 @@ namespace M360
 	MyMessage& M360Node::_msgFor(uint8_t childId, uint8_t valueType) {
 		_txMsg = MyMessage(childId, (mysensors_data_t)valueType);
 		return _txMsg;
+	}
+
+	void M360Node::forceUpdate() {
+		powerUp();
+		_readAndSendAll(true); // ignora o filtro de "mudou o suficiente"
+		_processBattery();
+		powerDown();
+	}
+
+	void M360Node::setWakeInterrupt(uint8_t interruptNum, uint8_t mode) {
+		_wakeIrq  = (int8_t)interruptNum;
+		_wakeMode = mode;
+	}
+
+	void M360Node::_sleep(uint32_t sleepMs) {
+		if (_wakeIrq < 0) {
+			smartSleep(sleepMs);
+			return;
+		}
+		const int8_t r = smartSleep((uint8_t)_wakeIrq, _wakeMode, sleepMs);
+		_wokeByIrq = (r == _wakeIrq);
+		if (_wokeByIrq) {
+			Serial.println(F("WAKE:IRQ"));
+		}
 	}
 
 	void M360Node::sendItemState(uint8_t index, bool state) {
@@ -182,10 +209,13 @@ namespace M360
 			}
 			wait(50);
 		} else if (_profile == M360_LOW_POWER) {
-			// Modo low-power: lê, dorme, acorda
+			// Modo low-power: lê, dorme, acorda. Acordado pela interrupção de
+			// setWakeInterrupt() (ex.: ímã no reed), envia tudo, mude ou não.
+			const bool force = _wokeByIrq;
+			_wokeByIrq = false;
 			powerUp();
 
-			_readAndSendAll();
+			_readAndSendAll(force);
 			_processBattery();
 
 			powerDown();
@@ -201,14 +231,18 @@ namespace M360
 			uint32_t sleepMs = (_intervalMs > 0)
 			                 ? _intervalMs
 			                 : (uint32_t)_interval * 60000UL;
-			smartSleep(sleepMs);
+			_sleep(sleepMs);
 		} else if (_profile == M360_PASSIVE) {
 			// Modo passivo: APENAS dorme e aguarda mensagens (V_CUSTOM do gateway)
 			// Não realiza leituras periódicas automáticas.
 			uint32_t sleepMs = (_intervalMs > 0)
 			                 ? _intervalMs
 			                 : (uint32_t)_interval * 60000UL;
-			smartSleep(sleepMs); // Intervalo longo por padrão
+			_sleep(sleepMs); // Intervalo longo por padrão
+			if (_wokeByIrq) {
+				_wokeByIrq = false;
+				forceUpdate(); // a interrupção vale como um FORCE_UPDATE local
+			}
 		}
 	}
 

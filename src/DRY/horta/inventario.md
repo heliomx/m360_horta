@@ -110,6 +110,7 @@ Definidas em [`lib/M360-DRY/src/M360Constants.h`](../../../lib/M360-DRY/src/M360
 | **6** | `A_5m_30cm` | `M360_SENSOR` | `S_MOISTURE` | `V_LEVEL` (37) | float, 1 casa | LP ch5 · Nano A5 | 0 | false | 0 |
 
 Convenção do label: `<canteiro>_<distância>_<profundidade>`.
+Na M360-LP, aproximar um ímã do reed (SW1, D3) força a leitura e o envio de todos os children 1–6, mude o valor ou não (`lp/README.md`). Nenhum child novo.
 Coluna **Pino**: na M360-LP o `pin` do item é o código `LP_SRC_SOIL(ch)` (100+ch, canal do 74HC4051, porta J1: ch0/ch1 estaca de 1 m, ch2/ch3 de 3 m, ch4/ch5 de 5 m); no Nano é a porta analógica nativa.
 **Escala:** ADC bruto 0–1023 — valor alto = solo seco. Ver [§9](#9-escalas-e-unidades).
 

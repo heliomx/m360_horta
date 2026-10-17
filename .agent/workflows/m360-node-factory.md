@@ -311,7 +311,7 @@ build_flags =
 |---|---|
 | VSW (D4) liga em **LOW**; sobe no primeiro item e desce no último | `lpNode.cpp::readItem()` + `lpDrivers.cpp` |
 | S0–S2 em LOW **antes** de cortar o VSW; A1/A2 em `INPUT` puro com o VSW desligado | `powerDownSensors()` |
-| D3 (reed) nunca vira saída; A4/A5 ficam sem TWI até existir driver I2C | `lpPins.h`, `README.md` |
+| D3 (reed) em `INPUT_PULLUP`, nunca saída; ímã força leitura e envio de todos os children (polling em `ALWAYS_ON`, `setWakeInterrupt()` em `LOW_POWER`); A4/A5 ficam sem TWI até existir driver I2C | `lpPins.h`, `lpNode.cpp`, `README.md` |
 | Bateria = 3 × A6 × VCC(bandgap)/1023, corte de TX abaixo de `LP_VBAT_CUTOFF` | `drivers/battery.cpp`, `lpNode.cpp::loop()` |
 | Warm-up pós-boot (R13) | `lpNode.cpp`, só com `LP_POWER_BATTERY` |
 

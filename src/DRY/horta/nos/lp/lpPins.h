@@ -32,7 +32,8 @@
 // A4/A5 = SDA/SCL (pull-ups 3,3 kΩ para o VSW). Sem driver ainda — ver README.
 
 // ===== OUTROS =====
-#define LP_PIN_REED        3    // reed switch SW1 para GND (INT1) — nunca saída
+#define LP_PIN_REED        3    // reed switch SW1 para GND (INT1), INPUT_PULLUP — nunca saída.
+                                // Ímã: força leitura e envio de todos os children.
 #define LP_PIN_VBAT        A6   // divisor 2 MΩ / 1 MΩ permanente + 100 nF
 #define LP_VBAT_DIVIDER    3.0f // VBAT = 3 × V(A6)
 

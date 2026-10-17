@@ -10,6 +10,11 @@
  *   LP_POWER_FIXED_5V | LP_POWER_BATTERY  perfil (ALWAYS_ON | LOW_POWER + bateria)
  *   LP_HAS_SOIL / LP_HAS_DHT / LP_HAS_ONEWIRE  drivers compilados
  *   rótulos PROGMEM e NODE_ITEMS[]     com o campo `pin` = código LP_SRC_* (lpPins.h)
+ *
+ * Reed (SW1, D3/INT1): aproximar o ímã pela parede da caixa força a leitura e o
+ * envio de todos os children — conferência do instalador sem abrir a caixa nem
+ * esperar o intervalo. Em LOW_POWER o ímã acorda o nó (setWakeInterrupt); em
+ * ALWAYS_ON o pino é lido por polling com debounce.
  */
 
 #include <Arduino.h>
@@ -96,6 +101,8 @@ void setup()
 {
 	node.onRead(readItem);
 	// node.setupPins() omitido (R7): `pin` carrega códigos LP_SRC_*, não pinos.
+	// Reed: borda de descida no D3 (contato fechando) acorda o nó em LOW_POWER.
+	node.setWakeInterrupt(digitalPinToInterrupt(LP_PIN_REED), FALLING);
 #if LP_POWER_BATTERY
 	if (node.setIntervalMs(WARMUP_INTERVAL_MS)) {
 		Serial.println(F("WARMUP:30s"));
@@ -116,6 +123,21 @@ void loop()
 #endif
 
 	node.process();
+
+#if !LP_POWER_BATTERY
+	// ALWAYS_ON não dorme: polling do reed. process() termina em wait(50), então
+	// duas leituras LOW seguidas (~50 ms) filtram o repique do contato. Dispara uma
+	// vez por aproximação; precisa afastar o ímã para disparar de novo.
+	static uint8_t reedLow = 0;
+	if (digitalRead(LP_PIN_REED) == LOW) {
+		if (reedLow < 2 && ++reedLow == 2) {
+			Serial.println(F("REED"));
+			node.forceUpdate();
+		}
+	} else {
+		reedLow = 0;
+	}
+#endif
 
 #if LP_POWER_BATTERY
 	if (!warmupDone && ++warmupCycles >= WARMUP_CYCLES) {

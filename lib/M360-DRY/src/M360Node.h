@@ -136,6 +136,20 @@ namespace M360
 		// que desliga um relé sozinho, ou o canal MUX preemptado (Nó 99).
 		void sendItemState(uint8_t index, bool state);
 
+		// Lê todos os itens e envia todos, ignorando o filtro de "mudou o suficiente",
+		// e reporta a bateria — o mesmo efeito do comando FORCE_UPDATE, mas disparado
+		// pelo próprio nó (ex.: reed switch acionado por ímã). Chama powerUp() antes e
+		// powerDown() depois em qualquer perfil; as duas devem ser idempotentes.
+		void forceUpdate();
+
+		// Interrupção externa que também acorda o nó nos perfis LOW_POWER e PASSIVE
+		// (smartSleep por timer OU interrupção). `interruptNum` é o número da
+		// interrupção, não o pino: digitalPinToInterrupt(pino). `mode` = FALLING,
+		// RISING ou CHANGE (evite LOW: com o contato fechado o nó não voltaria a dormir).
+		// Ao acordar por ela, o ciclo seguinte envia tudo como em forceUpdate().
+		// Sem efeito em ALWAYS_ON/REPEATER, que não dormem: lá o nó faz polling.
+		void setWakeInterrupt(uint8_t interruptNum, uint8_t mode);
+
 		// ----- Configuração de pinos (opcional, baseado em items[].pin) -----
 		void setupPins();
 
@@ -178,8 +192,14 @@ namespace M360
 		uint8_t            _battCycle;
 
 		M360PowerProfile   _profile;
+		int8_t             _wakeIrq;     // -1 = só timer (setWakeInterrupt não chamado)
+		uint8_t            _wakeMode;
+		bool               _wokeByIrq;   // o último smartSleep() acabou pela interrupção
 		float (*_readCb)(uint8_t);
 		void  (*_writeCb)(uint8_t, bool);
+
+		// smartSleep() por timer, ou por timer e _wakeIrq quando configurada.
+		void _sleep(uint32_t sleepMs);
 
 		// Prepara _txMsg para o child/tipo informados e o devolve para o send().
 		MyMessage& _msgFor(uint8_t childId, uint8_t valueType);

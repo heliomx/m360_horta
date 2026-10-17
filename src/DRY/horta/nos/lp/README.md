@@ -37,11 +37,25 @@ vazia e a biblioteca dele, embora compilada pelo PlatformIO, não é linkada. Me
 | A2 | DHT | `INPUT` puro com o VSW desligado |
 | A4 / A5 | SDA / SCL | Sem driver ainda; TWI desligado |
 | A6 | Bateria, divisor 2 MΩ / 1 MΩ | VBAT = 3 × V(A6), VCC medido pelo bandgap |
-| D3 | Reed switch para GND (INT1) | Nunca configurar como saída |
+| D3 | Reed switch para GND (INT1), `INPUT_PULLUP` | Nunca configurar como saída. Ímã pela parede = leitura e envio forçados de todos os children (ver abaixo) |
 | D2 / D9 / D10 / D8 | DIO0 / DIO1 / NSS / RESET do RFM95W | Flags no env; nRF24 legado: CE=D2, CSN=D10 |
 
 Pull-ups, RC e TVS das sondas estão na placa. A escala do ADC (0–1023, alto = seco) é a
 mesma dos Nós 01/02 no Nano, porque pull-up e referência do ADC são o mesmo trilho.
+
+## Reed switch (SW1)
+
+Aproximar o ímã da parede da caixa, junto do SW1, força o nó a ler e enviar **todos** os children,
+mude o valor ou não, e a bateria. Serve para o instalador conferir o nó sem abrir a caixa nem
+esperar o intervalo; no Serial aparece `REED` (fonte fixa) ou `WAKE:IRQ` (bateria).
+
+| Alimentação | Como o reed é lido |
+|---|---|
+| `LP_POWER_FIXED_5V` (`ALWAYS_ON`) | Polling no `loop()`, duas leituras LOW seguidas (~50 ms) contra repique; chama `node.forceUpdate()`. Dispara uma vez por aproximação |
+| `LP_POWER_BATTERY` (`LOW_POWER`) | Interrupção INT1 na borda de descida, registrada com `node.setWakeInterrupt()`: acorda o nó do `smartSleep()` e o ciclo seguinte envia tudo. Com a bateria abaixo de `LP_VBAT_CUTOFF` o nó dorme sem rádio e o ímã não tem efeito |
+
+O ímã atua a ~6,5 mm (datasheet do 59170); na LP a distância até a face externa fica justa
+(`hardware/ARQUITETURA_FAMILIA.md` §9, "Distância do ímã ao reed"). Ver na bancada.
 
 ## Como criar um nó novo nesta placa
 

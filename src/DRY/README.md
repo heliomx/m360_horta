@@ -2,7 +2,7 @@
 
 Código dos nós de campo, dos gateways e dos fluxos Node-RED do sistema de monitoramento
 agrícola **M360 Horta**, organizado em dois sub-projetos agregados pelo `platformio.ini` da raiz
-(`extra_configs`). Todo nó e gateway usa a biblioteca **[M360-DRY 2.1.0](../../lib/M360-DRY/)**
+(`extra_configs`). Todo nó e gateway usa a biblioteca **[M360-DRY 2.2.0](../../lib/M360-DRY/)**
 sobre **MySensors 2.3.2**. O motor legado em `horta/nos/shared/` continua no repositório, mas
 nenhum nó novo o usa.
 
