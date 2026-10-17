@@ -87,7 +87,7 @@ As setas indicam "pode depender de". O domínio nunca importa um adaptador. O n�
 - **Binds:** F4, F10; firmware do Nó 99 e da ACT; todo componente que agenda desligamento
 - **Prevents:** um relé que só desliga se a plataforma estiver de pé; um relé mantido ligado sem fim por ONs repetidos.
 - **Rule:** o failsafe, a exclusão mútua do MUX e o estado desligado no boot ficam no firmware, e nenhuma camada acima os desativa. O limite vale sobre o **tempo contínuo ligado** do child: um ON para um child já ligado não rearma o prazo. A plataforma recusa ON em child que está ligado ou incerto, conta o limite de `failsafe − 15 s` a partir do **primeiro publish** do ON e trata o failsafe como última barreira. As bombas NFT (38, 39) não têm failsafe por projeto; para elas a plataforma é a única barreira e o PRD registra o risco.
-- **Implementação:** até 2026-10-17 `armFailsafe()` (`99nodeReles.cpp`) rearmava o prazo a cada ON. Corrigido na história 3.11; falta gravar e testar em bancada.
+- **Implementação:** até 2026-10-17 `armFailsafe()` (`99nodeReles.cpp`) rearmava o prazo a cada ON. Corrigido na história 3.5; falta gravar no Nó 99, o que precisa acontecer antes da história 5.6, e testar em bancada.
 
 ### AD-3 — Confirmação é o eco de aplicação [ADOPTED]
 
@@ -105,7 +105,7 @@ As setas indicam "pode depender de". O domínio nunca importa um adaptador. O n�
 
 - **Binds:** F7, F9, F10
 - **Prevents:** um caminho de envio que pula validação, retry, serialização do MUX ou registro de origem.
-- **Rule:** no gateway, todo comando ao rádio passa por `dispatchCommand()`, que valida, envia e publica sucesso ou `command_rejected`/`command_send_failed` [ADOPTED no gateway Horta]. No backend, **só o despachante publica** no broker; agendador, regras, reconciliador e botões criam comandos, nunca publicam. O gateway do Kit Hélio ainda não segue a regra (usa `atoi()` no tópico, descarta com `println`, envia com `send(..., true)`) e precisa ser alinhado antes de virar instalação (épico 9, história 9.7).
+- **Rule:** no gateway, todo comando ao rádio passa por `dispatchCommand()`, que valida, envia e publica sucesso ou `command_rejected`/`command_send_failed` [ADOPTED no gateway Horta]. No backend, **só o despachante publica** no broker; agendador, regras, reconciliador e botões criam comandos, nunca publicam. O gateway do Kit Hélio ainda não segue a regra (usa `atoi()` no tópico, descarta com `println`, envia com `send(..., true)`) e precisa ser alinhado antes de virar instalação (épico 10, história 10.7).
 
 ### AD-6 — Um dono por grupo físico de atuadores
 
@@ -149,7 +149,7 @@ As setas indicam "pode depender de". O domínio nunca importa um adaptador. O n�
 - **Prevents:** duas histórias paralelas escolhendo o mesmo byte; área de perfil sobreposta à configuração (o spine antigo propunha 514–520).
 - **Rule:**
   - **Nó (ATmega328P):** 0–511 MySensors; 512–515 intervalo (magic + valor, só por `M360::saveInterval()`); 516–520 reservado, com o byte 516 já destinado ao índice de canal LoRa da E3. Perfil e identidade do F16 ganham faixa nova acima de 520, documentada aqui antes do código.
-  - **Gateway (ESP8266):** 0–511 MySensors; 512–520 reservado; 521+ `M360DeviceConfig` com CRC, escrita só por `saveConfig()`, campo a campo.
+  - **Gateway (ESP8266):** 0–511 MySensors; 512–520 reservado; 521+ `M360DeviceConfig` com CRC, escrita só por `saveConfig()`, campo a campo. O canal LoRa da E3 entra como campo `radioChannel` novo na `M360DeviceConfig`, com troca da versão da estrutura para que uma configuração antiga seja migrada com k = 8.
   - Cada tipo de reset declara o que apaga: o factory reset do gateway apaga 521+; o reset remoto de nó (F16) apaga identidade e perfil e preserva o intervalo.
 
 ### AD-13 — Identidade da instalação é o prefixo; um gateway por propriedade
@@ -157,7 +157,7 @@ As setas indicam "pode depender de". O domínio nunca importa um adaptador. O n�
 - **Binds:** F15, F6; backend (toda tabela e toda consulta), gateway (UF, CAR)
 - **Prevents:** dados ou comandos de uma propriedade vazando para outra; gateway novo ou resetado subindo no prefixo do piloto.
 - **Rule:** uma instalação = um par UF+código = um prefixo MQTT = um gateway [ADOPTED]. O código do prefixo tem até 7 caracteres `[A-Za-z0-9]`, é atribuído pela plataforma e único por UF; o número real do CAR é atributo da instalação. O padrão de fábrica do firmware nunca é um prefixo válido de produção: gateway sem configuração sobe em AP e não publica. A plataforma separa o que é dela (administrador, chat de operação, credencial de serviço) do que é da instalação (chat principal, assinantes, posse, somente leitura); nenhuma notificação de instalação vai a destino de plataforma, salvo as de provisionamento. Na E3, o heartbeat leva o ID do chip, vinculado à instalação; outro ID no mesmo prefixo gera `gateway_conflict` e suspende comandos.
-- **Defeito aberto:** hoje o padrão de fábrica vem de `include/M360Credentials.h`, que é o prefixo do piloto. Correção antes da E3 (épico 10, história 10.4).
+- **Defeito aberto:** hoje o padrão de fábrica vem de `include/M360Credentials.h`, que é o prefixo do piloto. Correção antes da E3 (épico 9, história 9.1).
 
 ### AD-14 — Isolamento de rádio por frequência, não por aplicação (decidido, não implementado)
 
@@ -167,9 +167,9 @@ As setas indicam "pode depender de". O domínio nunca importa um adaptador. O n�
 
 ### AD-15 — Rádio escolhido na compilação; troca é por rede [ADOPTED]
 
-- **Binds:** F6; `[common] radio_flags`, `[proto_rf24]`, `[kit_helio]`
+- **Binds:** F6; `[common] radio_flags`, `[proto_rf24]`, `[kit_helio]`, `[lora_net]`
 - **Prevents:** nós da mesma rede compilados com rádios diferentes.
-- **Rule:** um rádio por placa e por rede. A escolha do tipo de rádio é feita no `platformio.ini`; protótipos e Kit Hélio ficam fixos em nRF24. Migrar uma rede para LoRa é um corte: gateway e todos os nós daquela propriedade trocam juntos.
+- **Rule:** um rádio por placa e por rede. A escolha do tipo de rádio é feita no `platformio.ini`, por rede: `[common] radio_flags` é o rádio da estufa (nRF24) e não se troca; uma rede LoRa nova usa `${lora_net.flags}` nos envs do gateway e de todos os nós. Protótipos e Kit Hélio ficam fixos em nRF24. Migrar uma rede para LoRa é um corte: gateway e todos os nós daquela propriedade trocam juntos. Por isso a estufa troca primeiro para as placas M360 **em nRF24** pelo header legado (épico 3, história 3.12), e só passa a LoRa quando o Nó 4, fonte de clima, tiver como entrar na rede LoRa (PRD Q-16, história 3.13).
 
 ### AD-16 — Leitura bruta é a verdade; conversão é exibição [ADOPTED]
 
@@ -345,6 +345,12 @@ O spine diverge da spec v1.3 nestes pontos. Valem o spine e a revisão da spec a
 | RF-PRV-06 | `SUSPENSA` recusa comandos sem exceção para OFF | AD-22 |
 | RF-PRV-09 | O boot depois do factory reset usa o padrão de compilação, que é o prefixo do piloto | AD-13 |
 | RF-WDG-02 | Eventos de nó do gateway alimentam alerta | AD-8 |
+| §7.1, RF-CMD-04 | A plataforma não recusa ON em child ligado ou incerto, e não diz de quando conta o limite `failsafe − 15 s` (o spine conta do primeiro publish) | AD-2 |
+| RF-ING-04, RF-CMD-11 | Comando visto em `in/#` que o backend não emitiu só é registrado; não entra na correlação, e o eco dele vira "não solicitado" | AD-3 |
+| §10 | Só a regra de ouro; faltam o tópico retido de posse por grupo e a troca com o grupo quieto levando o estado | AD-6 |
+| §15.2, RF-PRV-01/02 | O prefixo usa o CAR; o spine usa código de até 7 caracteres atribuído pela plataforma, com o CAR como atributo | AD-13 |
+| RF-VOL-01 | Não prevê leituras atrasadas de fila depois de reconexão, que ficam fora da integração | AD-17 |
+| §5.6, RNF-04 | O YAML é a configuração versionada validada no start; no spine o banco manda e o YAML só semeia banco vazio | AD-19 |
 
 ## Deferred
 

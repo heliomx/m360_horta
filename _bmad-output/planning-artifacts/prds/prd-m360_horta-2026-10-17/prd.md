@@ -309,7 +309,7 @@ Cada funcionalidade traz o **estado** atual:
 - **Gateway compartilhado entre propriedades** (Multi-CAR), descartado em 2026-09-10.
 - **LoRaWAN** no gateway.
 - **ESP8266/ESP32 em nós de campo.** Ficam restritos ao gateway.
-- **Migrar o Nó 4 e o nó do Kit Hélio para placas M360.**
+- **Migrar o Nó 4 e o nó do Kit Hélio para placas M360.** Para o Nó 4, este não objetivo é reavaliado pela Q-16, porque o corte para LoRa depende dele.
 - **Atualização de firmware por rádio (OTA).** A gravação é feita na bancada.
 - **App móvel nativo.** O painel é web responsivo, e no celular o canal é o Telegram.
 - **KPIs econômicos e de estabilidade do protocolo de testes** (custo por kg, payback, economia projetada por hectare, Índice de Estabilidade Hídrica). Saem dos dados exportados (FR-50), fora da plataforma.
@@ -319,7 +319,7 @@ Cada funcionalidade traz o **estado** atual:
 | Entrega | Conteúdo | Estado |
 |---|---|---|
 | **E0 — Piloto em operação** | Protótipos nRF24 (Nós 1, 2, 4, 99 e gateway), Node-RED, experimento A × B, Telegram | Em produção |
-| **E1 — Placas M360** | F1–F8 nas placas LP, ACT, GW e RF; fabricação PCBA; bancada; troca dos protótipos | Projeto e firmware prontos; falta fabricar e testar |
+| **E1 — Placas M360** | F1–F8 nas placas LP, ACT, GW e RF; fabricação PCBA; bancada; troca dos protótipos, primeiro em nRF24 pelo header legado e depois em LoRa (Q-16) | Projeto e firmware prontos; falta fabricar e testar |
 | **E2 — Backend** | F9–F14 no backend, primeiro em paralelo ao Node-RED e depois no lugar dele (fases 0–7 da spec §10) | Especificado (spec v1.3 em proposta) |
 | **E3 — Multi-propriedade** | F15, canal de rádio por propriedade, Kit Hélio como segunda instalação | Especificado; factory reset pronto |
 | **Futuro** | F16, OTA, assinatura de mensagens | — |
@@ -397,8 +397,8 @@ O backend herda os RNF-01 a RNF-12 da spec §4. Os que definem o produto:
 | Enquadramento ANATEL do LoRa em canal fixo BW125 | Pode forçar BW500 e mudar a grade de canais | Consultar laboratório antes do pedido em volume (Q-7) |
 | Placas não testadas | Defeito descoberto só em campo | SM-7; os protótipos ficam até a aprovação |
 | Conferências pendentes antes do pedido PCBA (pino 1 do RJ45, furos do Pro Mini, rotações na JLCPCB, estoque, banda do RFM95W) | Lote fabricado com erro | Checklist do `ARQUITETURA_FAMILIA.md` §9 antes do pedido |
-| Failsafe do Nó 99 rearmado a cada ON (`armFailsafe()`), achado em 2026-10-17 | ONs repetidos mantinham a solenóide ligada além do limite, contrariando o FR-10 | Corrigido no firmware em 2026-10-17 (história 3.11); falta gravar no Nó 99 e testar |
-| Padrão de fábrica do gateway igual ao prefixo do piloto | Gateway resetado ou novo sobe publicando como a estufa piloto | Correção antes da E3 (épico 10) |
+| Failsafe do Nó 99 rearmado a cada ON (`armFailsafe()`), achado em 2026-10-17 | ONs repetidos mantinham a solenóide ligada além do limite, contrariando o FR-10 | Corrigido no firmware em 2026-10-17 (história 3.5); falta gravar no Nó 99 antes da fase 3 e testar |
+| Padrão de fábrica do gateway igual ao prefixo do piloto | Gateway resetado ou novo sobe publicando como a estufa piloto | Correção antes da E3 (épico 9, história 9.1) |
 | Bombas NFT sem failsafe | Bomba ligada indefinidamente sem supervisão | Aceito por exigência da hidroponia; alerta de bomba ligada fora do esperado fica para a E3 (Q-3) |
 | Spec do backend ainda em proposta | Sete decisões de tecnologia abertas atrasam a fase 0 | Decidir D-01..03 e D-05..08 numa sessão, a partir das recomendações do addendum §6 (Q-10) |
 | Antena da ACT dentro de quadro metálico | Alcance desconhecido | Medir na instalação; usar repetidor |
@@ -426,6 +426,7 @@ O backend herda os RNF-01 a RNF-12 da spec §4. Os que definem o produto:
 | **Q-13** | Qual a área real de cada canteiro? O MVP diz 8,4 m², o motor e a spec usam 6,0 m² e 35 plantas; a área define o volume da lâmina | Não, mas afeta o FR-30 | Marcelo | Antes do ciclo congelado |
 | **Q-14** | O Canteiro A é suspenso em dia de chuva, como pede o protocolo, ou rega sempre? | Não, mas afeta o Índice | Marcelo | Antes do ciclo congelado |
 | **Q-15** | A vazão é calibrada antes do transplante, e o hidrômetro mede só o ramo das solenóides? | Não, mas afeta o FR-48 | Marcelo | Antes do ciclo congelado |
+| **Q-16** | Como o Nó 4, fonte de clima, entra numa rede LoRa? Ele roda direto na bateria, o que o RFM95W não admite, e migrar para placa M360 é não objetivo (§5). Opções: Nó 4 numa M360-LP a bateria com DHT e DS18B20 (revoga o não objetivo); um segundo gateway nRF24 só para ele; ou outra fonte de clima (D-04) | Bloqueia só o corte para LoRa (história 3.13); o corte em nRF24 segue | Marcelo | Antes da história 3.13 |
 
 ### 9.2 Premissas
 

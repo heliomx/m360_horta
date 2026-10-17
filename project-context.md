@@ -31,9 +31,8 @@ _Regras que um agente erraria sem aviso. O detalhe vive nos documentos apontados
 - Nós: ATmega328P com Arduino e MySensors 2.3.2. A lib M360-DRY 2.2.0 está em `lib/M360-DRY/`.
 - Gateway: ESP8266 (espressif8266 2.6.3), ArduinoJson 6, PubSubClient 2.8, MQTT em modo nativo (`M360_NATIVE_MQTT=1`).
 - Rádio:
-  - As placas M360 usam RFM95W a 916,8 MHz.
-  - Os protótipos e o Kit Hélio usam nRF24, canal 76.
-  - O tipo de rádio é escolhido em `[common] radio_flags`.
+  - A rede da estufa é nRF24 (canal 76), inclusive nas placas M360 pelo header legado. O Kit Hélio também é nRF24.
+  - O rádio é por rede: `[common] radio_flags` é o da estufa e não se troca. Uma rede LoRa nova (RFM95W, 916,8 MHz) usa `${lora_net.flags}` nos envs do gateway e de todos os nós (workflow `m360-node-factory`, Passo 1.4).
 - Plataforma: Node-RED em produção. O backend ainda não existe; as decisões de stack D-01 a D-08 estão abertas.
 - Hardware: KiCad 10.0.4 e Freerouting 1.9.0, com PCBA na JLCPCB.
 
@@ -48,7 +47,7 @@ _Regras que um agente erraria sem aviso. O detalhe vive nos documentos apontados
   - O failsafe é de 600 s nas solenóides e 120 s nas peristálticas; as bombas 38/39 não têm limite.
   - O MUX tem um canal por vez, e nenhum relé liga no boot.
   - A plataforma limita cada rega a `failsafe − 15 s`.
-  - O prazo conta do primeiro ON: um ON repetido não rearma (história 3.11, corrigida em 2026-10-17, sem bancada).
+  - O prazo conta do primeiro ON: um ON repetido não rearma (história 3.5, corrigida em 2026-10-17, sem bancada).
 - **A confirmação é o eco de aplicação.** Vale `command=1, ack=0, type=2` com o payload igual. O ACK de transporte (`ack=1`) nunca confirma nem grava estado.
 - **Payload de `V_STATUS` é só `"0"` ou `"1"`.** Qualquer outro valor desliga o relé (`atoi()`). No modo nativo, o payload MQTT é o valor bruto, nunca JSON.
 
