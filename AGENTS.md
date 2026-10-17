@@ -164,7 +164,7 @@ src/DRY/
 - **Precisão float:** 1 casa decimal (`set(val, 1)`)
 - **Solo (Nós 1 e 2):** `V_LEVEL` (37) em **ADC bruto 0–1023, valor alto = seco** (sonda resistiva); o Motor de Regras do Node-RED opera nessa escala (`inventario.md` §9)
 - **JSON gateway:** `DynamicJsonDocument(512)` para mensagens, `(384)` para heartbeat, `(256)` para eventos
-- **Rádio:** escolhido em `[common] radio_flags` (hoje RFM95W) e herdado por todos os envs, inclusive protótipos nRF24 e Kit Hélio. Quando o nRF24 estiver ativo: todos os módulos nRF24L01+ possuem capacitor de desacoplamento instalado (premissa de hardware confirmada, não questionar).
+- **Rádio:** escolhido em `[common] radio_flags` (hoje RFM95W) e herdado por todos os envs da Horta, inclusive os protótipos nRF24. O Kit Hélio é fixo em nRF24 (`[kit_helio] flags` em `src/DRY/kit-helio/platformio.ini`). Quando o nRF24 estiver ativo: todos os módulos nRF24L01+ possuem capacitor de desacoplamento instalado (premissa de hardware confirmada, não questionar).
 
 ---
 

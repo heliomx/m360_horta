@@ -25,7 +25,7 @@ Relação de todos os nós da rede MySensors e de seus child IDs, um a um.
 | **99** | `act_99` (M360-ACT) · `act_99_rep` · `nano_99reles` · `nano_99reles_rep` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V | `ALWAYS_ON` (`REPEATER` nos `_rep`) | ACT: 21, 31–39 · Nano: 11, 12, 21, 31–39 | Sim — comandos e vazão; clima (11, 12) só com o Nano |
 
 **Total: 27 children declarados** (6 + 6 + 3 + 12) com o Nó 99 no Nano, ou 25 na M360-ACT (sem os children 11 e 12); mais os 3 reservados por nó.  
-*Nota de Hardware:* Todos os módulos nRF24L01+ de todos os nós e gateways possuem capacitor de desacoplamento instalado (premissa de hardware confirmada). O rádio é escolhido em `[common] radio_flags` de `platformio.ini` entre nRF24L01+ e LoRa HopeRF RFM95W (915 MHz); **hoje o RFM95W está ativo**. A escolha vale para **todos** os envs que estendem `common`, inclusive os protótipos Nano/Pro Mini e o Kit Hélio, cujo hardware é nRF24 — gravar um protótipo com LoRa ativo deixa o nó surdo.
+*Nota de Hardware:* Todos os módulos nRF24L01+ de todos os nós e gateways possuem capacitor de desacoplamento instalado (premissa de hardware confirmada). O rádio é escolhido em `[common] radio_flags` de `platformio.ini` entre nRF24L01+ e LoRa HopeRF RFM95W (915 MHz); **hoje o RFM95W está ativo**. A escolha vale para todos os envs da Horta, inclusive os protótipos Nano/Pro Mini, cujo hardware é nRF24 — gravar um protótipo com LoRa ativo deixa o nó surdo. O Kit Hélio não segue essa escolha: fica fixo em nRF24 (Apêndice A).
 
 ---
 
@@ -336,7 +336,7 @@ Node-RED** — é o diagnóstico mais direto para comando que "não faz nada".
 
 ## Apêndice A — Sub-projeto Kit Hélio
 
-Rede separada, com gateway próprio (`d1_mini_kit_helio_gateway`, nó 0).
+Rede separada, com gateway próprio (`d1_mini_kit_helio_gateway`, nó 0). Rádio **fixo em nRF24L01+** (`[kit_helio] flags` em `src/DRY/kit-helio/platformio.ini` = flags comuns sem rádio + `${radio_rf24.flags}`), independente do `radio_flags` da Horta.
 
 | Nó | Env | Child | Constante | Label | `S_*` | `V_*` | Payload | Pino | `reportIntervalMin` |
 |---:|---|---:|---|---|---|---|---|---|:---:|

@@ -47,7 +47,7 @@ graph TD
     Broker <--> NR[Node-RED: dashboard, irrigação, ACK]
 ```
 
-O Kit Hélio é uma instalação separada com o mesmo gateway e um nó DHT11 (Nó 11), em
+O Kit Hélio é uma instalação separada, fixa em nRF24L01+ (não segue o `radio_flags` da Horta), com o mesmo gateway e um nó DHT11 (Nó 11), em
 `kit-helio/`.
 
 ---
@@ -91,7 +91,7 @@ O rádio ativo é escolhido uma vez, em `horta/platformio.ini`, seção `[common
 radio_flags = ${radio_rfm95.flags}      ; RFM95W / SX1276, 916,8 MHz, BW125 CR4/5 SF128, 17 dBm
 ```
 
-Todos os envs da Horta herdam essa escolha. Os pinos dependem da placa e entram só pelo env:
+Todos os envs da Horta herdam essa escolha. O Kit Hélio não: o `platformio.ini` dele monta `${common.base_flags}` + `${radio_rf24.flags}`. Os pinos dependem da placa e entram só pelo env:
 
 | Placa | RFM95W (mezanino M360-RF) | nRF24L01+ (header legado) |
 |---|---|---|
