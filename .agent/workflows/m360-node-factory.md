@@ -8,11 +8,11 @@ Orientar a criação completa de um novo nó da rede **M360 Horta**, garantindo 
 - Padrão MySensors v2.x
 - Estrutura PlatformIO do projeto
 - Documentação de esquema elétrico e diagrama de blocos
-- Configuração do `platformio.ini`
+- Configuração do `platformio.ini`, inclusive a rede de rádio do nó: nRF24 (a rede da estufa) ou LoRa (rede nova, com gateway próprio). O Passo 1.4 também diz como criar o env de um gateway LoRa
 
 Sempre utilizar como referências primárias:
 - Template: `lib/M360-DRY/examples/NodeTemplate/`
-- Nós existentes: `src/DRY/horta/nos/` (99nodeReles, 04noodeSolarMini, 01nodeSolo3dNano, 02nodeSolo3dNano)
+- Nós existentes: `src/DRY/horta/nos/` (`lp/` — firmware comum da M360-LP; 99nodeReles, 04noodeSolarMini, 01nodeSolo3dNano, 02nodeSolo3dNano)
 - API: `lib/M360-DRY/API_REFERENCE.md`
 
 ---
@@ -46,7 +46,7 @@ Proibido em qualquer `.h` ou `.cpp`:
 | Função | Responsabilidade |
 |--------|-----------------|
 | `before()` | `Serial.begin()`, `initSensors()` — antes do rádio iniciar |
-| `presentation()` | `node.begin("Nome", "Versão")` |
+| `presentation()` | `node.begin(F("Nome"), F("Versão"))` — sem `F()` não compila |
 | `setup()` | `node.onRead(cb)`, `node.onWrite(cb)` — após rádio ativo |
 | `loop()` | `node.process()` + lógica de timing própria do nó |
 | `receive()` | `node.handleMessage(msg)` — trata intervalo, atuadores, FORCE_UPDATE e REPRESENT |
@@ -56,12 +56,12 @@ Proibido em qualquer `.h` ou `.cpp`:
 ## R4 — Declarações de variáveis globais
 
 ```cpp
-static const M360::M360ItemDef NODE_ITEMS[] = { ... };  // static const
+static const char L_X[] PROGMEM = "Label";               // um array PROGMEM por rótulo
+static const M360::M360ItemDef NODE_ITEMS[] = { ... };  // static const; label = M360_LABEL(L_X)
 static const uint8_t NODE_ITEMS_COUNT = sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
-static MyMessage messages[NODE_ITEMS_COUNT + 3];  // +3 obrigatório (intervalo + bateria + debug)
-static float     lastValues[NODE_ITEMS_COUNT];
+static float     lastValues[NODE_ITEMS_COUNT];           // sem messages[] (M360-DRY 2.0.0)
 static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
-static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, messages, lastValues, nNoUpdates, PERFIL);
+static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, lastValues, nNoUpdates, PERFIL);
 ```
 
 ## R5 — Contrato de callbacks `onRead` / `onWrite`
@@ -78,7 +78,7 @@ O que o callback repassa ao driver depende da convenção adotada pelo nó — a
 duas são válidas, desde que o `.h` e o `.cpp` concordem:
 
 ```cpp
-// Convenção A — driver indexado por posição (nós 02, 05)
+// Convenção A — driver indexado por posição (Nó 4; nos Nós 01/02 a função vive no próprio .cpp)
 //   float readNodeItem(uint8_t nodeIndex);
 return readNodeItem(nodeIndex);
 
@@ -127,11 +127,13 @@ O motor `M360Node` processa os seguintes payloads via `V_CUSTOM` + `C_SET` — t
 | `CMD_REPRESENT` | `"REPRESENT"` | Re-anuncia todos os children via `present()` sem resetar estado; exibe `REPRES:OK` no Serial |
 | `CMD_DEBUG_NET` | `"DEBUG_NET"` | Responde diagnóstico de rede (`P:<parent> D:<dist> R:<S/N>`) via child 253 |
 
-Para acionar `CMD_REPRESENT` via MQTT, publicar em `m360/{UF}/{CAR}/in`:
-```json
-{ "nodeId": <ID>, "sensorId": 0, "command": 1, "type": 48, "payload": "REPRESENT" }
+Para acionar `CMD_REPRESENT` via MQTT (gateway em `M360_NATIVE_MQTT=1`), os campos vão no tópico e o payload é a string bruta:
 ```
-> `type: 48` = `V_CUSTOM`. `sensorId` pode ser qualquer childId válido do nó.
+tópico:  m360/{UF}/{CAR}/in/<ID>/0/1/0/48
+payload: REPRESENT
+```
+> `48` = `V_CUSTOM`. O childId pode ser qualquer um válido do nó. Um envelope JSON publicado no tópico
+> raiz `.../in` é rejeitado pelo gateway (`reportCommandRejected`, "número de níveis inválido").
 
 ## R12 — Atualizar o inventário na mesma entrega
 
@@ -165,11 +167,177 @@ Nos nós AVR, persistir intervalo **sempre** via `M360::saveInterval()` — nunc
 
 O agente **nunca gera código** sem ter todos os requisitos do Passo 1 respondidos pelo usuário.
 
+## R13 — Warm-Up Pós-Boot obrigatório para `M360_LOW_POWER`
+
+Todo nó com perfil `M360_LOW_POWER` **deve** implementar o padrão warm-up, contado em **ciclos**
+(referência completa: `lib/M360-DRY/API_REFERENCE.md` §4):
+
+```cpp
+#define WARMUP_INTERVAL_MS 30000UL   // 30 s entre ciclos
+#define WARMUP_CYCLES      10        // 10 ciclos × 30 s ≈ 5 min de relógio
+
+static uint8_t warmupCycles = 0;
+static bool    warmupDone   = false;
+
+void setup() {
+    node.onRead(readNodeItem);
+    if (node.setIntervalMs(WARMUP_INTERVAL_MS)) {   // fase 1: 30 s
+        Serial.println(F("WARMUP:30s"));
+    }
+}
+
+void loop() {
+    node.process();   // LOW_POWER: uma chamada = um ciclo (lê → envia → dorme)
+
+    if (!warmupDone && ++warmupCycles >= WARMUP_CYCLES) {
+        warmupDone = true;
+        if (node.getIntervalMs() > 0) {
+            node.setIntervalMs(0);                      // fase 2: intervalo da EEPROM
+            Serial.println(F("WARMUP:done->eeprom"));
+        } else {
+            Serial.println(F("WARMUP:done->backend"));  // C_SET V_VAR1 já cancelou
+        }
+    }
+}
+```
+
+**Por quê:** após um reboot, sem warm-up o nó demora 1 intervalo completo (ex.: 30 min) para enviar
+a primeira leitura. O warm-up garante dados rápidos e confirma a reconexão com o gateway.
+
+**Regras que não se negociam:**
+
+| Regra | Por quê |
+|---|---|
+| Contar **ciclos**, nunca `millis()` | `smartSleep()` para o `millis()` no sono: "5 min de `millis()`" viram ~60 ciclos (~35 min de relógio). E o `millis()` corre enquanto `_begin()` espera o gateway — numa queda geral um warm-up por tempo nasce expirado em `setup()` |
+| Encerrar com `setIntervalMs(0)`, **nunca** `setInterval(<constante>)` | `setInterval(30)` descarta o intervalo que o operador persistiu na EEPROM (`begin()` já o carregou). O nominal de fábrica vai no env: `-D M360_DEFAULT_INTERVAL=<min>` |
+| Checar o retorno de `setIntervalMs()` | Devolve `false` em `ALWAYS_ON`/`REPEATER` (no-op) e fora de `[M360_MIN_INTERVAL_MS, MAX]` |
+
+**Precedência:** um `C_SET V_VAR1` recebido durante o warm-up cancela o override na hora e persiste
+o novo intervalo na EEPROM — o comando externo sempre tem prioridade. `setIntervalMs(0)` não toca em
+`_interval`, então a transição posterior é inócua.
+
+**`_intervalMs` não persiste** na EEPROM — é zerado no constructor a cada boot.
+O nó deve rearmar o warm-up em `setup()` a cada vez que inicializa.
+
+> Nós `M360_ALWAYS_ON` e `M360_PASSIVE` **não** usam este padrão: `ALWAYS_ON` envia já no
+> primeiro `process()` (`lastRun == 0`) e `setIntervalMs()` rejeita o perfil; `PASSIVE` só lê sob
+> comando externo.
+
+---
+
+# Passo 0 — Em que hardware o nó vai rodar?
+
+Antes de elicitar sensores, decidir o **caminho**:
+
+| Caminho | Quando | O que se cria |
+|---|---|---|
+| **A — Placa M360-LP** (`hardware/m360-lp/`, Pro Mini 3,3 V / 8 MHz) | Nó sensor da família de placas: sondas de solo pelo 74HC4051, DS18B20, DHT, bateria/solar ou fonte 5 V | **Só** `src/DRY/horta/nos/lp/config/<nó>/nodeConfig.h` + um `[env:lp_XX]`. Nenhum `.cpp` novo |
+| **B — Hardware próprio** (Nano, Pro Mini 16 MHz, M360-ACT, protótipo) | Qualquer outro caso | Pasta `src/DRY/horta/nos/<nomeNó>/` com `.cpp` + `sensorDrivers` (Passos 3–7) |
+
+> Decisão de 2026-10-14 (ver `nos/lp/README.md`): na LP, **um firmware por placa, uma
+> configuração por nó**. Nem `.cpp` por nó (os Nós 01 e 02 eram cópias byte a byte com
+> seis rótulos de diferença), nem binário genérico configurado em campo (todos os drivers
+> linkados sempre, rótulos fora da Flash, e depende de pareamento no gateway e backend —
+> o spine `m360-generic-nodes-autoconfig` continua como evolução futura, não como base).
+
+## 0.A — Caminho A: nó na M360-LP
+
+### Estrutura (já existe — não recriar)
+
+```
+src/DRY/horta/nos/lp/
+├── lpNode.cpp            nó declarativo comum (hooks, M360Node, warm-up, corte de bateria)
+├── lpPins.h              pinagem fixa da placa + códigos LP_SRC_* para o campo `pin`
+├── lpDrivers.h/.cpp      VSW, ordem de ligar/desligar, despacho das leituras
+├── drivers/              soilMux.cpp · dht.cpp · onewire.cpp · battery.cpp (cada um atrás de #if)
+└── config/<nó>/nodeConfig.h   ← o ÚNICO arquivo que o nó novo acrescenta
+```
+
+### `nodeConfig.h` — o que o agente escreve
+
+```cpp
+#pragma once
+#define LP_NODE_NAME     "LP-<Nome>"     // F() exige literal: fica numa macro
+#define LP_NODE_VERSION  "1.0.0"
+
+// Alimentação — exatamente uma (lpNode.cpp falha a compilação se houver 0 ou 2):
+#define LP_POWER_FIXED_5V 1     // 5 V em J_VIN → M360_ALWAYS_ON
+// #define LP_POWER_BATTERY 1   // TP4056+DW01 em J_VIN → M360_LOW_POWER + bateria pelo A6
+                                //   opcionais: LP_VBAT_CUTOFF (3,0 V), LP_VBAT_GAIN/OFFSET
+
+// Drivers compilados (0 = o arquivo e a lib dele ficam fora do binário):
+#define LP_HAS_SOIL     1
+#define LP_HAS_DHT      0       // LP_DHT_TYPE DHT11 (padrão) ou DHT22
+#define LP_HAS_ONEWIRE  0
+
+#ifdef LP_NODE_ITEMS_SCOPE      // só lpNode.cpp vê este bloco; os drivers só leem as flags
+static const char L_X[] PROGMEM = "A_1m_10cm";
+// childId | kind | S_* | V_* | pin = LP_SRC_* | intervalMin | samples | label | wakeOnRadio | flags
+static const M360::M360ItemDef NODE_ITEMS[] = {
+    { 1,  M360::M360_SENSOR, S_MOISTURE, V_LEVEL, LP_SRC_SOIL(0),  0, 1, M360_LABEL(L_X), false, 0 },
+    { 11, M360::M360_SENSOR, S_TEMP,     V_TEMP,  LP_SRC_DHT_TEMP, 1, 1, ...,             false, 0 },
+    { 12, M360::M360_SENSOR, S_HUM,      V_HUM,   LP_SRC_DHT_HUM,  1, 1, ...,             false, 0 },
+    { 7,  M360::M360_SENSOR, S_TEMP,     V_TEMP,  LP_SRC_DS18B20,  1, 1, ...,             false, 0 },
+};
+#endif
+```
+
+O campo `pin` **não é um pino**: é a fonte da leitura (`LP_SRC_SOIL(ch)` = canal 0–7 do
+74HC4051, `LP_SRC_DHT_TEMP`, `LP_SRC_DHT_HUM`, `LP_SRC_DS18B20`). Convenção B de R5, a mesma
+do pino virtual do Nó 99, e por isso `setupPins()` é omitido (R7). Canal ↔ porta J1
+(`ARQUITETURA_FAMILIA.md` §7): ch0/ch1 estaca de 1 m (10/30 cm), ch2/ch3 de 3 m, ch4/ch5 de
+5 m; ch6/ch7 saem pela J2 (reserva).
+
+### Env — o que o agente acrescenta ao `src/DRY/horta/platformio.ini`
+
+```ini
+[env:lp_XX]
+extends = lp_base
+build_flags =
+    ${lp_base.build_flags}
+    -D MY_NODE_ID=<ID>
+    -D MY_DEBUG                         ; só em desenvolvimento
+    ; -D M360_DEFAULT_INTERVAL=30       ; só LP_POWER_BATTERY (R13)
+    -Isrc/DRY/horta/nos/lp/config/nodeXX
+```
+
+`lp_base` já traz placa, `lib_ldf_mode = chain+`, as libs e os pinos dos dois rádios
+(`lp_base.board_flags`: RFM95W `MY_RFM95_RST_PIN=8`; nRF24 legado no J5 `MY_RF24_CE_PIN=2`).
+`${lp_base.build_flags}` é a rede da estufa (nRF24). Para um nó LP numa rede LoRa, trocar essa
+linha por `${lora_net.flags}` e `${lp_base.board_flags}` (Passo 1.4).
+
+### O que o hardware impõe e o firmware comum já cumpre — não reescrever
+
+| Regra | Onde está |
+|---|---|
+| VSW (D4) liga em **LOW**; sobe no primeiro item e desce no último | `lpNode.cpp::readItem()` + `lpDrivers.cpp` |
+| S0–S2 em LOW **antes** de cortar o VSW; A1/A2 em `INPUT` puro com o VSW desligado | `powerDownSensors()` |
+| D3 (reed) em `INPUT_PULLUP`, nunca saída; ímã força leitura e envio de todos os children (polling em `ALWAYS_ON`, `setWakeInterrupt()` em `LOW_POWER`); A4/A5 ficam sem TWI até existir driver I2C | `lpPins.h`, `lpNode.cpp`, `README.md` |
+| Bateria = 3 × A6 × VCC(bandgap)/1023, corte de TX abaixo de `LP_VBAT_CUTOFF` | `drivers/battery.cpp`, `lpNode.cpp::loop()` |
+| Warm-up pós-boot (R13) | `lpNode.cpp`, só com `LP_POWER_BATTERY` |
+
+### Entregáveis do caminho A
+
+```
+src/DRY/horta/nos/lp/config/nodeXX/nodeConfig.h
+src/DRY/horta/platformio.ini   ([env:lp_XX])
+src/DRY/horta/inventario.md    (§1 + seção do nó — R12; na coluna Pino, "LP chN")
+```
+
+Depois: `pio run -e lp_XX` e o checklist do Passo 8 (itens 18–20). Usar o Passo 1 apenas
+para elicitar child IDs, rótulos, alimentação e sensores (1.1, 1.3, 1.7, 1.8); os itens
+1.2, 1.4, 1.5 e 1.6 já estão decididos pela placa.
+
+## 0.B — Caminho B: hardware próprio
+
+Seguir os Passos 1 a 8 abaixo.
+
 ---
 
 # Passo 1 — Elicitação de Requisitos (STOP & WAIT)
 
 Apresentar as perguntas a seguir e aguardar resposta completa antes de prosseguir.
+
 
 ---
 
@@ -183,13 +351,14 @@ Descrição funcional breve:
 
 ## 1.2 Placa
 
-Opções suportadas pelo projeto (AVR + MySensors RF24):
+Opções suportadas pelo projeto (AVR + MySensors; o rádio sai da rede escolhida no Passo 1.4):
 
 ```
 Arduino Nano (ATmega328P 5V/16MHz)   ← board: nanoatmega328
 Arduino Pro Mini 5V/16MHz            ← board: pro16MHzatmega328
 Arduino Pro Mini 3.3V/8MHz           ← board: pro8MHzatmega328
 Arduino Mega 2560                    ← board: megaatmega2560
+Placa M360-LP (Pro Mini 3,3V/8MHz)   ← caminho A do Passo 0: env lp_XX, sem .cpp novo
 ```
 
 > Placas ESP32/ESP8266 são reservadas para o gateway — não usar em nós de campo.
@@ -203,22 +372,77 @@ Arduino Mega 2560                    ← board: megaatmega2560
 [ ] M360_PASSIVE     — bateria com sensor pesado (Modbus/RS485):
                        acorda no intervalo apenas para check-in,
                        lê somente se o gateway enviar FORCE_UPDATE
+[ ] M360_REPEATER    — fonte fixa + -D MY_REPEATER_FEATURE no env:
+                       ALWAYS_ON que encaminha mensagens de outros nós
 ```
 
-## 1.4 Rádio nRF24L01+
+## 1.4 Rádio — nRF24 ou LoRa
+
+O rádio é escolhido **por rede**, nunca por nó: um gateway e todos os seus nós usam o mesmo
+rádio (AD-15 do spine). A pergunta ao usuário é **"em que rede este nó (ou gateway) vai
+entrar?"**, e não "que rádio este nó usa".
+
+```
+[ ] Rede da estufa (Horta)  → nRF24L01+. É a rede em produção: gateway e Nós 1, 2, 4 e 99,
+                              também nas placas M360 pelo header nRF24 legado (decisão de 2026-10-17)
+[ ] Rede nova em nRF24      → nRF24L01+, como uma rede à parte (Kit Hélio é o exemplo)
+[ ] Rede nova em LoRa       → RFM95W 915 MHz. Gateway e todos os nós da rede em LoRa, juntos
+```
+
+### Que flags o env usa
+
+| Rede | Hardware | `build_flags` começa com |
+|---|---|---|
+| Estufa (nRF24) | Placa M360 (LP, ACT, GW) | `${common.flags}` (o `radio_flags` da estufa é nRF24) |
+| Estufa ou nova em nRF24 | Só nRF24: Nano, Pro Mini 16 MHz, D1 mini protótipo | `${proto_rf24.flags}` |
+| Nova em LoRa | Placa M360 (LP, ACT, GW) com o mezanino M360-RF | `${lora_net.flags}` |
+
+- **Nunca** trocar o `[common] radio_flags` para criar uma rede LoRa. Ele é o rádio da estufa,
+  e mudá-lo levaria a estufa inteira para LoRa sem aviso.
+- **Nunca** misturar rádios numa rede. Um nó LoRa só conversa com um gateway LoRa, e vice-versa.
+- **Nó LP numa rede LoRa:** `${lora_net.flags}` seguido de `${lp_base.board_flags}`, no lugar de
+  `${lp_base.build_flags}`. O env `lp_lora_teste` é o exemplo.
+- **Gateway LoRa:** copiar o `[env:d1_mini_gw]` com outro nome e trocar só o `${common.flags}` por
+  `${lora_net.flags}`. O resto das flags do gateway fica igual.
+- **Nó 99 numa rede LoRa:** copiar o `[env:act_99]` com outro nome e trocar só o `${common.flags}`
+  por `${lora_net.flags}`.
+
+### O que impede o LoRa
+
+O RFM95W exige lógica de 3,3 V e alimentação de no máximo 3,9 V.
+
+- Nano e Pro Mini 5 V/16 MHz não servem para LoRa: são só nRF24.
+- Um nó com o MCU ligado direto na célula 18650 (4,2 V cheia), como o Nó 4 protótipo, também não
+  serve. Por isso a estufa não migra para LoRa enquanto a PRD Q-16 não decidir o Nó 4.
+- A frequência é fixa em 916,8 MHz (`[radio_rfm95]`). O canal por propriedade (grade D-09) ainda
+  não está implementado (épico 9). Duas redes LoRa vizinhas hoje se ouvem.
+- O enquadramento ANATEL ainda está pendente (PRD Q-7). Uma rede LoRa nova é de teste até lá.
+
+### Pinos
+
+Os dois conjuntos de pinos podem ficar no env: só o do rádio compilado tem efeito.
+
+#### nRF24L01+
 
 ```
 Pino CE  (default D9):
 Pino CSN (default D10):
 Potência RF: [ ] LOW  [ ] HIGH (default)  [ ] MAX
-Timeout de rádio MY_RADIO_TIMEOUT_MS (deixar em branco para omitir):
+```
+
+#### RFM95W
+
+```
+Pino de RESET do rádio (MY_RFM95_RST_PIN; LP = 8, ACT = 17/A3, GW = não ligado):
+DIO0 / NSS: padrão da lib (D2 / D10 no AVR; D1 / D8 no ESP8266) — só definir se fugir disso
 ```
 
 > ⚠️ **No Arduino Nano, CE/CSN são fixos em D9/D10.** A placa não aceita
 > remapeamento via `#define MY_RF24_CE_PIN` / `MY_RF24_CSN_PIN`. Se o nó usa
 > SoftwareSerial (RS485, GPS) ou outro periférico que dispute D9/D10, mova o
 > **periférico**, nunca o rádio.
-> Em Pro Mini e ESP8266 o remapeamento funciona (o gateway usa CE=D2/CSN=D15).
+> Em Pro Mini e ESP8266 o remapeamento funciona (o protótipo do gateway, `d1_mini_gateway`, usa
+> `MY_RF24_CE_PIN=2`/`CSN=15`; a M360-GW, `d1_mini_gw`, usa `MY_RF24_CE_PIN=5`).
 
 ## 1.5 Gestão de VCC dos sensores
 
@@ -270,7 +494,7 @@ O agente escolhe `S_*` e `V_*` mais adequados e apresenta para confirmação:
 ```
 S_TEMP / V_TEMP       — temperatura
 S_HUM / V_HUM         — umidade relativa
-S_MOISTURE / V_LEVEL  — umidade de solo (0–100%)
+S_MOISTURE / V_LEVEL  — umidade de solo (ADC bruto 0–1023, alto = seco — convenção dos Nós 1/2)
 S_WATER / V_FLOW      — vazão (L/min — convenção do projeto, ver nó 99)
 S_WATER_QUALITY / V_PH  — pH
 S_WATER_QUALITY / V_EC  — condutividade elétrica
@@ -297,6 +521,20 @@ flags bit0 (true = multiplica valor × 100 antes de enviar):
 
 ---
 
+## 1.8 Warm-Up Pós-Boot (apenas para `M360_LOW_POWER`)
+
+```
+Duração do warm-up (ciclos, padrão 10):
+Intervalo de warm-up (segundos, padrão 30):
+Intervalo nominal de fábrica (minutos, opcional): → vira `-D M360_DEFAULT_INTERVAL=<min>` no env
+```
+
+> Se o usuário não informar, usar os padrões: 30 s / 10 ciclos. O nominal é sempre o valor da
+> EEPROM (child 254); a constante de fábrica só vale com EEPROM virgem e nunca entra no `.cpp`.
+> Para `M360_ALWAYS_ON` e `M360_PASSIVE`, omitir — ver R13.
+
+---
+
 ⚠️ Não prosseguir enquanto todas as informações acima não forem fornecidas e confirmadas.
 
 ---
@@ -312,7 +550,7 @@ Verificar no projeto inteiro:
 | `MY_NODE_ID` duplicado | Buscar em todos os `platformio.ini` envs |
 | `childId` duplicado no mesmo nó | Conferir lista fornecida no Passo 1 |
 | Pino físico duplicado no mesmo nó | Conferir lista fornecida no Passo 1 |
-| Conflito de pino com rádio nRF24 | CE e CSN definidos devem ser únicos |
+| Conflito de pino com o rádio | nRF24: CE e CSN; RFM95W: DIO0, NSS e RESET — todos únicos |
 | Conflito de pino com Serial (D0/D1) | Pinos D0 e D1 reservados para UART |
 | Conflito de pino com interrupções | D2=INT0, D3=INT1 — confirmar se necessário |
 
@@ -340,6 +578,7 @@ src/DRY/horta/nos/<nomeNó>/
 
 > O sketch fica **direto na pasta do nó**. O subdiretório `withLibDRY/` foi
 > abandonado — nenhum nó do projeto o utiliza.
+> **Caminho A (M360-LP): nada disto é criado** — só `nos/lp/config/<nó>/nodeConfig.h` (Passo 0).
 
 ---
 
@@ -376,8 +615,9 @@ void  writeNodeItem(uint8_t pin, bool state);       // Convenção B: pino real 
 
 Regras de implementação:
 
-- O parâmetro de `readNodeItem` e `writeNodeItem` é o **índice no array NODE_ITEMS[]**
-- Para nós com MUX, usar `IS_MUX_CH(nodeIndex)` e `MUX_CH(nodeIndex)` definidos no `.h`
+- O parâmetro de `readNodeItem` e `writeNodeItem` segue a convenção escolhida em R5: **índice**
+  no `NODE_ITEMS[]` (A) ou **pino** real/virtual `NODE_ITEMS[i].pin` (B) — nunca `childId`
+- Para nós com MUX (convenção B), `IS_MUX_CH(pin)` e `MUX_CH(pin)` recebem o **pino**, não o índice
 - Nunca usar `delay()` dentro destas funções — usar `wait()` se necessário
 - `switch(nodeIndex)` deve ter `default: return NAN;` para sensores
 
@@ -441,22 +681,26 @@ Basear estritamente no template `lib/M360-DRY/examples/NodeTemplate/NodeTemplate
 // ===== CHILD IDs =====
 // (importados de sensorDrivers.h ou definidos aqui)
 
+// ===== RÓTULOS (na Flash) =====
+// label é const __FlashStringHelper*: literal "..." direto no NODE_ITEMS[] não compila.
+static const char L_X[] PROGMEM = "Label";
+static const char L_Y[] PROGMEM = "Rele";
+
 // ===== DEFINIÇÃO DOS ITENS DO NÓ =====
 // childId | kind | presentType | valueType | pin | intervalMin | samples | label | wakeOnRadio | flags
 static const M360::M360ItemDef NODE_ITEMS[] = {
-    { CHILD_ID_X, M360::M360_SENSOR,   S_TEMP,   V_TEMP,   -1, 1, 3, "Label", false, 0 },
-    { CHILD_ID_Y, M360::M360_ACTUATOR, S_BINARY, V_STATUS,  5, 0, 1, "Rele",  true,  0 },
+    { CHILD_ID_X, M360::M360_SENSOR,   S_TEMP,   V_TEMP,   -1, 1, 3, M360_LABEL(L_X), false, 0 },
+    { CHILD_ID_Y, M360::M360_ACTUATOR, S_BINARY, V_STATUS,  5, 0, 1, M360_LABEL(L_Y), true,  0 },
 };
 static const uint8_t NODE_ITEMS_COUNT = sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
 
-// ===== BUFFERS (alocação estática — sem heap) =====
-static MyMessage messages[NODE_ITEMS_COUNT + 3];  // +3: intervalo (254), bateria (255), debug (253)
+// ===== BUFFERS (alocação estática — sem heap; sem messages[] desde a M360-DRY 2.0.0) =====
 static float     lastValues[NODE_ITEMS_COUNT];
 static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
 
 // ===== INSTÂNCIA DO MOTOR =====
-static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, messages, lastValues,
-                           nNoUpdates, M360::<PERFIL>);
+static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, lastValues, nNoUpdates,
+                           M360::<PERFIL>);
 
 // ===== CALLBACKS DE ENERGIA (apenas se houver PIN_POWER_SENSORS) =====
 namespace M360 {
@@ -472,7 +716,7 @@ void before() {
 }
 
 void presentation() {
-    node.begin("<NomeAmigavel>", "1.0");
+    node.begin(F("<NomeAmigavel>"), F("1.0"));
 }
 
 void setup() {
@@ -493,6 +737,7 @@ void receive(const MyMessage& msg) {
 > **Se não há pino VCC controlado**: omitir o bloco `namespace M360 {}` inteiro.
 > **Se não há atuadores**: omitir `node.onWrite()` e `writeNodeItem`.
 > **Se há MUX CD74HC4067**: omitir `node.setupPins()` conforme R7.
+> **Se `M360_LOW_POWER`**: incluir o bloco warm-up de R13 em `setup()` e `loop()`.
 
 ---
 
@@ -520,17 +765,19 @@ lib_deps =
     ; adicionar bibliotecas específicas do nó aqui
 
 build_flags =
-    ${common.flags}
+    ${proto_rf24.flags}           ; Nano: só nRF24. Placa M360: ${common.flags} (estufa) ou ${lora_net.flags} (rede LoRa) — Passo 1.4
     -D MY_NODE_ID=<ID>
-    -D MY_RF24_CE_PIN=<CE>
-    -D MY_RF24_CSN_PIN=<CSN>
-    ; -D MY_RADIO_TIMEOUT_MS=500   ← apenas para nós ALWAYS_ON
+    ; aqui só os pinos que fogem do padrão; os do rádio não compilado ficam inertes:
+    ; -D MY_RFM95_RST_PIN=<RST>     ← RFM95W (obrigatório se o RESET estiver ligado)
+    ; -D MY_RF24_CE_PIN=<CE>        ← nRF24
+    ; -D MY_RF24_CSN_PIN=<CSN>
     ; -D MY_DEBUG                   ← apenas em desenvolvimento
     ; -D MY_RSSI_LOG_INTERVAL=30000 ← se RSSI log habilitado no Passo 1.6
 ```
 
 > ⚠️ A flag correta é `MY_RF24_CSN_PIN` (com N), não `MY_RF24_CS_PIN`.
-> ⚠️ `MY_RADIO_TIMEOUT_MS` impacta negativamente nós LOW_POWER — usar só em ALWAYS_ON.
+> ⚠️ Não existe `MY_RADIO_TIMEOUT_MS` no MySensors 2.3.2: um `-D` dela não faz nada.
+> Se o nó usa bibliotecas escolhidas por `#if` (como a LP), acrescentar `lib_ldf_mode = chain+`.
 
 ---
 
@@ -551,7 +798,7 @@ Conteúdo mínimo:
 
 Diagrama visual SVG representando:
 - MCU (placa)
-- Módulo rádio nRF24L01+
+- Módulo de rádio (RFM95W no mezanino M360-RF ou nRF24L01+)
 - Sensores e atuadores
 - Alimentação e pino VCC controlado (se houver)
 
@@ -566,9 +813,9 @@ Verificar cada item antes de entregar o código:
 | # | Anti-padrão | Verificação |
 |---|-------------|-------------|
 | 1 | `#define MY_*` em `.cpp` ou `.h` | Buscar `MY_` fora do `platformio.ini` |
-| 2 | `messages[N]` com N fixo, ou `+ 2` em vez de `NODE_ITEMS_COUNT + 3` | `M360Node::begin()` escreve em `[_count+2]`; `+2` estoura o array |
+| 2 | Rótulo literal `"..."` no `NODE_ITEMS[]`, ou `M360_LABEL()` sobre string em RAM | `label` é `const __FlashStringHelper*`: o literal não compila; `M360_LABEL()` sobre RAM compila e envia lixo — usar array `PROGMEM` |
 | 3 | `NODE_ITEMS[]` sem `static const` | Confirmar declaração |
-| 4 | Buffers sem `static` | `messages`, `lastValues`, `nNoUpdates` |
+| 4 | Buffers sem `static` | `lastValues`, `nNoUpdates` (sem `messages[]` desde a M360-DRY 2.0.0) |
 | 5 | `Serial.begin()` em `setup()` | Deve estar em `before()` |
 | 6 | `initSensors()` em `setup()` | Deve estar em `before()` |
 | 7 | `delay()` dentro de `readNodeItem()` ou `writeNodeItem()` | Substituir por `wait()` |
@@ -581,6 +828,10 @@ Verificar cada item antes de entregar o código:
 | 14 | childId 254 ou 255 em `NODE_ITEMS[]` | Reservados para intervalo e bateria |
 | 15 | Ordem errada de includes (`M360.h` antes de `MySensors.h`) | Causa banner truncado + hang; ordem correta: `Arduino.h` → `MySensors.h` → `M360.h` → `sensorDrivers.h` |
 | 16 | `src/DRY/horta/` alterado sem atualizar `inventario.md` | Ver R12 — inventário é contrato com o Node-RED |
+| 17 | `M360_LOW_POWER` sem warm-up, warm-up medido por `millis()`, ou transição com `setInterval(<constante>)` | Ver R13 — sem warm-up o nó demora 1 intervalo para a 1ª leitura; `millis()` para no sono; a constante descarta o intervalo da EEPROM |
+| 18 | Nó na M360-LP com `.cpp` próprio, ou `lpNode.cpp`/`drivers/` editados para um nó só | Caminho A do Passo 0: o nó é só `config/<nó>/nodeConfig.h` + env; o comum muda para todos ou não muda |
+| 19 | `nodeConfig.h` sem `#ifdef LP_NODE_ITEMS_SCOPE` em volta de `NODE_ITEMS[]`, ou com `LP_HAS_*` ausente em vez de `0` | Os drivers incluem o `nodeConfig.h` antes de `M360.h`; `#if` de macro ausente vale 0, mas explícito é o contrato |
+| 20 | Na LP, `pin` com número de pino físico (A0, 5…) ou `node.setupPins()` | `pin` carrega `LP_SRC_*`; pino real ali faz `pinMode` em linha de campo ou de rádio |
 
 ---
 
@@ -606,7 +857,8 @@ src/DRY/horta/inventario.md   (nó e children acrescentados — R12)
 ✓ MY_NODE_ID      : <valor>
 ✓ Perfil          : M360_<PERFIL>
 ✓ Placa           : <board>
-✓ CE / CSN        : D<X> / D<Y>
+✓ Rede / rádio    : <estufa (nRF24) | nova nRF24 | nova LoRa> — flags <${common.flags} | ${proto_rf24.flags} | ${lora_net.flags}>
+✓ Pinos do rádio  : <RFM95W: RST D<X>> ou <nRF24: CE D<X> / CSN D<Y>>
 ✓ Sensores        : <N> items em NODE_ITEMS[]
 ✓ Atuadores       : <N> items
 ✓ VCC controlado  : <sim/não> — pino <X>
@@ -623,3 +875,4 @@ Explicar:
 5. Bateria: como `_processBattery()` reporta automaticamente via childId 255
 6. Se PASSIVE: como o FORCE_UPDATE dispara leitura via `handleMessage()` → `_readAndSendAll()`
 7. Reapresentação: como o comando `REPRESENT` (V_CUSTOM) dispara `_rePresent()` que re-anuncia todos os children via `present()` sem resetar `lastValues` — útil após reinício do broker ou do Home Assistant
+8. Se LOW_POWER: como o warm-up (R13) funciona — fase 1 (N ciclos de 30 s) vs fase 2 (`setIntervalMs(0)` → intervalo da EEPROM, com eco no child 254), por que se conta ciclos e não `millis()`, e como um `C_SET V_VAR1` durante o warm-up tem prioridade e cancela o override

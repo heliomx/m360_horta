@@ -5,11 +5,16 @@
  * presentation / begin / process / handleMessage.
  *
  * USO:
- *   1. Defina NODE_ITEMS[] e NODE_ITEMS_COUNT no arquivo do nó.
- *   2. Declare os buffers (messages, lastValues, nNoUpdates).
+ *   1. Declare cada rótulo como array PROGMEM e defina NODE_ITEMS[] e
+ *      NODE_ITEMS_COUNT, passando os rótulos com M360_LABEL().
+ *   2. Declare os buffers lastValues[] e nNoUpdates[] (tamanho NODE_ITEMS_COUNT).
  *   3. Instancie M360Node e registre os callbacks onRead/onWrite.
- *   4. Chame begin() em presentation(), process() em loop(),
+ *   4. Chame begin(F(nome), F(versão)) em presentation(), process() em loop(),
  *      e handleMessage() em receive().
+ *
+ * MEMÓRIA (2.0.0): o nó não declara messages[] — a lib monta cada envio num
+ * único MyMessage interno — e rótulos, nome e versão ficam na Flash. Medido no
+ * Nó 99 com a assinatura MySensors ligada: 1945 → 1235 B de RAM estática.
  *
  * IMPORTANTE: Não usa std::vector nem String — compatível com ATmega328P.
  */
@@ -19,6 +24,12 @@
 #include <core/MySensorsCore.h>
 #include "M360Config.h"
 #include "M360Power.h"
+
+// Converte um array PROGMEM no tipo do campo `label` de M360ItemDef.
+// SÓ para arrays declarados com PROGMEM: aplicado a uma string em RAM, compila
+// e o nó envia lixo como rótulo. Um literal "..." direto no campo não compila —
+// é essa a proteção que o tipo do campo dá.
+#define M360_LABEL(progmemStr) (reinterpret_cast<const __FlashStringHelper*>(progmemStr))
 
 namespace M360
 {
@@ -36,7 +47,9 @@ namespace M360
 		Comportamento: O nó acorda sozinho em intervalos regulares (ex: a cada 5 minutos).
         Ação ao Acordar: Ele executa automaticamente o ciclo: Ligar Periféricos -> Ler Sensores -> Enviar Dados -> Desligar Periféricos -> Voltar a Dormir.
         Uso Ideal: Sensores de bateria comuns (Temperatura, Umidade de Solo simples) onde você quer um gráfico constante no Home Assistant sem precisar solicitar.
-        Comando Externo: Se o gateway enviar um comando enquanto ele está no smartSleep, ele acorda, processa o comando, faz uma leitura completa e volta a dormir.
+        Comando Externo: o rádio fica DESLIGADO durante o sono (transportDisable() antes do hwSleep()).
+        O nó só recebe comandos na janela acordada de cada ciclo (~M360_MIN_AWAKE_MS + 500 ms do smartSleep);
+        o gateway não retém mensagens — cabe ao controlador reenviar quando o nó der sinal de vida.
 		*/
 		M360_ALWAYS_ON,   // fonte fixa / debug: timer por millis, sem sleep
 		M360_PASSIVE,     // reativo: acorda no intervalo para "check-in", mas só lê/atua sob comando
@@ -67,7 +80,7 @@ namespace M360
 		int          pin;               // -1 se não aplicável
 		uint16_t     reportIntervalMin; // 0 = sempre reporta
 		uint8_t      readSamples;       // número de amostras para média
-		const char*  label;
+		const __FlashStringHelper* label; // na Flash — ver M360_LABEL()
 		bool         wakeOnRadio;
 		uint8_t      flags;             // bit 0: multiplica por 100 antes de enviar
 	} M360ItemDef;
@@ -81,22 +94,23 @@ namespace M360
 		 *
 		 * @param items       Array const de M360ItemDef definido pelo nó.
 		 * @param count       Número de itens em `items` (NODE_ITEMS_COUNT).
-		 * @param messages    Buffer de MyMessage alocado pelo nó: MyMessage[count + 3]
-		 *                    (+1 intervalo, +1 bateria, +1 debug remoto).
 		 * @param lastValues  Buffer float alocado pelo nó: float[count].
 		 * @param nNoUpdates  Buffer uint8_t alocado pelo nó: uint8_t[count].
+		 *
+		 * Não há buffer de mensagens: a lib monta cada envio — dos itens e dos
+		 * children reservados 253/254/255 — num único MyMessage interno.
 		 */
 		M360Node(const M360ItemDef* items,
 		         uint8_t            count,
-		         MyMessage*         messages,
 		         float*             lastValues,
 		         uint8_t*           nNoUpdates,
 		         M360PowerProfile   profile = M360_LOW_POWER);
 
 		// ----- Lifecycle (chamados pelos hooks MySensors) -----
 
-		// Chame dentro de presentation() — apresenta sensores e inicializa messages[]
-		void begin(const char* name, const char* version);
+		// Chame dentro de presentation() — apresenta sensores e zera lastValues/nNoUpdates.
+		// Nome e versão na Flash: node.begin(F("Nome"), F("1.0")).
+		void begin(const __FlashStringHelper* name, const __FlashStringHelper* version);
 
 		// Chame dentro de loop() — lê sensores, envia dados, gerencia sleep
 		void process();
@@ -117,28 +131,101 @@ namespace M360
 		// Payload truncado em 24 chars (limite MAX_PAYLOAD_SIZE do MySensors).
 		void sendDebug(const char* text);
 
+		// Envia o estado do item `index` com o child e o tipo dele. Para o nó
+		// reportar mudanças que acontecem fora do fluxo da lib — ex.: o failsafe
+		// que desliga um relé sozinho, ou o canal MUX preemptado (Nó 99).
+		void sendItemState(uint8_t index, bool state);
+
+		// Lê todos os SENSORES e envia todos, ignorando o filtro de "mudou o suficiente",
+		// (atuadores ficam de fora: estado de relé só sai por eco, preempção e failsafe)
+		// e reporta a bateria — o mesmo efeito do comando FORCE_UPDATE, mas disparado
+		// pelo próprio nó (ex.: reed switch acionado por ímã). Chama powerUp() antes e
+		// powerDown() depois em qualquer perfil; as duas devem ser idempotentes.
+		void forceUpdate();
+
+		// Interrupção externa que também acorda o nó nos perfis LOW_POWER e PASSIVE
+		// (smartSleep por timer OU interrupção). `interruptNum` é o número da
+		// interrupção, não o pino: digitalPinToInterrupt(pino). `mode` = FALLING,
+		// RISING ou CHANGE (evite LOW: com o contato fechado o nó não voltaria a dormir).
+		// Ao acordar por ela, o ciclo seguinte envia tudo como em forceUpdate().
+		// Sem efeito em ALWAYS_ON/REPEATER, que não dormem: lá o nó faz polling.
+		void setWakeInterrupt(uint8_t interruptNum, uint8_t mode);
+
+		// Repareamento local (nó de ID fixo): esquece o pai e a tabela de rotas,
+		// reinicia o transporte (rádio + busca de pai) SEM reiniciar o MCU — atuadores
+		// ficam como estão. Quando o enlace volta, reapresenta todos os children e
+		// chama forceUpdate() (sensores e bateria; estado de atuador NÃO é reenviado).
+		// Não bloqueia: o andamento é tratado em process(),
+		// então só serve aos perfis que chamam process() continuamente (ALWAYS_ON,
+		// REPEATER). Ignorado se já houver um repareamento em curso.
+		// Serial: REJOIN:INI, REJOIN:OK; debug remoto (child 253): REJOIN, REJOIN:OK.
+		void requestRejoin();
+
+		// true enquanto o repareamento não terminou.
+		bool rejoinPending() const {
+			return _rejoinPhase != 0;
+		}
+
 		// ----- Configuração de pinos (opcional, baseado em items[].pin) -----
 		void setupPins();
 
-		// ----- Acesso ao intervalo atual -----
+		// ----- Acesso e ajuste do intervalo em runtime -----
 		uint16_t getInterval() const {
 			return _interval;
 		}
 
+		// Retorna o override em ms (0 = inativo — warm-up concluído ou não iniciado).
+		uint32_t getIntervalMs() const {
+			return _intervalMs;
+		}
+
+		// Altera o intervalo em minutos sem gravar na EEPROM, cancela qualquer
+		// override em ms e ecoa o valor vigente no child 254 (como handleMessage()).
+		// Devolve false fora de [M360_MIN_INTERVAL, M360_MAX_INTERVAL] (log INT_LOC:REJ).
+		// Só tem efeito depois de begin(), que carrega o valor da EEPROM.
+		bool setInterval(uint16_t minutes);
+
+		// Override temporário do intervalo em milissegundos (sem gravar EEPROM),
+		// lido por process() nos perfis LOW_POWER e PASSIVE. 0 cancela o override
+		// e volta ao intervalo em minutos (EEPROM), ecoando-o no child 254.
+		// Devolve false nos perfis ALWAYS_ON/REPEATER (INT_MS:IGN — usam timer por
+		// millis() e nunca leem o override) e fora de
+		// [M360_MIN_INTERVAL_MS, M360_MAX_INTERVAL * 60000] (INT_MS:REJ).
+		// Uso típico: warm-up pós-boot — ver API_REFERENCE.md §4.
+		bool setIntervalMs(uint32_t ms);
+
 	private:
 		const M360ItemDef* _items;
 		uint8_t            _count;
-		MyMessage*         _messages;
+		// Único buffer de envio. A lib nunca relê a mensagem — o valor sempre vem
+		// de _lastValues —, então basta remontar o cabeçalho (child + tipo) a cada send.
+		MyMessage          _txMsg;
 		float*             _lastValues;
 		uint8_t*           _nNoUpdates;
-		uint16_t           _interval;
+		uint16_t           _interval;    // minutos (persistido na EEPROM)
+		uint32_t           _intervalMs;  // override em ms (0 = inativo, não persiste)
 		float              _lastBattVoltage;
 		uint8_t            _battCycle;
 
 		M360PowerProfile   _profile;
+		int8_t             _wakeIrq;     // -1 = só timer (setWakeInterrupt não chamado)
+		uint8_t            _wakeMode;
+		bool               _wokeByIrq;   // o último smartSleep() acabou pela interrupção
+		uint8_t            _rejoinPhase; // 0 nada; 1 esperando o enlace cair; 2 esperando voltar
+		uint32_t           _rejoinT0;
 		float (*_readCb)(uint8_t);
 		void  (*_writeCb)(uint8_t, bool);
 
+		// smartSleep() por timer, ou por timer e _wakeIrq quando configurada.
+		void _sleep(uint32_t sleepMs);
+
+		// Avança o repareamento pedido por requestRejoin(); chamada no início de process().
+		void _checkRejoin();
+
+		// Prepara _txMsg para o child/tipo informados e o devolve para o send().
+		MyMessage& _msgFor(uint8_t childId, uint8_t valueType);
+		// Ecoa o intervalo vigente (minutos) no child 254 / V_VAR1.
+		void _sendInterval();
 		// forceAll=true ignora o filtro de "mudou o suficiente" (usado por CMD_FORCE_UPDATE)
 		void _readAndSendAll(bool forceAll = false);
 		// Envia _lastValues[i] já em cache (sem reler o hardware), usada tanto por

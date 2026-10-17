@@ -10,10 +10,12 @@
  */
 
 #include "sensorDrivers.h"
-#include <DHT.h>
 
-// ===== OBJETO DHT11 =====
+#ifndef NODE99_BOARD_ACT
+// ===== OBJETO DHT11 (só no Nano) =====
+#include <DHT.h>
 static DHT dht(PIN_DHT, DHT11);
+#endif
 
 // ===== ESTADO INTERNO (rastreamento em software) =====
 static int8_t s_activeMuxChannel    = -1;       // -1 = nenhum canal MUX ativo
@@ -66,11 +68,26 @@ void initSensors()
 	digitalWrite(PIN_NFT_PUMP, HIGH); // relay OFF (Active-LOW)
 	digitalWrite(PIN_NFT_OXI,  HIGH); // relay OFF (Active-LOW)
 
+#ifndef NODE99_BOARD_ACT
 	// --- Inicialização do DHT11 ---
 	dht.begin();
+#endif
 
 	// --- Sensor de vazão (interrupção) ---
 	initFlowSensor();
+
+#ifdef NODE99_BOARD_ACT
+	// --- Reed (SW1) ---
+	pinMode(PIN_REED, INPUT_PULLUP);
+
+	// --- /OE do 74HCT244: ÚLTIMO passo ---
+	// Até aqui o pull-up R2 manteve o buffer em alta impedância e os módulos
+	// de relé com a entrada solta (= desligados). Só agora, com D4–D8, A0 e A1
+	// em OUTPUT e no nível de "desligado", o buffer passa a copiar os pinos.
+	// Sem este passo nenhum relé aciona.
+	pinMode(PIN_OE_N, OUTPUT);
+	digitalWrite(PIN_OE_N, LOW);
+#endif
 }
 
 int8_t writeNodeItem(uint8_t pin, bool state)
@@ -121,6 +138,7 @@ float readNodeItem(uint8_t pin)
 	return digitalRead(pin) == LOW ? 1.0f : 0.0f;
 }
 
+#ifndef NODE99_BOARD_ACT
 float readDHTTemp()
 {
 	float t = dht.readTemperature();
@@ -132,13 +150,23 @@ float readDHTHum()
 	float h = dht.readHumidity();
 	return isnan(h) ? NAN : h;
 }
+#endif
 
 // ===== SENSOR DE VAZÃO YF-S201 =====
 
 void initFlowSensor()
 {
-	// Saída em coletor aberto: pull-up interno mantém a linha em HIGH em repouso.
+#ifdef NODE99_BOARD_ACT
+	// M360-ACT: a placa condiciona o sinal (R3 10 kΩ em série, R4 100 kΩ para
+	// GND, clamp BAT54WS no 3,3 V). INPUT puro: o pull-up interno contra o R3
+	// deixaria o nível baixo de um sensor em LOW acima do VIL de 0,99 V, e o
+	// R4 já segura o pino em LOW com o sensor desligado.
+	pinMode(PIN_FLOW, INPUT);
+#else
+	// Nano: saída em coletor aberto, o pull-up interno mantém a linha em HIGH
+	// em repouso.
 	pinMode(PIN_FLOW, INPUT_PULLUP);
+#endif
 	s_flowPulses     = 0;
 	s_flowLastReadMs = millis();
 	attachInterrupt(digitalPinToInterrupt(PIN_FLOW), flowPulseISR, FALLING);

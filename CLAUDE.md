@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Projeto
 Sistema IoT de monitoramento agrícola M360 Horta.  
-**Plataforma:** PlatformIO · Arduino/AVR · MySensors RF24 · ESP8266  
+**Plataforma:** PlatformIO · Arduino/AVR · MySensors (rádio por rede: nRF24L01+ na estufa; RFM95W 915 MHz para redes LoRa novas) · ESP8266  
 **Arquitetura:** Monorepo com dois sub-projetos agregados por `extra_configs`:
 - **Horta** — gateway em `src/DRY/horta/gateway/`, nós em `src/DRY/horta/nos/`
 - **Kit Hélio** — gateway em `src/DRY/kit-helio/gateway/`, nós em `src/DRY/kit-helio/nos/`
@@ -43,12 +43,19 @@ Definidos em `src/DRY/horta/platformio.ini` e `src/DRY/kit-helio/platformio.ini`
 | `env`                       | Hardware                    | Porta | Nó |
 |-----------------------------|-----------------------------|-------|----|
 | `d1_mini_gateway`           | ESP8266 D1 Mini             | COM5  | 0 (Gateway Horta) |
+| `d1_mini_gw`                | ESP8266 D1 Mini na M360-GW  | COM5  | 0 (Gateway Horta, placa nova) |
+| `lp_01`                     | M360-LP (Pro Mini 3,3 V)    | —     | 1  |
+| `lp_02`                     | M360-LP (Pro Mini 3,3 V)    | —     | 2  |
+| `lp_lora_teste`             | M360-LP com mezanino RFM95W | —     | 1 (teste de compilação de nó LoRa; fora de `default_envs`) |
 | `nano_01nodeSolo3d`         | Arduino Nano (5V)           | —     | 1  |
 | `ProMini_01nodeSolo3d`      | Arduino Pro Mini (5V/16MHz) | —     | 1  |
 | `nano_02nodeSolo3d`         | Arduino Nano (5V)           | —     | 2  |
 | `ProMini_04noodeSolarMini`  | Arduino Pro Mini (5V/16MHz) | —     | 4  |
-| `nano_99reles`              | Arduino Nano (5V)           | COM4  | 99 |
-| `nano_99reles_rep`          | Arduino Nano (5V)           | COM4  | 99 (repeater) |
+| `nano_99reles`              | Arduino Nano (5V)           | —     | 99 |
+| `nano_99reles_rep`          | Arduino Nano (5V)           | —     | 99 (repeater) |
+| `nano_99reles_diag`         | Arduino Nano (5V)           | COM10 | 99 (diagnóstico, `NODE99_HEALTH_LOG`) |
+| `act_99`                    | M360-ACT (Pro Mini 3,3 V)   | —     | 99 (sem DHT) |
+| `act_99_rep`                | M360-ACT (Pro Mini 3,3 V)   | —     | 99 (repeater, sem DHT) |
 | `d1_mini_kit_helio_gateway` | ESP8266 D1 Mini             | COM5  | 0 (Gateway Kit Hélio) |
 | `pro16MHz_miniDHT`          | Arduino Pro Mini (5V/16MHz) | —     | 11 |
 | `check_m360_dry`            | — (análise estática)        | —     | —  |
@@ -70,11 +77,47 @@ O arquivo `include/M360Credentials.h` define AP SSID/senha, WiFi STA, MQTT serve
 
 ---
 
+## Deploy no Node-RED (`src/DRY/horta/nodered/`)
+
+Procedimento completo: [`src/DRY/horta/nodered/DEPLOY.md`](src/DRY/horta/nodered/DEPLOY.md).
+
+- **Sem token.** Autenticação por usuário/senha em `%USERPROFILE%\.m360\nodered.env`
+  (fora do repo, ACL só do usuário). O login gera token de curta duração só em
+  memória. Nunca copiar credenciais para repo, `~/.claude.json`, chat ou commit.
+- **Ferramenta única:** `python src/DRY/horta/nodered/tools/nr_deploy.py <login|backup|diff|pull|deploy>`.
+  O MCP `node-red` usa o wrapper `nr-mcp-login.mjs`, que faz o mesmo login a cada início.
+- **Ordem fixa:** `backup` → `diff` → (servidor à frente? `pull` e reaplicar) →
+  `deploy --tab <ID>` só das abas alteradas → `diff` de confirmação → commit.
+- **`deploy --all` só com pedido explícito.** Substitui config nodes (broker, dashboard, Telegram).
+- **Aba Irrigação** só sobe com Nó 99 e gateway gravados com o failsafe.
+- Em 2026-09-24 o servidor estava à frente do repo em todas as abas: fazer `pull` antes de editar `flows.json`.
+
+---
+
 ## Skill Obrigatória — MySensors Node Coding & Gateway
 
 Ao trabalhar em qualquer arquivo dentro de `src/DRY/` (nós **ou** gateway), aplicar **obrigatoriamente** os padrões definidos em:
 
 - **Referência consolidada (SSoT):** `.agent/skills/bmad-mysensors-node-coding/SKILL.md`
+
+---
+
+## Regras Obrigatórias — Hardware KiCad (`hardware/`)
+
+Ao trabalhar em qualquer arquivo dentro de `hardware/` (`.kicad_sch`, `.kicad_pcb`, `.kicad_mod`,
+`.kicad_sym`, `tools/`), aplicar **obrigatoriamente**:
+
+- **Referência consolidada (SSoT):** `.agent/skills/m360-kicad-hardware-workflow/SKILL.md`
+
+O que não se negocia:
+
+| Regra | Por quê |
+|---|---|
+| **`kicad-cli` é o juiz.** Toda edição de esquemático passa por netlist antes/depois + `hardware/tools/netdiff.py` + ERC com zero violações + comparação de campos e do bloco `lib_symbols` | O ERC **não** acusa fio que funde duas redes: o curto é eletricamente válido |
+| **MCP KiCad** serve para catálogo JLCPCB, leitura e lint. Escrita em esquemático só peça a peça, lendo a rotação real no arquivo antes de desenhar fios, e `kicad-cli sch upgrade --force` depois. **Nunca `replace_schematic_component`** | Os mutadores do MCP falham em silêncio: ignoram o ângulo, gravam campos em outro componente e escrevem fora do formato canônico |
+| **Busca vazia não é prova** (`grep`, `search_jlcpcb_parts`). Registrar a consulta junto da conclusão | Três conclusões erradas por padrão de busca errado em uma sessão |
+| **Datasheets** que fundamentam decisões vão para `docs/datasheets/` com índice, não para pasta temporária | A próxima rodada precisa auditar sem refazer o download |
+| **Placas marcadas como defasadas** não são comparadas com o esquemático; a lista "já conhecido" vive em `hardware/ARQUITETURA_FAMILIA.md` §9 | Evita achado repetido e comparação sem sentido |
 
 ---
 
@@ -107,6 +150,9 @@ com o Node-RED.
 > responde a IDs desconhecidos. O sintoma é timeout no Sincronizador ACK.
 
 ### Resumo das regras críticas para nós legados (`src/DRY/horta/nos/shared/`)
+
+> Nenhum env compila o motor legado hoje: estas regras só valem se um nó antigo for
+> ressuscitado. Nós M360-DRY seguem a seção "Biblioteca M360-DRY" abaixo.
 
 **Nunca escrever manualmente** o que já existe como macro no `node_engine.h`:
 
@@ -153,7 +199,7 @@ A lib canônica para nós e gateway. **Novos nós usam esta lib**, não os arqui
 | `<M360.h>` | — | Header centralizador (importa tudo) |
 | `M360Node.h` | `M360::M360Node` | Motor de ciclo de vida do nó (AVR) |
 | `M360ItemDef` | struct | Definição declarativa de sensor/atuador |
-| `M360PowerProfile` | enum | `M360_LOW_POWER` / `M360_ALWAYS_ON` / `M360_PASSIVE` |
+| `M360PowerProfile` | enum | `M360_LOW_POWER` / `M360_ALWAYS_ON` / `M360_PASSIVE` / `M360_REPEATER` |
 | `M360Gateway.h` | `M360::M360Gateway` | Orquestrador do loop do gateway (ESP8266) |
 | `M360Translator.h` | `M360::Translator` | Serialização/deserialização JSON ↔ MyMessage |
 | `M360Registry.h` | `M360::Registry` | Rastreamento de nós ativos e timeouts |
@@ -163,7 +209,7 @@ A lib canônica para nós e gateway. **Novos nós usam esta lib**, não os arqui
 
 Todo nó usa dois arquivos:
 
-- **`withLibDRY/noX.cpp`** — **Puramente declarativo.** Define `NODE_ITEMS[]`, buffers estáticos, instancia `M360Node`, implementa os 5 hooks MySensors (`before`, `presentation`, `setup`, `loop`, `receive`). Não contém leitura de hardware.
+- **`<nó>/<nó>.cpp`** (direto na pasta do nó) — **Puramente declarativo.** Define `NODE_ITEMS[]`, buffers estáticos, instancia `M360Node`, implementa os 5 hooks MySensors (`before`, `presentation`, `setup`, `loop`, `receive`). Não contém leitura de hardware.
 - **`sensorDrivers.h/cpp`** — **Camada física.** Implementa as leituras brutas (ADC, I2C, Modbus etc.) e é conectada ao motor via callbacks `onRead` / `onWrite`.
 
 Estrutura mínima de um nó:
@@ -175,22 +221,26 @@ Estrutura mínima de um nó:
 #include <M360.h>
 #include "sensorDrivers.h"
 
+// Rótulos na Flash: `label` é const __FlashStringHelper*, então um literal "..."
+// direto no NODE_ITEMS[] não compila. M360_LABEL() só aceita array PROGMEM.
+static const char L_LABEL[] PROGMEM = "Label";
+
 static const M360::M360ItemDef NODE_ITEMS[] = {
-    { CHILD_ID, M360::M360_SENSOR, S_TEMP, V_TEMP, -1, 1, 3, "Label", false, 0 },
+    { CHILD_ID, M360::M360_SENSOR, S_TEMP, V_TEMP, -1, 1, 3, M360_LABEL(L_LABEL), false, 0 },
 };
 static const uint8_t NODE_ITEMS_COUNT = sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
 
-static MyMessage messages[NODE_ITEMS_COUNT + 3];  // SEMPRE +3 (intervalo, bateria, debug)
+// Sem messages[]: a lib monta cada envio num único MyMessage interno (M360-DRY 2.0.0).
 static float     lastValues[NODE_ITEMS_COUNT];
 static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
 
-static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, messages, lastValues,
-                           nNoUpdates, M360::M360_LOW_POWER);
+static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, lastValues, nNoUpdates,
+                           M360::M360_LOW_POWER);
 
 namespace M360 { void powerUp() { ... } void powerDown() { ... } }
 
 void before()       { initSensors(); }
-void presentation() { node.begin("Nome", "1.0"); }
+void presentation() { node.begin(F("Nome"), F("1.0")); }
 void setup()        { node.onRead(readNodeItem); node.onWrite(writeNodeItem); }
 void loop()         { node.process(); }
 void receive(const MyMessage& msg) { node.handleMessage(msg); }
@@ -200,9 +250,13 @@ void receive(const MyMessage& msg) { node.handleMessage(msg); }
 
 | Perfil | Modo | Uso |
 |---|---|---|
-| `M360_LOW_POWER` | `smartSleep()` — acorda por watchdog | Sensores de campo a bateria (Nós 01, 04, 13) |
-| `M360_ALWAYS_ON` | Timer por `millis()`, sem sleep | Atuadores em fonte fixa (Nós 80, 99) |
+| `M360_LOW_POWER` | `smartSleep()` — acorda por watchdog | Sensores de campo a bateria (Nó 04; nós LP com `LP_POWER_BATTERY`) |
+| `M360_ALWAYS_ON` | Timer por `millis()`, sem sleep | Fonte fixa: Nós 01, 02 e 99 |
 | `M360_PASSIVE` | `smartSleep()` — lê só sob comando | Sensores pesados (Modbus RS485) |
+| `M360_REPEATER` | Igual ao `ALWAYS_ON` + `MY_REPEATER_FEATURE` no env | Nó 99 nos envs `_rep` |
+
+> Na placa M360-LP não há `.cpp` por nó: firmware comum em `src/DRY/horta/nos/lp/` e um
+> `config/<nó>/nodeConfig.h` por nó (workflow `m360-node-factory`, Passo 0, caminho A).
 
 ---
 
@@ -215,15 +269,20 @@ void receive(const MyMessage& msg) { node.handleMessage(msg); }
 3. `loop()`: delega tudo para `M360::M360Gateway::loop()` — WiFi reconnect, MQTT reconnect, `server.handleClient()`, LEDs, heartbeat, node timeouts
 
 **MQTT topics:**
-- Upstream (rádio → broker): `m360/{UF}/{CAR}/out` (JSON com `nodeId`, `sensorId`, `command`, `type`, `payload`)
+- Upstream (rádio → broker): com `M360_NATIVE_MQTT=1` (todos os envs de gateway hoje), `m360/{UF}/{CAR}/out/{nodeId}/{childId}/{command}/{ack}/{type}` com o valor bruto no payload. Sem a flag, envelope JSON em `m360/{UF}/{CAR}/out`
 - Downstream (broker → rádio): `m360/{UF}/{CAR}/in`
 - Eventos: `m360/{UF}/{CAR}/out/events`
 
 **Modo AP / Factory Reset:**
 - A0 em GND durante o boot → modo configuração (SSID: `M360-Config`, portal em `192.168.4.1`)
-- Factory reset via web portal ou mantendo A0 em GND por 3 s nos primeiros 30 s
+- Factory reset: com o gateway já no `loop()`, nos primeiros **30 s**, **afastar** o ímã/botão do A0 e **mantê-lo 3 s** → evento `factory_reset` em `.../out/events` (com o prefixo atual) → a `M360DeviceConfig` é **apagada** → restart direto no modo AP, como um gateway novo (`M360::FactoryReset`, `lib/M360-DRY/src/M360FactoryReset.h`, nos dois gateways; requisito RF-PRV-09 de `docs/especificacao-backend-m360.md`). Segurar o ímã desde o boot só abre o modo AP — é preciso soltar e aproximar de novo. O portal web também tem o botão "Restaurar padrões de fábrica" (`POST /reset`, com caixa de confirmação obrigatória), que chama o mesmo `M360::FactoryReset::trigger()`; o evento traz a origem (`reed/botao A0` ou `portal web`) e não sai em modo AP, onde não há MQTT. O portal não tem autenticação: quem alcança o IP do gateway pode reconfigurá-lo (`/save`) ou apagá-lo (`/reset`)
 
 **LEDs de status:** Verde = WiFi+MQTT OK | Amarelo piscando = WiFi OK, sem MQTT | Vermelho piscando = sem WiFi
+
+Pinos (`lib/M360-DRY/src/M360Leds.h`): vermelho D2, amarelo D0 e verde D1 no protótipo. Na placa
+M360-GW o D1 é o DIO0 do RFM95W, e o verde sai pelo D4 (GPIO2, gate do 2N7002 Q1, ativo em HIGH
+como os outros) — selecionado por `-D M360_BOARD_GW`, que só o env `d1_mini_gw` define. A chamada
+é `initLEDs(LED_RED, LED_YELLOW, LED_GREEN)`, na ordem do protótipo `(redPin, yellowPin, greenPin)`.
 
 ---
 
@@ -236,11 +295,16 @@ src/DRY/
 │   ├── nodered/flows.json       Fluxos Node-RED (dashboard + irrigação + ACK)
 │   ├── inventario.md            Nós e child IDs — contrato com o Node-RED
 │   └── nos/
-│       ├── shared/              Motor legado (node_engine.h) — não usar em novos nós
-│       ├── 01nodeSolo3dNano/    Solo resistivo — 6 canais nativos (Nó 1, LP)
-│       ├── 02nodeSolo3dNano/    Solo resistivo — 6 canais nativos (Nó 2, LP)
-│       ├── 04noodeSolarMini/    DHT11 + DS18B20, alimentação solar (Nó 4, LP)
-│       └── 99nodeReles/         9 atuadores (7 MUX + 2 nativos) + DHT11 + vazão YF-S201 (Nó 99, ON)
+│       ├── lp/                  Firmware comum da placa M360-LP (Pro Mini 3,3 V) — ver README.md
+│       │   ├── lpNode.cpp       Nó declarativo único; lpPins.h, lpDrivers.h/.cpp
+│       │   ├── drivers/         soilMux, dht, onewire, battery — cada um atrás de #if LP_HAS_*
+│       │   └── config/nodeXX/   nodeConfig.h por nó (envs lp_01, lp_02); só isto muda entre nós
+│       ├── shared/              Motor legado (node_engine.h) — nenhum env compila; não usar em novos nós
+│       ├── 01nodeSolo3dMini/    Só documentação defasada (projeto de 18 canais que não existe)
+│       ├── 01nodeSolo3dNano/    Solo resistivo — 6 canais nativos no Nano (Nó 1, ON; na M360-LP usa lp/)
+│       ├── 02nodeSolo3dNano/    Solo resistivo — 6 canais nativos no Nano (Nó 2, ON; na M360-LP usa lp/)
+│       ├── 04noodeSolarMini/    DHT11 + DS18B20, alimentação solar (Nó 4, LOW_POWER) — fonte de clima do Node-RED
+│       └── 99nodeReles/         9 atuadores (7 MUX + 2 nativos) + vazão YF-S201; DHT11 só no Nano (Nó 99, ON; Nano ou M360-ACT via NODE99_BOARD_ACT)
 └── kit-helio/                   Sub-projeto Kit Hélio (platformio.ini próprio)
     ├── gateway/                 libDryGatewayMqtt.cpp
     └── nos/miniDHT/             DHT11 (Nó 11, ON)
@@ -260,14 +324,22 @@ include/
 
 - **Linguagem dos comentários e logs Serial:** português
 - **IDs reservados:** 254 = Intervalo (`V_VAR1`), 255 = Bateria (`V_VOLTAGE`), 253 = Debug remoto (`V_TEXT`, apenas lib M360-DRY — ver `M360Node::sendDebug()` / `CMD_DEBUG_NET`)
-- **EEPROM nós (AVR):** endereços 512–515 via `M360Config` / `nodeEngine_saveInterval()` — nunca `EEPROM.put()` direto
+- **EEPROM nós (AVR):** endereços 512–515 via `M360::saveInterval()` (legado: `nodeEngine_saveInterval()`) — nunca `EEPROM.put()` direto
 - **EEPROM gateway (ESP):** região 0–511 = MySensors (reservado), 512–520 = M360NodeConfig, 521+ = `DeviceConfig`/`M360DeviceConfig` com CRC
-- **Perfil de energia:** definir exatamente um dos dois — nunca ambos simultaneamente
+- **Perfil de energia:** exatamente um `M360::M360_*` no construtor do `M360Node`; na M360-LP, exatamente um de `LP_POWER_FIXED_5V` / `LP_POWER_BATTERY` no `nodeConfig.h`
 - **Precisão float:** 1 casa decimal (`set(val, 1)`)
-- **Solo:** escala 0 (seco) → 100 (água)
+- **Solo (Nós 1 e 2):** `V_LEVEL` (37) em **ADC bruto 0–1023, valor alto = seco** (sonda resistiva); o Motor de Regras do Node-RED opera nessa escala (`inventario.md` §9)
 - **JSON gateway:** `DynamicJsonDocument(512)` para mensagens, `(384)` para heartbeat, `(256)` para eventos
 - **Macros MY_\*:** definidas exclusivamente no `platformio.ini` — nunca no `.cpp` após `#include <MySensors.h>`
 - **Pinos virtuais MUX (Nó 99):** `pin = MUX_CHANNEL_OFFSET + canal` (100–115) — `setupPins()` deve ser omitido; pinos gerenciados em `initSensors()`
+
+---
+
+## Diretrizes de Comunicação e Formatação no Chat
+
+- **Proibido usar blocos matemáticos/LaTeX (`$$...$$` ou `$...$`) para formatar texto comum ou destaques:**  
+  Nunca utilize notação matemática LaTeX (`$$\text{...}$$`, `\textbf{...}`, etc.) para enfatizar frases, rótulos de botões, badges ou valores de telemetria no chat (ex.: proibido `$$\text{Logo ao lado de }\textbf{Nó físico ID: 4}\text{ está o badge verde: }...$$`).  
+  Utilize sempre **Markdown nativo e limpo** (`**negrito**`, `*itálico*`, `` `código/badge inline` `` ou listas), mantendo a renderização fluida, elegante e perfeitamente legível na interface.
 
 ---
 
@@ -295,7 +367,7 @@ else         publishTransportEvent("command_send_failed", details, targetNodeId)
 > RF24 do **próximo salto** — não confirmação de que o nó recebeu ou aplicou o
 > comando. Com o Nó 99 em modo repetidor na rede, o ACK pode vir do repetidor.
 > A confirmação real é o **eco de aplicação do nó** (`M360Node.cpp`, `handleMessage()`
-> envia `send(_messages[i].set(state))` depois de acionar o atuador).
+> reenvia o estado do item pelo `MyMessage` interno da lib depois de acionar o atuador).
 
 ### `outMsg.getSender()` retorna 0 no contexto de envio
 
@@ -369,11 +441,30 @@ inicialização e não falha de enlace.
 Não defina `MY_RF24_CHANNEL` sem uma medição que justifique. A configuração
 validada é a do `[common]`: canal padrão, `RF24_250KBPS`, `RF24_PA_HIGH`.
 
-### `V_LEVEL` (37) nos Nós 01 e 13 significa umidade de solo
+### `V_LEVEL` (37) nos Nós 01 e 02 significa umidade de solo
 
-Esses nós usam `V_LEVEL` para solo por decisão histórica. No Node-RED, o
-`Translator Json` remapeia `V_LEVEL → V_PERCENTAGE` por `nodeId`. Não mudar sem
-atualizar simultaneamente o firmware dos nós.
+Esses nós usam `V_LEVEL` para solo por decisão histórica, em ADC bruto 0–1023
+(alto = seco). No Node-RED não há remapeamento: os filtros de solo
+(`Filtro Umidade Solo Canteiro A/B`, `Coletor Telemetria Canteiro B & Clima`)
+aceitam `type` 37 **ou** 3 (`V_PERCENTAGE`). Não mudar o tipo sem atualizar
+simultaneamente o firmware e esses filtros.
+
+### Fonte de clima do Node-RED: Nó 4, não o Nó 99
+
+Desde 2026-10-17 (em produção), temperatura e umidade usadas pela automação vêm dos
+children **11 (`V_TEMP`) e 12 (`V_HUM`) do Nó 4** (SolarMini). O Nó 99 na M360-ACT não tem
+DHT11; o 11/12 do Nó 99 só existe no Nano e só alimenta o gráfico "Clima (Nó 99)".
+
+| Consumidor (aba) | O que faz com o clima |
+|---|---|
+| `Coletor Telemetria Canteiro B & Clima` (Irrigação) | Grava `clima_dht11` no contexto, lido pelo `Motor de Regras Canteiro B` (travas de temperatura, risco fúngico, demanda atmosférica) |
+| `Radar M360: Contexto 24h` (IA Repórter) | Média/mín/máx das 24 h pelos tópicos `/out/4/11/` e `/out/4/12/` |
+| `Tratar Comandos e Convites Telegram` (Telegram) | `/status` lê `mys_nodes["4"].values["11"/"12"]` |
+
+Consequências: o clima é o **de fora da estufa**, e só muda a cada intervalo do Nó 4
+(`LOW_POWER`, 30 min de fábrica) — o motor usa a última leitura. Sem nenhuma leitura no
+contexto, o motor cai no fallback de 20 °C / 20 %. Mudar child, `V_*` ou o `nodeId` da fonte
+exige editar as três funções acima na mesma entrega (contrato em `inventario.md` §6 e §8).
 
 ### Sincronizador ACK — critério de matching
 
@@ -393,7 +484,7 @@ Cada termo carrega um caso real:
 
 | Termo | Por quê |
 |---|---|
-| `data.type === 2` | `C_SET` vale 1 e leituras de sensor também chegam como `command === 1`. Sem filtrar por `V_STATUS`, o relatório de clima do Nó 99 — que sai a cada minuto — confirmaria qualquer comando pendente para o nó |
+| `data.type === 2` | `C_SET` vale 1 e leituras de sensor também chegam como `command === 1`. Sem filtrar por `V_STATUS`, o relatório de clima do Nó 99 no Nano — que sai a cada minuto — confirmaria qualquer comando pendente para o nó |
 | `data.ack === 0` | Descarta o ACK de transporte que o gateway fabrica em `publishTransportAck()`. Ele só prova que o **próximo salto** respondeu — com o Nó 99 em modo repetidor, pode vir do repetidor. Aceitá-lo dava "confirmado" com o nó desligado, e os 3 retries nunca disparavam na falha de última milha |
 | `payload` igual | Evita casar com um eco de outra origem para o mesmo child — p.ex. o failsafe do Nó 99, que envia `0` sozinho ao estourar o tempo máximo ligado |
 

@@ -20,7 +20,7 @@ graph TD
     
     %% Entradas e Saídas
     R4[Resistor R4 10k<br/>Pull-Up Obrigatório A0]
-    BtnSW1[Botão SW1<br/>Modo AP / Reset Config]
+    BtnSW1[Botão SW1<br/>Modo AP no boot / Factory reset 3 s]
     
     LedVermelho[LED Vermelho (1º)<br/>D2 / GPIO4 - Erro / AP]
     LedVerde[LED Verde (2º)<br/>D1 / GPIO5 - Wi-Fi/MQTT OK]

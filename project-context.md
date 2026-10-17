@@ -1,319 +1,102 @@
-# Contexto do Projeto — M360 Horta
+---
+project_name: 'm360_horta'
+user_name: 'Marcelo'
+date: '2026-10-17'
+sections_completed: ['technology_stack', 'critical_rules', 'planning_pointers']
+existing_patterns_found: 24
+---
 
-Referência viva para sessões de IA e novos colaboradores. Captura decisões de design,
-contratos de integração e armadilhas já encontradas — para não rederivá-las.
+# Contexto do projeto para agentes de IA
+
+_Regras que um agente erraria sem aviso. O detalhe vive nos documentos apontados; este arquivo só lembra o que não se lê no código. Em conflito, valem o `CLAUDE.md` e o `src/DRY/horta/inventario.md`._
 
 ---
 
-## Stack
-
-```
-Nós físicos (AVR)          Gateway (ESP8266)          Nuvem / UI
-──────────────────         ──────────────────         ───────────────
-M360Node + MySensors  ──►  M360Gateway + MQTT  ──►   Node-RED + Dashboard
-(lib/M360-DRY/)            (src/DRY/horta/gateway/)   (src/DRY/horta/nodered/flows.json)
-```
-
-Plataforma: PlatformIO · Arduino/AVR + ESP8266 · MySensors RF24 · MQTT · Node-RED
-
----
-
-## Contrato da Fronteira Gateway → MQTT
-
-> ⚠️ **Os dois gateways compilam com `-D M360_NATIVE_MQTT=1`.**
-> Isso troca o envelope JSON pelo **formato nativo MySensors**: os identificadores
-> viajam no tópico e o payload é o valor bruto. O esquema JSON adiante só vale
-> se a flag for removida do `platformio.ini`.
-
-### Formato nativo (modo em produção)
-
-```
-{prefixo}/out/{nodeId}/{sensorId}/{command}/{ack}/{type}    payload bruto, ex: "23.4"
-{prefixo}/in/{nodeId}/{sensorId}/{command}/{ack}/{type}     payload bruto, ex: "1"
-```
-Exemplo — ligar a Solenóide A do nó 99:
-`m360/DF/0000/in/99/31/1/0/2` com payload `1`
-(`command 1` = C_SET, `type 2` = V_STATUS).
-
-Montado por `Translator::buildNativeTopic()` e lido pelo nó "Decodificador
-Nativo MySensors" no Node-RED, que reconstitui o objeto `{nodeId, sensorId,
-command, ack, type, payload, direction}` a partir de `parts[4..8]`.
-
-### Tópicos publicados pelo gateway
-
-| Tópico | Quando | Conteúdo |
-|---|---|---|
-| `m360/{UF}/{CAR}/out/{n}/{s}/{c}/{a}/{t}` | Leitura de sensor, ACK de transporte | Valor bruto |
-| `m360/{UF}/{CAR}/out` | Heartbeat do gateway | JSON |
-| `m360/{UF}/{CAR}/out/events` | Descoberta de nó, timeout, reconexão | JSON de evento |
-| `m360/{UF}/{CAR}/gateway/status` | Métricas periódicas do gateway | JSON de métricas |
-
-### Tópico consumido pelo gateway
-
-| Tópico assinado | Publicado por | Ação |
-|---|---|---|
-| `m360/{UF}/{CAR}/in/#` | Node-RED / externo | `processMQTTCommandNative()` → `send()` ao nó |
-
-> A assinatura leva `/#` **apenas** em modo nativo — ver `MQTTManager::buildTopicIn()`.
-
-### Esquema JSON — mensagem de sensor (`direction:"sensor"`)
-
-```json
-{
-  "nodeId":    99,
-  "sensorId":  38,
-  "command":   1,
-  "ack":       0,
-  "type":      2,
-  "payload":   "1",
-  "timestamp": 12345,
-  "description": "Status",
-  "direction": "sensor"
-}
-```
-> `sensorId 38` = `CHILD_ID_NFT_PUMP` na faixa normativa de atuação (31-40).
-
-### Esquema JSON — ACK de transporte (`direction:"ack"`)
-
-Publicado por `publishTransportAck()` em `libDryGatewayMqtt.cpp` quando
-`send(outMsg, true)` retorna `true`.
-
-```json
-{
-  "nodeId":    99,
-  "sensorId":  255,
-  "command":   1,
-  "ack":       1,
-  "type":      2,
-  "payload":   "1",
-  "timestamp": 12345,
-  "description": "Status",
-  "direction": "ack"
-}
-```
-
-**Campo crítico:** `nodeId` é injetado manualmente com `targetNodeId`.
-`outMsg.getSender()` retorna `0` (gateway) em mensagens de saída — NÃO usar
-como `nodeId` do ACK.
-
----
-
-## Mecanismo de ACK — Regras Definitivas
-
-### O que MySensors NÃO faz no gateway
-
-`send(outMsg, true)` solicita ACK de transporte RF24. O ACK é consumido
-**internamente** pela camada MySensors — **`receive()` NÃO é chamado** para esse retorno.
-
-```
-send(outMsg, true)
-    ↓
-[MySensors transport layer aguarda ACK do rádio]
-    ↓ ACK recebido
-send() retorna true   ← único sinal disponível
-receive() NÃO é chamado
-```
-
-### O que o gateway DEVE fazer
-
-Publicar o ACK manualmente no MQTT imediatamente após `send()` retornar `true`:
-
-```cpp
-bool success = send(outMsg, true);
-if (success) publishTransportAck(outMsg, targetNodeId);
-```
-
-### Armadilha: outMsg.getSender() == 0
-
-Em mensagens **enviadas** pelo gateway, `getSender()` retorna `0` (ID do próprio
-gateway), não o ID do nó de destino. Para construir o JSON de ACK correto:
-
-```cpp
-// ERRADO — nodeId seria 0
-doc["nodeId"] = outMsg.getSender();
-
-// CORRETO — usar o targetNodeId explicitamente
-doc["nodeId"] = targetNodeId;
-```
-
-`publishTransportAck()` já implementa este padrão: usa `Translator::toJSON()` como
-base e sobrescreve `nodeId` com `targetNodeId` antes de publicar.
-
----
-
-## Contrato do Sincronizador ACK (Node-RED)
-
-### Entradas esperadas pelo nó função "Sincronizador ACK / Timeout"
-
-| `msg.topic` | Fonte | Ação |
-|---|---|---|
-| `m360/DF/0000/out` | MQTT in → JSON node → Sincronizador | Verificar se é ACK do comando pendente |
-| `control` | Inject "Ativar/Desativar" | Ativar ou desativar sincronismo |
-| qualquer outro | UI template, inject de comando | Tratar como novo comando a enfileirar |
-
-### Critério de reconhecimento de ACK
-
-```javascript
-var isConfirmation = (
-    data.nodeId == targetNode &&
-    (targetSensor == 255 || data.sensorId == targetSensor) &&
-    (data.direction === 'ack' || data.ack === 1 || (data.command === 1 && data.type === 2))
-);
-```
-
-- `targetSensor == 255` → broadcast: aceitar qualquer sensorId do mesmo nó
-- Três formas de confirmação aceitas em ordem de confiabilidade:
-  1. `direction:"ack"` — ACK de transporte publicado pelo gateway (preferencial)
-  2. `ack:1` — bit ACK MySensors explícito
-  3. `command:1 && type:2` — o nó devolveu V_STATUS (fallback). O `type:2` é
-     **obrigatório**: sem ele, qualquer leitura de sensor do mesmo nó (que também
-     chega como `command:1`) seria contada como confirmação.
-
-> O gateway só pede ACK de transporte para `V_STATUS`
-> (`withAck = (outMsg.getType() == V_STATUS)`), e o Sincronizador só aguarda ACK
-> para `command:1 && type:2`. As duas pontas concordam: comandos administrativos
-> (REPRESENT, FORCE_UPDATE) são fire-and-forget.
-
-### Cabeamento obrigatório no fluxo Node-RED
-
-```
-[MQTT in m360/+/+/out/#]
-    → [Decodificador Nativo MySensors]
-        → [Sincronizador ACK / Timeout]   ← ACK path (msg.topic == prefix+'/out')
-        → [Mapeia nós] / [Filtros ...]    ← roteamento para dashboard/mapa
-```
-
-O **Decodificador Nativo MySensors** precisa estar **entre** o MQTT in e o
-Sincronizador: é ele que transforma o tópico nativo em objeto e reescreve
-`msg.topic` para `{prefixo}/out`, que é como o Sincronizador distingue ACK de
-comando novo. Ele também aceita o envelope JSON, caso `M360_NATIVE_MQTT` seja
-removido.
-
----
-
-## Mapeamento de Variáveis MySensors — Decisões de Design
-
-### V_LEVEL usado como umidade de solo (Nós 01, 02 e 05)
-
-Os nós de solo enviam umidade com `type=V_LEVEL (37)`, não `V_PERCENTAGE (3)` —
-limitação histórica do firmware.
-
-**Escala:** os nós publicam **ADC bruto (0–1023)**, não percentual. Valor alto =
-solo seco (sensor resistivo). O `Motor de Regras Canteiro B` no Node-RED opera
-diretamente nessa escala (limiares 350 e 500), portanto **não** existe conversão
-para 0–100 em lugar nenhum da cadeia.
-
-**No Node-RED:** não há remapeamento `V_LEVEL→V_PERCENTAGE`. Os filtros de solo
-aceitam `type` 3, 35 ou 37 diretamente, e identificam o nó por `nodeId` ou pelo
-prefixo do rótulo (`A_`, `B_`) vindo da apresentação.
-
-**Solução ideal de longo prazo:** converter no firmware para `V_PERCENTAGE` com
-escala 0–100 — exige atualizar simultaneamente os limiares do motor de regras.
-
----
-
-## Nós Físicos — Referência Rápida
-
-| Nó | Env | Hardware | Perfil | Children | Sensores / Atuadores |
-|---|---|---|---|---|---|
-| 0 | `d1_mini_gateway` | ESP8266 D1 Mini | — | — | WiFi + MQTT + MySensors GW |
-| 01 | `nano_01nodeSolo3d` / `ProMini_01nodeSolo3d` | Nano 5V / Pro Mini 16MHz | LOW_POWER | 1–6 | 6× S_MOISTURE V_LEVEL (canteiro A) |
-| 02 | `nano_02nodeSolo3d` | Nano 5V | LOW_POWER | 1–6 | 6× S_MOISTURE V_LEVEL (canteiro B) |
-| 04 | `ProMini_04noodeSolarMini` | Pro Mini 16MHz | LOW_POWER | 1, 11, 12 | DHT11 (temp/umid ar) + DS18B20 (temp solo) |
-| 99 | `nano_99reles` / `nano_99reles_rep` | Nano 5V | ALWAYS_ON | 11, 12, 21, 31–39 | 9 relés (7 via MUX + 2 nativos) + DHT11 + vazão YF-S201 |
-| 11 | `pro16MHz_miniDHT` | Pro Mini 16MHz | ALWAYS_ON | — | Kit Hélio: DHT11 |
-
-> **Faixas normativas de child ID** (`M360Constants.h`): Solo 1–10 · Clima 11–20 ·
-> Hidrometria 21–30 · Atuação 31–40 · 253 debug · 254 intervalo · 255 bateria.
-> Os child IDs do nó 99 são **contrato com o Node-RED** — alterá-los quebra os
-> botões do dashboard e o motor de regras de irrigação.
-> Os nós **5** (Solo MUX), **13** (ZTS) e **80** (Aqua) foram removidos do projeto.
-> Fontes dos nós 13 e 80 recuperáveis em `0ccf66a`; o nó 5, no histórico do git.
-
----
-
-## Armadilhas Registradas
-
-### 1. `receive()` não é chamado para ACKs de transporte
-Ver seção "Mecanismo de ACK". Publicar manualmente com `publishTransportAck()`.
-
-### 2. `outMsg.getSender()` retorna 0 no contexto de envio do gateway
-Ver seção "Armadilha: outMsg.getSender() == 0". Usar `targetNodeId` explicitamente.
-
-### 3. `msg.topic` do Sincronizador depende da fonte
-Comandos da UI chegam com `msg.topic` diferente de `m360/.../out`. O Sincronizador
-usa `msg.topic` para diferenciar ACK de comando — o cabeamento deve garantir isso.
-
-### 4. `send(msg, true)` bloqueia o ESP8266
-`send()` com ACK é síncrono — aguarda o ACK do rádio por até
-`MY_TRANSPORT_TIMEOUT_MS × MY_TRANSPORT_RETRIES` ms. Para Nó 99 (always-on),
-isso é aceitável. Para nós em sleep, pode causar timeout.
-
-### 5. Nó 99 — pinos virtuais MUX
-Atuadores via MUX usam `pin = MUX_CHANNEL_OFFSET + canal` (100–115).
-`setupPins()` deve ser omitido; pinos gerenciados em `initSensors()`.
-
-### 6. NRF24L01 no Nano — CE/CSN fixos
-Nano não aceita `#define MY_RF24_CE_PIN` para mover CE/CSN. Usar sempre D9/D10.
-Periféricos que conflitem com D9/D10 devem ser movidos.
-
-### 7. `messages[]` precisa de `+3` nos nós da lib M360-DRY
-`M360Node::begin()` escreve **incondicionalmente** em `_messages[_count]`,
-`[_count+1]` e `[_count+2]` — intervalo (254), bateria (255) e debug (253).
-Declarar `messages[NODE_ITEMS_COUNT + 2]` provoca escrita fora dos limites do
-array, sem erro de compilação. O motor **legado** (`node_engine.h`) escreve
-apenas até `[COUNT+1]`, e nele `+2` é o correto — não confundir os dois.
-
-### 8. `readSamples` do `M360ItemDef` não é implementado
-O campo existe na struct mas a biblioteca nunca o lê: `_readCb(i)` é chamado uma
-única vez por item, por ciclo. Médias devem ser feitas dentro do driver.
-Corolário útil: drivers **consumptivos** (que zeram um acumulador ao ler, como o
-contador de pulsos de vazão do nó 99) são seguros nesse contrato.
-
-### 10. `inventario.md` deve acompanhar toda mudança em `src/DRY/horta/`
-`src/DRY/horta/inventario.md` é a referência única de nós e child IDs e o
-contrato com o `flows.json`. Regra do projeto: qualquer alteração de código em
-`src/DRY/horta/` é refletida no inventário na **mesma** entrega — inclusão,
-remoção ou renumeração de child, mudança de `label`/`S_*`/`V_*`/`pin`/atributos,
-inclusão ou remoção de nó, troca de perfil de energia, ou mudança de escala e
-unidade. Registrada em `CLAUDE.md`, `AGENTS.md`, no SKILL (SSoT) e como R12 do
-workflow `m360-node-factory`.
-
-### 9. Child IDs do nó 99 são contrato com o Node-RED
-O dashboard e o motor de irrigação endereçam os atuadores por número fixo
-(31/32/33 solenóides, 38/39 bombas) e leem o clima nos children 11/12.
-Renumerar o firmware sem atualizar o `flows.json` faz os comandos serem
-descartados **em silêncio** — `M360Node::handleMessage()` casa `childId` exato e
-não responde a IDs desconhecidos. O sintoma é timeout no Sincronizador ACK.
-Após renumerar, disparar **REPRESENT** para o `Mapeia nós` limpar os children
-antigos do `mys_nodes`.
-
----
-
-## Decisões de Design Registradas
-
-| Decisão | Alternativa rejeitada | Motivo |
-|---|---|---|
-| `send(outMsg, true)` + `publishTransportAck()` | Esperar `receive()` com `isAck()` | `receive()` não é chamado para ACKs de transporte no gateway |
-| Identificar o nó de solo por `nodeId` **ou** prefixo do rótulo (`A_`/`B_`) | Depender só de `mys_nodes` em tempo real | Evita race condition: o SET pode chegar antes da PRESENTATION ser processada |
-| Alias de sensor preservado de `m.payload` na apresentação | `getNomeAmigavel()` genérico | Firmware já define nomes canônicos ("A_1m_10cm", "Umidade ZTS") |
-| Fallback do mapa com nomes reais do firmware para Nó 01 | Genéricos "Canal N" | Nomes estão no código-fonte e são estáveis |
-| Versionamento no **GitHub** | Repositório no Google Drive com link simbólico | Sincronização de arquivos sobre um `.git` corrompe o índice e faz arquivos desaparecerem |
-| Isolamento de build via `workspace_dir` no TEMP | Manter `.pio` dentro da árvore do projeto | Evita lock de arquivos e poluição do repositório |
-
----
-
-## Repositório e Infraestrutura de Build
-
-- **Repositório central: GitHub.** O versionamento e a sincronização entre
-  máquinas são feitos por `git push` / `git pull`, não por sincronização de
-  arquivos.
-- **Descontinuado:** o repositório **não** fica mais no Google Drive e **não** é
-  mais acessado por link simbólico local. O clone é uma pasta comum de trabalho.
-- **Consequência prática:** trabalho não commitado existe apenas na máquina
-  local. Commitar cedo e com frequência é o único mecanismo de proteção.
-- **Isolamento de compilação:** `workspace_dir = ${sysenv.TEMP}/pio_builds/${sysenv.USERNAME}/m360_horta` no `platformio.ini` raiz mantém os binários fora
-  da árvore versionada.
-- **Monorepo:** o `platformio.ini` raiz agrega `src/DRY/horta/platformio.ini` e
-  `src/DRY/kit-helio/platformio.ini` via `extra_configs`, e define `src_dir = .`
-  — por isso todo `build_src_filter` começa em `src/DRY/...`.
+## Onde está cada verdade
+
+| Assunto | Documento |
+|---|---|
+| Produto, escopo, FRs | `_bmad-output/planning-artifacts/prds/prd-m360_horta-2026-10-17/prd.md` |
+| Decisões de arquitetura (AD-1 a AD-22) | `_bmad-output/planning-artifacts/architecture/architecture-m360_horta-2026-10-17/ARCHITECTURE-SPINE.md` |
+| Épicos e histórias | `_bmad-output/planning-artifacts/epics.md` |
+| Backend que substitui o Node-RED | `docs/especificacao-backend-m360.md` (v1.3; ajustes pendentes listados no spine) |
+| Nós, children, escalas (contrato com a plataforma) | `src/DRY/horta/inventario.md` |
+| Placas M360 | `hardware/ARQUITETURA_FAMILIA.md` |
+| Regras de código e armadilhas | `CLAUDE.md`; nós e gateway: `.agent/skills/bmad-mysensors-node-coding/SKILL.md`; KiCad: `.agent/skills/m360-kicad-hardware-workflow/SKILL.md` |
+| Nó novo | `.agent/workflows/m360-node-factory.md` |
+
+## Stack e versões
+
+- PlatformIO, monorepo com `extra_configs` (`src/DRY/horta`, `src/DRY/kit-helio`) e `src_dir = .`. Builds ficam em `%TEMP%\pio_builds`.
+- Nós: ATmega328P com Arduino e MySensors 2.3.2. A lib M360-DRY 2.2.0 está em `lib/M360-DRY/`.
+- Gateway: ESP8266 (espressif8266 2.6.3), ArduinoJson 6, PubSubClient 2.8, MQTT em modo nativo (`M360_NATIVE_MQTT=1`).
+- Rádio:
+  - A rede da estufa é nRF24 (canal 76), inclusive nas placas M360 pelo header legado. O Kit Hélio também é nRF24.
+  - O rádio é por rede: `[common] radio_flags` é o da estufa e não se troca. Uma rede LoRa nova (RFM95W, 916,8 MHz) usa `${lora_net.flags}` nos envs do gateway e de todos os nós (workflow `m360-node-factory`, Passo 1.4).
+- Plataforma: Node-RED em produção. O backend ainda não existe; as decisões de stack D-01 a D-08 estão abertas.
+- Hardware: KiCad 10.0.4 e Freerouting 1.9.0, com PCBA na JLCPCB.
+
+## Regras críticas
+
+### Contrato e segurança
+
+- **O inventário é o contrato.** Mudar child, rótulo, `S_*`/`V_*`, failsafe ou perfil exige atualizar, na mesma entrega, o firmware, o `inventario.md` e o consumidor (`flows.json` hoje). Child desconhecido faz o nó ignorar o comando em silêncio.
+- **Children reservados:** 253 é debug, 254 é intervalo e 255 é bateria. Comandos administrativos são `V_CUSTOM` no child 0.
+- **Solo em ADC bruto 0–1023, alto = seco.** Não existe conversão para 0–100 % na cadeia. Os Nós 1 e 2 usam `V_LEVEL` (37).
+- **A segurança da atuação é do nó.**
+  - O failsafe é de 600 s nas solenóides e 120 s nas peristálticas; as bombas 38/39 não têm limite.
+  - O MUX tem um canal por vez, e nenhum relé liga no boot.
+  - A plataforma limita cada rega a `failsafe − 15 s`.
+  - O prazo conta do primeiro ON: um ON repetido não rearma (história 3.5, corrigida em 2026-10-17, sem bancada).
+- **A confirmação é o eco de aplicação.** Vale `command=1, ack=0, type=2` com o payload igual. O ACK de transporte (`ack=1`) nunca confirma nem grava estado.
+- **Payload de `V_STATUS` é só `"0"` ou `"1"`.** Qualquer outro valor desliga o relé (`atoi()`). No modo nativo, o payload MQTT é o valor bruto, nunca JSON.
+
+### Firmware
+
+- Nó novo usa `M360::M360Node`, com `NODE_ITEMS[]` declarativo, rótulos em `PROGMEM` por `M360_LABEL()` e drivers por `onRead`/`onWrite`. Não existe `messages[]`: a lib usa um `MyMessage` interno.
+- Na M360-LP há um fonte único em `nos/lp/`. Cada nó é um `config/<nó>/nodeConfig.h` mais um env, com exatamente um de `LP_POWER_FIXED_5V`/`LP_POWER_BATTERY`.
+- ACT e GW reaproveitam o fonte do protótipo, selecionado pelas flags `NODE99_BOARD_ACT` e `M360_BOARD_GW`.
+- Macros `MY_*` ficam só no `platformio.ini`.
+- O motor legado `nos/shared/` está congelado; nenhum env o compila.
+- O nó envia por mudança ou a cada 10 ciclos. `reportIntervalMin` e `readSamples` não são lidos pela lib.
+- Mudança na lib exige `pio check -e check_m360_dry` limpo, build de todos os `default_envs` e pelo menos 512 B de RAM livre em `act_99` e `nano_99reles`.
+
+### Gateway
+
+- **Tópicos:** sempre por `buildTopicOut`/`buildTopicIn`, e cada segmento lido por `parseTopicByte()`.
+- **Envio:** todo envio passa por `dispatchCommand()` com `send(outMsg, false)`. O ACK de transporte é publicado à mão, com `targetNodeId`, porque `getSender()` vale 0 no envio.
+- **Comando malformado:** gera `reportCommandRejected()` em `.../out/events`.
+- **Ordem do boot:** WiFi em `before()`; MQTT e webserver em `setup()`.
+- **Modo AP:** nada de `mqttClient.loop()` em modo AP.
+- **EEPROM:** 0–511 é do MySensors, 512–520 é reservado e 521+ é `M360DeviceConfig` com CRC, escrita só por `saveConfig()`.
+- **Factory reset:** o ímã, afastado e mantido 3 s nos primeiros 30 s, ou o portal (`POST /reset`) apagam a configuração e reiniciam em AP. O portal não tem autenticação.
+- **Kit Hélio:** o gateway dele ainda não segue as regras acima (usa `atoi()` e `send(..., true)`).
+
+### Node-RED (até o corte)
+
+- Deploy só por `nr_deploy.py`, na ordem backup → diff → `deploy --tab <ID>` → diff. `deploy --all` só com pedido explícito.
+- O servidor costuma estar à frente do repositório: fazer `pull` antes de editar o `flows.json`.
+- O `flows.json` é CRLF, com indentação de 4 e `ensure_ascii=False`, sem newline final.
+- A fonte de clima é o Nó 4 (children 11/12). Sem leitura, o motor do B cai em 20 °C e 20 %.
+- O Canteiro A é o timer (07:00 e 17:00, 300 s, child 31). O B é o motor agroclimático (child 32).
+
+### Backend (quando começar)
+
+- **Só o despachante publica.** Agendador e regras criam comandos.
+- **Posse por grupo físico** (`mux99` = 31–37, 38, 39), publicada e trocada com o grupo quieto.
+- **Agendamento:** todo OFF é linha persistida; um ON vencido nunca executa; nenhum estado bloqueia OFF.
+- **MQTT:** `retain` é proibido em `in/#`.
+- **Configuração:** o banco manda; o YAML só semeia.
+
+### Hardware
+
+- O `kicad-cli` é o juiz: netlist antes e depois, `netdiff.py`, ERC zero.
+- Nunca usar `replace_schematic_component` do MCP.
+- Busca vazia não prova nada.
+
+### Escrita e processo
+
+- Comentários, logs, documentos e respostas em português.
+- Segredos ficam em `include/M360Credentials.h` e `%USERPROFILE%\.m360\nodered.env`, nunca no Git nem no chat.
+- Nenhuma placa M360 foi montada ou testada em bancada. Não afirmar que algo "funciona" na placa nova.
+- O repositório central é o GitHub; trabalho não commitado só existe na máquina local.

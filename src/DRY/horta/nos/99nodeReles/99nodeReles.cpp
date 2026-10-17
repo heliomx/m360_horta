@@ -1,9 +1,13 @@
 /*
  * nodeReles.cpp — Nó 99: Central de Atuação da Estufa (M360-DRY)
  *
- * Hardware: Arduino Nano (5V) + CD74HC4067 (MUX 16ch) + 16 Relés 10A
+ * Hardware: Arduino Nano (5V) ou placa M360-ACT + CD74HC4067 (MUX 16ch) + 9 relés (7 MUX + 2 nativos)
  * (optoacoplador)
  *           + nRF24L01+ (adaptador socket regulado 3.3V) — CE=D9, CSN=D10
+ *
+ * Variante M360-ACT (Pro Mini 3,3 V / 8 MHz, env act_99, -D NODE99_BOARD_ACT):
+ * mesmos child IDs e rótulos para os atuadores (31–39) e a vazão (21), SEM os
+ * children 11/12 (não há DHT na placa). Pinagem e regras em sensorDrivers.h.
  *
  * Arquitetura de Atuação:
  *
@@ -28,7 +32,7 @@
  *   │  D3  │ Sensor de Vazão YF-S201 (INT1)                   │
  *   └──────┴──────────────────────────────────────────────────┘
  *
- * Macros MY_* definidas no platformio.ini [env:node_99_reles_nano]
+ * Macros MY_* definidas no platformio.ini (envs nano_99reles* e act_99*)
  */
 
 // ===== CONFIGURAÇÃO MYSENSORS =====
@@ -64,6 +68,25 @@ static int freeRam() {
 }
 #endif
 
+// ===== RÓTULOS (na Flash) =====
+// `label` é const __FlashStringHelper*: um literal "..." direto no NODE_ITEMS[]
+// não compila. M360_LABEL() só aceita arrays PROGMEM. O texto é o que o
+// Node-RED exibe (inventario.md §7) — mudar aqui muda o nome no dashboard.
+static const char L_SOL_A[]    PROGMEM = "Sol.CanteiroA";
+static const char L_SOL_B[]    PROGMEM = "Sol.CanteiroB";
+static const char L_SOL_C[]    PROGMEM = "Sol.CanteiroC";
+static const char L_PERIST_A[] PROGMEM = "Perist.SuplA";
+static const char L_PERIST_B[] PROGMEM = "Perist.SuplB";
+static const char L_PH_PLUS[]  PROGMEM = "Perist.pH+";
+static const char L_PH_MINUS[] PROGMEM = "Perist.pH-";
+static const char L_NFT_PUMP[] PROGMEM = "BombaNFT";
+static const char L_NFT_OXI[]  PROGMEM = "BombaOxi";
+#ifndef NODE99_BOARD_ACT
+static const char L_DHT_TEMP[] PROGMEM = "Temperatura do Ar";
+static const char L_DHT_HUM[]  PROGMEM = "Umidade do Ar";
+#endif
+static const char L_FLOW[]     PROGMEM = "Vazao.Irrig";
+
 // ===== DEFINIÇÃO DOS ITENS DO NÓ =====
 // Colunas: childId | kind | presentType | valueType | pin | intMin | smp |
 // label | wakeOnRadio | flags
@@ -73,43 +96,43 @@ static int freeRam() {
 static const M360::M360ItemDef NODE_ITEMS[] = {
     // --- Canais MUX (concorrência restrita: 1 ativo por vez) ---
     {CHILD_ID_SOL_A, M360::M360_ACTUATOR, S_BINARY, V_STATUS,
-     MUX_CHANNEL_OFFSET + 0, 0, 1, "Sol.CanteiroA", false, 0},
+     MUX_CHANNEL_OFFSET + 0, 0, 1, M360_LABEL(L_SOL_A), false, 0},
     {CHILD_ID_SOL_B, M360::M360_ACTUATOR, S_BINARY, V_STATUS,
-     MUX_CHANNEL_OFFSET + 1, 0, 1, "Sol.CanteiroB", false, 0},
+     MUX_CHANNEL_OFFSET + 1, 0, 1, M360_LABEL(L_SOL_B), false, 0},
     {CHILD_ID_SOL_C, M360::M360_ACTUATOR, S_BINARY, V_STATUS,
-     MUX_CHANNEL_OFFSET + 2, 0, 1, "Sol.CanteiroC", false, 0},
+     MUX_CHANNEL_OFFSET + 2, 0, 1, M360_LABEL(L_SOL_C), false, 0},
     {CHILD_ID_PERIST_A, M360::M360_ACTUATOR, S_BINARY, V_STATUS,
-     MUX_CHANNEL_OFFSET + 3, 0, 1, "Perist.SuplA", false, 0},
+     MUX_CHANNEL_OFFSET + 3, 0, 1, M360_LABEL(L_PERIST_A), false, 0},
     {CHILD_ID_PERIST_B, M360::M360_ACTUATOR, S_BINARY, V_STATUS,
-     MUX_CHANNEL_OFFSET + 4, 0, 1, "Perist.SuplB", false, 0},
+     MUX_CHANNEL_OFFSET + 4, 0, 1, M360_LABEL(L_PERIST_B), false, 0},
     {CHILD_ID_PH_PLUS, M360::M360_ACTUATOR, S_BINARY, V_STATUS,
-     MUX_CHANNEL_OFFSET + 5, 0, 1, "Perist.pH+", false, 0},
+     MUX_CHANNEL_OFFSET + 5, 0, 1, M360_LABEL(L_PH_PLUS), false, 0},
     {CHILD_ID_PH_MINUS, M360::M360_ACTUATOR, S_BINARY, V_STATUS,
-     MUX_CHANNEL_OFFSET + 6, 0, 1, "Perist.pH-", false, 0},
+     MUX_CHANNEL_OFFSET + 6, 0, 1, M360_LABEL(L_PH_MINUS), false, 0},
     // --- Pinos Nativos (concorrência livre com MUX e entre si) ---
     {CHILD_ID_NFT_PUMP, M360::M360_ACTUATOR, S_BINARY, V_STATUS, PIN_NFT_PUMP,
-     0, 1, "BombaNFT", false, 0},
+     0, 1, M360_LABEL(L_NFT_PUMP), false, 0},
     {CHILD_ID_NFT_OXI, M360::M360_ACTUATOR, S_BINARY, V_STATUS, PIN_NFT_OXI, 0,
-     1, "BombaOxi", false, 0},
-    // --- Sensores Nativos (DHT11 - Concorrência livre) ---
+     1, M360_LABEL(L_NFT_OXI), false, 0},
+#ifndef NODE99_BOARD_ACT
+    // --- Sensores Nativos (DHT11 - Concorrência livre) — só no Nano ---
     {CHILD_ID_DHT_TEMP, M360::M360_SENSOR, S_TEMP, V_TEMP, PIN_DHT, 0, 1,
-     "Temperatura do Ar", false, 0},
+     M360_LABEL(L_DHT_TEMP), false, 0},
     {CHILD_ID_DHT_HUM, M360::M360_SENSOR, S_HUM, V_HUM, PIN_DHT, 0, 1,
-     "Umidade do Ar", false, 0},
+     M360_LABEL(L_DHT_HUM), false, 0},
+#endif
     // --- Vazão de irrigação (YF-S201 em D3/INT1) ---
     // pin = -1: a leitura não passa por readNodeItem(), é despachada por
     // childId em readItem() abaixo.
     {CHILD_ID_FLOW, M360::M360_SENSOR, S_WATER, V_FLOW, -1, 0, 1,
-     "Vazao.Irrig", false, 0},
+     M360_LABEL(L_FLOW), false, 0},
 };
 static const uint8_t NODE_ITEMS_COUNT =
     sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
 
 // ===== BUFFERS =====
-// +3 OBRIGATÓRIO: M360Node::begin() escreve _messages[_count], [_count+1] e
-// [_count+2] — intervalo (254), bateria (255) e debug remoto (253).
-// Dimensionar com +2 causa escrita fora do array (corrupção de RAM adjacente).
-static MyMessage messages[NODE_ITEMS_COUNT + 3];
+// Sem messages[]: a M360-DRY 2.0.0 monta cada envio num único MyMessage
+// interno. Para reportar estado fora do fluxo da lib, use node.sendItemState().
 static float lastValues[NODE_ITEMS_COUNT];
 static uint8_t nNoUpdates[NODE_ITEMS_COUNT];
 
@@ -117,11 +140,11 @@ static uint8_t nNoUpdates[NODE_ITEMS_COUNT];
 // MY_REPEATER_FEATURE (via build_flags) ativa encaminhamento de mensagens de
 // outros nós. Use: pio run -e nano_99reles_rep -t upload
 #ifdef MY_REPEATER_FEATURE
-static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, messages, lastValues,
-                           nNoUpdates, M360::M360_REPEATER);
+static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, lastValues, nNoUpdates,
+                           M360::M360_REPEATER);
 #else
-static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, messages, lastValues,
-                           nNoUpdates, M360::M360_ALWAYS_ON);
+static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, lastValues, nNoUpdates,
+                           M360::M360_ALWAYS_ON);
 #endif
 
 // ===== FAILSAFE DE ATUAÇÃO =====
@@ -168,6 +191,14 @@ static void armFailsafe(uint8_t index, bool state) {
     return;
   }
 
+  // ON repetido para um child já ligado NÃO rearma o prazo: o limite vale sobre o
+  // tempo contínuo ligado, contado do primeiro ON. Sem isto, retries do Node-RED ou
+  // regas encadeadas manteriam a carga ligada indefinidamente (AD-2 do spine).
+  // Prazo != 0 só existe com o child ligado: OFF, failsafe e preempção o zeram.
+  if (actuatorDeadlineMs[index] != 0) {
+    return;
+  }
+
   // Ligar um canal MUX desliga o anterior no hardware (ver writeNodeItem()):
   // desarmar os demais evita disparar o failsafe sobre um relé já desligado.
   // O eco de V_STATUS=0 do child preemptado é feito por writeItem().
@@ -207,22 +238,50 @@ static void checkActuatorFailsafe() {
 
     actuatorDeadlineMs[i] = 0;
     writeNodeItem(NODE_ITEMS[i].pin, false);
-    send(messages[i].set(false)); // reconcilia o estado no gateway/Node-RED
+    node.sendItemState(i, false); // reconcilia o estado no gateway/Node-RED
 
     Serial.print(F("FAILSAFE OFF child "));
     Serial.println(NODE_ITEMS[i].childId);
   }
 }
 
+#ifdef NODE99_BOARD_ACT
+// ===== REPAREAMENTO PELO REED (só M360-ACT) =====
+// Ímã junto do SW1 (porta do quadro aberta) por REED_HOLD_MS: o nó esquece o pai e
+// as rotas, procura o gateway de novo, reapresenta os children e reenvia a vazão e a
+// bateria. Sem reboot — relés e failsafe seguem intactos. O estado dos relés NÃO é
+// reenviado (forceUpdate só lê sensores): um 0 espontâneo pareceria failsafe.
+// Dispara uma vez por aproximação; precisa afastar o ímã para repetir.
+static void checkReedRejoin() {
+  static uint32_t lowSince = 0; // 0 = contato aberto
+  static bool fired = false;
+  if (digitalRead(PIN_REED) == LOW) {
+    const uint32_t agora = millis();
+    if (lowSince == 0) {
+      lowSince = agora | 1UL; // nunca 0 enquanto fechado
+    } else if (!fired && (agora - lowSince) >= REED_HOLD_MS) {
+      fired = true;
+      Serial.println(F("REED:REPAREAR"));
+      node.requestRejoin();
+    }
+  } else {
+    lowSince = 0;
+    fired = false;
+  }
+}
+#endif
+
 // ===== CALLBACKS =====
 
 static float readItem(uint8_t index) {
+#ifndef NODE99_BOARD_ACT
   if (NODE_ITEMS[index].childId == CHILD_ID_DHT_TEMP) {
     return readDHTTemp();
   }
   if (NODE_ITEMS[index].childId == CHILD_ID_DHT_HUM) {
     return readDHTHum();
   }
+#endif
   if (NODE_ITEMS[index].childId == CHILD_ID_FLOW) {
     return readFlowLpm();
   }
@@ -237,7 +296,7 @@ static float readItem(uint8_t index) {
 static void reportPreemptedMuxChannel(int8_t channel) {
   for (uint8_t i = 0; i < NODE_ITEMS_COUNT; i++) {
     if (NODE_ITEMS[i].pin == MUX_CHANNEL_OFFSET + channel) {
-      send(messages[i].set(false));
+      node.sendItemState(i, false);
       Serial.print(F("MUX preempcao OFF child "));
       Serial.println(NODE_ITEMS[i].childId);
       return;
@@ -266,7 +325,7 @@ void powerDown() {
 
 // ===== MYSENSORS HOOKS =====
 
-void presentation() { node.begin("NodeReles", "2.0.0"); }
+void presentation() { node.begin(F("NodeReles"), F("2.0.0")); }
 
 
 void before() {
@@ -293,6 +352,10 @@ void loop() {
   // node.process() em M360_ALWAYS_ON termina em wait(50), então o failsafe é
   // avaliado ~20x por segundo — resolução de sobra para prazos de minutos.
   checkActuatorFailsafe();
+
+#ifdef NODE99_BOARD_ACT
+  checkReedRejoin();
+#endif
 
 #ifdef NODE99_HEALTH_LOG
   // Batimento a cada 5 s: uptime em segundos e RAM livre.

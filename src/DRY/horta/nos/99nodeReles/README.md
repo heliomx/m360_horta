@@ -17,7 +17,7 @@ Na parte inferior esquerda há **3 disjuntores Siemens unipolares**:
 ### 1.2 Fontes de Alimentação
 Na lateral superior esquerda encontram-se **2 conversores DC-DC Step Down (Buck Converter) LM2596** com dissipadores de calor individuais:
 * Reduzem a saída da fonte principal (12V) regulando as tensões lógicas do circuito.
-* **Aplicações:** Regulagem da linha de 5.0V para o Arduino Nano/periféricos e da linha dedicada de 3.3V (específica para o rádio NRF24L01).
+* **Aplicações:** Regulagem da linha de 5.0V para o Arduino Nano/periféricos e da linha de 3.3V que alimentava o rádio NRF24L01 — desde 20/08/2026 o rádio é alimentado pelo 5 V do Nano via adaptador regulado, e essa linha deixou de ser necessária (ver §3.1).
 
 ### 1.3 Barramentos de Distribuição
 No centro-esquerdo existem **4 barramentos de distribuição de latão**:
@@ -230,6 +230,17 @@ O sensor abaixo possui conexão direta ao Arduino, permitindo leituras periódic
 > D2 e D3 são os **únicos** pinos de interrupção externa do Nano. D2 está ocupado
 > pelo DHT11, logo o sensor de vazão obrigatoriamente usa D3/INT1.
 
+> **Variante M360-ACT** (env `act_99`, `-D NODE99_BOARD_ACT`): não há DHT11 — os
+> children 11 e 12 não existem —, o D2 é o DIO0 do rádio e o D3 fica em `INPUT`
+> puro, porque a placa condiciona o sinal. O `/OE` do 74HCT244 (A5) é liberado por
+> último em `initSensors()`. O reed (A4) faz o **repareamento**: com o ímã junto do SW1
+> por 3 s, o nó esquece o pai e as rotas, procura o gateway de novo, reapresenta os
+> children e reenvia a vazão e a bateria, sem reiniciar o MCU (relés e failsafe intactos).
+> O estado dos relés **não** é reenviado: ele só sai por eco de comando, preempção e
+> failsafe, e um `0` espontâneo seria lido pelo controlador como failsafe. No Serial: `REED:REPAREAR`, `REJOIN:INI`, `REJOIN:OK`; no debug
+> remoto (child 253): `REJOIN` e `REJOIN:OK`. Pinagem completa em `sensorDrivers.h` e
+> na seção "Variante M360-ACT" de `esquema_eletrico.md`.
+
 ### 3.5 Relés e Atuadores Multiplexados (Concorrência Restrita)
 Os relés listados abaixo são controlados pelas saídas lógicas do MUX. Apenas **UM** relé desta lista pode ser ativado simultaneamente.
 | Canal MUX | Child ID | Ligação Física | Carga (Atuador) | Especificação Alimentação |
@@ -252,8 +263,8 @@ serem descartados em silêncio — `M360Node::handleMessage()` casa `childId` ex
 
 | Child | Constante | Tipo MySensors | Item | Faixa |
 | :--- | :--- | :--- | :--- | :--- |
-| 11 | `CHILD_ID_DHT_TEMP` | `S_TEMP` / `V_TEMP` | Temperatura do ar | Clima 11-20 |
-| 12 | `CHILD_ID_DHT_HUM` | `S_HUM` / `V_HUM` | Umidade do ar | Clima 11-20 |
+| 11 | `CHILD_ID_DHT_TEMP` | `S_TEMP` / `V_TEMP` | Temperatura do ar — **só no Nano**; ausente na M360-ACT | Clima 11-20 |
+| 12 | `CHILD_ID_DHT_HUM` | `S_HUM` / `V_HUM` | Umidade do ar — **só no Nano**; ausente na M360-ACT | Clima 11-20 |
 | 21 | `CHILD_ID_FLOW` | `S_WATER` / `V_FLOW` | Vazão de irrigação (L/min) | Hidrometria 21-30 |
 | 31 | `CHILD_ID_SOL_A` | `S_BINARY` / `V_STATUS` | Solenóide Canteiro A | Atuação 31-40 |
 | 32 | `CHILD_ID_SOL_B` | `S_BINARY` / `V_STATUS` | Solenóide Canteiro B | Atuação 31-40 |
@@ -307,10 +318,14 @@ O driver de software (`sensorDrivers.cpp`) impõe via código que **apenas um ca
 ### 5.2.1 Failsafe de Atuação
 Nenhuma camada acima do nó garante o comando de desligamento: o OFF da irrigação é agendado por `setTimeout()` dentro de um function node do Node-RED (morre em qualquer redeploy) e o gateway publica o ACK assim que o rádio confirma o salto, de modo que o Sincronizador nunca reenvia.
 * Cada atuador tem um **tempo máximo ligado** (`maxOnSecondsFor()`): solenóides **600 s**, peristálticas **120 s**, bombas NFT **sem limite**.
+* O prazo conta do **primeiro ON**: um ON repetido para um child já ligado não rearma o prazo, então retries ou regas encadeadas não estendem o tempo ligado. OFF seguido de ON começa um prazo novo.
 * As bombas NFT (childs 38/39) ficam de fora por projeto — são circulação e oxigenação em regime contínuo, e um timeout nelas interromperia a hidroponia.
 * Ao estourar o prazo, `checkActuatorFailsafe()` desliga a carga e envia `V_STATUS=0`, permitindo ao Node-RED reconciliar o estado. É a única proteção que sobrevive à queda do WiFi, do MQTT, do Node-RED e do próprio gateway.
 
-### 5.3 Tratamento do DHT11 (Sensor Nativo)
+### 5.3 Tratamento do DHT11 (Sensor Nativo — só na variante Nano)
+Na M360-ACT (`-D NODE99_BOARD_ACT`) não há DHT11: o D2 é o DIO0 do rádio, os children 11 e 12
+não são declarados e a lib DHT não entra no binário. O que segue vale para o Nano.
+
 Por ser um protocolo bidirecional, o DHT11 é conectado diretamente ao pino nativo `D2`. A leitura dele ocorre no callback `readItem()` em `99nodeReles.cpp`:
 * Quando o motor solicita a leitura do child **11** (temperatura) ou **12** (umidade), a lógica desvia a requisição direto para `readDHTTemp()` ou `readDHTHum()`.
 * Essas funções realizam a leitura direta no pino D2 usando a biblioteca Adafruit DHT, tratando erros de leitura (retornando `NAN` caso ocorram problemas físicos) e mantendo a integridade do barramento MUX.

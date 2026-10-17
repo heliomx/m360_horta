@@ -99,6 +99,14 @@ namespace M360 {
 
 #define M360_MIN_AWAKE_MS 3000UL
 
+// Piso do override em ms (M360Node::setIntervalMs). Abaixo de
+// MY_SMART_SLEEP_WAIT_DURATION_MS (500 ms) o MySensors devolve
+// MY_SLEEP_NOT_POSSIBLE sem dormir e o nó fica em loop acordado com o rádio
+// ligado; 5 s cobre também a janela M360_MIN_AWAKE_MS.
+#ifndef M360_MIN_INTERVAL_MS
+#  define M360_MIN_INTERVAL_MS 5000UL
+#endif
+
 // ===== BATERIA =====
 
 #ifndef M360_MIN_VOLTAGE
@@ -114,8 +122,11 @@ namespace M360 {
 #define M360_SENSOR_INVALID -32768.0f
 
 // ===== COMANDOS REMOTOS =====
+// Strings dos comandos V_CUSTOM (FORCE_UPDATE, REPRESENT, DEBUG_NET): M360Constants.h.
 
 // ===== PERFIL DE ENERGIA =====
 // Selecione o perfil no constructor do nó via M360PowerProfile:
 //   M360::M360_LOW_POWER   — bateria: usa smartSleep()
 //   M360::M360_ALWAYS_ON   — fonte fixa / debug: timer por millis, sem sleep
+//   M360::M360_PASSIVE     — bateria + sensor pesado: dorme, lê só sob FORCE_UPDATE
+//   M360::M360_REPEATER    — ALWAYS_ON + MY_REPEATER_FEATURE (encaminha outros nós)

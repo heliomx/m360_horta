@@ -12,25 +12,28 @@
 #include <M360.h>
 #include "sensorDrivers.h"
 
+// ===== RÓTULOS (na Flash) =====
+// M360_LABEL() só aceita arrays PROGMEM. O texto é o que o Node-RED exibe —
+// ver inventario.md, Apêndice A.
+static const char L_DHT_TEMP[] PROGMEM = "Temperatura Ar";
+static const char L_DHT_HUM[]  PROGMEM = "Umidade Relativa";
+
 // ===== DEFINIÇÃO DOS ITENS DO NÓ =====
 // Colunas: childId | kind | presentType | valueType | pin | intervalMin | samples | label | wakeOnRadio | flags
 static const M360::M360ItemDef NODE_ITEMS[] = {
-	{ CHILD_ID_DHT_TEMP, M360::M360_SENSOR, S_TEMP, V_TEMP, PIN_DHT, 1, 3, "Temperatura Ar",   false, 0 },
-	{ CHILD_ID_DHT_HUM,  M360::M360_SENSOR, S_HUM,  V_HUM,  PIN_DHT, 1, 3, "Umidade Relativa", false, 0 },
+	{ CHILD_ID_DHT_TEMP, M360::M360_SENSOR, S_TEMP, V_TEMP, PIN_DHT, 1, 3, M360_LABEL(L_DHT_TEMP), false, 0 },
+	{ CHILD_ID_DHT_HUM,  M360::M360_SENSOR, S_HUM,  V_HUM,  PIN_DHT, 1, 3, M360_LABEL(L_DHT_HUM),  false, 0 },
 };
 static const uint8_t NODE_ITEMS_COUNT = sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
 
 // ===== BUFFERS ESTÁTICOS =====
-// messages: +3 OBRIGATÓRIO — M360Node::begin() escreve incondicionalmente em
-// _messages[_count], [_count+1] e [_count+2]: intervalo (254), bateria (255) e
-// debug remoto (253). Com +2 a terceira escrita sai dos limites do array.
-static MyMessage messages[NODE_ITEMS_COUNT + 3];
+// Sem messages[]: a M360-DRY 2.0.0 monta cada envio num único MyMessage interno.
 static float     lastValues[NODE_ITEMS_COUNT];
 static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
 
 // ===== INSTÂNCIA DO MOTOR =====
-static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, messages, lastValues,
-                           nNoUpdates, M360::M360_ALWAYS_ON);
+static M360::M360Node node(NODE_ITEMS, NODE_ITEMS_COUNT, lastValues, nNoUpdates,
+                           M360::M360_ALWAYS_ON);
 
 // ===== MYSENSORS HOOKS =====
 
@@ -42,7 +45,7 @@ void before()
 
 void presentation()
 {
-	node.begin("miniDHT", "1.0");
+	node.begin(F("miniDHT"), F("1.0"));
 }
 
 void setup()

@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "M360")(type "KiCad")(uri "${KIPRJMOD}/../lib/M360.pretty")(options "")(descr "Footprints da família M360 (Pro Mini, soquete do mezanino, peças do LCSC)"))
+)

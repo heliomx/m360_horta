@@ -20,28 +20,34 @@ static const uint8_t sensorPins[] = {A0, A1, A2, A3, A4, A5};
 // Pino de Energia dos Pull-ups (Mitigação de Eletrólise)
 #define PIN_POWER_SENSORS 3 // D3
 
+// Rótulos na Flash (M360_LABEL só aceita arrays PROGMEM). O texto é o que o
+// Node-RED exibe — ver inventario.md §4.
+static const char L_1M_10CM[] PROGMEM = "A_1m_10cm";
+static const char L_1M_30CM[] PROGMEM = "A_1m_30cm";
+static const char L_3M_10CM[] PROGMEM = "A_3m_10cm";
+static const char L_3M_30CM[] PROGMEM = "A_3m_30cm";
+static const char L_5M_10CM[] PROGMEM = "A_5m_10cm";
+static const char L_5M_30CM[] PROGMEM = "A_5m_30cm";
+
 // Definição dos 6 sensores resistivos (Canteiro A)
 // Child IDs conforme R13 (1–10: Sensores de Solo)
 static const M360::M360ItemDef nodeItems[] = {
-    {1, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A0, 0, 1, "A_1m_10cm", false, 0},
-    {2, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A1, 0, 1, "A_1m_30cm", false, 0},
-    {3, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A2, 0, 1, "A_3m_10cm", false, 0},
-    {4, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A3, 0, 1, "A_3m_30cm", false, 0},
-    {5, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A4, 0, 1, "A_5m_10cm", false, 0},
-    {6, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A5, 0, 1, "A_5m_30cm", false, 0}
+    {1, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A0, 0, 1, M360_LABEL(L_1M_10CM), false, 0},
+    {2, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A1, 0, 1, M360_LABEL(L_1M_30CM), false, 0},
+    {3, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A2, 0, 1, M360_LABEL(L_3M_10CM), false, 0},
+    {4, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A3, 0, 1, M360_LABEL(L_3M_30CM), false, 0},
+    {5, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A4, 0, 1, M360_LABEL(L_5M_10CM), false, 0},
+    {6, M360::M360_SENSOR, S_MOISTURE, V_LEVEL, A5, 0, 1, M360_LABEL(L_5M_30CM), false, 0}
 };
 
 static const uint8_t numItems = sizeof(nodeItems) / sizeof(M360::M360ItemDef);
 
-// +3 OBRIGATÓRIO: M360Node::begin() escreve incondicionalmente em
-// _messages[_count], [_count+1] e [_count+2] — intervalo (254), bateria (255)
-// e debug remoto (253). Com +2 a terceira escrita sai dos limites do array.
-static MyMessage messages[numItems + 3];
+// Sem messages[]: a M360-DRY 2.0.0 monta cada envio num único MyMessage interno.
 static float lastValues[numItems];
 static uint8_t nNoUpdates[numItems];
 
-static M360::M360Node node(nodeItems, numItems, messages, lastValues,
-                           nNoUpdates, M360::M360_ALWAYS_ON);
+static M360::M360Node node(nodeItems, numItems, lastValues, nNoUpdates,
+                           M360::M360_ALWAYS_ON);
 
 /**
  * Configura os pinos de controle (Power) como OUTPUT, e pinos analógicos como INPUT.
@@ -133,7 +139,7 @@ void before() {
   initSensors();
 }
 
-void presentation() { node.begin("01nodeSolo3dNano", "2.0.0"); }
+void presentation() { node.begin(F("01nodeSolo3dNano"), F("2.0.0")); }
 
 void setup() {
   // Registra o callback de leitura analógica

@@ -6,7 +6,8 @@
  *
  * Dependências ngm/ restantes (sem equivalente na lib):
  *   - ngm/webserver  — portal web de configuração captivo
- *   - ngm/leds       — controle de LEDs de status (D0/D1/D2)
+ *   - ngm/leds       — controle de LEDs de status: amarelo D0, vermelho D2,
+ *                      verde D1 (protótipo) ou D4 (M360-GW, -D M360_BOARD_GW)
  */
 
 #include <Arduino.h>
@@ -31,6 +32,7 @@
 #include <M360Translator.h>
 #include <M360Registry.h>
 #include <M360Constants.h>
+#include <M360FactoryReset.h>
 
 // ==== HELPER LOCAL ====
 // Lê A0 duas vezes com delay para filtrar ruído; retorna true se abaixo do limiar
@@ -50,6 +52,10 @@ M360::M360DeviceConfig  config;
 M360::WiFiManager       wifiManager;
 M360::MQTTManager       mqttManager;
 M360::M360Gateway       gateway(mqttClient);
+// Factory reset: ímã/botão no A0 por 3 s, nos primeiros 30 s do loop(), depois de
+// tê-lo afastado ao menos uma vez (segurar desde o boot é o modo AP). Apaga a
+// configuração e reinicia direto no modo AP. Ver M360FactoryReset.h.
+M360::FactoryReset      factoryReset(RESET_PIN);
 
 // ==== VARIÁVEIS GLOBAIS PARA CONTROLE DE LEDS ====
 unsigned long lastStatusBlink = 0;
@@ -183,7 +189,7 @@ void sendMQTT(const MyMessage &message, bool isAck) {
 
 void before() {
 	Serial.begin(115200);
-	initLEDs(LED_RED, LED_GREEN, LED_YELLOW);
+	initLEDs(LED_RED, LED_YELLOW, LED_GREEN);  // ordem do protótipo: (redPin, yellowPin, greenPin)
 	ledBegin();
 
 	M360_PRINT_BUILD_INFO();
@@ -259,7 +265,8 @@ void setup() {
 	Serial.flush();
 	delay(100);
 
-	setupWebServer(config, server);
+	// Botão "Restaurar padrões de fábrica" do portal: mesmo caminho do reed/botão no A0.
+	setupWebServer(config, server, []() { factoryReset.trigger(config, "portal web"); });
 	Serial.flush();
 
 	bool isInAPMode = (WiFi.getMode() == WIFI_AP);
@@ -293,6 +300,19 @@ void setup() {
 		mqttManager.publishMetrics(config, mqttClient);
 	});
 	gateway.onNodeCheck(checkNodeTimeouts);
+	factoryReset.onTrigger([](const char* origem) {
+		// No modo AP não há MQTT (regra: nada de mqttClient.loop() em AP) — o reset
+		// pelo portal em modo configuração segue sem o evento.
+		if (WiFi.getMode() == WIFI_AP || !mqttClient.connected()) {
+			return;
+		}
+		String det = String("origem: ") + origem + " - config apagada, reinicia em AP";
+		publishTransportEvent(M360::EVT_FACTORY_RESET, det.c_str());
+		for (uint8_t i = 0; i < 5; i++) {  // dá tempo de o evento sair antes do restart
+			mqttClient.loop();
+			delay(50);
+		}
+	});
 	publishTransportEvent("gateway_presented", "Manejo360 Gateway MQTT v2.0");
 
 	Serial.println("✅ Gateway iniciado integralmente e pronto para loop!");
@@ -303,6 +323,7 @@ void setup() {
 
 void loop() {
 	gateway.loop();  // M360::M360Gateway orquestra tudo
+	factoryReset.process(config);  // só age nos primeiros 30 s do loop()
 }
 
 // ==== CONTROLE DE LEDS ====
