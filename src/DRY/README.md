@@ -159,7 +159,7 @@ ESP8266 D1 mini entre o rádio e o broker MQTT. Detalhes em
 - **Registro de nós**: um nó sem mensagem por 15 min gera `node_lost`; a volta gera `node_reconnected`.
 - **Heartbeat** a cada 60 s com uptime, RSSI do WiFi, IP e versão.
 - **LEDs**: verde = WiFi + MQTT ok; amarelo piscando = sem MQTT; vermelho piscando = sem WiFi.
-- **Modo AP** (`M360-Config`, portal em `192.168.4.1`) com configuração inválida ou A0 em GND no boot. Factory reset **não implementado**.
+- **Modo AP** (`M360-Config`, portal em `192.168.4.1`) com configuração inválida ou A0 em GND no boot. **Factory reset**: nos primeiros 30 s do `loop()`, ímã/botão afastado e mantido 3 s no A0.
 
 Antes de compilar: `cp include/M360Credentials.h.example include/M360Credentials.h` e preencher.
 

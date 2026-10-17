@@ -17,6 +17,7 @@ ESP8266 D1 mini que faz a ponte entre a rede de rádio MySensors e o broker MQTT
 | `M360Translator` | Serialização MySensors ↔ MQTT (modo nativo e envelope JSON), validação |
 | `M360Registry` | Nós ativos, `node_discovered`, `node_lost` (15 min sem mensagem), `node_reconnected` |
 | `M360Config` | `M360DeviceConfig` na EEPROM a partir de 521, com CRC, gravado campo a campo |
+| `M360FactoryReset` | Factory reset pelo A0 (ímã/botão mantido 3 s nos primeiros 30 s do `loop()`) |
 | `M360Leds` | Três LEDs de status (pinos abaixo) |
 
 ## Hardware e envs
@@ -70,7 +71,9 @@ Heartbeat a cada 60 s em `.../out/events` com uptime, RSSI do WiFi, IP e versão
 ## Modo AP e factory reset
 
 - Ímã no reed (ou botão) com A0 em GND **durante o boot** → AP `M360-Config`, portal em `192.168.4.1`.
-- O A0 é lido uma única vez, no `before()`. **Factory reset não está implementado**, nem pelo portal nem pelo A0 por 3 s; pendência em `hardware/ARQUITETURA_FAMILIA.md` §9. Para voltar ao padrão, regravar com a EEPROM limpa ou salvar uma configuração nova pelo portal.
+- **Factory reset** (`M360::FactoryReset`, `lib/M360-DRY/src/M360FactoryReset.h`): nos primeiros **30 s** do `loop()`, afastar o ímã/botão e mantê-lo **3 s** no A0. O gateway grava a configuração de fábrica (`M360Credentials.h`), publica `factory_reset` em `.../out/events` e reinicia. No Serial: `FRESET: ...`.
+- O reset só arma depois de ver o A0 solto: segurar o ímã desde o boot abre o modo AP e **não** apaga nada. A janela conta do início do `loop()`, não do boot.
+- Depois do reset, se o WiFi de fábrica não responder, o gateway cai no modo AP após 3 tentativas; para o AP imediato, reiniciar com o ímã no A0. O portal web não tem rota de reset.
 - Sem o pull-up de 10 kΩ no A0 o pino flutua perto de 0 V e o gateway sobe em AP sozinho.
 
 ## Antes de compilar

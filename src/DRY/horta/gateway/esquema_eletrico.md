@@ -98,7 +98,7 @@ fonte `libDryGatewayMqtt.cpp`. A diferença fica atrás da flag `-D M360_BOARD_G
 | LED Vermelho / Amarelo | D2 / D0 | D2 / D0 | Sem mudança; resistores de 470 Ω a bordo, LEDs no painel pelo J3 (6 vias, em pares) |
 | Rádio RFM95W (mezanino J1) | — | DIO0 = **D1** (GPIO5), NSS = D8 (GPIO15), SPI D5/D6/D7 | Padrões da lib no ESP8266, sem flag. DIO1 e RESET **não ligados** — não definir `MY_RFM95_RST_PIN` |
 | nRF24 legado (header J4) | CE = D4, CSN = D8 | CE = **D1** (GPIO5), CSN = D8 | `-D MY_RF24_CE_PIN=5` no env. Exclusivo com o mezanino: um rádio por placa. Pino 6 (IRQ) do J4 sem ligação |
-| Modo AP | Botão no A0 | **Reed SW1** no A0, pull-up 10 kΩ | Mesmo firmware: ímã por fora da caixa no boot força o modo AP. Sem factory reset pelo ímã |
+| Modo AP | Botão no A0 | **Reed SW1** no A0, pull-up 10 kΩ | Mesmo firmware: ímã por fora da caixa no boot força o modo AP; nos primeiros 30 s do `loop()`, afastado e mantido 3 s, factory reset |
 
 ---
 **Nota:** A alimentação de 3.3V fornecida pelo próprio regulador linear da placa NodeMCU/Wemos geralmente é suficiente para o NRF24L01+ operando em modo baixo consumo (PA_LOW). Contudo, em caso de instabilidade ou se for utilizar um rádio NRF24L01+ PA/LNA (com antena externa e amplificador de potência), recomenda-se estritamente adicionar um módulo regulador/adaptador de tensão independente de 3.3V ligado diretamente à fonte de 5V.

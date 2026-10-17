@@ -32,6 +32,7 @@
 #include <M360Translator.h>
 #include <M360Registry.h>
 #include <M360Constants.h>
+#include <M360FactoryReset.h>
 
 // ==== HELPER LOCAL ====
 // Lê A0 duas vezes com delay para filtrar ruído; retorna true se abaixo do limiar
@@ -51,6 +52,9 @@ M360::M360DeviceConfig  config;
 M360::WiFiManager       wifiManager;
 M360::MQTTManager       mqttManager;
 M360::M360Gateway       gateway(mqttClient);
+// Factory reset: ímã/botão no A0 por 3 s, nos primeiros 30 s do loop(), depois de
+// tê-lo afastado ao menos uma vez (segurar desde o boot é o modo AP). Ver M360FactoryReset.h.
+M360::FactoryReset      factoryReset(RESET_PIN);
 
 // ==== VARIÁVEIS GLOBAIS PARA CONTROLE DE LEDS ====
 unsigned long lastStatusBlink = 0;
@@ -293,6 +297,13 @@ void setup() {
 		mqttManager.publishMetrics(config, mqttClient);
 	});
 	gateway.onNodeCheck(checkNodeTimeouts);
+	factoryReset.onTrigger([]() {
+		publishTransportEvent(M360::EVT_FACTORY_RESET, "A0 mantido 3 s - config de fabrica restaurada");
+		for (uint8_t i = 0; i < 5; i++) {  // dá tempo de o evento sair antes do restart
+			mqttClient.loop();
+			delay(50);
+		}
+	});
 	publishTransportEvent("gateway_presented", "Manejo360 Gateway MQTT v2.0");
 
 	Serial.println("✅ Gateway iniciado integralmente e pronto para loop!");
@@ -303,6 +314,7 @@ void setup() {
 
 void loop() {
 	gateway.loop();  // M360::M360Gateway orquestra tudo
+	factoryReset.process(config);  // só age nos primeiros 30 s do loop()
 }
 
 // ==== CONTROLE DE LEDS ====
