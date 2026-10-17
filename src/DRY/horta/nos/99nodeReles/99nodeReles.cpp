@@ -1,7 +1,7 @@
 /*
  * nodeReles.cpp — Nó 99: Central de Atuação da Estufa (M360-DRY)
  *
- * Hardware: Arduino Nano (5V) + CD74HC4067 (MUX 16ch) + 16 Relés 10A
+ * Hardware: Arduino Nano (5V) ou placa M360-ACT + CD74HC4067 (MUX 16ch) + 9 relés (7 MUX + 2 nativos)
  * (optoacoplador)
  *           + nRF24L01+ (adaptador socket regulado 3.3V) — CE=D9, CSN=D10
  *

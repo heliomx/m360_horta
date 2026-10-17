@@ -29,7 +29,7 @@ O ciclo `M360_LOW_POWER` está em `M360Node::process()`
 **Intervalo padrão de fábrica: 30 minutos** — `-D M360_DEFAULT_INTERVAL=30` no env
 (`platformio.ini`), aplicado só com EEPROM virgem. Um nó já gravado mantém o valor
 da EEPROM (1 min, antigo padrão da lib e pior caso para energia) até receber um
-`INTERVAL_<min>` pelo dashboard (§5). Os cálculos abaixo continuam em 1 min.
+novo intervalo pelo dashboard (`SET_INTERVAL`, `C_SET V_VAR1` no child 254) (§5). Os cálculos abaixo continuam em 1 min.
 
 **Warm-up pós-boot:** 10 ciclos de 30 s a cada reset — ~10 × 0,028 mAh ≈ 0,3 mAh
 por boot, desprezível frente ao consumo diário; só pesa se o nó entrar em loop de

@@ -20,8 +20,9 @@ O diretório `shared/` existe apenas para manutenção dos nós legados.
 src/DRY/
 ├── horta/                    ← Sub-projeto Horta (platformio.ini próprio)
 │   ├── nos/
-│   │   ├── shared/           ← Legado: node_engine, config, powerProfile
-│   │   └── nomeDoNo/         ← sensorDrivers.h/cpp + nomeDoNo.cpp
+│   │   ├── lp/               ← Placa M360-LP: firmware comum + config/<nó>/nodeConfig.h
+│   │   ├── shared/           ← Legado: node_engine, config, powerProfile (nenhum env compila)
+│   │   └── nomeDoNo/         ← hardware próprio: sensorDrivers.h/cpp + nomeDoNo.cpp
 │   ├── gateway/              ← ESP8266 (infraestrutura vive em lib/M360-DRY)
 │   └── nodered/flows.json
 └── kit-helio/                ← Sub-projeto Kit Hélio (platformio.ini próprio)
@@ -45,7 +46,7 @@ escreve fora do array sem erro de compilação; na M360-DRY 2.0.0 o nó nem decl
 ```cpp
 static const char L_TEMP[] PROGMEM = "Temperatura Ar";
 static const M360::M360ItemDef NODE_ITEMS[] = {
-    { CHILD_ID_TEMP, M360::M360_SENSOR, S_TEMP, V_TEMP, -1, 1, 3, M360_LABEL(L_TEMP), false, 0 },
+    { CHILD_ID_TEMP, M360::M360_SENSOR, S_TEMP, V_TEMP, -1, 0, 1, M360_LABEL(L_TEMP), false, 0 },
 };
 static float     lastValues[NODE_ITEMS_COUNT];
 static uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
@@ -69,14 +70,21 @@ uint8_t   nNoUpdates[NODE_ITEMS_COUNT];
 MyMessage messages[NODE_ITEMS_COUNT + 2]; // intervalo + bateria (sem canal de debug)
 ```
 
-### 2.2 Ciclo de Vida (Setup)
+> - `reportIntervalMin` e `readSamples` **não são lidos** pela lib: preencher `0` e `1`. O filtro de
+>   envio é fixo — Δ > 0,05 ou 10 ciclos sem mudança (`M360Node::_readAndSendAll()`).
+
+Nos nós M360-DRY o ciclo de vida é `before()` → `initSensors()`, `presentation()` → `node.begin()`,
+`setup()` → `onRead`/`onWrite`, `loop()` → `node.process()`, `receive()` → `node.handleMessage()`.
+As seções 2.2 e 2.3 abaixo descrevem **só o motor legado** (`shared/`, que nenhum env compila).
+
+### 2.2 Ciclo de Vida (Setup) — motor legado
 Sempre inicializar nesta ordem:
 1. `nodeEngine_setupPins()`: Configura pinagem de `NODE_ITEMS`.
 2. `initSensors()`: Driver específico do nó.
 3. `updateInterval = nodeEngine_loadInterval()`: Recupera da EEPROM.
 4. `nodeEngine_initArrays(...)`: Zera `lastValues` e `nNoUpdates`.
 
-### 2.3 Loop de Reporte (Regra de Mudança Significativa)
+### 2.3 Loop de Reporte (Regra de Mudança Significativa) — motor legado
 ```cpp
 if (abs(val - lastValues[i]) > 0.5 || nNoUpdates[i] >= 10) {
     lastValues[i] = val;
@@ -97,10 +105,10 @@ O código implementa padrões específicos para comunicação avançada. Todas a
 |-----------|---------|-----------|--------|
 | `CMD_FORCE_UPDATE` | `"FORCE_UPDATE"` | `V_CUSTOM` / `C_SET` | Leitura imediata de todos os sensores; em PASSIVE liga/desliga periféricos |
 | `CMD_REPRESENT` | `"REPRESENT"` | `V_CUSTOM` / `C_SET` | Re-anuncia todos os children via `present()` sem resetar estado interno; Serial: `REPRES:OK` |
-| `CMD_RESET` | `"RESET"` | `V_CUSTOM` / `C_SET` | Reservado para uso no nó (ex: zerar acumuladores de vazão) |
+| `CMD_DEBUG_NET` | `"DEBUG_NET"` | `V_CUSTOM` / `C_SET` | Responde diagnóstico de rede (`P:<parent> D:<dist> R:<S/N>`) pelo child 253 |
 | — | Intervalo numérico | `V_VAR1` ou `V_VAR5` em childId 254 | Atualiza e persiste intervalo na EEPROM |
 
-**Nós `withLibDRY`:** todos os comandos acima são processados automaticamente por `node.handleMessage(msg)` — a `receive()` do nó não precisa de código adicional.
+**Nós M360-DRY:** todos os comandos acima são processados automaticamente por `node.handleMessage(msg)` — a `receive()` do nó não precisa de código adicional.
 
 **Nós legados (`shared/`):** usar as macros `NODE_ENGINE_HANDLE_INTERVAL(msg)` e `NODE_ENGINE_HANDLE_REREPRESENTATION(msg, name, version)`.
 
@@ -110,13 +118,13 @@ O código implementa padrões específicos para comunicação avançada. Todas a
 
 ## 4. Gateway — Padrões do `libDryGatewayMqtt.cpp`
 
-- **Node Tracking:** O gateway rastreia nós ativos via `updateNodeStatus()`.
-- **JSON Envelope:** Mensagens do rádio para MQTT seguem o formato:
-  ```json
-  { "nodeId": X, "sensorId": Y, "command": Z, "type": W, "payload": "...", "timestamp": T }
-  ```
+- **Node Tracking:** `M360::Registry` (`M360Registry.h`): `node_discovered`, `node_lost` (15 min), `node_reconnected`.
+- **Formato MQTT:** os gateways compilam com `M360_NATIVE_MQTT=1`. Subida em
+  `m360/{UF}/{CAR}/out/{nodeId}/{childId}/{command}/{ack}/{type}` com o valor bruto no payload;
+  descida em `.../in/...` no mesmo formato. Sem a flag, o envelope JSON
+  `{ "nodeId", "sensorId", "command", "type", "payload", "timestamp" }` em `.../out`.
 - **Events:** Eventos de transporte (reconexão, nó perdido) são publicados em `{topic}/events`.
-- **Config:** A configuração do gateway (WiFi/MQTT) fica no setor 512+ da EEPROM via `saveConfig()`.
+- **Config:** A configuração do gateway (WiFi/MQTT) fica na EEPROM a partir de **521** (`M360DeviceConfig`, CRC), gravada campo a campo.
 
 ---
 
@@ -140,14 +148,13 @@ pinagem.
 
 ## 5. Checklist Anti-Padrões (Verificar antes de Commit)
 
-- [ ] ❌ **Definir MY_NODE_ID após MySensors.h** → Deve vir ANTES.
-- [ ] ❌ **EEPROM.put() direto no nó** → Use `nodeEngine_saveInterval()`.
-- [ ] ❌ **Hardcoding de strings de comando** → Use `CMD_FORCE_UPDATE` de `config.h`.
-- [ ] ❌ **Dois perfis de energia** → Escolha apenas `POWER_PROFILE_LOW_POWER` ou `ALWAYS_ON`.
+- [ ] ❌ **Macro `MY_*` em `.cpp`/`.h`** → só no `platformio.ini` (env ou `[common]`).
+- [ ] ❌ **EEPROM.put() direto no nó** → Use `M360::saveInterval()` (legado: `nodeEngine_saveInterval()`).
+- [ ] ❌ **Hardcoding de strings de comando** → Use as constantes de `M360Constants.h` (`CMD_FORCE_UPDATE`…).
+- [ ] ❌ **Perfil de energia ambíguo** → exatamente um `M360::M360_*` no construtor; na LP, um `LP_POWER_*`.
 - [ ] ❌ **`messages[]` num nó M360-DRY ou rótulo em RAM** → a lib 2.0.0 não recebe buffer; rótulo em `PROGMEM` + `M360_LABEL()`. No motor legado, `+2` (ver §2.1).
 - [ ] ❌ **`src/DRY/horta/` alterado sem atualizar `inventario.md`** → Ver §4.1.
 
----
 ---
 
 ## 6. Referência Rápida MySensors API (v2.x)
@@ -175,15 +182,15 @@ Este guia resume os elementos core da biblioteca MySensors necessários para o d
 | **Variáveis (V_)** | `V_TEMP`, `V_HUM`, `V_STATUS`, `V_FLOW`, `V_CUSTOM` | Usado em `send()` / `request()`. |
 | **Internas (I_)** | `I_BATTERY_LEVEL`, `I_TIME`, `I_SKETCH_NAME` | Configuração e status interno. |
 
-### 6.4 Macros de Configuração (Colocar ANTES de #include <MySensors.h>)
-- **Radio**: `MY_RADIO_RF24`, `MY_RADIO_RFM69`, `MY_RADIO_NRF5_ESB`.
+### 6.4 Macros de Configuração (neste projeto, só no `platformio.ini`)
+- **Radio**: `MY_RADIO_RFM95` (ativo), `MY_RADIO_RF24` (legado); escolhidos em `[common] radio_flags`.
 - **Node**: `MY_NODE_ID 254`, `MY_REPEATER_FEATURE`.
 - **Gateway**: `MY_GATEWAY_ESP8266`, `MY_GATEWAY_MQTT_CLIENT`.
 - **Debug**: `MY_DEBUG`.
 
 ---
 
-## 6. Padrões de Qualidade e Ferramentas (Core MySensors)
+## 7. Padrões de Qualidade e Ferramentas (Core MySensors)
 
 Para alinhar o desenvolvimento com o core do MySensors, os seguintes padrões devem ser observados (baseados no `style.cfg` oficial):
 
@@ -195,4 +202,4 @@ Para alinhar o desenvolvimento com o core do MySensors, os seguintes padrões de
 - **Análise Estática**: O código deve ser compatível com `cppcheck` (evitar warnings de estilo e portabilidade).
 
 ---
-*Referência baseada na análise de: `nodeSelenoieVazao`, `nodeZTS_UmidadeHall`, `nodeUmidadeTemperatura` e padrões oficiais do MySensors Core.*
+*Referência conferida contra os nós atuais (`nos/lp/`, `01`/`02nodeSolo3dNano`, `04noodeSolarMini`, `99nodeReles`), a lib M360-DRY 2.1.0 e os padrões oficiais do MySensors Core.*

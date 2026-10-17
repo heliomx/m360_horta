@@ -12,7 +12,7 @@ Orientar a criação completa de um novo nó da rede **M360 Horta**, garantindo 
 
 Sempre utilizar como referências primárias:
 - Template: `lib/M360-DRY/examples/NodeTemplate/`
-- Nós existentes: `src/DRY/horta/nos/` (99nodeReles, 04noodeSolarMini, 01nodeSolo3dNano, 02nodeSolo3dNano)
+- Nós existentes: `src/DRY/horta/nos/` (`lp/` — firmware comum da M360-LP; 99nodeReles, 04noodeSolarMini, 01nodeSolo3dNano, 02nodeSolo3dNano)
 - API: `lib/M360-DRY/API_REFERENCE.md`
 
 ---
@@ -78,7 +78,7 @@ O que o callback repassa ao driver depende da convenção adotada pelo nó — a
 duas são válidas, desde que o `.h` e o `.cpp` concordem:
 
 ```cpp
-// Convenção A — driver indexado por posição (nós 02, 05)
+// Convenção A — driver indexado por posição (Nó 4; nos Nós 01/02 a função vive no próprio .cpp)
 //   float readNodeItem(uint8_t nodeIndex);
 return readNodeItem(nodeIndex);
 
@@ -127,11 +127,13 @@ O motor `M360Node` processa os seguintes payloads via `V_CUSTOM` + `C_SET` — t
 | `CMD_REPRESENT` | `"REPRESENT"` | Re-anuncia todos os children via `present()` sem resetar estado; exibe `REPRES:OK` no Serial |
 | `CMD_DEBUG_NET` | `"DEBUG_NET"` | Responde diagnóstico de rede (`P:<parent> D:<dist> R:<S/N>`) via child 253 |
 
-Para acionar `CMD_REPRESENT` via MQTT, publicar em `m360/{UF}/{CAR}/in`:
-```json
-{ "nodeId": <ID>, "sensorId": 0, "command": 1, "type": 48, "payload": "REPRESENT" }
+Para acionar `CMD_REPRESENT` via MQTT (gateway em `M360_NATIVE_MQTT=1`), os campos vão no tópico e o payload é a string bruta:
 ```
-> `type: 48` = `V_CUSTOM`. `sensorId` pode ser qualquer childId válido do nó.
+tópico:  m360/{UF}/{CAR}/in/<ID>/0/1/0/48
+payload: REPRESENT
+```
+> `48` = `V_CUSTOM`. O childId pode ser qualquer um válido do nó. Um envelope JSON publicado no tópico
+> raiz `.../in` é rejeitado pelo gateway (`reportCommandRejected`, "número de níveis inválido").
 
 ## R12 — Atualizar o inventário na mesma entrega
 
@@ -348,7 +350,7 @@ Descrição funcional breve:
 
 ## 1.2 Placa
 
-Opções suportadas pelo projeto (AVR + MySensors RF24):
+Opções suportadas pelo projeto (AVR + MySensors; rádio de `[common] radio_flags`):
 
 ```
 Arduino Nano (ATmega328P 5V/16MHz)   ← board: nanoatmega328
@@ -369,6 +371,8 @@ Placa M360-LP (Pro Mini 3,3V/8MHz)   ← caminho A do Passo 0: env lp_XX, sem .c
 [ ] M360_PASSIVE     — bateria com sensor pesado (Modbus/RS485):
                        acorda no intervalo apenas para check-in,
                        lê somente se o gateway enviar FORCE_UPDATE
+[ ] M360_REPEATER    — fonte fixa + -D MY_REPEATER_FEATURE no env:
+                       ALWAYS_ON que encaminha mensagens de outros nós
 ```
 
 ## 1.4 Rádio
@@ -382,14 +386,21 @@ O rádio ativo (nRF24L01+ ou RFM95W) vem de `[common] radio_flags` no
 Pino CE  (default D9):
 Pino CSN (default D10):
 Potência RF: [ ] LOW  [ ] HIGH (default)  [ ] MAX
-Timeout de rádio MY_RADIO_TIMEOUT_MS (deixar em branco para omitir):
+```
+
+### RFM95W (rádio ativo hoje)
+
+```
+Pino de RESET do rádio (MY_RFM95_RST_PIN; LP = 8, ACT = 17/A3, GW = não ligado):
+DIO0 / NSS: padrão da lib (D2 / D10 no AVR; D1 / D8 no ESP8266) — só definir se fugir disso
 ```
 
 > ⚠️ **No Arduino Nano, CE/CSN são fixos em D9/D10.** A placa não aceita
 > remapeamento via `#define MY_RF24_CE_PIN` / `MY_RF24_CSN_PIN`. Se o nó usa
 > SoftwareSerial (RS485, GPS) ou outro periférico que dispute D9/D10, mova o
 > **periférico**, nunca o rádio.
-> Em Pro Mini e ESP8266 o remapeamento funciona (o gateway usa CE=D2/CSN=D15).
+> Em Pro Mini e ESP8266 o remapeamento funciona (o protótipo do gateway, `d1_mini_gateway`, usa
+> `MY_RF24_CE_PIN=2`/`CSN=15`; a M360-GW, `d1_mini_gw`, usa `MY_RF24_CE_PIN=5`).
 
 ## 1.5 Gestão de VCC dos sensores
 
@@ -441,7 +452,7 @@ O agente escolhe `S_*` e `V_*` mais adequados e apresenta para confirmação:
 ```
 S_TEMP / V_TEMP       — temperatura
 S_HUM / V_HUM         — umidade relativa
-S_MOISTURE / V_LEVEL  — umidade de solo (0–100%)
+S_MOISTURE / V_LEVEL  — umidade de solo (ADC bruto 0–1023, alto = seco — convenção dos Nós 1/2)
 S_WATER / V_FLOW      — vazão (L/min — convenção do projeto, ver nó 99)
 S_WATER_QUALITY / V_PH  — pH
 S_WATER_QUALITY / V_EC  — condutividade elétrica
@@ -497,7 +508,7 @@ Verificar no projeto inteiro:
 | `MY_NODE_ID` duplicado | Buscar em todos os `platformio.ini` envs |
 | `childId` duplicado no mesmo nó | Conferir lista fornecida no Passo 1 |
 | Pino físico duplicado no mesmo nó | Conferir lista fornecida no Passo 1 |
-| Conflito de pino com rádio nRF24 | CE e CSN definidos devem ser únicos |
+| Conflito de pino com o rádio | nRF24: CE e CSN; RFM95W: DIO0, NSS e RESET — todos únicos |
 | Conflito de pino com Serial (D0/D1) | Pinos D0 e D1 reservados para UART |
 | Conflito de pino com interrupções | D2=INT0, D3=INT1 — confirmar se necessário |
 
@@ -562,8 +573,9 @@ void  writeNodeItem(uint8_t pin, bool state);       // Convenção B: pino real 
 
 Regras de implementação:
 
-- O parâmetro de `readNodeItem` e `writeNodeItem` é o **índice no array NODE_ITEMS[]**
-- Para nós com MUX, usar `IS_MUX_CH(nodeIndex)` e `MUX_CH(nodeIndex)` definidos no `.h`
+- O parâmetro de `readNodeItem` e `writeNodeItem` segue a convenção escolhida em R5: **índice**
+  no `NODE_ITEMS[]` (A) ou **pino** real/virtual `NODE_ITEMS[i].pin` (B) — nunca `childId`
+- Para nós com MUX (convenção B), `IS_MUX_CH(pin)` e `MUX_CH(pin)` recebem o **pino**, não o índice
 - Nunca usar `delay()` dentro destas funções — usar `wait()` se necessário
 - `switch(nodeIndex)` deve ter `default: return NAN;` para sensores
 
@@ -713,15 +725,17 @@ lib_deps =
 build_flags =
     ${common.flags}
     -D MY_NODE_ID=<ID>
-    -D MY_RF24_CE_PIN=<CE>
-    -D MY_RF24_CSN_PIN=<CSN>
-    ; -D MY_RADIO_TIMEOUT_MS=500   ← apenas para nós ALWAYS_ON
+    ; rádio ativo vem de [common] radio_flags — aqui só os pinos que fogem do padrão:
+    ; -D MY_RFM95_RST_PIN=<RST>     ← RFM95W (obrigatório se o RESET estiver ligado)
+    ; -D MY_RF24_CE_PIN=<CE>        ← nRF24 (ficam inertes com o RFM95W ativo)
+    ; -D MY_RF24_CSN_PIN=<CSN>
     ; -D MY_DEBUG                   ← apenas em desenvolvimento
     ; -D MY_RSSI_LOG_INTERVAL=30000 ← se RSSI log habilitado no Passo 1.6
 ```
 
 > ⚠️ A flag correta é `MY_RF24_CSN_PIN` (com N), não `MY_RF24_CS_PIN`.
-> ⚠️ `MY_RADIO_TIMEOUT_MS` impacta negativamente nós LOW_POWER — usar só em ALWAYS_ON.
+> ⚠️ Não existe `MY_RADIO_TIMEOUT_MS` no MySensors 2.3.2: um `-D` dela não faz nada.
+> Se o nó usa bibliotecas escolhidas por `#if` (como a LP), acrescentar `lib_ldf_mode = chain+`.
 
 ---
 
@@ -742,7 +756,7 @@ Conteúdo mínimo:
 
 Diagrama visual SVG representando:
 - MCU (placa)
-- Módulo rádio nRF24L01+
+- Módulo de rádio (RFM95W no mezanino M360-RF ou nRF24L01+)
 - Sensores e atuadores
 - Alimentação e pino VCC controlado (se houver)
 
@@ -801,7 +815,7 @@ src/DRY/horta/inventario.md   (nó e children acrescentados — R12)
 ✓ MY_NODE_ID      : <valor>
 ✓ Perfil          : M360_<PERFIL>
 ✓ Placa           : <board>
-✓ CE / CSN        : D<X> / D<Y>
+✓ Rádio / pinos   : <RFM95W: RST D<X>> ou <nRF24: CE D<X> / CSN D<Y>>
 ✓ Sensores        : <N> items em NODE_ITEMS[]
 ✓ Atuadores       : <N> items
 ✓ VCC controlado  : <sim/não> — pino <X>

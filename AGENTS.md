@@ -2,7 +2,7 @@
 
 ## Projeto
 Sistema IoT de monitoramento agrícola M360 Horta.  
-**Plataforma:** PlatformIO · Arduino/AVR · MySensors RF24 · ESP8266  
+**Plataforma:** PlatformIO · Arduino/AVR · MySensors (rádio selecionável: RFM95W ativo, nRF24L01+ legado) · ESP8266  
 **Arquitetura:** Monorepo com dois sub-projetos agregados por `extra_configs`:
 - **Horta** — gateway em `src/DRY/horta/gateway/`, nós em `src/DRY/horta/nos/`
 - **Kit Hélio** — gateway em `src/DRY/kit-helio/gateway/`, nós em `src/DRY/kit-helio/nos/`
@@ -81,8 +81,18 @@ com o Node-RED.
 > silenciosamente** — `M360Node::handleMessage()` casa `childId` exato e não
 > responde a IDs desconhecidos. O sintoma é timeout no Sincronizador ACK.
 
-### Resumo das regras críticas
+### Nós novos: biblioteca M360-DRY
 
+Todo nó novo usa `lib/M360-DRY` (`M360::M360Node`): `NODE_ITEMS[]` em `static const`, rótulos em
+`PROGMEM` com `M360_LABEL()`, **sem `messages[]`**, `node.begin(F(nome), F(versão))`, intervalo por
+`M360::saveInterval()`. Perfis: `M360_LOW_POWER`, `M360_ALWAYS_ON`, `M360_PASSIVE`, `M360_REPEATER`.
+Na placa M360-LP o nó é só um `nodeConfig.h` em `src/DRY/horta/nos/lp/config/`. Procedimento:
+`.agent/workflows/m360-node-factory.md`; padrões: `.agent/skills/bmad-mysensors-node-coding/SKILL.md`;
+detalhes e armadilhas MySensors ↔ MQTT ↔ Node-RED: `CLAUDE.md`.
+
+### Regras do motor legado (`src/DRY/horta/nos/shared/`)
+
+Nenhum env compila o motor legado hoje; estas regras só valem se um nó antigo for ressuscitado.
 **Nunca escrever manualmente** o que já existe como macro no `node_engine.h`:
 
 | Padrão proibido | Substituição obrigatória |
@@ -100,7 +110,7 @@ com o Node-RED.
 | `MyMessage messages[N]` fixo | `messages[NODE_ITEMS_COUNT + 2]` |
 | Código após `sleep()` | mover `request()`/`wait()` para **antes** |
 
-**Antes de criar qualquer novo nó**, ler o template em `SKILLmySensors.md` seção 3.
+**Antes de criar qualquer novo nó**, seguir o workflow `.agent/workflows/m360-node-factory.md` (Passo 0 decide entre a placa M360-LP e hardware próprio).
 
 ### Regras críticas do Gateway (`src/DRY/horta/gateway/`)
 
@@ -112,6 +122,10 @@ com o Node-RED.
 | `setupWiFi()` fora de `before()` | Exclusivo de `before()` |
 | `mqttClient.loop()` em modo AP | Checar `WiFi.getMode() == WIFI_AP` primeiro |
 | Lógica de infraestrutura em `libDryGatewayMqtt.cpp` | Módulo dedicado em `lib/M360-DRY/` |
+| `atoi()` em segmento de tópico | `parseTopicByte()` — `atoi("xx")` vale 0 e o comando some sem rastro |
+| Comando malformado descartado com `println` | `reportCommandRejected()` — publica o motivo em `.../out/events` |
+| `send()` fora de `dispatchCommand()` | Ponto único: valida, envia e reporta sucesso **ou** falha |
+| Montar `JsonDocument` no caminho nativo | `Translator::fromNative()` — os campos já vieram do tópico |
 
 ---
 
@@ -124,11 +138,12 @@ src/DRY/
 │   ├── nodered/flows.json       Fluxos Node-RED (dashboard + irrigação + ACK)
 │   ├── inventario.md            Nós e child IDs — contrato com o Node-RED
 │   └── nos/
-│       ├── shared/              Motor legado (node_engine.h) — não usar em novos nós
-│       ├── 01nodeSolo3dNano/    Solo resistivo — 6 canais nativos (Nó 1, LP)
-│       ├── 02nodeSolo3dNano/    Solo resistivo — 6 canais nativos (Nó 2, LP)
-│       ├── 04noodeSolarMini/    DHT11 + DS18B20, alimentação solar (Nó 4, LP)
-│       └── 99nodeReles/         9 atuadores (7 MUX + 2 nativos) + DHT11 + vazão YF-S201 (Nó 99, ON)
+│       ├── lp/                  Firmware comum da placa M360-LP + config/<nó>/nodeConfig.h (envs lp_01, lp_02)
+│       ├── shared/              Motor legado (node_engine.h) — nenhum env compila; não usar em novos nós
+│       ├── 01nodeSolo3dNano/    Solo resistivo — 6 canais nativos no Nano (Nó 1, ON)
+│       ├── 02nodeSolo3dNano/    Solo resistivo — 6 canais nativos no Nano (Nó 2, ON)
+│       ├── 04noodeSolarMini/    DHT11 + DS18B20, alimentação solar (Nó 4, LOW_POWER)
+│       └── 99nodeReles/         9 atuadores + vazão YF-S201; DHT11 só no Nano (Nó 99, ON; M360-ACT via NODE99_BOARD_ACT)
 └── kit-helio/                   Sub-projeto Kit Hélio (platformio.ini próprio)
     ├── gateway/                 libDryGatewayMqtt.cpp
     └── nos/miniDHT/             DHT11 (Nó 11, ON)
@@ -143,13 +158,13 @@ src/DRY/
 
 - **Linguagem dos comentários e logs Serial:** português
 - **IDs reservados:** 253 = Debug remoto (`V_TEXT`), 254 = Intervalo (`V_VAR1`), 255 = Bateria (`V_VOLTAGE`)
-- **EEPROM nós:** sempre via `nodeEngine_saveInterval()`, nunca `EEPROM.put()` direto
-- **EEPROM gateway:** região 0–511 = MySensors, região 512+ = `DeviceConfig` com CRC
-- **Perfil de energia:** definir `POWER_PROFILE_LOW_POWER` **ou** `POWER_PROFILE_ALWAYS_ON` — nunca os dois
+- **EEPROM nós:** endereços 512–515 via `M360::saveInterval()` (legado: `nodeEngine_saveInterval()`), nunca `EEPROM.put()` direto
+- **EEPROM gateway:** 0–511 = MySensors, 512–520 = `M360NodeConfig`/reservado, **521+** = `M360DeviceConfig` com CRC
+- **Perfil de energia:** exatamente um `M360::M360_*` no construtor (`LOW_POWER`, `ALWAYS_ON`, `PASSIVE`, `REPEATER`); na M360-LP, exatamente um `LP_POWER_*` no `nodeConfig.h`
 - **Precisão float:** 1 casa decimal (`set(val, 1)`)
-- **Solo:** escala 0 (seco) → 100 (água)
+- **Solo (Nós 1 e 2):** `V_LEVEL` (37) em **ADC bruto 0–1023, valor alto = seco** (sonda resistiva); o Motor de Regras do Node-RED opera nessa escala (`inventario.md` §9)
 - **JSON gateway:** `DynamicJsonDocument(512)` para mensagens, `(384)` para heartbeat, `(256)` para eventos
-- **Hardware Rádio RF24:** Todos os módulos nRF24L01+ de todos os nós e gateways possuem capacitor de desacoplamento instalado (premissa de hardware confirmada, não questionar).
+- **Rádio:** escolhido em `[common] radio_flags` (hoje RFM95W) e herdado por todos os envs, inclusive protótipos nRF24 e Kit Hélio. Quando o nRF24 estiver ativo: todos os módulos nRF24L01+ possuem capacitor de desacoplamento instalado (premissa de hardware confirmada, não questionar).
 
 ---
 

@@ -9,8 +9,8 @@ description: Regras obrigatórias para editar, verificar e revisar os esquemáti
 > **Single Source of Truth (SSoT):** este arquivo é a referência única para qualquer agente que
 > toque em `hardware/`. Foi escrito a partir do que cinco rodadas de análise adversarial
 > (2026-09-13) mediram, não do que as ferramentas prometem. O detalhe histórico está em
-> `hardware/ARQUITETURA_FAMILIA.md` §11–§12 e em `hardware/tools/README.md`, na branch
-> `feat/hardware-familia-pcb`.
+> `hardware/ARQUITETURA_FAMILIA.md` §11–§12 e em `hardware/tools/README.md` (a branch
+> `feat/hardware-familia-pcb` foi mesclada em `refactor/m360-dry-ram`, `29c2afc`).
 
 ---
 
