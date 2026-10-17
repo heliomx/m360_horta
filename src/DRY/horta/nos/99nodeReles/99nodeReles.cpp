@@ -240,8 +240,9 @@ static void checkActuatorFailsafe() {
 #ifdef NODE99_BOARD_ACT
 // ===== REPAREAMENTO PELO REED (só M360-ACT) =====
 // Ímã junto do SW1 (porta do quadro aberta) por REED_HOLD_MS: o nó esquece o pai e
-// as rotas, procura o gateway de novo, reapresenta os children e reenvia o estado
-// de todos os relés e da vazão. Sem reboot — relés e failsafe seguem intactos.
+// as rotas, procura o gateway de novo, reapresenta os children e reenvia a vazão e a
+// bateria. Sem reboot — relés e failsafe seguem intactos. O estado dos relés NÃO é
+// reenviado (forceUpdate só lê sensores): um 0 espontâneo pareceria failsafe.
 // Dispara uma vez por aproximação; precisa afastar o ímã para repetir.
 static void checkReedRejoin() {
   static uint32_t lowSince = 0; // 0 = contato aberto

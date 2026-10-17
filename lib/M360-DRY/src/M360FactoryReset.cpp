@@ -5,6 +5,7 @@
 #ifdef ESP8266
 
 #include "M360FactoryReset.h"
+#include <string.h>
 
 namespace M360
 {
@@ -62,12 +63,13 @@ namespace M360
 			return;
 		}
 
-		Serial.println(F("FRESET: restaurando a configuração de fábrica e reiniciando"));
-		Config::reset(cfg);
-		Config::save(cfg);
+		Serial.println(F("FRESET: apagando a configuração e reiniciando no modo AP"));
+		// Callback ANTES de apagar: o evento sai com o prefixo (UF/CAR) atual.
 		if (_callback) {
 			_callback();
 		}
+		memset(&cfg, 0, sizeof(cfg)); // version 0 -> Config::isValid() falso no boot
+		Config::save(cfg);
 		delay(500);
 		ESP.restart();
 	}

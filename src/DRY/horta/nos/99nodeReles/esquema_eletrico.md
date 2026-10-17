@@ -228,7 +228,7 @@ são os mesmos. **Não há DHT11**: os children 11 e 12 não existem nesta varia
 | A3 | RESET do rádio | `MY_RFM95_RST_PIN=17` no env |
 | D10–D13 | NSS / MOSI / MISO / SCK | SPI de hardware |
 | J6 | nRF24 legado (exclusivo com o mezanino) | CE=D2 (`MY_RF24_CE_PIN=2`), CSN=D10 |
-| A4 | Reed switch SW1 (`INPUT_PULLUP`) | Ímã mantido 3 s = repareamento: busca o gateway de novo, reapresenta e reenvia tudo, sem reboot (`checkReedRejoin()` → `node.requestRejoin()`) |
+| A4 | Reed switch SW1 (`INPUT_PULLUP`) | Ímã mantido 3 s = repareamento: busca o gateway de novo, reapresenta e reenvia vazão e bateria (relés não), sem reboot (`checkReedRejoin()` → `node.requestRejoin()`) |
 | A6 | Entrada analógica da porta J5 (divisor 10 k / 20 k) | Sem child |
 | D9 | Livre | Era o DHT no esboço inicial |
 

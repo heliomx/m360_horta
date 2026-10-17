@@ -173,7 +173,7 @@ por porta. O `reportIntervalMin = 1` declarado não tem efeito (campo não lido 
 
 **Env:** `act_99` · `act_99_rep` (placa **M360-ACT**, Pro Mini 3,3 V / 8 MHz, `-D NODE99_BOARD_ACT`) · `nano_99reles` · `nano_99reles_rep` (Nano 5 V, legado). Os `_rep` são o mesmo hardware com `MY_REPEATER_FEATURE`. É um fonte só: a flag muda a pinagem e remove o DHT.
 **Perfil:** `M360_ALWAYS_ON` — fonte fixa, timer por `millis()`, nunca dorme; `M360_REPEATER` nos envs `_rep`
-**Repareamento (só M360-ACT):** ímã no reed (A4) por 3 s → nova busca do gateway, reapresentação e reenvio do estado de todos os children, sem reboot; publica `REJOIN` / `REJOIN:OK` no child 253 (debug). Nenhum child novo.
+**Repareamento (só M360-ACT):** ímã no reed (A4) por 3 s → nova busca do gateway, reapresentação dos children e reenvio da vazão (21) e da bateria, sem reboot; o estado dos relés 31–39 **não** é reenviado; publica `REJOIN` / `REJOIN:OK` no child 253 (debug). Nenhum child novo.
 **Hardware:** MUX CD74HC4067 + 9 relés + sensor de vazão YF-S201; **DHT11 só no Nano** — a M360-ACT não tem o sensor (decisão de 2026-10-14)
 
 ### 7.1 Sensores

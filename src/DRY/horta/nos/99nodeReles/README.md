@@ -235,8 +235,9 @@ O sensor abaixo possui conexão direta ao Arduino, permitindo leituras periódic
 > puro, porque a placa condiciona o sinal. O `/OE` do 74HCT244 (A5) é liberado por
 > último em `initSensors()`. O reed (A4) faz o **repareamento**: com o ímã junto do SW1
 > por 3 s, o nó esquece o pai e as rotas, procura o gateway de novo, reapresenta os
-> children e reenvia o estado de todos os relés e da vazão, sem reiniciar o MCU (relés e
-> failsafe intactos). No Serial: `REED:REPAREAR`, `REJOIN:INI`, `REJOIN:OK`; no debug
+> children e reenvia a vazão e a bateria, sem reiniciar o MCU (relés e failsafe intactos).
+> O estado dos relés **não** é reenviado: ele só sai por eco de comando, preempção e
+> failsafe, e um `0` espontâneo seria lido pelo controlador como failsafe. No Serial: `REED:REPAREAR`, `REJOIN:INI`, `REJOIN:OK`; no debug
 > remoto (child 253): `REJOIN` e `REJOIN:OK`. Pinagem completa em `sensorDrivers.h` e
 > na seção "Variante M360-ACT" de `esquema_eletrico.md`.
 

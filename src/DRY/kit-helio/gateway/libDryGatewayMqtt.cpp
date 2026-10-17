@@ -53,7 +53,8 @@ M360::WiFiManager       wifiManager;
 M360::MQTTManager       mqttManager;
 M360::M360Gateway       gateway(mqttClient);
 // Factory reset: ímã/botão no A0 por 3 s, nos primeiros 30 s do loop(), depois de
-// tê-lo afastado ao menos uma vez (segurar desde o boot é o modo AP). Ver M360FactoryReset.h.
+// tê-lo afastado ao menos uma vez (segurar desde o boot é o modo AP). Apaga a
+// configuração e reinicia direto no modo AP. Ver M360FactoryReset.h.
 M360::FactoryReset      factoryReset(RESET_PIN);
 
 // ==== VARIÁVEIS GLOBAIS PARA CONTROLE DE LEDS ====
@@ -299,7 +300,7 @@ void setup() {
 	});
 	gateway.onNodeCheck(checkNodeTimeouts);
 	factoryReset.onTrigger([]() {
-		publishTransportEvent(M360::EVT_FACTORY_RESET, "A0 mantido 3 s - config de fabrica restaurada");
+		publishTransportEvent(M360::EVT_FACTORY_RESET, "A0 mantido 3 s - config apagada, reinicia em AP");
 		for (uint8_t i = 0; i < 5; i++) {  // dá tempo de o evento sair antes do restart
 			mqttClient.loop();
 			delay(50);

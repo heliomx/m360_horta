@@ -136,7 +136,8 @@ namespace M360
 		// que desliga um relé sozinho, ou o canal MUX preemptado (Nó 99).
 		void sendItemState(uint8_t index, bool state);
 
-		// Lê todos os itens e envia todos, ignorando o filtro de "mudou o suficiente",
+		// Lê todos os SENSORES e envia todos, ignorando o filtro de "mudou o suficiente",
+		// (atuadores ficam de fora: estado de relé só sai por eco, preempção e failsafe)
 		// e reporta a bateria — o mesmo efeito do comando FORCE_UPDATE, mas disparado
 		// pelo próprio nó (ex.: reed switch acionado por ímã). Chama powerUp() antes e
 		// powerDown() depois em qualquer perfil; as duas devem ser idempotentes.
@@ -153,7 +154,8 @@ namespace M360
 		// Repareamento local (nó de ID fixo): esquece o pai e a tabela de rotas,
 		// reinicia o transporte (rádio + busca de pai) SEM reiniciar o MCU — atuadores
 		// ficam como estão. Quando o enlace volta, reapresenta todos os children e
-		// envia tudo (forceUpdate). Não bloqueia: o andamento é tratado em process(),
+		// chama forceUpdate() (sensores e bateria; estado de atuador NÃO é reenviado).
+		// Não bloqueia: o andamento é tratado em process(),
 		// então só serve aos perfis que chamam process() continuamente (ALWAYS_ON,
 		// REPEATER). Ignorado se já houver um repareamento em curso.
 		// Serial: REJOIN:INI, REJOIN:OK; debug remoto (child 253): REJOIN, REJOIN:OK.

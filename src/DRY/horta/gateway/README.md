@@ -71,9 +71,9 @@ Heartbeat a cada 60 s em `.../out/events` com uptime, RSSI do WiFi, IP e versão
 ## Modo AP e factory reset
 
 - Ímã no reed (ou botão) com A0 em GND **durante o boot** → AP `M360-Config`, portal em `192.168.4.1`.
-- **Factory reset** (`M360::FactoryReset`, `lib/M360-DRY/src/M360FactoryReset.h`): nos primeiros **30 s** do `loop()`, afastar o ímã/botão e mantê-lo **3 s** no A0. O gateway grava a configuração de fábrica (`M360Credentials.h`), publica `factory_reset` em `.../out/events` e reinicia. No Serial: `FRESET: ...`.
+- **Factory reset** (`M360::FactoryReset`, `lib/M360-DRY/src/M360FactoryReset.h`): nos primeiros **30 s** do `loop()`, afastar o ímã/botão e mantê-lo **3 s** no A0. O gateway publica `factory_reset` em `.../out/events` (ainda com o prefixo atual), **apaga** a configuração e reinicia direto no modo AP, como um gateway novo. No Serial: `FRESET: ...`.
 - O reset só arma depois de ver o A0 solto: segurar o ímã desde o boot abre o modo AP e **não** apaga nada. A janela conta do início do `loop()`, não do boot.
-- Depois do reset, se o WiFi de fábrica não responder, o gateway cai no modo AP após 3 tentativas; para o AP imediato, reiniciar com o ímã no A0. O portal web não tem rota de reset.
+- Nada da instalação anterior (WiFi, broker, UF/CAR) sobrevive: é o que permite levar o gateway para outra propriedade (RF-PRV-09). Ao entrar no AP o `before()` grava os padrões do `M360Credentials.h`; se ninguém configurar pelo portal, o boot seguinte usa esses padrões, como um gateway novo. O portal web não tem rota de reset.
 - Sem o pull-up de 10 kΩ no A0 o pino flutua perto de 0 V e o gateway sobe em AP sozinho.
 
 ## Antes de compilar

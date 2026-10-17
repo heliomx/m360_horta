@@ -58,7 +58,7 @@ namespace M360 {
 	static const char* const EVT_NODE_DISCOVER = "node_discovered";
 	static const char* const EVT_NODE_LOST	 = "node_lost";
 	static const char* const EVT_NODE_RECONN   = "node_reconnected";
-	static const char* const EVT_FACTORY_RESET = "factory_reset"; // A0 mantido 3 s na janela de 30 s
+	static const char* const EVT_FACTORY_RESET = "factory_reset"; // A0 mantido 3 s na janela de 30 s: config apagada, reboot em AP
 
 	// Impressão estática de informações do firmware (Arquivo Fonte, Data e Hora)
 	#define M360_PRINT_BUILD_INFO() do { \

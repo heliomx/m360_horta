@@ -11,12 +11,16 @@
  *   - só arma depois de ver o A0 solto (alto) pelo menos uma vez: quem segura o
  *     ímã no boot para entrar no modo AP não apaga a configuração sem querer —
  *     é preciso afastar e aproximar de novo;
- *   - A0 baixo por `holdMs` (3 s) seguidos → Config::reset() (valores de
- *     fábrica do M360Credentials.h) + Config::save() + callback + ESP.restart().
+ *   - A0 baixo por `holdMs` (3 s) seguidos → callback (ex.: publicar o evento
+ *     factory_reset, ainda com o prefixo antigo) → APAGA a M360DeviceConfig
+ *     (zerada e gravada: version 0 é inválida) → ESP.restart().
  *
- * Depois do reset o gateway reinicia com a configuração de fábrica. Se o WiFi de
- * fábrica não responder, o M360WiFi cai sozinho no modo AP após 3 tentativas;
- * para forçar o AP de imediato, reiniciar com o ímã no A0.
+ * No reboot o before() acha a configuração inválida e sobe direto no modo AP
+ * (M360-Config, 192.168.4.1) — o mesmo caminho de um gateway novo. Nenhum dado
+ * da instalação anterior (WiFi, broker, UF/CAR) sobrevive: é o requisito RF-PRV-09
+ * da especificação do backend, para reaproveitar o gateway em outra propriedade.
+ * (O before() grava os padrões do M360Credentials.h ao entrar no AP; se ninguém
+ * configurar pelo portal, o boot seguinte usa esses padrões, como um gateway novo.)
  *
  * O A0 é amostrado a cada 100 ms: analogRead() em laço apertado derruba o WiFi
  * do ESP8266. Fora da janela, process() não lê nada.
