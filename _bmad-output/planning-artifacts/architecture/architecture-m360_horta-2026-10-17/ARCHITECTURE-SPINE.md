@@ -213,6 +213,13 @@ As setas indicam "pode depender de". O domínio nunca importa um adaptador. O n�
 - **Prevents:** uma instalação suspensa, um backend somente-leitura ou um grupo em troca de posse impedindo um OFF de segurança.
 - **Rule:** `SUSPENSA`, somente-leitura e qualquer bloqueio de comando recusam ON e comandos administrativos, mas nunca recusam OFF de atuador.
 
+### AD-23 — Código por tipo, configuração por instalação (decidido, não implementado)
+
+- **Binds:** F1–F8, F15, F16; `src/`, `platformio.ini` da raiz e dos sub-projetos, inventário, workflow `m360-node-factory`
+- **Prevents:** uma cópia do firmware por propriedade que diverge com o tempo, como o gateway do Kit Hélio, que difere em 228 linhas do da Horta; e rótulos e IDs de uma propriedade escritos dentro do código de um tipo de nó.
+- **Rule:** o código vive em `src/firmware/`, um fonte por tipo de placa ou papel (um gateway, um atuador, a LP, os protótipos), e nunca contém nada de uma propriedade. Cada propriedade é uma pasta em `src/instalacoes/<UF>-<código>-<nome>/` só com configuração: `platformio.ini` com os envs e a rede de rádio dela, `inventario.md`, um `nodeConfig.h` por nó (ID, rótulos, sensores, perfil) e o `flows.json` enquanto houver Node-RED. UF e CAR nunca entram em compilação: chegam pelo portal do gateway (AD-13). Os nomes de env levam o prefixo da instalação (`horta_lp_01`), porque o PlatformIO exige nomes únicos no projeto inteiro. Segredos continuam fora do Git (AD-18). Com o pareamento (F16), a configuração dos nós passa para o banco e a pasta de instalação encolhe.
+- **Implementação:** história 10.8, depois da 10.7 (gateway único). Até lá vale a estrutura atual, `src/DRY/horta/` e `src/DRY/kit-helio/`.
+
 ## Consistency Conventions
 
 | Concern | Convention |
@@ -310,6 +317,22 @@ m360_horta/
   _bmad-output/            # PRD, arquitetura, épicos, sprint
 ```
 
+Alvo da AD-23 (história 10.8), no lugar de `src/DRY/`:
+
+```text
+src/
+  firmware/
+    gateway/               # gateway único (Horta e Kit Hélio)
+    nos/lp/                # firmware comum da M360-LP, sem config/
+    nos/atuador/           # hoje 99nodeReles (Nano ou ACT por flag)
+    nos/solo3dNano/        # protótipo dos Nós 1 e 2, rótulos vindos da config
+    nos/solarMini/         # protótipo do Nó 4
+    nos/miniDHT/           # protótipo do Kit Hélio
+  instalacoes/
+    DF-0000-horta/         # platformio.ini, inventario.md, nos/nodeXX/nodeConfig.h, nodered/
+    GO-xxxx-kit-helio/
+```
+
 ## Capability → Architecture Map
 
 | Capability / Area | Lives in | Governed by |
@@ -328,7 +351,7 @@ m360_horta/
 | F12 Telegram | Node-RED abas Telegram/IA → backend (notificador) | AD-7, AD-13, AD-18 |
 | F13 Painel e API | Node-RED dashboard → backend (API + UI) | AD-3, AD-5, AD-6, AD-18 |
 | F14 Indicadores do experimento | backend (experimento) | AD-21 |
-| F15 Multi-propriedade | backend (instalações) + gateway (UF, código, canal) | AD-12, AD-13, AD-14, AD-19 |
+| F15 Multi-propriedade | backend (instalações) + gateway (UF, código, canal) + `src/instalacoes/` | AD-12, AD-13, AD-14, AD-19, AD-23 |
 | F16 Pareamento e firmware genérico | futuro: lib + gateway + backend | AD-11, AD-12, AD-14, AD-20 |
 
 ## Ajustes pendentes na spec do backend

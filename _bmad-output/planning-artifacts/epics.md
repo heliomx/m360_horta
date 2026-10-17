@@ -983,9 +983,23 @@ Como técnico, quero o Kit Hélio no mesmo painel, para acompanhar as duas propr
 **Critérios de aceite:**
 
 **Dado** D-08 decidido como segunda instalação só leitura
-**Quando** o gateway do Kit Hélio é alinhado ao gateway Horta (`dispatchCommand`, `parseTopicByte`, `reportCommandRejected`, `send(..., false)`)
+**Quando** o Kit Hélio passa a usar o mesmo fonte do gateway Horta (`dispatchCommand`, `parseTopicByte`, `reportCommandRejected`, `send(..., false)`), e o gateway próprio dele é removido
 **Então** o Nó 11 aparece na instalação dele, separado da Horta, sem comandos
 **E** as duas redes nRF24 não operam ao alcance uma da outra, ou usam `MY_RF24_BASE_RADIO_ID` distintos.
+
+### História 10.8: Código por tipo, configuração por instalação
+
+Como desenvolvedor de firmware, quero uma pasta de configuração por propriedade e um só fonte por tipo de nó, para atender uma propriedade nova sem copiar código.
+
+**Critérios de aceite:**
+
+**Dado** a 10.7 concluída, com um gateway único para Horta e Kit Hélio
+**Quando** os fontes vão para `src/firmware/` e a configuração de cada propriedade para `src/instalacoes/<UF>-<código>-<nome>/` (AD-23)
+**Então** nenhum fonte em `src/firmware/` contém rótulo, ID de nó ou dado de propriedade; os rótulos dos Nós 1 e 2 saem dos `.cpp` para `nodeConfig.h`
+**E** cada instalação tem `platformio.ini` (envs com prefixo da instalação e rede de rádio), `inventario.md` e um `nodeConfig.h` por nó
+**E** todos os envs compilam, e cada binário gerado é igual ao de antes em children, rótulos, `MY_NODE_ID` e rádio (conferido pela metadata e pela apresentação no simulador)
+**E** workflow `m360-node-factory`, `CLAUDE.md`, `AGENTS.md`, skill de codificação e `project-context.md` descrevem a estrutura nova
+**E** criar uma propriedade de teste exige só copiar uma pasta de instalação e editar configuração, sem tocar em `src/firmware/`.
 
 ---
 
@@ -1034,6 +1048,7 @@ Como técnico, quero realocar um nó por comando, para reaproveitá-lo sem abrir
 - **Dependências:**
   - Nenhuma história depende de uma posterior no mesmo épico.
   - Entre épicos, as dependências apontam para trás: 5.6 → 3.5; 9.2 → 3.13; 10.x → 9.x.
+  - Dentro do épico 10, a 10.8 (estrutura por instalação, AD-23) vem depois da 10.7 (gateway único).
   - A 3.13 está bloqueada pela PRD Q-16, e a 4.0 depende de decisões do dono.
 - **Banco:** cada tabela nasce na história que a usa:
   - agendador e notificações: 4.4
