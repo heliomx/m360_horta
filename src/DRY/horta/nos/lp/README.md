@@ -45,6 +45,13 @@ mesma dos Nós 01/02 no Nano, porque pull-up e referência do ADC são o mesmo t
 
 ## Como criar um nó novo nesta placa
 
+O procedimento oficial é o workflow
+[`.agent/workflows/m360-node-factory.md`](../../../../../.agent/workflows/m360-node-factory.md):
+no **Passo 0** escolher o **caminho A (placa M360-LP)**, elicitar só o que varia (1.1 identificação,
+1.3 alimentação, 1.7 sensores e child IDs, 1.8 warm-up se for a bateria) e fechar com o checklist
+do Passo 8, itens 18 a 20. O workflow traz o modelo completo do `nodeConfig.h` e do env. Os
+passos abaixo são o resumo do que ele produz:
+
 1. Copiar `config/node01/` para `config/nodeXX/` e editar `nodeConfig.h`: nome, versão,
    `LP_POWER_FIXED_5V` **ou** `LP_POWER_BATTERY`, flags `LP_HAS_*`, rótulos PROGMEM e
    `NODE_ITEMS[]` com `pin` = `LP_SRC_SOIL(ch)`, `LP_SRC_DHT_TEMP`, `LP_SRC_DHT_HUM` ou
