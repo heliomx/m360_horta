@@ -92,6 +92,16 @@ tópico:  m360/{UF}/{CAR}/in/{node}/{child}/{cmd}/0/{type}
 payload: valor bruto (string), ≤ 25 bytes
 ```
 
+> **Broadcast de reapresentação não funciona.** `in/255/255/3/0/19` (`C_INTERNAL` /
+> `I_PRESENTATION` para o endereço 255) passa pela validação do gateway e vai ao ar, mas
+> **nenhum nó reage**: no MySensors 2.3.2 o tratamento de mensagens internas
+> (`_processInternalCoreMessage()`, que chama `presentNode()`) só roda para mensagem
+> endereçada ao próprio nó; em broadcast o nó só trata busca de pai e descoberta, e o
+> repetidor apenas retransmite (`MyTransport.cpp`, ramo `destination == BROADCAST_ADDRESS`).
+> Reapresentar a rede inteira é um `represent(node)` (`V_CUSTOM` `REPRESENT` no child 0)
+> **por nó** registrado — ver RF-UI-02. Conferido no código em 2026-10-17; a
+> `src/banckend.md`, que documentava o broadcast, foi removida.
+
 Validação espelhada do gateway (`Translator::validate()`): exatamente 8 barras,
 segmentos numéricos, `cmd ∈ {1,2,3}`, `node ∈ 1..255`, payload ≤ 25 bytes e, para
 `C_SET`/`V_STATUS`, payload **exatamente** `"0"` ou `"1"`. O backend valida
@@ -214,7 +224,9 @@ Substitui `Monitor de Falhas`, `Formatador Telegram`, `Telegram Bot Interativo`,
 Substitui o dashboard do Node-RED (grupos Controle Manual, Gráficos, Log MQTT, Mapa de Rede, Watchdog). Interface **servida pelo próprio backend**, autenticada, com atualização em tempo real por SSE.
 
 - **RF-UI-01** **Controle manual:** botões ligar/desligar para cada atuador do Nó 99 (31–33, 38–39 obrigatórios; 34–37 atrás de confirmação, por serem dosagem). Cor por estado do comando: pendente (âmbar), confirmado (verde, mantido enquanto o atuador estiver `ON`), erro (vermelho por 2 s), caixa postal (índigo). O estado inicial vem do estado persistido do atuador.
-- **RF-UI-02** **Painel administrativo:** seletor de nó (lista dinâmica do registro), ação (`REPRESENT`, `FORCE_UPDATE`, `DEBUG_NET`, `SET_INTERVAL`), campo de intervalo 1..1440 validado no cliente e no servidor, botão enviar, e botão "reapresentar toda a rede".
+- **RF-UI-02** **Painel administrativo:** seletor de nó (lista dinâmica do registro), ação (`REPRESENT`, `FORCE_UPDATE`, `DEBUG_NET`, `SET_INTERVAL`), campo de intervalo 1..1440 validado no cliente e no servidor, botão enviar, e botão "reapresentar toda a rede", que cria um `represent(node)` para **cada** nó do
+  registro da instalação (o broadcast MySensors não funciona, §2.3); nós `LP` recebem pela
+  caixa postal (RF-CMD-09).
 - **RF-UI-03** **Gráficos** (janela padrão 7 dias, zoom livre, dados do banco): umidade de solo Canteiro A (Nó 1, 6 séries por rótulo do child), Canteiro B (Nó 2), clima do Nó 4 (temperatura do ar, umidade, temperatura do solo — é a fonte de clima em produção), clima do Nó 99 (só existe no Nano), bateria (tensão e nível por nó), vazão (L/s) e volume acumulado. Séries nomeadas pelo `label` apresentado pelo nó.
 - **RF-UI-04** **Mapa da rede:** gateway (status, uptime, IP, RSSI, versão) e cards por nó com categoria, status, último contato (absoluto e relativo), bateria, firmware e lista de children com último valor formatado por tipo (`S_BINARY` → LIGADO/DESLIGADO, unidades da §9.2).
 - **RF-UI-05** **Tabela de vigilância:** por nó, status, idade do último contato, do heartbeat e do ACK, `timeout_s` aplicado.
