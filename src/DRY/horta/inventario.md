@@ -258,6 +258,11 @@ do MQTT, do Node-RED e do próprio gateway.
 > maior — uma rega mais longa que o limite seria cortada pela metade, e o único
 > sinal seria o `V_STATUS=0` inesperado.
 
+O prazo conta do **primeiro ON**: um ON repetido para um child que já está ligado
+ecoa o estado, mas **não rearma** o prazo (desde 2026-10-17). Retries do
+Sincronizador ou regas encadeadas não estendem o tempo ligado; para regar de novo
+depois do corte, é preciso OFF e ON. Um OFF seguido de ON começa um prazo novo.
+
 Ao ligar um canal MUX, o failsafe desarma o prazo dos demais canais MUX — o
 hardware já os desligou, e disparar o failsafe sobre um relé desligado geraria
 log e tráfego de rádio inúteis. O eco de `V_STATUS=0` do child preemptado é

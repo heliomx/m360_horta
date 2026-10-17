@@ -191,6 +191,14 @@ static void armFailsafe(uint8_t index, bool state) {
     return;
   }
 
+  // ON repetido para um child já ligado NÃO rearma o prazo: o limite vale sobre o
+  // tempo contínuo ligado, contado do primeiro ON. Sem isto, retries do Node-RED ou
+  // regas encadeadas manteriam a carga ligada indefinidamente (AD-2 do spine).
+  // Prazo != 0 só existe com o child ligado: OFF, failsafe e preempção o zeram.
+  if (actuatorDeadlineMs[index] != 0) {
+    return;
+  }
+
   // Ligar um canal MUX desliga o anterior no hardware (ver writeNodeItem()):
   // desarmar os demais evita disparar o failsafe sobre um relé já desligado.
   // O eco de V_STATUS=0 do child preemptado é feito por writeItem().

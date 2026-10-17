@@ -318,6 +318,7 @@ O driver de software (`sensorDrivers.cpp`) impõe via código que **apenas um ca
 ### 5.2.1 Failsafe de Atuação
 Nenhuma camada acima do nó garante o comando de desligamento: o OFF da irrigação é agendado por `setTimeout()` dentro de um function node do Node-RED (morre em qualquer redeploy) e o gateway publica o ACK assim que o rádio confirma o salto, de modo que o Sincronizador nunca reenvia.
 * Cada atuador tem um **tempo máximo ligado** (`maxOnSecondsFor()`): solenóides **600 s**, peristálticas **120 s**, bombas NFT **sem limite**.
+* O prazo conta do **primeiro ON**: um ON repetido para um child já ligado não rearma o prazo, então retries ou regas encadeadas não estendem o tempo ligado. OFF seguido de ON começa um prazo novo.
 * As bombas NFT (childs 38/39) ficam de fora por projeto — são circulação e oxigenação em regime contínuo, e um timeout nelas interromperia a hidroponia.
 * Ao estourar o prazo, `checkActuatorFailsafe()` desliga a carga e envia `V_STATUS=0`, permitindo ao Node-RED reconciliar o estado. É a única proteção que sobrevive à queda do WiFi, do MQTT, do Node-RED e do próprio gateway.
 
