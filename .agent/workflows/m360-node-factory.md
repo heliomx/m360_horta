@@ -378,7 +378,9 @@ Placa M360-LP (Pro Mini 3,3V/8MHz)   ← caminho A do Passo 0: env lp_XX, sem .c
 ## 1.4 Rádio
 
 O rádio ativo (nRF24L01+ ou RFM95W) vem de `[common] radio_flags` no
-`src/DRY/horta/platformio.ini`, nunca do env do nó. Abaixo, só os pinos.
+`src/DRY/horta/platformio.ini`, nunca do env do nó — para placas que aceitam os dois rádios
+(família M360), cujo env usa `${common.flags}`. Hardware próprio **só com nRF24** usa
+`${proto_rf24.flags}` no lugar de `${common.flags}`, como os protótipos em campo. Abaixo, só os pinos.
 
 ### nRF24L01+
 

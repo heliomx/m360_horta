@@ -91,7 +91,7 @@ O rádio ativo é escolhido uma vez, em `horta/platformio.ini`, seção `[common
 radio_flags = ${radio_rfm95.flags}      ; RFM95W / SX1276, 916,8 MHz, BW125 CR4/5 SF128, 17 dBm
 ```
 
-Todos os envs da Horta herdam essa escolha. O Kit Hélio não: o `platformio.ini` dele monta `${common.base_flags}` + `${radio_rf24.flags}`. Os pinos dependem da placa e entram só pelo env:
+Só as placas da família M360 (`lp_*`, `act_99*`, `d1_mini_gw`) seguem essa escolha. Os protótipos em campo (`nano_*`, `ProMini_*`, `d1_mini_gateway`) e o Kit Hélio são nRF24 e ficam fixos nele: usam `${proto_rf24.flags}` / `${kit_helio.flags}` = `${common.base_flags}` + `${radio_rf24.flags}`. Os pinos dependem da placa e entram só pelo env:
 
 | Placa | RFM95W (mezanino M360-RF) | nRF24L01+ (header legado) |
 |---|---|---|

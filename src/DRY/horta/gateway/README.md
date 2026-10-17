@@ -23,10 +23,10 @@ ESP8266 D1 mini que faz a ponte entre a rede de rádio MySensors e o broker MQTT
 
 | Env | Placa | Rádio | LEDs (todos ativos em HIGH) | Reed / botão |
 |---|---|---|---|---|
-| `d1_mini_gateway` | Protótipo em bancada (COM5), hardware nRF24 | nRF24: CE D4 (`MY_RF24_CE_PIN=2`), CSN D8. ⚠ Com `radio_flags` em RFM95W o binário sai LoRa e o DIO0 (D1) colide com o LED verde: não gravar o protótipo assim | vermelho D2, amarelo D0, verde D1 | A0 com pull-up de 10 kΩ |
+| `d1_mini_gateway` | Protótipo em bancada (COM5), hardware nRF24 | nRF24: CE D4 (`MY_RF24_CE_PIN=2`), CSN D8. Rádio fixo em nRF24 (`[proto_rf24]`), fora do `radio_flags` | vermelho D2, amarelo D0, verde D1 | A0 com pull-up de 10 kΩ |
 | `d1_mini_gw` | D1 mini no carrier **M360-GW** (`-D M360_BOARD_GW`) | RFM95W: DIO0 D1, NSS D8, sem RESET. nRF24 no header J4: CE D1 (`MY_RF24_CE_PIN=5`), CSN D8 | vermelho D2, amarelo D0, **verde D4** pelo 2N7002 Q1 (o D1 virou DIO0) | reed SW1 em A0, ímã pela parede |
 
-O rádio ativo vem de `[common] radio_flags` em `../platformio.ini`; o env só define pinos.
+No `d1_mini_gw` o rádio vem de `[common] radio_flags` em `../platformio.ini` (hoje RFM95W); o `d1_mini_gateway` é fixo em nRF24. Os envs só definem pinos.
 `initLEDs(LED_RED, LED_YELLOW, LED_GREEN)` segue a ordem do protótipo `(red, yellow, green)`.
 
 Na M360-GW o verde fica aceso durante reset e gravação, porque o GPIO2 é o TXD do boot ROM e só

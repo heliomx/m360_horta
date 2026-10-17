@@ -57,9 +57,8 @@ graph TD
 ## Tabela de Pinagem (Pinout)
 
 > Esta tabela e o diagrama acima são do **protótipo** (env `d1_mini_gateway`), que tem nRF24.
-> Com `radio_flags` em RFM95W o binário sai LoRa, e o DIO0 do RFM95 é o **D1**, o mesmo pino do
-> LED verde do protótipo — não gravar o protótipo com LoRa ativo. Na placa M360-GW use
-> `d1_mini_gw` (verde no D4; ver "Variante M360-GW" abaixo).
+> O env é fixo em nRF24 (`[proto_rf24]` no `platformio.ini`), independentemente do `radio_flags`.
+> Na placa M360-GW use `d1_mini_gw` (rádio selecionável, verde no D4; ver "Variante M360-GW" abaixo).
 
 ### NRF24L01 (Comunicação SPI)
 | Pino Módulo | Pino NodeMCU (ESP8266) | Descrição |
