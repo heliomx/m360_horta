@@ -286,11 +286,15 @@ src/DRY/
 │   ├── nodered/flows.json       Fluxos Node-RED (dashboard + irrigação + ACK)
 │   ├── inventario.md            Nós e child IDs — contrato com o Node-RED
 │   └── nos/
+│       ├── lp/                  Firmware comum da placa M360-LP (Pro Mini 3,3 V) — ver README.md
+│       │   ├── lpNode.cpp       Nó declarativo único; lpPins.h, lpDrivers.h/.cpp
+│       │   ├── drivers/         soilMux, dht, onewire, battery — cada um atrás de #if LP_HAS_*
+│       │   └── config/nodeXX/   nodeConfig.h por nó (envs lp_01, lp_02); só isto muda entre nós
 │       ├── shared/              Motor legado (node_engine.h) — não usar em novos nós
-│       ├── 01nodeSolo3dNano/    Solo resistivo — 6 canais nativos (Nó 1, LP)
-│       ├── 02nodeSolo3dNano/    Solo resistivo — 6 canais nativos (Nó 2, LP)
-│       ├── 04noodeSolarMini/    DHT11 + DS18B20, alimentação solar (Nó 4, LP)
-│       └── 99nodeReles/         9 atuadores (7 MUX + 2 nativos) + DHT11 + vazão YF-S201 (Nó 99, ON)
+│       ├── 01nodeSolo3dNano/    Solo resistivo — 6 canais nativos no Nano (Nó 1, ON; na M360-LP usa lp/)
+│       ├── 02nodeSolo3dNano/    Solo resistivo — 6 canais nativos no Nano (Nó 2, ON; na M360-LP usa lp/)
+│       ├── 04noodeSolarMini/    DHT11 + DS18B20, alimentação solar (Nó 4, LOW_POWER)
+│       └── 99nodeReles/         9 atuadores (7 MUX + 2 nativos) + vazão YF-S201; DHT11 só no Nano (Nó 99, ON; Nano ou M360-ACT via NODE99_BOARD_ACT)
 └── kit-helio/                   Sub-projeto Kit Hélio (platformio.ini próprio)
     ├── gateway/                 libDryGatewayMqtt.cpp
     └── nos/miniDHT/             DHT11 (Nó 11, ON)
