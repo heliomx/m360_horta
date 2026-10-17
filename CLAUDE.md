@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Projeto
 Sistema IoT de monitoramento agrícola M360 Horta.  
-**Plataforma:** PlatformIO · Arduino/AVR · MySensors (rádio selecionável: RFM95W ativo, nRF24L01+ legado) · ESP8266  
+**Plataforma:** PlatformIO · Arduino/AVR · MySensors (rádio por rede: nRF24L01+ na estufa; RFM95W 915 MHz para redes LoRa novas) · ESP8266  
 **Arquitetura:** Monorepo com dois sub-projetos agregados por `extra_configs`:
 - **Horta** — gateway em `src/DRY/horta/gateway/`, nós em `src/DRY/horta/nos/`
 - **Kit Hélio** — gateway em `src/DRY/kit-helio/gateway/`, nós em `src/DRY/kit-helio/nos/`
@@ -46,6 +46,7 @@ Definidos em `src/DRY/horta/platformio.ini` e `src/DRY/kit-helio/platformio.ini`
 | `d1_mini_gw`                | ESP8266 D1 Mini na M360-GW  | COM5  | 0 (Gateway Horta, placa nova) |
 | `lp_01`                     | M360-LP (Pro Mini 3,3 V)    | —     | 1  |
 | `lp_02`                     | M360-LP (Pro Mini 3,3 V)    | —     | 2  |
+| `lp_lora_teste`             | M360-LP com mezanino RFM95W | —     | 1 (teste de compilação de nó LoRa; fora de `default_envs`) |
 | `nano_01nodeSolo3d`         | Arduino Nano (5V)           | —     | 1  |
 | `ProMini_01nodeSolo3d`      | Arduino Pro Mini (5V/16MHz) | —     | 1  |
 | `nano_02nodeSolo3d`         | Arduino Nano (5V)           | —     | 2  |

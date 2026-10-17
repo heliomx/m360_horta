@@ -84,14 +84,17 @@ pasta.
 
 ## Rádio
 
-O rádio ativo é escolhido uma vez, em `horta/platformio.ini`, seção `[common]`:
+O rádio é escolhido **por rede** (um gateway e todos os seus nós), nunca por nó. Em `horta/platformio.ini`:
 
 ```ini
-; radio_flags = ${radio_rf24.flags}     ; nRF24L01+ 2,4 GHz, canal 76 validado em 20/08/2026
-radio_flags = ${radio_rfm95.flags}      ; RFM95W / SX1276, 916,8 MHz, BW125 CR4/5 SF128, 17 dBm
+[common]
+radio_flags = ${radio_rf24.flags}   ; rede da estufa: nRF24L01+ 2,4 GHz, canal 76 validado em 20/08/2026
+
+[lora_net]                          ; redes LoRa novas: RFM95W / SX1276, 916,8 MHz, BW125 CR4/5 SF128, 17 dBm
+flags = ${common.base_flags} ${radio_rfm95.flags}
 ```
 
-Só as placas da família M360 (`lp_*`, `act_99*`, `d1_mini_gw`) seguem essa escolha. Os protótipos em campo (`nano_*`, `ProMini_*`, `d1_mini_gateway`) e o Kit Hélio são nRF24 e ficam fixos nele: usam `${proto_rf24.flags}` / `${kit_helio.flags}` = `${common.base_flags}` + `${radio_rf24.flags}`. Os pinos dependem da placa e entram só pelo env:
+A rede da estufa é nRF24, inclusive nas placas M360 (`lp_01`, `lp_02`, `act_99*`, `d1_mini_gw`), que usam o header nRF24 legado. O `radio_flags` não se troca: uma rede LoRa nova ganha envs próprios com `${lora_net.flags}` no lugar de `${common.flags}`, no gateway e em todos os nós (workflow `m360-node-factory`, Passo 1.4; exemplo `lp_lora_teste`). Os protótipos em campo (`nano_*`, `ProMini_*`, `d1_mini_gateway`) e o Kit Hélio só têm nRF24: usam `${proto_rf24.flags}` / `${kit_helio.flags}` = `${common.base_flags}` + `${radio_rf24.flags}`. Os pinos dependem da placa e entram só pelo env:
 
 | Placa | RFM95W (mezanino M360-RF) | nRF24L01+ (header legado) |
 |---|---|---|

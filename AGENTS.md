@@ -2,7 +2,7 @@
 
 ## Projeto
 Sistema IoT de monitoramento agrícola M360 Horta.  
-**Plataforma:** PlatformIO · Arduino/AVR · MySensors (rádio selecionável: RFM95W ativo, nRF24L01+ legado) · ESP8266  
+**Plataforma:** PlatformIO · Arduino/AVR · MySensors (rádio por rede: nRF24L01+ na estufa; RFM95W 915 MHz para redes LoRa novas) · ESP8266  
 **Arquitetura:** Monorepo com dois sub-projetos agregados por `extra_configs`:
 - **Horta** — gateway em `src/DRY/horta/gateway/`, nós em `src/DRY/horta/nos/`
 - **Kit Hélio** — gateway em `src/DRY/kit-helio/gateway/`, nós em `src/DRY/kit-helio/nos/`

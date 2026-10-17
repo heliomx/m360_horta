@@ -25,7 +25,7 @@ Relação de todos os nós da rede MySensors e de seus child IDs, um a um.
 | **99** | `act_99` (M360-ACT) · `act_99_rep` · `nano_99reles` · `nano_99reles_rep` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V | `ALWAYS_ON` (`REPEATER` nos `_rep`) | ACT: 21, 31–39 · Nano: 11, 12, 21, 31–39 | Sim — comandos e vazão; clima (11, 12) só com o Nano e só para o gráfico "Clima (Nó 99)" — a fonte de clima é o Nó 4 |
 
 **Total: 27 children declarados** (6 + 6 + 3 + 12) com o Nó 99 no Nano, ou 25 na M360-ACT (sem os children 11 e 12); mais os 3 reservados por nó.  
-*Nota de Hardware:* Todos os módulos nRF24L01+ de todos os nós e gateways possuem capacitor de desacoplamento instalado (premissa de hardware confirmada). O rádio é escolhido em `[common] radio_flags` de `platformio.ini` entre nRF24L01+ e LoRa HopeRF RFM95W (915 MHz); **hoje o RFM95W está ativo**. A escolha vale só para as placas da família M360 (`lp_*`, `act_99*`, `d1_mini_gw`). Os protótipos em campo (`nano_*`, `ProMini_*`, `d1_mini_gateway`) são fixos em nRF24 por `[proto_rf24]`, e o Kit Hélio por `[kit_helio]` (Apêndice A).
+*Nota de Hardware:* Todos os módulos nRF24L01+ de todos os nós e gateways possuem capacitor de desacoplamento instalado (premissa de hardware confirmada). O rádio é escolhido por rede. A rede da estufa é **nRF24L01+** (decisão de 2026-10-17): `[common] radio_flags` vale nRF24, e as placas M360 (`lp_01`, `lp_02`, `act_99*`, `d1_mini_gw`) entram nela pelo header nRF24 legado. Os protótipos em campo (`nano_*`, `ProMini_*`, `d1_mini_gateway`) são fixos em nRF24 por `[proto_rf24]`, e o Kit Hélio por `[kit_helio]` (Apêndice A). Redes LoRa novas (RFM95W, 915 MHz) usam `${lora_net.flags}` em envs próprios; o `lp_lora_teste` é só um teste de compilação e não é nó da estufa.
 
 ---
 

@@ -8,7 +8,7 @@ Orientar a criação completa de um novo nó da rede **M360 Horta**, garantindo 
 - Padrão MySensors v2.x
 - Estrutura PlatformIO do projeto
 - Documentação de esquema elétrico e diagrama de blocos
-- Configuração do `platformio.ini`
+- Configuração do `platformio.ini`, inclusive a rede de rádio do nó: nRF24 (a rede da estufa) ou LoRa (rede nova, com gateway próprio). O Passo 1.4 também diz como criar o env de um gateway LoRa
 
 Sempre utilizar como referências primárias:
 - Template: `lib/M360-DRY/examples/NodeTemplate/`
@@ -301,9 +301,10 @@ build_flags =
     -Isrc/DRY/horta/nos/lp/config/nodeXX
 ```
 
-`lp_base` já traz placa, `lib_ldf_mode = chain+`, as libs e os pinos de rádio (RFM95W:
-`MY_RFM95_RST_PIN=8`; nRF24 legado no J5: `MY_RF24_CE_PIN=2`). O rádio ativo vem de
-`[common] radio_flags`, nunca do env do nó.
+`lp_base` já traz placa, `lib_ldf_mode = chain+`, as libs e os pinos dos dois rádios
+(`lp_base.board_flags`: RFM95W `MY_RFM95_RST_PIN=8`; nRF24 legado no J5 `MY_RF24_CE_PIN=2`).
+`${lp_base.build_flags}` é a rede da estufa (nRF24). Para um nó LP numa rede LoRa, trocar essa
+linha por `${lora_net.flags}` e `${lp_base.board_flags}` (Passo 1.4).
 
 ### O que o hardware impõe e o firmware comum já cumpre — não reescrever
 
@@ -350,7 +351,7 @@ Descrição funcional breve:
 
 ## 1.2 Placa
 
-Opções suportadas pelo projeto (AVR + MySensors; rádio de `[common] radio_flags`):
+Opções suportadas pelo projeto (AVR + MySensors; o rádio sai da rede escolhida no Passo 1.4):
 
 ```
 Arduino Nano (ATmega328P 5V/16MHz)   ← board: nanoatmega328
@@ -375,14 +376,53 @@ Placa M360-LP (Pro Mini 3,3V/8MHz)   ← caminho A do Passo 0: env lp_XX, sem .c
                        ALWAYS_ON que encaminha mensagens de outros nós
 ```
 
-## 1.4 Rádio
+## 1.4 Rádio — nRF24 ou LoRa
 
-O rádio ativo (nRF24L01+ ou RFM95W) vem de `[common] radio_flags` no
-`src/DRY/horta/platformio.ini`, nunca do env do nó — para placas que aceitam os dois rádios
-(família M360), cujo env usa `${common.flags}`. Hardware próprio **só com nRF24** usa
-`${proto_rf24.flags}` no lugar de `${common.flags}`, como os protótipos em campo. Abaixo, só os pinos.
+O rádio é escolhido **por rede**, nunca por nó: um gateway e todos os seus nós usam o mesmo
+rádio (AD-15 do spine). A pergunta ao usuário é **"em que rede este nó (ou gateway) vai
+entrar?"**, e não "que rádio este nó usa".
 
-### nRF24L01+
+```
+[ ] Rede da estufa (Horta)  → nRF24L01+. É a rede em produção: gateway e Nós 1, 2, 4 e 99,
+                              também nas placas M360 pelo header nRF24 legado (decisão de 2026-10-17)
+[ ] Rede nova em nRF24      → nRF24L01+, como uma rede à parte (Kit Hélio é o exemplo)
+[ ] Rede nova em LoRa       → RFM95W 915 MHz. Gateway e todos os nós da rede em LoRa, juntos
+```
+
+### Que flags o env usa
+
+| Rede | Hardware | `build_flags` começa com |
+|---|---|---|
+| Estufa (nRF24) | Placa M360 (LP, ACT, GW) | `${common.flags}` (o `radio_flags` da estufa é nRF24) |
+| Estufa ou nova em nRF24 | Só nRF24: Nano, Pro Mini 16 MHz, D1 mini protótipo | `${proto_rf24.flags}` |
+| Nova em LoRa | Placa M360 (LP, ACT, GW) com o mezanino M360-RF | `${lora_net.flags}` |
+
+- **Nunca** trocar o `[common] radio_flags` para criar uma rede LoRa. Ele é o rádio da estufa,
+  e mudá-lo levaria a estufa inteira para LoRa sem aviso.
+- **Nunca** misturar rádios numa rede. Um nó LoRa só conversa com um gateway LoRa, e vice-versa.
+- **Nó LP numa rede LoRa:** `${lora_net.flags}` seguido de `${lp_base.board_flags}`, no lugar de
+  `${lp_base.build_flags}`. O env `lp_lora_teste` é o exemplo.
+- **Gateway LoRa:** copiar o `[env:d1_mini_gw]` com outro nome e trocar só o `${common.flags}` por
+  `${lora_net.flags}`. O resto das flags do gateway fica igual.
+- **Nó 99 numa rede LoRa:** copiar o `[env:act_99]` com outro nome e trocar só o `${common.flags}`
+  por `${lora_net.flags}`.
+
+### O que impede o LoRa
+
+O RFM95W exige lógica de 3,3 V e alimentação de no máximo 3,9 V.
+
+- Nano e Pro Mini 5 V/16 MHz não servem para LoRa: são só nRF24.
+- Um nó com o MCU ligado direto na célula 18650 (4,2 V cheia), como o Nó 4 protótipo, também não
+  serve. Por isso a estufa não migra para LoRa enquanto a PRD Q-16 não decidir o Nó 4.
+- A frequência é fixa em 916,8 MHz (`[radio_rfm95]`). O canal por propriedade (grade D-09) ainda
+  não está implementado (épico 9). Duas redes LoRa vizinhas hoje se ouvem.
+- O enquadramento ANATEL ainda está pendente (PRD Q-7). Uma rede LoRa nova é de teste até lá.
+
+### Pinos
+
+Os dois conjuntos de pinos podem ficar no env: só o do rádio compilado tem efeito.
+
+#### nRF24L01+
 
 ```
 Pino CE  (default D9):
@@ -390,7 +430,7 @@ Pino CSN (default D10):
 Potência RF: [ ] LOW  [ ] HIGH (default)  [ ] MAX
 ```
 
-### RFM95W (rádio ativo hoje)
+#### RFM95W
 
 ```
 Pino de RESET do rádio (MY_RFM95_RST_PIN; LP = 8, ACT = 17/A3, GW = não ligado):
@@ -725,11 +765,11 @@ lib_deps =
     ; adicionar bibliotecas específicas do nó aqui
 
 build_flags =
-    ${common.flags}
+    ${proto_rf24.flags}           ; Nano: só nRF24. Placa M360: ${common.flags} (estufa) ou ${lora_net.flags} (rede LoRa) — Passo 1.4
     -D MY_NODE_ID=<ID>
-    ; rádio ativo vem de [common] radio_flags — aqui só os pinos que fogem do padrão:
+    ; aqui só os pinos que fogem do padrão; os do rádio não compilado ficam inertes:
     ; -D MY_RFM95_RST_PIN=<RST>     ← RFM95W (obrigatório se o RESET estiver ligado)
-    ; -D MY_RF24_CE_PIN=<CE>        ← nRF24 (ficam inertes com o RFM95W ativo)
+    ; -D MY_RF24_CE_PIN=<CE>        ← nRF24
     ; -D MY_RF24_CSN_PIN=<CSN>
     ; -D MY_DEBUG                   ← apenas em desenvolvimento
     ; -D MY_RSSI_LOG_INTERVAL=30000 ← se RSSI log habilitado no Passo 1.6
@@ -817,7 +857,8 @@ src/DRY/horta/inventario.md   (nó e children acrescentados — R12)
 ✓ MY_NODE_ID      : <valor>
 ✓ Perfil          : M360_<PERFIL>
 ✓ Placa           : <board>
-✓ Rádio / pinos   : <RFM95W: RST D<X>> ou <nRF24: CE D<X> / CSN D<Y>>
+✓ Rede / rádio    : <estufa (nRF24) | nova nRF24 | nova LoRa> — flags <${common.flags} | ${proto_rf24.flags} | ${lora_net.flags}>
+✓ Pinos do rádio  : <RFM95W: RST D<X>> ou <nRF24: CE D<X> / CSN D<Y>>
 ✓ Sensores        : <N> items em NODE_ITEMS[]
 ✓ Atuadores       : <N> items
 ✓ VCC controlado  : <sim/não> — pino <X>
