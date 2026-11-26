@@ -56,6 +56,7 @@ Definidos em `src/DRY/horta/platformio.ini` e `src/DRY/kit-helio/platformio.ini`
 | `nano_99reles_diag`         | Arduino Nano (5V)           | COM10 | 99 (diagnóstico, `NODE99_HEALTH_LOG`) |
 | `act_99`                    | M360-ACT (Pro Mini 3,3 V)   | —     | 99 (sem DHT) |
 | `act_99_rep`                | M360-ACT (Pro Mini 3,3 V)   | —     | 99 (repeater, sem DHT) |
+| `act_99_lora`               | M360-ACT (Pro Mini 16 MHz) + RFM95W | COM15 | 99 (rede LoRa `0002`, sem DHT; fora de `default_envs`) |
 | `d1_mini_kit_helio_gateway` | ESP8266 D1 Mini             | COM5  | 0 (Gateway Kit Hélio) |
 | `pro16MHz_miniDHT`          | Arduino Pro Mini (5V/16MHz) | —     | 11 |
 | `check_m360_dry`            | — (análise estática)        | —     | —  |

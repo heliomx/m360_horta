@@ -43,7 +43,7 @@ O sub-projeto **Horta** opera com **dois gateways independentes** (`UF/CAR`), ca
 | **`0001`** | **99** | `act_99` (M360-ACT) · `act_99_rep` · `nano_99reles` · `nano_99reles_rep` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V | `ALWAYS_ON` (`REPEATER` nos `_rep`) | ACT: 21, 31–39 · Nano: 11, 12, 21, 31–39 | Sim — comandos e vazão; clima (11, 12) só com o Nano e só para o gráfico "Clima (Nó 99)" — a fonte de clima é o Nó 4 |
 | **`0002`** | **0** | `d1_mini_gateway_lora` (protótipo) · `d1_mini_gw` (M360-GW LoRa) | ESP8266 D1 Mini · D1 Mini no carrier M360-GW | — | — | Gateway MQTT `m360/DF/0002` (não tem children) |
 | **`0002`** | **1** | `lp_01_div2` / `lp_01` com `${lora_net.flags}` (M360-LP) | Pro Mini 3,3 V/8 MHz (ou 16 MHz ÷ 2 no `lp_01_div2`) | `LOW_POWER` (bateria + painel solar, intervalo 30 min) | 1–6 | Sim — Filtro Umidade Solo Canteiro A |
-| **`0002`** | **99** | `act_99` / `act_99_rep` com `${lora_net.flags}` (M360-ACT) | Pro Mini 3,3 V/8 MHz | `ALWAYS_ON` (`REPEATER` no `_rep`) | 21, 31–39 | Sim — comandos (31–39) e vazão (21) |
+| **`0002`** | **99** | `act_99_lora` (M360-ACT com mezanino RFM95W, COM15) | Pro Mini 16 MHz (`pro16MHzatmega328`), 5 V na entrada | `ALWAYS_ON` | 21, 31–39 | Sim — comandos (31–39) e vazão (21) |
 
 **Total por gateway:**
 - **Gateway `0001`:** 27 children declarados (6 + 6 + 3 + 12) com o Nó 99 no Nano, ou 25 na M360-ACT (sem os children 11 e 12); mais os 3 reservados (253, 254, 255) por nó.
@@ -195,7 +195,7 @@ por porta. O `reportIntervalMin = 1` declarado não tem efeito (campo não lido 
 
 ## 7. Nó 99 — `99nodeReles` (atuação central da estufa)
 
-**Env:** `act_99` · `act_99_rep` (placa **M360-ACT**, Pro Mini 3,3 V / 8 MHz, `-D NODE99_BOARD_ACT`) · `nano_99reles` · `nano_99reles_rep` (Nano 5 V, legado). Os `_rep` são o mesmo hardware com `MY_REPEATER_FEATURE`. É um fonte só: a flag muda a pinagem e remove o DHT.
+**Env:** `act_99` · `act_99_rep` (placa **M360-ACT**, Pro Mini 3,3 V / 8 MHz, `-D NODE99_BOARD_ACT`) · `act_99_lora` (mesma placa na rede LoRa `0002`, mezanino RFM95W, `${lora_net.flags}`) · `nano_99reles` · `nano_99reles_rep` (Nano 5 V, legado). Os `_rep` são o mesmo hardware com `MY_REPEATER_FEATURE`. É um fonte só: a flag muda a pinagem e remove o DHT.
 **Perfil:** `M360_ALWAYS_ON` — fonte fixa, timer por `millis()`, nunca dorme; `M360_REPEATER` nos envs `_rep`
 **Repareamento (só M360-ACT):** ímã no reed (A4) por 3 s → nova busca do gateway, reapresentação dos children e reenvio da vazão (21) e da bateria, sem reboot; o estado dos relés 31–39 **não** é reenviado; publica `REJOIN` / `REJOIN:OK` no child 253 (debug). Nenhum child novo.
 **Hardware:** MUX CD74HC4067 + 9 relés + sensor de vazão YF-S201; **DHT11 só no Nano** — a M360-ACT não tem o sensor (decisão de 2026-10-14)
