@@ -1,5 +1,5 @@
 /*
- * nodeConfig.h — Nó 1 na M360-LP: Canteiro A, 6 sondas de solo, fonte fixa 5 V
+ * nodeConfig.h — Nó 1 na M360-LP: Canteiro A, 6 sondas de solo, bateria 3,7 V + painel solar
  *
  * Incluído por lpNode.cpp e pelos drivers via -Isrc/DRY/horta/nos/lp/config/node01
  * (env lp_01). Contrato com o Node-RED: inventario.md §4 — child IDs e rótulos
@@ -15,8 +15,8 @@
 #define LP_NODE_VERSION  "3.0.0"
 
 // ===== ALIMENTAÇÃO (exatamente uma) =====
-#define LP_POWER_FIXED_5V 1      // 5 V em J_VIN → M360_ALWAYS_ON
-// #define LP_POWER_BATTERY 1    // TP4056+DW01 em J_VIN → M360_LOW_POWER + bateria pelo A6
+// #define LP_POWER_FIXED_5V 1   // 5 V em J_VIN → M360_ALWAYS_ON
+#define LP_POWER_BATTERY 1       // TP4056+DW01 em J_VIN → M360_LOW_POWER + bateria pelo A6 (2026-11-26)
 
 // ===== DRIVERS COMPILADOS =====
 #define LP_HAS_SOIL     1

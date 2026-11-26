@@ -16,16 +16,40 @@ Relação de todos os nós da rede MySensors e de seus child IDs, um a um.
 
 ## 1. Visão geral da rede
 
-| Nó | Env PlatformIO | Placa | Perfil | Children | Consumido pelo Node-RED |
-|---:|---|---|---|---|---|
-| **0** | `d1_mini_gateway` (protótipo) · `d1_mini_gw` (M360-GW) | ESP8266 D1 Mini · D1 Mini no carrier M360-GW | — | — | Gateway MQTT (não tem children) |
-| **1** | `lp_01` (M360-LP) · `nano_01nodeSolo3d` · `ProMini_01nodeSolo3d` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V · Pro Mini 16MHz | `ALWAYS_ON` | 1–6 | Sim — Filtro Umidade Solo Canteiro A |
-| **2** | `lp_02` (M360-LP) · `nano_02nodeSolo3d` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V | `ALWAYS_ON` | 1–6 | Sim — Filtro Canteiro B + Motor de Regras |
-| **4** | `ProMini_04noodeSolarMini` | Pro Mini 16MHz | `LOW_POWER` | 1, 11, 12 | Sim — Filtro Clima SolarMini; **fonte de clima** do Motor de Regras, do Radar M360 e do `/status` do Telegram (11, 12) |
-| **99** | `act_99` (M360-ACT) · `act_99_rep` · `nano_99reles` · `nano_99reles_rep` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V | `ALWAYS_ON` (`REPEATER` nos `_rep`) | ACT: 21, 31–39 · Nano: 11, 12, 21, 31–39 | Sim — comandos e vazão; clima (11, 12) só com o Nano e só para o gráfico "Clima (Nó 99)" — a fonte de clima é o Nó 4 |
+O sub-projeto **Horta** opera com **dois gateways independentes** (`UF/CAR`), cada um com sua própria rede de rádio:
 
-**Total: 27 children declarados** (6 + 6 + 3 + 12) com o Nó 99 no Nano, ou 25 na M360-ACT (sem os children 11 e 12); mais os 3 reservados por nó.  
-*Nota de Hardware:* Todos os módulos nRF24L01+ de todos os nós e gateways possuem capacitor de desacoplamento instalado (premissa de hardware confirmada). O rádio é escolhido por rede. A rede da estufa é **nRF24L01+** (decisão de 2026-10-17): `[common] radio_flags` vale nRF24, e as placas M360 (`lp_01`, `lp_02`, `act_99*`, `d1_mini_gw`) entram nela pelo header nRF24 legado. Os protótipos em campo (`nano_*`, `ProMini_*`, `d1_mini_gateway`) são fixos em nRF24 por `[proto_rf24]`, e o Kit Hélio por `[kit_helio]` (Apêndice A). Redes LoRa novas (RFM95W, 915 MHz) usam `${lora_net.flags}` em envs próprios; o `lp_lora_teste` é só um teste de compilação e não é nó da estufa.
+### 1.1 Gateways e topologia por rede
+
+| Gateway (`UF/CAR`) | Prefixo MQTT | Rádio | Env do Gateway (Nó 0) | Nós na rede | Finalidade |
+|---|---|---|---|---|---|
+| **`DF/0001`** | `m360/DF/0001` | **nRF24L01+** (2,4 GHz, ch 76, 250 kbps) | `d1_mini_gateway` (protótipo) · `d1_mini_gw` (M360-GW) | **1, 2, 4, 99** | Rede da estufa em campo |
+| **`DF/0002`** | `m360/DF/0002` | **RFM95W / LoRa** (916,8 MHz, BW125/CR45/SF7) | `d1_mini_gateway_lora` (protótipo) · `d1_mini_gw` com `${lora_net.flags}` | **1, 99** | Segunda rede (LoRa — Nós **01** e **99**) |
+
+> **O CAR não vem do env:** fica na `M360DeviceConfig` (EEPROM) e é gravado pelo
+> portal web do gateway (`/save`). `M360_CAR_NUMBER` de `M360Credentials.h` (`0000`)
+> só vale com a EEPROM vazia ou depois de um factory reset. **`0000` não é usado por
+> nenhuma rede** (desde 2026-11-26): gateway publicando em `m360/DF/0000` é placa
+> gravada sem passar pelo portal. Foi assim que a bancada LoRa apareceu como `0000`
+> e o inventário ficou com os CARs trocados em relação ao campo.
+
+### 1.2 Relação de nós por rede
+
+| Gateway | Nó | Env PlatformIO | Placa | Perfil | Children | Consumido pelo Node-RED |
+|---|---:|---|---|---|---|---|
+| **`0001`** | **0** | `d1_mini_gateway` (protótipo) · `d1_mini_gw` (M360-GW) | ESP8266 D1 Mini · D1 Mini no carrier M360-GW | — | — | Gateway MQTT `m360/DF/0001` (não tem children) |
+| **`0001`** | **1** | `lp_01` (M360-LP) · `nano_01nodeSolo3d` · `ProMini_01nodeSolo3d` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V · Pro Mini 16MHz | `LOW_POWER` na M360-LP (bateria) · `ALWAYS_ON` nos legados | 1–6 | Sim — Filtro Umidade Solo Canteiro A |
+| **`0001`** | **2** | `lp_02` (M360-LP) · `nano_02nodeSolo3d` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V | `ALWAYS_ON` | 1–6 | Sim — Filtro Canteiro B + Motor de Regras |
+| **`0001`** | **4** | `ProMini_04noodeSolarMini` | Pro Mini 16MHz | `LOW_POWER` | 1, 11, 12 | Sim — Filtro Clima SolarMini; **fonte de clima** do Motor de Regras, do Radar M360 e do `/status` do Telegram (11, 12) |
+| **`0001`** | **99** | `act_99` (M360-ACT) · `act_99_rep` · `nano_99reles` · `nano_99reles_rep` (legado) | Pro Mini 3,3 V/8 MHz · Nano 5V | `ALWAYS_ON` (`REPEATER` nos `_rep`) | ACT: 21, 31–39 · Nano: 11, 12, 21, 31–39 | Sim — comandos e vazão; clima (11, 12) só com o Nano e só para o gráfico "Clima (Nó 99)" — a fonte de clima é o Nó 4 |
+| **`0002`** | **0** | `d1_mini_gateway_lora` (protótipo) · `d1_mini_gw` (M360-GW LoRa) | ESP8266 D1 Mini · D1 Mini no carrier M360-GW | — | — | Gateway MQTT `m360/DF/0002` (não tem children) |
+| **`0002`** | **1** | `lp_01_div2` / `lp_01` com `${lora_net.flags}` (M360-LP) | Pro Mini 3,3 V/8 MHz (ou 16 MHz ÷ 2 no `lp_01_div2`) | `LOW_POWER` (bateria + painel solar, intervalo 30 min) | 1–6 | Sim — Filtro Umidade Solo Canteiro A |
+| **`0002`** | **99** | `act_99` / `act_99_rep` com `${lora_net.flags}` (M360-ACT) | Pro Mini 3,3 V/8 MHz | `ALWAYS_ON` (`REPEATER` no `_rep`) | 21, 31–39 | Sim — comandos (31–39) e vazão (21) |
+
+**Total por gateway:**
+- **Gateway `0001`:** 27 children declarados (6 + 6 + 3 + 12) com o Nó 99 no Nano, ou 25 na M360-ACT (sem os children 11 e 12); mais os 3 reservados (253, 254, 255) por nó.
+- **Gateway `0002`:** 16 children declarados (6 no Nó 1 + 10 no Nó 99 na M360-ACT: child 21 e 31–39); mais os 3 reservados (253, 254, 255) por nó.
+
+*Nota de Hardware:* Os children, rótulos (`label`), tipos `S_*`/`V_*` e payloads dos Nós **1** (§4) e **99** (§7) são idênticos nos gateways `0001` e `0002`. Todos os módulos nRF24L01+ possuem capacitor de desacoplamento instalado (premissa de hardware confirmada). O rádio é escolhido por rede: a rede **`0001`** (estufa) usa **nRF24L01+** (`[common] radio_flags` e `[proto_rf24]`), o Kit Hélio usa `[kit_helio]` (Apêndice A), e a rede **`0002`** usa **RFM95W / LoRa 916,8 MHz** (`${lora_net.flags}`, p.ex. `d1_mini_gateway_lora` e `lp_01_div2`). O `lp_lora_teste` é só um teste de compilação.
 
 ---
 
@@ -96,8 +120,8 @@ Definidas em [`lib/M360-DRY/src/M360Constants.h`](../../../lib/M360-DRY/src/M360
 
 ## 4. Nó 1 — `01nodeSolo3dNano` (Canteiro A)
 
-**Env:** `lp_01` (placa M360-LP, `nos/lp/config/node01/nodeConfig.h`) · `nano_01nodeSolo3d` (Nano 5V) · `ProMini_01nodeSolo3d` (Pro Mini 16MHz) — legados
-**Perfil:** `M360_ALWAYS_ON` — fonte fixa 5 V, timer por `millis()`; o trilho dos sensores (VSW na LP, D3 no Nano) só liga durante a varredura
+**Env:** `lp_01` (placa M360-LP, `nos/lp/config/node01/nodeConfig.h`) · `lp_01_div2` (M360-LP com Pro Mini de 16 MHz e clock dividido por 2, rede LoRa — gravado em 2026-11-26) · `nano_01nodeSolo3d` (Nano 5V) · `ProMini_01nodeSolo3d` (Pro Mini 16MHz) — legados
+**Perfil:** na M360-LP, `M360_LOW_POWER` desde 2026-11-26 — bateria 3,7 V + painel solar (TP4056+DW01 em J_VIN), `smartSleep()` entre leituras, bateria no child 255 pelo A6, sem rádio abaixo de 3,0 V; 10 ciclos de 30 s após o boot e depois o intervalo da EEPROM (child 254) — **30 min** no `lp_01_div2` (`M360_DEFAULT_INTERVAL=30`; gravado também na EEPROM da placa em campo). Nos legados (Nano/Pro Mini 16MHz), `M360_ALWAYS_ON` — fonte fixa 5 V. O trilho dos sensores (VSW na LP, D3 no Nano) só liga durante a varredura
 **Hardware:** M360-LP: 6 sondas resistivas pela porta J1 via 74HC4051 (ch0–ch5 em A0). Nano: 6 eletrodos direto em A0–A5
 
 | Child | Label | `kind` | `S_*` | `V_*` | Payload | Pino | `reportIntervalMin` | `wakeOnRadio` | `flags` |
@@ -293,14 +317,35 @@ Sincronizador ACK, não erro de log.
 | 2 / 1–6 | `Filtro Umidade Solo Canteiro B` + `Coletor Telemetria Canteiro B & Clima` | Gráficos + irrigação |
 | qualquer / 255 | `Filtro Bateria SolarMini` (trata qualquer nó) | Gráfico de bateria |
 
-Comando MQTT em formato nativo (`M360_NATIVE_MQTT=1`) — ligar a Solenóide A:
+Comando MQTT em formato nativo (`M360_NATIVE_MQTT=1`) — ligar a Solenóide A (no gateway `0001` ou `0002`):
 
 ```
-tópico:  m360/DF/0000/in/99/31/1/0/2
-payload: 1
+tópico (gateway 0001):  m360/DF/0001/in/99/31/1/0/2
+tópico (gateway 0002):  m360/DF/0002/in/99/31/1/0/2
+payload:                1
 ```
 
 `command 1` = `C_SET` · `type 2` = `V_STATUS`.
+
+### 8.0 Gateway no Node-RED (multi-gateway, desde 2026-11-26)
+
+Cada gateway (`UF/CAR`) é uma propriedade isolada, e os `nodeId` se repetem entre
+eles (§1.2). Por isso o Node-RED identifica tudo por **gateway + nó**:
+
+| Regra | Onde |
+|---|---|
+| A identidade do gateway sai do **tópico** recebido (`gwUf`, `gwCar`, `gwPrefix`) e viaja junto com a mensagem decodificada | `Decodificador Nativo MySensors` |
+| `global.mys_nodes`, a mailbox (`m360_mailbox`) e os prazos de rega (`m360_irrig_deadlines`) usam a chave **`"<CAR>:<nodeId>"`**, p.ex. `"0001:99"`. Registro antigo, só com `nodeId`, é descartado e volta na próxima mensagem do nó | `Mapeia nós`, `Sincronizador ACK`, aba Irrigação |
+| Todo comando enviado ao `Sincronizador ACK` leva **`gwCar`**. **Sem ele, ou com um gateway que ainda não publicou nada, o comando é rejeitado** — não existe gateway padrão. O prefixo do tópico de saída é o que o próprio gateway publicou (`global.m360_gateways`) | `Sincronizador ACK` |
+| O eco de aplicação só confirma comando do **mesmo** gateway; cada gateway tem fila de ACK própria | `Sincronizador ACK` |
+| `global.m360_gw_principal` (`0001`) é a propriedade da **automação de irrigação**, dos gráficos de solo e clima, do `/status` e do Radar. Os demais gateways têm mapa, tabela do watchdog, alertas e o painel manual | `Configurações Globais M360` |
+| O painel manual (solenoides, bombas e comando administrativo) envia ao gateway do seletor **"Gateway (propriedade)"** (`global.m360_ui_gw`) | aba *Fluxo 2 - Solenóides* |
+| Watchdog, alerta de OFFLINE/ONLINE e cooldown do Telegram são **por gateway** | `Gateway Status + Watchdog`, `Verifica Gateway Offline`, `Monitor de Falhas` |
+
+`global.mqtt_topic_prefix` **não existe mais** e é apagado pelo `Configurações
+Globais M360`. Gateway novo (`0002`, `0003`…) entra sozinho no mapa, no watchdog e
+no seletor quando publica pela primeira vez — sem editar o fluxo. Só mudar de
+propriedade da automação exige trocar `m360_gw_principal`.
 
 ### 8.1 Validação no gateway
 
@@ -323,8 +368,8 @@ Toda rejeição publica em `m360/{UF}/{CAR}/out/events`:
 
 E quando o rádio falha no envio, o evento é `command_send_failed`. Antes, os dois
 casos morriam num `println` no Serial e o Node-RED só percebia pelos ~35 s de
-timeout do Sincronizador, sem nunca saber a causa. **Vale assinar esse tópico no
-Node-RED** — é o diagnóstico mais direto para comando que "não faz nada".
+timeout do Sincronizador, sem nunca saber a causa. Desde 2026-11-26 o `Monitor de
+Falhas` alerta os dois no Telegram, com o gateway de origem.
 
 > Após renumerar children e regravar o nó, disparar **REPRESENT** pelo dashboard:
 > o nó `Mapeia nós` só limpa os children antigos do `mys_nodes` nessa mensagem,

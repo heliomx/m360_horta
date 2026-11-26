@@ -32,6 +32,23 @@
 #  error "nodeConfig.h: LP_POWER_FIXED_5V e LP_POWER_BATTERY sao exclusivos"
 #endif
 
+// ===== PRO MINI DE 16 MHz EM 3,3 V (LP_CLOCK_DIV2, só no env) =====
+// O ATmega328P só tem 16 MHz garantidos acima de ~3,8 V; o trilho da LP é 3,3 V.
+// Com uma placa de 16 MHz no lugar da de 8 MHz, o clock é dividido por 2 antes do
+// main(): o construtor roda antes do init() do Arduino, da serial da MySensors e do
+// millis(), que então valem para os 8 MHz do F_CPU. O bootloader roda a 16 MHz
+// por ~1 s em cada reset, fora da especificação — aceito como paliativo.
+#if LP_CLOCK_DIV2
+#  include <avr/power.h>
+#  if F_CPU != 8000000L
+#    error "LP_CLOCK_DIV2 exige F_CPU = 8 MHz (board pro8MHzatmega328)"
+#  endif
+__attribute__((constructor)) static void lpClockDiv2()
+{
+	clock_prescale_set(clock_div_2);
+}
+#endif
+
 static const uint8_t NODE_ITEMS_COUNT = sizeof(NODE_ITEMS) / sizeof(NODE_ITEMS[0]);
 
 // Sem messages[]: a M360-DRY 2.0.0 monta cada envio num único MyMessage interno.

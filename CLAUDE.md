@@ -435,8 +435,11 @@ DHT11; o 11/12 do Nó 99 só existe no Nano e só alimenta o gráfico "Clima (N�
 | Consumidor (aba) | O que faz com o clima |
 |---|---|
 | `Coletor Telemetria Canteiro B & Clima` (Irrigação) | Grava `clima_dht11` no contexto, lido pelo `Motor de Regras Canteiro B` (travas de temperatura, risco fúngico, demanda atmosférica) |
-| `Radar M360: Contexto 24h` (IA Repórter) | Média/mín/máx das 24 h pelos tópicos `/out/4/11/` e `/out/4/12/` |
-| `Tratar Comandos e Convites Telegram` (Telegram) | `/status` lê `mys_nodes["4"].values["11"/"12"]` |
+| `Radar M360: Contexto 24h` (IA Repórter) | Média/mín/máx das 24 h pelos tópicos `/{CAR}/out/4/11/` e `/{CAR}/out/4/12/` da propriedade principal |
+| `Tratar Comandos e Convites Telegram` (Telegram) | `/status` lê `mys_nodes["0001:4"].values["11"/"12"]` (chave `"<CAR>:<nodeId>"`) |
+
+Tudo isso vale só para a propriedade principal (`global.m360_gw_principal`, hoje `0001`, a estufa em nRF24):
+o `Coletor` descarta o Nó 4 de outros gateways. Multi-gateway: `inventario.md` §8.0.
 
 Consequências: o clima é o **de fora da estufa**, e só muda a cada intervalo do Nó 4
 (`LOW_POWER`, 30 min de fábrica) — o motor usa a última leitura. Sem nenhuma leitura no
@@ -451,16 +454,18 @@ do mesmo nó. Condição correta:
 A confirmação é o **eco de aplicação do nó**, não o ACK de transporte:
 
 ```javascript
-data.nodeId == targetNode &&
-(targetSensor == 255 || data.sensorId == targetSensor) &&
+// só a fila do gateway de chegada (getSt(data.gwCar)) é consultada
+data.nodeId == ci.targetNode &&
+(ci.targetSensor == 255 || data.sensorId == ci.targetSensor) &&
 data.command === 1 && data.type === 2 && data.ack === 0 &&
-String(data.payload) === String(currentItem.payload)
+String(data.payload) === String(ci.payload)
 ```
 
 Cada termo carrega um caso real:
 
 | Termo | Por quê |
 |---|---|
+| fila do `data.gwCar` | Os `nodeId` se repetem entre gateways (cada um é uma propriedade). Sem isso, o eco do Nó 99 do `0001` confirmava comando pendente para o Nó 99 do `0000`. Todo comando precisa de `gwCar` — sem ele o Sincronizador **rejeita** (`inventario.md` §8.0) |
 | `data.type === 2` | `C_SET` vale 1 e leituras de sensor também chegam como `command === 1`. Sem filtrar por `V_STATUS`, o relatório de clima do Nó 99 no Nano — que sai a cada minuto — confirmaria qualquer comando pendente para o nó |
 | `data.ack === 0` | Descarta o ACK de transporte que o gateway fabrica em `publishTransportAck()`. Ele só prova que o **próximo salto** respondeu — com o Nó 99 em modo repetidor, pode vir do repetidor. Aceitá-lo dava "confirmado" com o nó desligado, e os 3 retries nunca disparavam na falha de última milha |
 | `payload` igual | Evita casar com um eco de outra origem para o mesmo child — p.ex. o failsafe do Nó 99, que envia `0` sozinho ao estourar o tempo máximo ligado |
